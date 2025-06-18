@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Test Quiz</title>
+  <link href="https://fonts.googleapis.com/css?family=Noto+Sans:400&display=swap" rel="stylesheet">
+  <style>
+    @page { size: Letter portrait; margin: 8mm; }
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 200mm;
+      height: 263mm;
+      font-family: 'Noto Sans', Arial, sans-serif;
+      font-size: 11pt;
+      background: #fff;
+    }
+    body {
+      box-sizing: border-box;
+      min-height: 100vh;
+      position: relative;
+      margin: 0;
+      padding: 0;
+    }
+    .header {
+      width: 100%;
+      max-width: 200mm;
+      margin: 0 auto 2mm auto;
+      position: relative;
+      z-index: 2;
+      font-family: 'Noto Sans', Arial, sans-serif;
+    }
+    .header-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      margin-bottom: 2mm;
+    }
+    .test-title {
+      font-size: 14pt;
+      font-weight: 400;
+      letter-spacing: 0.04em;
+    }
+    .unit-title {
+      font-size: 11pt;
+      font-weight: 400;
+      letter-spacing: 0.04em;
+    }
+    .header-hr {
+      border: none;
+      border-top: 1px solid #000;
+      margin: 0 0 2mm 0;
+      height: 0;
+      width: 100%;
+    }
+    .header-fields {
+      display: flex;
+      gap: 10mm;
+      align-items: baseline;
+      margin-bottom: 4mm;
+      font-size: 12pt;
+      font-family: 'Noto Sans', Arial, sans-serif;
+    }
+    .header-field {
+      display: flex;
+      align-items: baseline;
+      white-space: nowrap;
+    }
+    .header-field label {
+      margin-right: 2mm;
+    }
+    .header-field .field-underline {
+      border-bottom: 1px solid #000;
+      display: inline-block;
+      height: 1.2em;
+      vertical-align: bottom;
+    }
+    .field-nombre { width: 60mm; }
+    .field-fecha { width: 35mm; }
+    .field-clase { width: 20mm; }
+
+    :root {
+      --header-h: 32mm;
+      --bubble-max-h: 90mm;
+      --usable-h: 263mm;
+      --usable-w: 200mm;
+      --column-gap: 6mm;
+      --col1-w: 60mm;
+      --col2-w: 60mm;
+      --col3-w: 60mm;
+    }
+    .columns-area {
+      position: relative;
+      width: 100%;
+      max-width: var(--usable-w);
+      height: calc(var(--usable-h) - var(--header-h));
+      margin: 0 auto;
+      min-height: 120mm;
+      font-family: 'Noto Sans', Arial, sans-serif;
+    }
+    .col1, .col2, .col3 {
+      position: absolute;
+      top: 0;
+      overflow: hidden;
+      font-family: 'Noto Sans', Arial, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: stretch;
+    }
+    .col1 {
+      left: 0;
+      width: var(--col1-w);
+      height: 100%;
+    }
+    .col2 {
+      left: calc(var(--col1-w) + var(--column-gap));
+      width: var(--col2-w);
+      height: 70%;
+    }
+    .col3 {
+      left: calc(var(--col1-w) + var(--col2-w) + 2 * var(--column-gap));
+      width: var(--col3-w);
+      height: 70%;
+    }
+.question {
+  break-inside: avoid;
+  page-break-inside: avoid;
+  margin-bottom: 2.8mm;    /* moderately compact */
+  font-size: 10pt;
+  line-height: 1.17;       /* slightly tighter than default */
+  max-width: 56mm;
+  font-family: 'Noto Sans', Arial, sans-serif;
+  background: transparent;
+}
+.question > strong {
+  font-weight: 400;
+  line-height: 1.18;
+}
+.options {
+  list-style-type: none;
+  padding-left: 4mm;
+  margin: 0.7mm 0 0 0;     /* keep options close to question */
+  font-size: 9pt;
+  line-height: 1.12;       /* slightly tighter options */
+  font-family: 'Noto Sans', Arial, sans-serif;
+}
+.options li {
+  margin-bottom: 0.6mm;    /* not too tight, not too loose */
+  text-indent: -2mm;
+}
+
+    .options li::before {
+      content: attr(data-option) ". ";
+      font-weight: 400;
+      margin-right: 1mm;
+    }
+    .bubble-sheet {
+      position: absolute;
+      right: 0;
+      bottom: 0;
+      max-height: var(--bubble-max-h);
+      max-width: 100mm;
+      z-index: 20;
+      box-sizing: border-box;
+      background: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2mm;
+    }
+    .bubble-sheet img {
+      display: block;
+      max-height: var(--bubble-max-h);
+      width: auto;
+      max-width: 100%;
+    }
+    @media print {
+      .bubble-sheet {
+        background: #fff !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+      
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div class="header-top">
+      <span class="test-title">Test Quiz</span>
+      <span class="unit-title">Unit 0</span>
+    </div>
+    <hr class="header-hr">
+    <div class="header-fields">
+      <div class="header-field">
+        <label>Nombre:</label>
+        <span class="field-underline field-nombre"></span>
+      </div>
+      <div class="header-field">
+        <label>Fecha:</label>
+        <span class="field-underline field-fecha"></span>
+      </div>
+      <div class="header-field">
+        <label>Clase:</label>
+        <span class="field-underline field-clase"></span>
+      </div>
+    </div>
+  </div>
+  <div class="columns-area">
+    <div class="col1"></div>
+    <div class="col2"></div>
+    <div class="col3"></div>
+    <div class="bubble-sheet">
+      <img src="bubble-sheet.png" alt="Bubble Sheet">
+    </div>
+  </div>
+  <script>
+    // Utility: create a sample question element
+    function makeSampleQuestion(n) {
+      const q = document.createElement('div');
+      q.className = 'question';
+      q.innerHTML = `
+        <strong>${n}. Pregunta ejemplo de muestra. ¿Cuál es la respuesta correcta?</strong>
+        <ul class="options">
+          <li data-option="A">Opción uno</li>
+          <li data-option="B">Opción dos</li>
+          <li data-option="C">Opción tres</li>
+          <li data-option="D">Opción cuatro</li>
+        </ul>`;
+      return q;
+    }
+
+    // Add N sample questions to the page
+    function addSampleQuestions(n) {
+      const questions = [];
+      for (let i = 1; i <= n; ++i) {
+        questions.push(makeSampleQuestion(i));
+      }
+      distributeQuestions(questions);
+    }
+
+    // Dynamically fill col1, then col2, then col3 by height
+    function distributeQuestions(questionEls) {
+      // Clear all columns
+      const col1 = document.querySelector('.col1');
+      const col2 = document.querySelector('.col2');
+      const col3 = document.querySelector('.col3');
+      [col1, col2, col3].forEach(col => col.innerHTML = '');
+
+      // Get column max heights in px
+      const col1Max = col1.clientHeight;
+      const col2Max = col2.clientHeight;
+      const col3Max = col3.clientHeight;
+
+      let col = col1, colIdx = 0, hUsed = 0, maxH = col1Max;
+      let columns = [col1, col2, col3];
+      let maxHeights = [col1Max, col2Max, col3Max];
+      let curr = 0;
+
+      // Distribute
+      for (let i = 0; i < questionEls.length; ++i) {
+        const qEl = questionEls[i];
+        columns[colIdx].appendChild(qEl);
+        let hNow = columns[colIdx].scrollHeight;
+
+        if (hNow > maxHeights[colIdx] && colIdx < 2) {
+          // remove and move to next col
+          columns[colIdx].removeChild(qEl);
+          colIdx++;
+          columns[colIdx].appendChild(qEl);
+        }
+      }
+    }
+
+    // Add 16 sample questions on page load (change as needed)
+    window.onload = () => {
+      addSampleQuestions(16);
+    };
+  </script>
+</body>
+</html>

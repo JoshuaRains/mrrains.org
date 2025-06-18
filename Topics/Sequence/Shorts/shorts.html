@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Actividad de Español</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      display: flex;
+      height: 100vh;
+    }
+    .container {
+      display: flex;
+      width: 100%;
+    }
+    .video-container {
+      flex: 1;
+      background: #f0f0f0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .video-container iframe {
+      width: 100%;
+      max-width: 360px;
+      height: 640px;
+      border: none;
+    }
+    .activity-container {
+      flex: 1;
+      padding: 20px;
+      background: #fff;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+    }
+    .instruction {
+      margin-bottom: 20px;
+      font-size: 1.1em;
+    }
+    ul {
+      list-style: none;
+      padding: 0;
+      flex-grow: 1;
+    }
+    li {
+      padding: 10px;
+      margin-bottom: 10px;
+      background-color: #e0e0e0;
+      border: 1px solid #ccc;
+      cursor: move;
+      display: flex;
+      align-items: center;
+      position: relative;
+      transition: border 0.3s;
+    }
+    li.incorrect-order {
+      border: 2px solid red;
+    }
+    .sentence-text {
+      margin-left: 10px;
+      flex: 1;
+    }
+    /* The blank input looks like an underlined area */
+    .blank {
+      width: 90px;
+      border: none;
+      border-bottom: 2px solid black;
+      outline: none;
+      font-size: 16px;
+      padding: 2px;
+      background-color: inherit;
+    }
+    .word-bank {
+      margin-top: 30px;
+      padding: 10px;
+      border: 1px solid #ccc;
+      background-color: #fafafa;
+    }
+    .word-bank h3 {
+      margin-top: 0;
+    }
+    .word {
+      display: inline-block;
+      margin: 5px;
+      padding: 5px 10px;
+      background-color: #d0eaff;
+      border: 1px solid #99c;
+      cursor: default;
+    }
+    .special-chars-bar {
+      margin-top: 20px;
+      padding: 10px;
+      border-top: 1px solid #ccc;
+      text-align: center;
+    }
+    .special-char {
+      display: inline-block;
+      margin: 0 5px;
+      padding: 5px 10px;
+      background-color: #eee;
+      border: 1px solid #bbb;
+      cursor: pointer;
+      font-size: 18px;
+    }
+    .buttons {
+      margin-top: 20px;
+      text-align: center;
+    }
+    button {
+      padding: 10px 15px;
+      font-size: 16px;
+      margin-right: 10px;
+      cursor: pointer;
+    }
+    .message {
+      margin-top: 10px;
+      font-size: 18px;
+      color: green;
+      text-align: center;
+    }
+    /* Vocabulary section styling */
+    .vocab-section {
+      margin-top: 30px;
+      padding: 10px;
+      border-top: 1px solid #ccc;
+    }
+    .vocab-section h3 {
+      margin-top: 0;
+      text-align: center;
+    }
+    .vocab-list {
+      list-style: none;
+      padding: 0;
+    }
+    .vocab-list li {
+      padding: 5px;
+      border-bottom: 1px solid #ddd;
+    }
+    .vocab-word {
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="video-container">
+      <!-- The video will update based on the current question -->
+      <iframe id="videoFrame" src="https://www.youtube.com/embed/your_video_id_here" allowfullscreen></iframe>
+    </div>
+    <div class="activity-container">
+      <div class="instruction" id="instructionText">
+        Reordena las siguientes oraciones y, cuando se requiera, escribe la palabra de secuencia correcta en el espacio:
+      </div>
+      <ul id="sentenceList">
+        <!-- Sentences are loaded dynamically -->
+      </ul>
+      <div class="word-bank" id="wordBank">
+        <h3>Banco de Palabras</h3>
+        <!-- Word bank is loaded dynamically -->
+      </div>
+      <!-- Special characters bar -->
+      <div class="special-chars-bar">
+        <span class="special-char">á</span>
+        <span class="special-char">é</span>
+        <span class="special-char">í</span>
+        <span class="special-char">ó</span>
+        <span class="special-char">ú</span>
+        <span class="special-char">ü</span>
+        <span class="special-char">ñ</span>
+        <span class="special-char">¿</span>
+        <span class="special-char">¡</span>
+      </div>
+      <div class="buttons">
+        <button id="checkButton">Comprobar Respuestas</button>
+        <button id="nextButton" style="display: none;">Siguiente Pregunta</button>
+      </div>
+      <div class="message" id="message"></div>
+      <!-- Vocabulary Section -->
+      <div class="vocab-section" id="vocabSection">
+        <h3>Vocabulario</h3>
+        <ul class="vocab-list" id="vocabList">
+          <!-- Vocabulary is loaded dynamically -->
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Array de preguntas. Each question includes a video, sentences, word bank, and optional vocabulary.
+    // For sentences without a blank, include "hasBlank": false.
+    // The order in the sentences array represents the correct order.
+    const questions = [
+      {
+        video: "dW8dzRMNlg0", // Update with the video ID for question 1
+        sentences: [
+          { text: "Lo desmonta.", answer: "Primero" },
+          { text: "Lo limpia bien.", answer: "Segundo" },
+          { text: "Él afila la cuchilla", answer: "Tercero" },
+          { text: "Ajusta la cuchilla.", answer: "Finalmente" }
+        ],
+        wordBank: ["Primero", "Segundo", "Tercero", "Finalmente"],
+        vocab: [
+          { word: "limpiar", definition: "to clean" },
+          { word: "afilar", definition: "to sharpen" },
+          { word: "desmontar", definition: "to take apart" },
+          { word: "ajustar", definition: "to adjust" }
+        ]
+      },
+      {
+        video: "EPQiw0BWIG8", // Update with the video ID for question 2
+        sentences: [
+          { text: "Él piensa en qué hacer", answer: "Primero" },
+          { text: "él pica el pollo.", answer: "Segundo" },
+          { text: "él mezcla el pollo y un huevo", answer: "Tercero" },
+          { text: "Él fríe la comida.", answer: "Finalmente" }
+        ],
+        wordBank: ["Primero", "Segundo", "Tercero", "Finalmente"],
+        vocab: [
+          { word: "mezcla", definition: "mix" },
+          { word: "freir", definition: "to fry" },
+          { word: "él piensa en...", definition: "he thinks about..." }
+        ]
+      },
+      {
+        video: "_qLDSX6K06s", // Update with the video ID for question 2
+        sentences: [
+          { text: "Mezcla huevos, perejil, ajo", answer: "Primero" },
+          { text: "Agrega pan rallado", answer: "Segundo" },
+          { text: "Él fríe la comida.", answer: "Tercero" },
+          { text: "él hace la mayonesa de zanahoria", answer: "Finalmente" }
+        ],
+        wordBank: ["Primero", "Segundo", "Tercero", "Finalmente"],
+        vocab: [
+          { word: "mezcla", definition: "mix" },
+          { word: "agregar", definition: "to add" }
+        ]
+      },
+    ];
+
+    let currentQuestionIndex = 0;
+    let currentFocusedInput = null; // Track the currently focused input
+
+    // Shuffle array using Fisher-Yates algorithm.
+    function shuffleArray(array) {
+      const copy = array.slice();
+      for (let i = copy.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [copy[i], copy[j]] = [copy[j], copy[i]];
+      }
+      return copy;
+    }
+
+    // Load the current question into the DOM.
+    function loadQuestion(index) {
+      const question = questions[index];
+      // Update the video.
+      document.getElementById('videoFrame').src = "https://www.youtube.com/embed/" + question.video;
+      
+      // Prepare sentences with their correct order (index in the original array).
+      const sentencesWithOrder = question.sentences.map((sentence, i) => {
+        sentence.correctOrder = i;
+        return sentence;
+      });
+      // Shuffle sentences so they are not already in correct order.
+      const shuffledSentences = shuffleArray(sentencesWithOrder);
+
+      // Clear sentence list.
+      const sentenceList = document.getElementById('sentenceList');
+      sentenceList.innerHTML = "";
+      // Create each sentence element.
+      shuffledSentences.forEach(sentenceObj => {
+        const li = document.createElement('li');
+        li.setAttribute('draggable', 'true');
+        li.setAttribute('data-type', 'sentence');
+        // Save the correct order as a data attribute.
+        li.setAttribute('data-order', sentenceObj.correctOrder);
+        if (sentenceObj.hasBlank !== false) {
+          li.setAttribute('data-answer', sentenceObj.answer);
+          const input = document.createElement('input');
+          input.type = "text";
+          input.className = "blank";
+          input.value = "";
+          input.addEventListener('focus', () => { currentFocusedInput = input; });
+          input.addEventListener('blur', () => { currentFocusedInput = null; });
+          li.appendChild(input);
+        }
+        const span = document.createElement('span');
+        span.className = "sentence-text";
+        span.textContent = sentenceObj.text;
+        li.appendChild(span);
+        sentenceList.appendChild(li);
+      });
+      
+      // Load the word bank.
+      const wordBankDiv = document.getElementById('wordBank');
+      const h3 = wordBankDiv.querySelector('h3');
+      wordBankDiv.innerHTML = "";
+      wordBankDiv.appendChild(h3);
+      question.wordBank.forEach(word => {
+        const div = document.createElement('div');
+        div.className = "word";
+        div.textContent = word;
+        wordBankDiv.appendChild(div);
+      });
+      
+      // Load the vocabulary section.
+      const vocabList = document.getElementById('vocabList');
+      vocabList.innerHTML = "";
+      if (question.vocab && question.vocab.length > 0) {
+        question.vocab.forEach(item => {
+          const li = document.createElement('li');
+          li.innerHTML = `<span class="vocab-word">${item.word}:</span> ${item.definition}`;
+          vocabList.appendChild(li);
+        });
+      } else {
+        vocabList.innerHTML = "<li>No hay vocabulario para esta pregunta.</li>";
+      }
+      
+      // Reset messages and buttons.
+      document.getElementById('message').textContent = "";
+      document.getElementById('nextButton').style.display = "none";
+      document.getElementById('checkButton').disabled = false;
+    }
+
+    loadQuestion(currentQuestionIndex);
+
+    // Drag and drop with FLIP animation for reordering sentences.
+    const sentenceList = document.getElementById('sentenceList');
+    let draggedSentence = null;
+
+    sentenceList.addEventListener('dragstart', function(e) {
+      const li = e.target.closest('li[data-type="sentence"]');
+      if (li) {
+        draggedSentence = li;
+        e.dataTransfer.effectAllowed = "move";
+      }
+    });
+
+    sentenceList.addEventListener('dragover', function(e) {
+      e.preventDefault();
+      return false;
+    });
+
+    sentenceList.addEventListener('drop', function(e) {
+      e.preventDefault();
+      const li = e.target.closest('li[data-type="sentence"]');
+      if (li && draggedSentence && li !== draggedSentence) {
+        const items = Array.from(sentenceList.querySelectorAll('li'));
+        const positions = new Map();
+        items.forEach(item => {
+          positions.set(item, item.getBoundingClientRect().top);
+        });
+        const draggedIndex = items.indexOf(draggedSentence);
+        const targetIndex = items.indexOf(li);
+        if (draggedIndex < targetIndex) {
+          sentenceList.insertBefore(draggedSentence, li.nextSibling);
+        } else {
+          sentenceList.insertBefore(draggedSentence, li);
+        }
+        const newItems = Array.from(sentenceList.querySelectorAll('li'));
+        newItems.forEach(item => {
+          const oldTop = positions.get(item);
+          const newTop = item.getBoundingClientRect().top;
+          const delta = oldTop - newTop;
+          if (delta !== 0) {
+            item.style.transform = `translateY(${delta}px)`;
+            item.style.transition = 'transform 300ms ease';
+            requestAnimationFrame(() => {
+              item.style.transform = '';
+            });
+          }
+        });
+      }
+      return false;
+    });
+
+    sentenceList.addEventListener('dragend', function() {
+      draggedSentence = null;
+    });
+
+    // Check both blank answers (ignoring case) and the sentence order.
+    document.getElementById('checkButton').addEventListener('click', function() {
+      const items = Array.from(sentenceList.querySelectorAll('li'));
+      let blanksCorrect = true;
+      let orderCorrect = true;
+      
+      // Check blank answers for sentences that require them.
+      items.forEach(item => {
+        if (item.hasAttribute('data-answer')) {
+          const correctAnswer = item.getAttribute('data-answer').toLowerCase();
+          const userAnswer = item.querySelector('.blank').value.trim().toLowerCase();
+          if (userAnswer !== correctAnswer) {
+            blanksCorrect = false;
+            item.querySelector('.blank').style.borderBottomColor = 'red';
+          } else {
+            item.querySelector('.blank').style.borderBottomColor = 'black';
+          }
+        }
+      });
+      
+      // Check order by comparing the data-order attribute with the current index.
+      items.forEach((item, index) => {
+        const correctOrder = parseInt(item.getAttribute('data-order'));
+        if (correctOrder !== index) {
+          orderCorrect = false;
+          item.classList.add('incorrect-order');
+        } else {
+          item.classList.remove('incorrect-order');
+        }
+      });
+      
+      if (blanksCorrect && orderCorrect) {
+        document.getElementById('message').textContent = "¡Correcto!";
+        document.getElementById('checkButton').disabled = true;
+        document.getElementById('nextButton').style.display = "inline-block";
+      } else {
+        let errorMsg = "";
+        if (!blanksCorrect) {
+          errorMsg += "Algunas respuestas son incorrectas. ";
+        }
+        if (!orderCorrect) {
+          errorMsg += "El orden de las oraciones no es correcto.";
+        }
+        document.getElementById('message').textContent = errorMsg;
+      }
+    });
+
+    // Move to the next question.
+    document.getElementById('nextButton').addEventListener('click', function() {
+      currentQuestionIndex++;
+      if (currentQuestionIndex >= questions.length) {
+        document.getElementById('message').textContent = "¡Has completado todas las preguntas!";
+        document.getElementById('nextButton').style.display = "none";
+        document.getElementById('checkButton').disabled = true;
+      } else {
+        loadQuestion(currentQuestionIndex);
+      }
+    });
+
+    // Special characters: prevent focus loss and insert at cursor.
+    function insertAtCursor(input, text) {
+      const start = input.selectionStart;
+      const end = input.selectionEnd;
+      const oldValue = input.value;
+      input.value = oldValue.substring(0, start) + text + oldValue.substring(end);
+      input.setSelectionRange(start + text.length, start + text.length);
+      input.focus();
+    }
+
+    document.querySelectorAll('.special-char').forEach(charElem => {
+      charElem.addEventListener('mousedown', function(e) {
+        e.preventDefault();
+      });
+      charElem.addEventListener('click', function() {
+        if (currentFocusedInput) {
+          insertAtCursor(currentFocusedInput, this.textContent);
+        }
+      });
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Library</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            background-color: transparent; /* Make the background clear to adopt the home page background */
+        }
+
+        .library-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-around;
+            max-width: 1200px;
+            margin: 20px auto;
+        }
+
+        .book {
+            width: 320px;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start; /* Ensures elements stack properly */
+            height: auto; /* Adjust height to fit content */
+            margin: 10px;
+            margin-left: 30px;
+            margin-right: 30px;
+
+            align-items: center;
+            text-align: center;
+            border: none; /* Remove the border around the book divs */
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: none; /* Remove the drop shadow around the book divs */
+            cursor: pointer; /* Make the entire book area clickable */
+            transition: transform 0.2s, box-shadow 0.2s; /* Add smooth feedback transitions */
+        }
+
+        .book:hover {
+            transform: scale(1.05); /* Slightly enlarge the book on hover */
+        }
+
+        .book:active {
+            transform: scale(0.95); /* Slightly shrink the book on click */
+        }
+
+        .book img {
+            width: 65%;
+            margin-bottom: 10px;
+            height: auto;
+            box-sizing: border-box; /* Ensure padding doesn't affect the image size */
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2); /* Add a drop shadow to the book images */
+        }
+
+        .book-title {
+            font-size: 1.2em;
+            font-weight: bold;
+            margin: 5px; /* Add consistent spacing */
+        }
+
+        .book-author {
+            font-size: 1em;
+            color: #333;
+            margin: 5px; /* Add consistent spacing */
+        }
+
+        .book-description {
+            font-size: 0.9em;
+            color: #555;
+            padding: 0 10px;
+            margin: 5px 0; /* Add consistent spacing */
+        }
+
+        .book button {
+            display: none; /* Remove the button visually */
+        }
+    </style>
+</head>
+<body>
+    <h1>Cuentos</h1>
+    <div class="library-container">
+        <!-- Updated book entries with author spots -->
+        <div class="book" onclick="window.open('./Cuentos/el jardin', '_blank')">
+            <img src="https://m.media-amazon.com/images/I/61aCU68SLIL.jpg" alt="Book Cover">
+            <div class="book-title">El jardín de senderos que se bifurcan</div>
+            <div class="book-author">por Jorge Luis Borges</div>
+            <div class="book-description">Un cuento fascinante de Jorge Luis Borges que explora el tiempo, el destino y la literatura.</div>
+        </div>
+        <div class="book">
+            <img src="https://pictures.abebooks.com/isbn/9789871138845-us.jpg" alt="Book Cover">
+            <div class="book-title">Dos palabras</div>
+            <div class="book-author">por Isabel Allende</div>
+            <div class="book-description">Un relato cautivador de Isabel Allende sobre el poder de las palabras y la magia de la narrativa.</div>
+        </div>
+    </div>
+</body>
+</html>

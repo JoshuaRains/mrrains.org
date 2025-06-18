@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Preterite Irregulars Worksheet</title>
+  <style>
+    /* Basic styling for printing on 8.5" x 11" paper */
+    @page {
+      margin: 1in;
+    }
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      font-size: 12pt;
+    }
+
+    h1, h2 {
+      margin-top: 0.5em;
+      margin-bottom: 0.5em;
+    }
+
+    p, ul {
+      margin-top: 0.2em;
+      margin-bottom: 0.2em;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 1em;
+      page-break-inside: avoid; /* Avoid splitting table across pages */
+    }
+    th, td {
+      border: 1px solid #000;
+      padding: 6px;
+      vertical-align: top;
+    }
+
+    input[type="text"] {
+      width: 80px; /* Adjust width as needed */
+      font-size: 12pt;
+    }
+
+    /* Reduce padding for headings in table cells if desired */
+    th {
+      text-align: left;
+      background-color: #f0f0f0;
+    }
+
+    hr {
+      margin: 1em 0;
+      border: none;
+      border-top: 1px solid #000;
+    }
+  </style>
+</head>
+<body>
+
+<h1>Preterite Irregulars</h1>
+<h2>Irregulars that take the irregular preterite endings</h2>
+
+<p><strong>Infinitive &nbsp;→&nbsp; New Stem</strong></p>
+<table>
+  <tr>
+    <th>Infinitive</th>
+    <th>New Stem</th>
+  </tr>
+  <tr>
+    <td>Tener (to have)</td>
+    <td><input type="text" name="tener_stem"></td>
+  </tr>
+  <tr>
+    <td>Saber (to know)</td>
+    <td><input type="text" name="saber_stem"></td>
+  </tr>
+  <tr>
+    <td>Poner (to put)</td>
+    <td><input type="text" name="poner_stem"></td>
+  </tr>
+  <tr>
+    <td>Poder (to be able)</td>
+    <td><input type="text" name="poder_stem"></td>
+  </tr>
+  <tr>
+    <td>Estar (to be)</td>
+    <td><input type="text" name="estar_stem"></td>
+  </tr>
+  <tr>
+    <td>Hacer (to do/make)</td>
+    <td><input type="text" name="hacer_stem"></td>
+  </tr>
+  <tr>
+    <td>Querer (to want)</td>
+    <td><input type="text" name="querer_stem"></td>
+  </tr>
+  <tr>
+    <td>Venir (to come)</td>
+    <td><input type="text" name="venir_stem"></td>
+  </tr>
+  <tr>
+    <td>Decir (to say/tell)</td>
+    <td><input type="text" name="decir_stem"></td>
+  </tr>
+  <tr>
+    <td>Traer (to bring)</td>
+    <td><input type="text" name="traer_stem"></td>
+  </tr>
+</table>
+
+<p><strong>Irregular Preterite Endings:</strong></p>
+<table>
+  <tr>
+    <th>Subject</th>
+    <th>Ending</th>
+  </tr>
+  <tr>
+    <td>Yo</td>
+    <td><input type="text" name="yo_ending" placeholder="e"></td>
+  </tr>
+  <tr>
+    <td>Tú</td>
+    <td><input type="text" name="tu_ending" placeholder="iste"></td>
+  </tr>
+  <tr>
+    <td>Él/Ella/Ud.</td>
+    <td><input type="text" name="el_ending" placeholder="o"></td>
+  </tr>
+  <tr>
+    <td>Nosotros</td>
+    <td><input type="text" name="nos_ending" placeholder="imos"></td>
+  </tr>
+  <tr>
+    <td>Ellos(as)/Uds.</td>
+    <td><input type="text" name="ellos_ending" placeholder="ieron"></td>
+  </tr>
+</table>
+
+<p><em>Note:</em> There are <strong>NO ACCENTS</strong> for these preterite irregular endings.</p>
+<p>In the stem for <strong>decir</strong> and <strong>traer</strong> in the Ellos(as)/Uds. form, the "i" is dropped, so they end in <strong>-eron</strong> instead of <strong>-ieron</strong>.</p>
+<p><em>See page 232.</em></p>
+
+<hr>
+
+<h2>See pg. 79 for Ir, Ser, Hacer, Dar, and Ver</h2>
+<p>These verbs also have irregular preterite forms:</p>
+
+<table>
+  <tr>
+    <th>Verb</th>
+    <th>Yo</th>
+    <th>Tú</th>
+    <th>Él/Ella/Ud.</th>
+    <th>Nosotros</th>
+    <th>Ellos(as)/Uds.</th>
+  </tr>
+  <tr>
+    <td>Ir (to go) / Ser (to be)</td>
+    <td><input type="text" name="ir_ser_yo"></td>
+    <td><input type="text" name="ir_ser_tu"></td>
+    <td><input type="text" name="ir_ser_el"></td>
+    <td><input type="text" name="ir_ser_nos"></td>
+    <td><input type="text" name="ir_ser_ellos"></td>
+  </tr>
+  <tr>
+    <td>Hacer (to do/make)</td>
+    <td><input type="text" name="hacer_yo"></td>
+    <td><input type="text" name="hacer_tu"></td>
+    <td><input type="text" name="hacer_el"></td>
+    <td><input type="text" name="hacer_nos"></td>
+    <td><input type="text" name="hacer_ellos"></td>
+  </tr>
+  <tr>
+    <td>Dar (to give)</td>
+    <td><input type="text" name="dar_yo"></td>
+    <td><input type="text" name="dar_tu"></td>
+    <td><input type="text" name="dar_el"></td>
+    <td><input type="text" name="dar_nos"></td>
+    <td><input type="text" name="dar_ellos"></td>
+  </tr>
+  <tr>
+    <td>Ver (to see)</td>
+    <td><input type="text" name="ver_yo"></td>
+    <td><input type="text" name="ver_tu"></td>
+    <td><input type="text" name="ver_el"></td>
+    <td><input type="text" name="ver_nos"></td>
+    <td><input type="text" name="ver_ellos"></td>
+  </tr>
+</table>
+
+<hr>
+
+<h2>CAR, GAR, ZAR</h2>
+<p><strong>Change occurs only in the YO form.</strong></p>
+
+<table>
+  <tr>
+    <th>CAR</th>
+    <th>GAR</th>
+    <th>ZAR</th>
+  </tr>
+  <tr>
+    <td>yo <input type="text" name="car_yo" placeholder="busqué"></td>
+    <td>yo <input type="text" name="gar_yo" placeholder="jugué"></td>
+    <td>yo <input type="text" name="zar_yo" placeholder="almorcé"></td>
+  </tr>
+</table>
+
+<p><strong>-AR Preterite Endings:</strong> é, aste, ó, amos, aron</p>
+<p>Examples:</p>
+<ul>
+  <li>Empezar → empecé</li>
+  <li>Pescar → pesqué</li>
+  <li>Tocar → toqué</li>
+  <li>Pagar → pagué</li>
+  <li>Jugar → jugué</li>
+  <li>Almorzar → almorcé</li>
+</ul>
+
+<hr>
+
+<h2>Practice in the preterite tense!</h2>
+<p>You can add more practice lines or questions below, if needed.</p>
+
+</body>
+</html>

@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="en" translate="no">
+<head>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<!-- Google Icons -->
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Chewy&family=Doto:wght@100..900&family=Edu+AU+VIC+WA+NT+Guides:wght@400..700&family=Noto+Sans:ital,wght@0,100..900;1,100..900&family=Silkscreen:wght@400;700&display=swap" rel="stylesheet">
+
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Worksheet</title>
+	<style>
+		body {
+		font-family: "Noto Sans", serif;
+		font-optical-sizing: auto;
+		font-weight: 500;
+		font-style: normal;
+		font-variation-settings:
+    "wdth" 100;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    
+	background: linear-gradient(135deg, #4b976a, #a8d5ba);
+    
+}
+
+.page-container {
+    background-color: white;
+    width: 80%;
+    max-width: 850px;
+    min-width: 800px;
+    padding: 20px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+	
+    overflow-y: auto; /* Enable vertical scrolling */
+}
+
+#sticky-bar {
+    position: fixed;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100%;
+    max-width: 850px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 10px 15px;
+    background-color: #f4f4f4;
+    border-top: 1px solid #ddd;
+    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+    z-index: 100;
+}
+
+		@media print {
+			body {
+				background-color: white;
+				margin: 0;
+			}
+			.page-container {
+				box-shadow: none;
+				width: 850px;
+				padding: 40px;
+				
+			}
+			#sticky-bar{
+				display: none;
+			}
+			
+		}
+		.page-title {
+			text-align: center;
+			font-size: 24px;
+			font-weight: bold;
+			margin-bottom: 20px;
+		}
+		.header {
+			display: flex;
+			justify-content: center;
+			gap: 20px;
+			margin-bottom: 20px;
+		}
+		.header-section {
+			width: 100%;
+			max-width: 300px;
+			display: flex;
+			align-items: center;
+		}
+		.header-section.nombre {
+			max-width: 325px;
+		}
+		.header-section.fecha {
+			max-width: 150px;
+		}
+		.header-section.clase {
+			max-width: 100px;
+		}
+		.header label {
+			font-weight: bold;
+			margin-right: 5px;
+		}
+		.input-line {
+			border: none;
+			border-bottom: 1px solid black;
+			font-size: 16px;
+			outline: none;
+			width: 100%;
+		}
+		.input-line::placeholder {
+			color: black;
+		}
+		.divider-line {
+			border-top: 2px solid black;
+			margin: 20px 0;
+		}
+		.question {
+			margin-bottom: 20px;
+		}
+		.multiple-choice {
+			margin-bottom: 20px;
+		}
+		.multiple-choice input[type="radio"] {
+			margin-right: 10px;
+		}
+		.short-response {
+			margin-bottom: 10px;
+            
+		}
+		.short-response .line {
+			border-bottom: 1px solid black;
+			margin: 5px 0;
+			height: 20px;
+		}
+		.chart {
+			margin-bottom: 20px;
+		}
+		.chart-title {
+			font-weight: bold;
+			margin-bottom: 10px;
+		}
+		.chart-table {
+			display: grid;
+			grid-template-columns: repeat(2, 1fr);
+			grid-template-rows: repeat(3, 1fr);
+			width: 100%;
+            max-width: 450px;
+			gap: 0px;
+		}
+		.chart-table input {
+			width: 100%;
+            font-size: 16px;
+			outline: none;
+			text-align: center;
+			padding: 5px;
+		}
+		.short-response.textarea {
+    width: 100%;
+    border: none;
+    outline: none;
+    line-height: 20px;
+    resize: none;
+    overflow: hidden;
+    font-family: inherit; /* Inherit font from parent (body) */
+    font-size: inherit;   /* Inherit font size from parent */
+}
+
+
+		
+		.chart-row {
+			display: flex;
+			justify-content: center;
+			gap: 20px;
+			margin-right:15px
+		}
+
+		
+
+    .accent-button {
+        padding: 10px 15px;
+        font-size: 16px;
+        border: 1px solid #ddd;
+        border-radius: 10px;
+        background-color: #f4f4f4;
+        color: black;
+        cursor: pointer;
+        margin-right: 5px;
+    }
+    .accent-button:hover {
+        background-color: #e0e0e0;
+    }
+    #submit-button {
+        padding: 10px 15px;
+        font-size: 16px;
+        border: none;
+        border-radius: 10px;
+        background-color: #007bff;
+        color: white;
+        cursor: pointer;
+        
+    }
+    #submit-button:hover {
+        background-color: #0056b3;
+    }
+
+    #download-button {
+	padding: 8px 8px;
+	font-size: 1px;
+	border: none;
+	border-radius: 10px;
+	background-color: #007bff;
+	color: white;
+	cursor: pointer;
+    margin-right: 10px;
+    margin-left: 10px;
+    }
+
+    #download-button:hover {
+        background-color: #0056b3;
+    }
+
+    	/* Modal container styles */
+	#submit-modal {
+		display: none; /* Hidden by default */
+		position: fixed;
+		top: 0;
+		left: 0;
+		width: 100%;
+		height: 100%;
+		background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent background */
+		z-index: 200;
+		justify-content: center;
+		align-items: center;
+	}
+	#modal-content {
+		background-color: white;
+		padding: 20px;
+		width: 90%;
+		max-width: 600px;
+		border-radius: 10px;
+		box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+	}
+	#close-modal {
+		float: right;
+		cursor: pointer;
+		font-size: 20px;
+	}
+	iframe {
+		width: 100%;
+		height: 400px;
+		border: none;
+	}
+	.spaced-examples-container{
+		display: flex;
+			justify-content: center;
+			gap: 20px;
+			margin-right:15px
+	}
+	
+	</style>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    
+	<script>
+		let lastFocusedElement = null;
+
+		// Track the last focused input or textarea
+		document.addEventListener('focusin', (event) => {
+			if (event.target.tagName === 'INPUT' || event.target.tagName === 'TEXTAREA') {
+				lastFocusedElement = event.target;
+			}
+		});
+
+		// Insert special characters into the last focused input or textarea
+		function insertCharacter(char) {
+			if (lastFocusedElement) {
+				const start = lastFocusedElement.selectionStart;
+				const end = lastFocusedElement.selectionEnd;
+				const text = lastFocusedElement.value;
+				lastFocusedElement.value = text.slice(0, start) + char + text.slice(end);
+				lastFocusedElement.setSelectionRange(start + char.length, start + char.length);
+				lastFocusedElement.focus();
+			}
+		}
+        
+
+		async function download() {
+        const { jsPDF } = window.jspdf;
+
+        // Create a new jsPDF instance for A4 size (portrait)
+        const doc = new jsPDF('p', 'pt', 'a4');
+        const content = document.querySelector('.page-container');
+
+        // Step 1: Save the current state of checkboxes and radio buttons
+        const formElements = content.querySelectorAll('input[type="checkbox"], input[type="radio"]');
+        const elementStates = Array.from(formElements).map(el => el.checked);
+
+        // Step 2: Calculate scaling factor for A4 width
+        const pdfWidth = 595.28; // A4 width in points
+        const scale = pdfWidth / content.offsetWidth; // Calculate scaling factor
+
+        // Step 3: Render the PDF using jsPDF and html2canvas with proper scaling
+        await doc.html(content, {
+            callback: function (doc) {
+                doc.save('numbers0_grammar_notes_1.pdf');
+            },
+            x: 0,
+            y: 0,
+            width: pdfWidth,  // Set PDF width
+            html2canvas: {
+                scale: scale,   // Scale content to fit A4 width
+                useCORS: true
+            }
+        });
+
+        // Step 4: Restore the state of checkboxes and radio buttons
+        formElements.forEach((el, index) => {
+            el.checked = elementStates[index];
+        });
+    }
+	</script>
+
+
+
+
+
+</head>
+<body>
+	<div class="page-container">
+        <div class="page-title">Understanding Numbers 0–30 in Spanish</div>
+        <div class="header">
+            <div class="header-section nombre">
+                <label for="nombre">Nombre:</label><input type="text" spellcheck="false" id="nombre" class="input-line">
+            </div>
+            <div class="header-section fecha">
+                <label for="fecha">Fecha:</label><input type="text" spellcheck="false" id="fecha" class="input-line">
+            </div>
+            <div class="header-section clase">
+                <label for="clase">Clase:</label><input type="text" spellcheck="false" id="clase" class="input-line">
+            </div>
+        </div>
+        <div class="divider-line"></div>
+        <p>
+            In Spanish, numbers are essential for everyday communication. Learning the numbers from 0 to 30 is a great starting point. Here’s a breakdown of how numbers work in Spanish and their unique features.
+        </p>
+    
+        <!-- Section 1: Numbers 0-15 -->
+        <p><b>1. Numbers 0–15:</b></p>
+        <p>
+            The numbers from 0 to 15 are unique words that you’ll need to memorize:
+        </p>
+        <ul>
+            <li><b>0</b> - cero</li>
+            <li><b>1</b> - uno</li>
+            <li><b>2</b> - dos</li>
+            <li><b>3</b> - tres</li>
+            <li><b>4</b> - cuatro</li>
+            <li><b>5</b> - cinco</li>
+            <li><b>6</b> - seis</li>
+            <li><b>7</b> - siete</li>
+            <li><b>8</b> - ocho</li>
+            <li><b>9</b> - nueve</li>
+            <li><b>10</b> - diez</li>
+            <li><b>11</b> - once</li>
+            <li><b>12</b> - doce</li>
+            <li><b>13</b> - trece</li>
+            <li><b>14</b> - catorce</li>
+            <li><b>15</b> - quince</li>
+        </ul>
+    
+        <!-- Section 2: Numbers 16-19 -->
+        <p><b>2. Numbers 16–19:</b></p>
+        <p>
+            For 16 to 19, we use a combination of "diez" (10) and the smaller number. These numbers are joined into one word:
+        </p>
+        <ul>
+            <li><b>16</b> - dieciséis (note the accent on the "é")</li>
+            <li><b>17</b> - diecisiete</li>
+            <li><b>18</b> - dieciocho</li>
+            <li><b>19</b> - diecinueve</li>
+        </ul>
+    
+        <!-- Section 3: Numbers 20-29 -->
+        <p><b>3. Numbers 20–29:</b></p>
+        <p>
+            The numbers from 20 to 29 are formed using "veinte" (20) and the smaller number. These are written as one word, with "i" joining the two parts. Some numbers have an accent:
+        </p>
+        <ul>
+            <li><b>20</b> - veinte</li>
+            <li><b>21</b> - veintiuno</li>
+            <li><b>22</b> - veintidós (note the accent on the "ó")</li>
+            <li><b>23</b> - veintitrés (note the accent on the "é")</li>
+            <li><b>24</b> - veinticuatro</li>
+            <li><b>25</b> - veinticinco</li>
+            <li><b>26</b> - veintiséis (note the accent on the "é")</li>
+            <li><b>27</b> - veintisiete</li>
+            <li><b>28</b> - veintiocho</li>
+            <li><b>29</b> - veintinueve</li>
+        </ul>
+    
+        <!-- Section 4: 30 -->
+        <p><b>4. Number 30:</b></p>
+        <p>
+            The number 30 is a standalone word: <b>treinta</b>. Beyond this, numbers are formed by combining tens and units, which we’ll learn later.
+        </p>
+    
+    
+        <!-- Practice Section -->
+        <p><b>Practice:</b></p>
+        <p>
+            Fill in the missing numbers in the chart below:
+        </p>
+        <div class="chart">
+            <div class="chart-table">
+                <input type="text" spellcheck="false" value="Number:" disabled="true">
+                <input type="text" spellcheck="false" value="Spanish Word:" disabled="true">
+                <input type="text" spellcheck="false" value="3" disabled="true">
+                <input type="text" spellcheck="false">
+                <input type="text" spellcheck="false" value="10" disabled="true">
+                <input type="text" spellcheck="false">
+                <input type="text" spellcheck="false" value="17" disabled="true">
+                <input type="text" spellcheck="false">
+                <input type="text" spellcheck="false" value="23" disabled="true">
+                <input type="text" spellcheck="false">
+                <input type="text" spellcheck="false" value="30" disabled="true">
+                <input type="text" spellcheck="false">
+                <input type="text" spellcheck="false" value="5" disabled="true">
+                <input type="text" spellcheck="false">
+                <input type="text" spellcheck="false" value="12" disabled="true">
+                <input type="text" spellcheck="false">
+                <input type="text" spellcheck="false" value="19" disabled="true">
+                <input type="text" spellcheck="false">
+                <input type="text" spellcheck="false" value="25" disabled="true">
+                <input type="text" spellcheck="false">
+            </div>
+        </div>
+        <br>
+		<br>
+		<br>
+		<br>
+		<br>
+		<br>
+		<br>	
+    </div>
+    
+    
+	
+
+
+
+
+		</div>
+		
+		<br>
+		<br>
+		<br>
+		<br>
+		<br>
+		<br>
+		<br>
+		<br>
+		<br>
+		<br>
+		<br>
+		<br>
+		<br>
+		<br>
+		<br>
+		<br>
+		<br>
+		<br>
+		<br>
+		<br>
+		<br>
+		<br>
+		<br>
+		<br>
+		<br>
+		<br>
+		<br>
+		<br>
+	</div>
+
+	
+<div id="sticky-bar">
+    <button class="accent-button" onclick="insertCharacter('á')">á</button>
+    <button class="accent-button" onclick="insertCharacter('é')">é</button>
+    <button class="accent-button" onclick="insertCharacter('í')">í</button>
+    <button class="accent-button" onclick="insertCharacter('ó')">ó</button>
+    <button class="accent-button" onclick="insertCharacter('ú')">ú</button>
+    <button class="accent-button" onclick="insertCharacter('ñ')">ñ</button>
+    <button class="accent-button" onclick="insertCharacter('ü')">ü</button>
+    <button class="accent-button" onclick="insertCharacter('¿')">¿</button>
+    <button class="accent-button" onclick="insertCharacter('¡')">¡</button>
+    <button id="download-button" onclick="download()">
+        <span class="material-icons">download</span>
+    </button>
+    <a id= "submit-button" href="https://docs.google.com/forms/d/e/1FAIpQLSd93KBw1PWfN_5VdvvNGluo4dOofDvIZHo3qTE8JlUB-fYCZA/viewform?usp=header" target="_blank">Open Dropbox</a>
+
+</div>
+
+</body>
+
+
+
+
+</html>

@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Bubble Sheet Scanner</title>
+  <style>
+    body {
+      margin: 0; padding: 1rem;
+      font-family: sans-serif;
+      background: #f4f4f4;
+      display: flex; flex-direction: column; align-items: center;
+    }
+    h1 { margin-bottom: .5rem; }
+    .controls {
+      background: #fff;
+      padding: 1rem;
+      border-radius: 8px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      display: flex; flex-wrap: wrap; gap: .5rem;
+      max-width: 600px; width: 100%; margin-bottom: 1rem;
+    }
+    .controls label {
+      flex: 1 1 150px;
+      font-size: .9rem;
+      display: flex; flex-direction: column;
+    }
+    .controls input[type="text"],
+    .controls input[type="range"],
+    .controls input[type="file"] {
+      margin-top: .25rem;
+      width: 100%;
+    }
+    .controls button {
+      flex: 1 1 100%;
+      padding: .6rem;
+      background: #517860;
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      font-size: 1rem;
+      cursor: pointer;
+    }
+    .controls button:disabled {
+      background: #aaa;
+      cursor: default;
+    }
+    .scans {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      justify-content: center;
+      max-width: 600px;
+      width: 100%;
+    }
+    .scans canvas {
+      width: 100%;
+      max-width: 280px;
+      height: auto;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+    #result {
+      margin-top: 1rem;
+      font-size: 1.2rem;
+      font-weight: bold;
+    }
+    /* hidden elements */
+    #srcImage, #captureCanvas { display: none; }
+  </style>
+</head>
+<body>
+  <h1>Bubble Sheet Scanner</h1>
+
+  <div class="controls">
+    <label>
+      Answer Key (e.g. A,B,C,D…)
+      <input id="answerKey" type="text" placeholder="A,B,C,D,…">
+    </label>
+    <label>
+      Fill Threshold
+      <input id="fillThresh" type="range" min="0" max="500" value="200">
+    </label>
+    <label>
+      Min Bubble Size
+      <input id="minSize" type="range" min="5" max="50" value="10">
+    </label>
+    <label>
+      Min Circularity
+      <input id="minCirc" type="range" min="0" max="1" value="0.6" step="0.01">
+    </label>
+    <label>
+      Select / Snap Image
+      <input id="fileInput" type="file" accept="image/*" capture="environment">
+    </label>
+    <button id="scanBtn" disabled>Scan & Grade</button>
+  </div>
+
+  <div class="scans">
+    <canvas id="originalCanvas"></canvas>
+    <canvas id="warpCanvas"></canvas>
+    <canvas id="resultCanvas"></canvas>
+  </div>
+
+  <div id="result"></div>
+
+  <!-- Hidden helpers -->
+  <img id="srcImage">
+  <canvas id="captureCanvas"></canvas>
+
+  <!-- OpenCV.js module init -->
+  <script>
+    let cvReady = false;
+    const Module = {
+      onRuntimeInitialized() {
+        cvReady = true;
+        document.getElementById('scanBtn').disabled = false;
+        console.log('OpenCV.js ready');
+      }
+    };
+  </script>
+  <script async src="https://docs.opencv.org/4.8.0/opencv.js"></script>
+
+  <script>
+    const fileInput   = document.getElementById('fileInput');
+    const scanBtn     = document.getElementById('scanBtn');
+    const answerKeyEl = document.getElementById('answerKey');
+    const fillThresh  = document.getElementById('fillThresh');
+    const minSize     = document.getElementById('minSize');
+    const minCirc     = document.getElementById('minCirc');
+    const origCan     = document.getElementById('originalCanvas');
+    const warpCan     = document.getElementById('warpCanvas');
+    const resCan      = document.getElementById('resultCanvas');
+    const resultDiv   = document.getElementById('result');
+    const srcImage    = document.getElementById('srcImage');
+    const capCan      = document.getElementById('captureCanvas');
+
+    // when user picks a file or snaps photo
+    fileInput.addEventListener('change', () => {
+      const f = fileInput.files[0];
+      if (!f) return;
+      const url = URL.createObjectURL(f);
+      srcImage.onload = () => {
+        // draw into both capture and original canvases
+        capCan.width  = srcImage.naturalWidth;
+        capCan.height = srcImage.naturalHeight;
+        origCan.width = srcImage.naturalWidth;
+        origCan.height= srcImage.naturalHeight;
+        const cctx = capCan.getContext('2d');
+        const octx = origCan.getContext('2d');
+        cctx.drawImage(srcImage,0,0);
+        octx.drawImage(srcImage,0,0);
+        resultDiv.textContent = '';
+        // clear others
+        warpCan.getContext('2d').clearRect(0,0,warpCan.width, warpCan.height);
+        resCan.getContext('2d').clearRect(0,0,resCan.width, resCan.height);
+      };
+      srcImage.src = url;
+    });
+
+    scanBtn.addEventListener('click', () => {
+      if (!cvReady) return alert('OpenCV still loading…');
+      if (!srcImage.src) return alert('Select an image first.');
+      scanAndGrade();
+    });
+
+    function scanAndGrade() {
+      // parse key
+      const keyArr = answerKeyEl.value.split(',').map(s=>s.trim().toUpperCase());
+      if (!keyArr.length) { alert('Enter answer key!'); return; }
+      const totalQ = keyArr.length;
+
+      // 1) Read source
+      let src = cv.imread(capCan);
+
+      // 2) Detect sheet corners & warp
+      let warped = detectAndWarp(src);
+      src.delete();
+      if (!warped) return;
+
+      // show warped
+      warpCan.width  = warped.cols;
+      warpCan.height = warped.rows;
+      cv.imshow(warpCan, warped);
+
+      // 3) Prepare for grading: grayscale + threshold
+      let gray = new cv.Mat();
+      cv.cvtColor(warped, gray, cv.COLOR_RGBA2GRAY);
+      let thresh = new cv.Mat();
+      cv.threshold(gray, thresh, +fillThresh.value, 255, cv.THRESH_BINARY_INV);
+
+      // 4) Find all bubble contours
+      let ctrs = new cv.MatVector(), hier = new cv.Mat();
+      cv.findContours(thresh.clone(), ctrs, hier, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE);
+
+      // filter by size/circularity
+      let bubbles = [];
+      for (let i=0; i<ctrs.size(); i++){
+        let cnt = ctrs.get(i);
+        let r = cv.boundingRect(cnt);
+        let area = cv.contourArea(cnt);
+        let peri = cv.arcLength(cnt, true);
+        let circ = 4*Math.PI*area/(peri*peri);
+        if (r.width>=+minSize.value && r.height>=+minSize.value && circ>=+minCirc.value) {
+          bubbles.push({cnt,rect:r});
+        }
+      }
+      ctrs.delete(); hier.delete();
+
+      // 5) Split into left/right columns
+      const halfW = warped.cols/2;
+      let left = [], right = [];
+      bubbles.forEach(b=>{
+        let cx = b.rect.x + b.rect.width/2;
+        (cx<halfW? left:right).push(b);
+      });
+      // sort by y then x
+      left .sort((a,b)=>a.rect.y-b.rect.y || a.rect.x-b.rect.x);
+      right.sort((a,b)=>a.rect.y-b.rect.y || a.rect.x-b.rect.x);
+
+      // 6) Grade each side
+      let results = [];
+      function gradeSide(arr, offset){
+        const rows = totalQ/2; // assume even, adjust if needed
+        for (let r=0; r<rows; r++){
+          let row = arr.slice(r*5,(r+1)*5);
+          // for safety if row not 5 long
+          if (row.length<5) continue;
+          // find darkest fill
+          let bestIdx=-1, bestVal=0;
+          row.forEach((b,i)=>{
+            let m = cv.Mat.zeros(thresh.rows, thresh.cols, cv.CV_8UC1);
+            let mv = new cv.MatVector(); mv.push_back(b.cnt);
+            cv.drawContours(m, mv, 0, new cv.Scalar(255), -1);
+            let masked = new cv.Mat();
+            cv.bitwise_and(thresh, thresh, masked, m);
+            let val = cv.countNonZero(masked);
+            if (val>bestVal){ bestVal=val; bestIdx=i; }
+            m.delete(); mv.delete(); masked.delete();
+          });
+          let given = bestVal>=+fillThresh.value ? String.fromCharCode(65+bestIdx) : 'ø';
+          let correct = keyArr[r+offset]||'ø';
+          let isCorr = given===correct;
+          results.push({number:r+1+offset, given, correct, isCorrect:isCorr});
+        }
+      }
+      gradeSide(left, 0);
+      gradeSide(right, totalQ/2);
+
+      // 7) Draw results overlay
+      let out = warped.clone();
+      const ctx = warpCan.getContext('2d');
+      out.delete(); // we’ll draw on resultCanvas instead
+      resCan.width  = warped.cols;
+      resCan.height = warped.rows;
+      let resMat = warped.clone();
+      results.forEach(r=>{
+        // find that bubble
+        let arr = r.number<=totalQ/2? left: right;
+        let idx = r.number<=totalQ/2? r.number-1 : r.number-1-totalQ/2;
+        let b = arr[idx];
+        let cx = b.rect.x + b.rect.width/2;
+        let cy = b.rect.y + b.rect.height/2;
+        let rad = Math.min(b.rect.width, b.rect.height)/2;
+        let color = r.isCorrect
+          ? new cv.Scalar(0,255,0,255)
+          : new cv.Scalar(255,0,0,255);
+        cv.circle(resMat, new cv.Point(cx,cy), rad, color, 3);
+      });
+      cv.imshow(resCan, resMat);
+      warped.delete(); gray.delete(); thresh.delete(); resMat.delete();
+
+      // 8) Show score
+      let correctCount = results.filter(r=>r.isCorrect).length;
+      resultDiv.textContent = `Score: ${correctCount} / ${results.length}`;
+    }
+
+    // detect sheet contours and warp to top-down
+    function detectAndWarp(src) {
+      let gray = new cv.Mat(), blur=new cv.Mat(), edges=new cv.Mat();
+      cv.cvtColor(src, gray, cv.COLOR_RGBA2GRAY);
+      cv.GaussianBlur(gray, blur, new cv.Size(5,5),0);
+      cv.Canny(blur, edges, 75,200);
+      let ctrs=new cv.MatVector(), hier=new cv.Mat();
+      cv.findContours(edges, ctrs, hier, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE);
+      let sheet = null;
+      for (let i=0; i<ctrs.size(); i++){
+        let c = ctrs.get(i);
+        let peri = cv.arcLength(c,true);
+        let approx = new cv.Mat();
+        cv.approxPolyDP(c, approx, 0.02*peri, true);
+        if (approx.rows===4) { sheet=approx; break; }
+        approx.delete();
+      }
+      gray.delete(); blur.delete(); edges.delete(); ctrs.delete(); hier.delete();
+      if (!sheet) { alert('No sheet found—try a clearer photo.'); return null; }
+
+      // collect points
+      let pts = [];
+      for (let i=0; i<4; i++){
+        pts.push({ x: sheet.intAt(i,0), y: sheet.intAt(i,1) });
+      }
+      sheet.delete();
+      let warped = fourPointTransform(src, pts);
+      return warped;
+    }
+
+    // arrange points in TL,TR,BR,BL order
+    function orderPoints(pts) {
+      let rect=[{}, {}, {}, {}];
+      let sum=pts.map(p=>p.x+p.y);
+      let diff=pts.map(p=>p.y-p.x);
+      rect[0]=pts[sum.indexOf(Math.min(...sum))];
+      rect[2]=pts[sum.indexOf(Math.max(...sum))];
+      rect[1]=pts[diff.indexOf(Math.min(...diff))];
+      rect[3]=pts[diff.indexOf(Math.max(...diff))];
+      return rect;
+    }
+    function distance(a,b){ return Math.hypot(a.x-b.x,a.y-b.y); }
+
+    function fourPointTransform(src, pts) {
+      let rect = orderPoints(pts);
+      let [tl,tr,br,bl] = rect;
+      let wA = distance(br,bl), wB = distance(tr,tl);
+      let hA = distance(tr,br), hB = distance(tl,bl);
+      let maxW = Math.max(wA,wB)|0, maxH = Math.max(hA,hB)|0;
+      let dst = cv.matFromArray(4,1,cv.CV_32FC2,[
+        0,0, maxW-1,0, maxW-1,maxH-1, 0,maxH-1
+      ]);
+      let srcPts = cv.matFromArray(4,1,cv.CV_32FC2,[
+        tl.x,tl.y, tr.x,tr.y, br.x,br.y, bl.x,bl.y
+      ]);
+      let M = cv.getPerspectiveTransform(srcPts,dst);
+      let out = new cv.Mat();
+      cv.warpPerspective(src, out, M, new cv.Size(maxW,maxH),
+                         cv.INTER_LINEAR, cv.BORDER_CONSTANT, new cv.Scalar());
+      srcPts.delete(); dst.delete(); M.delete();
+      return out;
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en" translate="no">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spanish Vocabulary Review Game</title>
+    <style>
+        body, html {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100%;
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: linear-gradient(to bottom, #517860, #5c8a6d);
+        }
+        .game-container {
+            text-align: center;
+            width: 100%;
+            max-width: 800px;
+            padding: 100px;
+            border: 2px solid #d3d3d3;
+            background-color: #f7f4f4;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        .progress-bar-container {
+            width: 100%;
+            height: 20px;
+            background-color: #d3d3d3;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
+        .progress-bar {
+            height: 100%;
+            width: 0;
+            background: linear-gradient(to right, #28a745, #5cd85c);
+            border-radius: 10px;
+            transition: width 0.3s;
+        }
+        .input-box {
+            font-size: 1.2em;
+            padding: 10px;
+            width: 90%;
+            border: 2px solid lightgrey;
+            border-radius: 8px;
+            transition: color 0.3s;
+        }
+        .input-box.correct {
+            color: green;
+        }
+        .button {
+            margin-top: 20px;
+            padding: 10px 20px;
+            font-size: 1em;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            background-color: #007BFF;
+            color: white;
+        }
+        .button:hover {
+            background-color: #0056b3;
+        }
+        .hint {
+            margin-top: 10px;
+            font-size: 1em;
+            color: #555;
+        }
+        .answer-display {
+            margin-top: 10px;
+            font-size: 1.1em;
+            color: #d9534f;
+        }
+        .accent-buttons {
+            margin-top: 10px;
+        }
+        .accent-button {
+            font-size: 1.2em;
+            padding: 5px 10px;
+            margin: 2px;
+            border: 1px solid #d3d3d3;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .accent-button:hover {
+            background-color: #e0e0e0;
+        }
+    </style>
+</head>
+<body>
+
+<div class="game-container">
+    <div class="progress-bar-container">
+        <div id="progressBar" class="progress-bar"></div>
+    </div>
+    <h2>Spanish Vocabulary Review</h2>
+    <p id="prompt"></p>
+    <p id="hint" class="hint">Hint: (in 5 seconds)</p>
+    <p id="answerDisplay" class="answer-display"></p>
+    <input type="text" id="answerInput" class="input-box" autocomplete="off" spellcheck="false" />
+    <div class="accent-buttons">
+        <button class="accent-button" onclick="insertAccent('á')">á</button>
+        <button class="accent-button" onclick="insertAccent('é')">é</button>
+        <button class="accent-button" onclick="insertAccent('í')">í</button>
+        <button class="accent-button" onclick="insertAccent('ó')">ó</button>
+        <button class="accent-button" onclick="insertAccent('ú')">ú</button>
+        <button class="accent-button" onclick="insertAccent('ñ')">ñ</button>
+    </div>
+    <button id="restartButton" class="button" style="display: none;">Restart</button>
+    <p id="timerDisplay"></p>
+</div>
+
+<script>
+    // Game settings
+    const roundLength = 5; // Number of questions per round
+    const answerTime = 1000; // Delay before next question (in milliseconds)
+    const CorrectTimesRequired = 4; // Times a term must be correctly answered to be considered mastered
+
+    // Accuracy settings
+    let checkAccentMarks = false; // Whether to count accent marks
+    let checkPunctuation = false; // Whether to count punctuation
+    let checkCapitalization = false; // Whether to count capitalization
+
+ // Vocabulary list with terms and their translations, including variations for certain answers
+const vocabularyList = [
+    { term: "Por favor", translation: ["Please"], times_seen: 0, times_correct: 0 },
+    { term: "Gracias", translation: ["Thank you"], times_seen: 0, times_correct: 0 },
+    { term: "El menú", translation: ["The menu", "menu"], times_seen: 0, times_correct: 0 },
+    { term: "Una mesa para dos", translation: ["A table for two", "table for two"], times_seen: 0, times_correct: 0 },
+    { term: "¿Qué recomienda?", translation: ["What do you recommend?"], times_seen: 0, times_correct: 0 },
+    { term: "La especialidad de la casa", translation: ["The house specialty", "house specialty"], times_seen: 0, times_correct: 0 },
+    { term: "El entrante", translation: ["Appetizer", "the Appetizer", "The appetizer"], times_seen: 0, times_correct: 0 },
+    { term: "El plato principal", translation: ["Main course", "The main course"], times_seen: 0, times_correct: 0 },
+    { term: "El postre", translation: ["Dessert", "the dessert", "The dessert"], times_seen: 0, times_correct: 0 },
+    { term: "La cuenta", translation: ["The bill", "The check", "bill", "check"], times_seen: 0, times_correct: 0 },
+    { term: "El agua", translation: ["Water", "The water"], times_seen: 0, times_correct: 0 },
+    { term: "La sopa", translation: ["Soup", "The soup"], times_seen: 0, times_correct: 0 },
+    { term: "La ensalada", translation: ["Salad", "The salad"], times_seen: 0, times_correct: 0 },
+    { term: "La carne", translation: ["Meat", "The meat"], times_seen: 0, times_correct: 0 },
+    { term: "El pescado", translation: ["Fish", "The fish"], times_seen: 0, times_correct: 0 },
+    { term: "El pollo", translation: ["Chicken", "The chicken"], times_seen: 0, times_correct: 0 },
+    { term: "Vegetariano", translation: ["Vegetarian"], times_seen: 0, times_correct: 0 },
+    { term: "¿Me puede traer…?", translation: ["Can you bring me…?", "Bring me…", "Could you bring me…?"], times_seen: 0, times_correct: 0 },
+    { term: "Para llevar", translation: ["To go (takeout)", "To go", "Takeout"], times_seen: 0, times_correct: 0 },
+    { term: "El café", translation: ["Coffee", "The coffee"], times_seen: 0, times_correct: 0 },
+    { term: "El té", translation: ["Tea", "The Tea"], times_seen: 0, times_correct: 0 },
+    { term: "El refresco", translation: ["Soft drink", "The Soft drink"], times_seen: 0, times_correct: 0 },
+    { term: "El arroz", translation: ["Rice", "The Rice"], times_seen: 0, times_correct: 0 },
+    { term: "Las patatas", translation: ["Potatoes", "The Potatoes"], times_seen: 0, times_correct: 0 },
+    { term: "El pan", translation: ["Bread", "the Bread", "The bread"], times_seen: 0, times_correct: 0 },
+    { term: "El helado", translation: ["Ice cream", "The Ice cream", "The ice cream"], times_seen: 0, times_correct: 0 },
+    { term: "La fruta", translation: ["Fruit", "The Fruit", "The fruit"], times_seen: 0, times_correct: 0 },
+    { term: "Las verduras", translation: ["Vegetables", "The Vegetables", "The vegetables"], times_seen: 0, times_correct: 0 },
+    { term: "Las aceitunas", translation: ["Olives", "The Olives", "The olives"], times_seen: 0, times_correct: 0 },
+    { term: "El queso", translation: ["Cheese", "The Cheese", "The cheese"], times_seen: 0, times_correct: 0 },
+    { term: "El jamón", translation: ["Ham", "The Ham", "The ham"], times_seen: 0, times_correct: 0 },
+    { term: "El caldo", translation: ["Broth", "The Broth", "The broth"], times_seen: 0, times_correct: 0 },
+    { term: "A la plancha", translation: ["Grilled"], times_seen: 0, times_correct: 0 },
+    { term: "Al horno", translation: ["Baked"], times_seen: 0, times_correct: 0 },
+    { term: "Frito", translation: ["Fried"], times_seen: 0, times_correct: 0 },
+    { term: "Asado", translation: ["Roasted"], times_seen: 0, times_correct: 0 },
+    { term: "Dulce", translation: ["Sweet"], times_seen: 0, times_correct: 0 },
+    { term: "Salado", translation: ["Salty"], times_seen: 0, times_correct: 0 },
+    { term: "Picante", translation: ["Spicy"], times_seen: 0, times_correct: 0 },
+    { term: "Reservar", translation: ["To reserve (a table)", "Reserve", "To reserve"], times_seen: 0, times_correct: 0 }
+];
+
+    // State variables
+    let roundCount = 0;
+    let currentWord = null;
+    let lastWordIndex = -1;
+    let isTermQuestion = false;
+    let startTime, endTime;
+    let hintTimer;
+    let hintCounter = 5;
+    let hintUsed = false;
+    let totalCorrectPoints = 0;
+    const totalPoints = vocabularyList.length * CorrectTimesRequired;
+
+    function normalizeAnswer(answer) {
+        if (!checkAccentMarks) {
+            answer = answer.normalize("NFD").replace(/[̀-ͯ]/g, "");
+        }
+        if (!checkPunctuation) {
+            answer = answer.replace(/[.,!?]/g, "");
+        }
+        if (!checkCapitalization) {
+            answer = answer.toLowerCase();
+        }
+        return answer.trim();
+    }
+
+    // Modified answer checker: Accepts correct answers with variations (e.g. with/without spaces)
+    function isAnswerCorrect(userInput, correctAnswers) {
+        const userAnswer = normalizeAnswer(userInput);
+        return correctAnswers.some(tr => {
+            const normalizedTranslation = normalizeAnswer(tr);
+            // Accept if exactly equal or if the answer without spaces matches
+            return userAnswer === normalizedTranslation ||
+                   userAnswer.replace(/\s+/g, '') === normalizedTranslation.replace(/\s+/g, '');
+        });
+    }
+
+    function insertAccent(char) {
+        const input = document.getElementById("answerInput");
+        const startPos = input.selectionStart;
+        const endPos = input.selectionEnd;
+        input.value = input.value.substring(0, startPos) + char + input.value.substring(endPos);
+        input.focus();
+        input.setSelectionRange(startPos + char.length, startPos + char.length);
+    }
+
+    function updateProgressBar() {
+        const progressBar = document.getElementById("progressBar");
+        const progressPercentage = (totalCorrectPoints / totalPoints) * 100;
+        progressBar.style.width = `${progressPercentage}%`;
+    }
+
+    const promptElement = document.getElementById("prompt");
+    const answerInput = document.getElementById("answerInput");
+    const hintElement = document.getElementById("hint");
+    const answerDisplay = document.getElementById("answerDisplay");
+    const restartButton = document.getElementById("restartButton");
+    const timerDisplay = document.getElementById("timerDisplay");
+
+    function startGame() {
+        roundCount = 0;
+        timerDisplay.textContent = "";
+        restartButton.style.display = "none";
+        answerDisplay.textContent = "";
+        startTime = new Date();
+        answerInput.value = "";
+        answerInput.disabled = false;
+        answerInput.classList.remove("correct");
+        answerInput.focus();
+        nextQuestion();
+    }
+
+    function nextQuestion() {
+        const remainingTerms = vocabularyList.filter(term => term.times_correct < CorrectTimesRequired);
+
+        if (remainingTerms.length === 0) {
+            endRound();
+            return;
+        }
+
+        let randomIndex;
+        do {
+            randomIndex = Math.floor(Math.random() * remainingTerms.length);
+        } while (remainingTerms[randomIndex] === currentWord);
+        
+        currentWord = remainingTerms[randomIndex];
+        currentWord.times_seen++;
+        hintUsed = false;
+
+        if (currentWord.times_correct > 2) {
+            isTermQuestion = true;
+            promptElement.textContent = `What is the Spanish word for: ${currentWord.translation.join(", ")}`;
+        } else {
+            isTermQuestion = false;
+            promptElement.textContent = `Translate this word: ${currentWord.term}`;
+        }
+
+        answerInput.value = "";
+        answerInput.classList.remove("correct");
+        answerInput.disabled = false;
+        answerInput.focus();
+        startHintCountdown();
+        roundCount++;
+    }
+
+    function startHintCountdown() {
+        answerDisplay.textContent = "";
+        hintCounter = 5;
+        hintElement.textContent = `Hint: (in ${hintCounter} seconds)`;
+        clearInterval(hintTimer);
+        hintTimer = setInterval(() => {
+            hintCounter--;
+            if (hintCounter > 0) {
+                hintElement.textContent = `Hint: (in ${hintCounter} seconds)`;
+            } else {
+                hintElement.textContent = `Hint: (press enter)`;
+                clearInterval(hintTimer);
+            }
+        }, 1000);
+    }
+
+    answerInput.addEventListener("input", () => {
+        let isCorrect = false;
+        if (isTermQuestion) {
+            isCorrect = isAnswerCorrect(answerInput.value, [currentWord.term]);
+        } else {
+            isCorrect = isAnswerCorrect(answerInput.value, currentWord.translation);
+        }
+
+        if (isCorrect) {
+            answerInput.classList.add("correct");
+            answerInput.disabled = true;
+            if (!hintUsed) {
+                currentWord.times_correct++;
+                totalCorrectPoints++;
+                updateProgressBar();
+            }
+            clearInterval(hintTimer);
+            setTimeout(nextQuestion, answerTime);
+        }
+    });
+
+    answerInput.addEventListener("keydown", (event) => {
+        if (event.key === "Enter" && hintCounter <= 0) {
+            answerDisplay.textContent = `Correct answer: ${isTermQuestion ? currentWord.term : currentWord.translation.join(", ")}`;
+            hintUsed = true;
+        }
+    });
+
+    function endRound() {
+        endTime = new Date();
+        const totalTime = ((endTime - startTime) / 1000).toFixed(2);
+        timerDisplay.textContent = `Round completed in ${totalTime} seconds!`;
+        restartButton.style.display = "block";
+    }
+
+    restartButton.addEventListener("click", startGame);
+
+    startGame();
+</script>
+
+</body>
+</html>

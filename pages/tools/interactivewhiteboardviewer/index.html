@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1" />
+	<title>Whiteboard Viewer</title>
+	<link rel="stylesheet" href="styles.css" />
+	<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
+    
+</head>
+<body>
+	<!-- Top bar with boards dropdown -->
+	<div class="top-bar">
+		<button id="board-dropdown-btn" class="icon-btn">
+			<span class="material-icons">menu</span>
+		</button>
+		<div id="board-dropdown" class="dropdown hidden">
+			<button id="new-board-btn" class="new-board-btn" style="display:none">+ New Whiteboard</button>
+			<div id="board-list" class="board-list"></div>
+		</div>
+        <button id="add-element-btn" style="display:none"class="icon-btn">
+  			<span class="material-icons" >add_box</span>
+		</button>
+
+		<button id="copy-json-btn" style="display:none">Copy JSON</button>
+
+
+	</div>
+
+	<!-- Canvas container -->
+	<div id="canvas-container">
+		<canvas id="whiteboard-canvas"></canvas>
+	</div>
+
+	<!-- Bottom bar with tools -->
+	<div class="bottom-bar">
+		<button id="lock-toggle" class="icon-btn">
+			<span class="material-icons" id="lock-icon">lock_open</span>
+		</button>
+		<button id="home-btn" class="icon-btn">
+			<span class="material-icons">home</span>
+		</button>
+
+		<div class="tool-group">
+			<button class="tool-btn" data-tool="pen-black" style="display:none">
+				<span class="material-icons">brush</span>
+			</button>
+			<button class="tool-btn" data-tool="pen-red" style="display:none">
+				<span class="material-icons" style="color:red;">brush</span>
+			</button>
+			<button class="tool-btn" data-tool="pen-blue" style="display:none">
+				<span class="material-icons" style="color:blue;">brush</span>
+			</button>
+			<div id="pen-slider" class="pen-slider hidden" style="display:none">
+				<input type="range" id="pen-size-slider" min="1" max="10" value="2" />
+			</div>
+            <!-- Lasso‐scale slider (hidden by default) -->
+            <div id="scale-slider" class="scale-slider" style="display:none">
+<input style="display:none"
+  type="range"
+  id="scale-range"
+  min="0.1"
+  max="10"
+  step="0.01"
+  value="1"
+  style="width:300px;"
+/>            </div>
+
+		</div>
+
+        <button id="paste-image-btn" class="tool-btn" data-tool="paste-image" style="display:none">
+        <span class="material-icons">image</span>
+        </button>
+        <button id="eraser-btn" class="tool-btn" data-tool="eraser" style="display:none">
+        <span class="material-symbols-outlined">ink_eraser</span>
+        </button>
+        <button id="lasso-btn" class="tool-btn" data-tool="lasso" style="display:none">
+        <span class="material-symbols-outlined">lasso_select</span>
+        </button>
+
+	</div>
+
+	<!-- Console output -->
+	<div id="user-console-output" class="console-output"></div>
+
+	<!-- Modal for creating a new board -->
+	<div id="new-board-modal" class="modal hidden">
+		<div class="modal-content">
+			<h3>Create New Whiteboard</h3>
+			<input type="text" id="new-board-name" placeholder="Custom name (optional)" />
+			<select id="new-board-period">
+				<option value="1st">1st</option>
+				<option value="2nd">2nd</option>
+				<option value="3rd">3rd</option>
+				<option value="4th">4th</option>
+				<option value="5th">5th</option>
+				<option value="6th">6th</option>
+				<option value="7th">7th</option>
+				<option value="8th">8th</option>
+			</select>
+			<div class="modal-buttons">
+				<button id="create-board-confirm">Create</button>
+				<button id="create-board-cancel">Cancel</button>
+			</div>
+		</div>
+	</div>
+
+    <div id="element-modal" class="modal" style="display:none;">
+  <div class="modal-content">
+    <h3>Paste Element Config</h3>
+    <textarea id="element-config" placeholder='{"id":"elem1","type":"flip-card","x":100,"y":200,"config":{…}}' 
+              style="width:100%;height:100px;"></textarea>
+    <div style="text-align:right;margin-top:8px;">
+      <button id="element-add">Add</button>
+      <button id="element-cancel">Cancel</button>
+    </div>
+  </div>
+</div>
+
+
+	<script type="module" src="script.js"></script>
+</body>
+</html>

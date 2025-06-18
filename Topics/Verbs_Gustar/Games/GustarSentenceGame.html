@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="en" translate="no">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Verbs Like Gustar Practice</title>
+  <style>
+    body, html {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100%;
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: linear-gradient(to bottom, #5ffaff, #7ba9fe);
+    }
+    .game-container {
+      text-align: center;
+      width: 100%;
+      max-width: 800px;
+      padding: 50px;
+      border: 2px solid #d3d3d3;
+      background-color: #f7f4f4;
+      border-radius: 10px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+    .progress-bar-container {
+      width: 100%;
+      height: 20px;
+      background-color: #d3d3d3;
+      border-radius: 10px;
+      overflow: hidden;
+      margin-bottom: 20px;
+    }
+    .progress-bar {
+      height: 100%;
+      width: 0;
+      background: linear-gradient(to right, #28a745, #5cd85c);
+      border-radius: 10px;
+      transition: width 0.3s;
+    }
+    h2 {
+      margin-top: 0;
+    }
+    #prompt {
+      font-size: 1.2em;
+      margin: 20px 0;
+    }
+    .sentence-line {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin-bottom: 20px;
+      min-height: 50px;
+      align-items: center;
+      border: 2px dashed #ccc;
+      padding: 10px;
+      border-radius: 5px;
+    }
+    .word-bank {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-top: 20px;
+    }
+    .word-bank-section {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      justify-content: center;
+    }
+    .word-bank-section h3 {
+      width: 100%;
+      margin: 0 0 10px 0;
+      font-size: 1em;
+      color: #007BFF;
+    }
+    .word {
+      padding: 10px 20px;
+      background-color: #ccc;
+      border-radius: 5px;
+      cursor: pointer;
+      user-select: none;
+      transition: background-color 0.2s, transform 0.1s;
+    }
+    .word:hover {
+      background-color: #bbb;
+    }
+    .word:active {
+      transform: scale(0.95);
+    }
+    .word.disabled {
+      background-color: #e0e0e0;
+      color: #a0a0a0;
+      cursor: not-allowed;
+    }
+    .button {
+      margin-top: 20px;
+      padding: 10px 20px;
+      font-size: 1em;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      background-color: #007BFF;
+      color: white;
+    }
+    .button:hover {
+      background-color: #0056b3;
+    }
+    .hint {
+      font-size: 0.9em;
+      color: #555;
+      margin-top: 10px;
+      min-height: 1.2em;
+    }
+    .color-pronoun {
+      color: #007BFF; /* Blue for pronouns */
+      text-decoration: underline;
+    }
+    .color-verb {
+      color: #28a745; /* Green for verbs */
+      text-decoration: underline;
+    }
+    .color-noun {
+      color: #d9534f; /* Red for nouns */
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <div class="game-container">
+    <div class="progress-bar-container">
+      <div id="progressBar" class="progress-bar"></div>
+    </div>
+    <h2>Gustar Practice</h2>
+    <p id="prompt"></p>
+    <p id="hint" class="hint"></p>
+
+    <div class="sentence-line" id="sentenceLine"></div>
+    <div class="word-bank">
+      <div class="word-bank-section">
+        <h3>Indirect Object Pronouns</h3>
+        <div class="word" data-type="pronoun">me</div>
+        <div class="word" data-type="pronoun">te</div>
+        <div class="word" data-type="pronoun">le</div>
+        <div class="word" data-type="pronoun">nos</div>
+        <div class="word" data-type="pronoun">os</div>
+        <div class="word" data-type="pronoun">les</div>
+      </div>
+      <div class="word-bank-section">
+        <h3>Verb Conjugations</h3>
+        <div class="word" data-type="verb">gusta</div>
+        <div class="word" data-type="verb">gustan</div>
+        
+      </div>
+      <div class="word-bank-section">
+        <h3>Definite Articles</h3>
+        <div class="word" data-type="article">el</div>
+        <div class="word" data-type="article">la</div>
+        <div class="word" data-type="article">los</div>
+        <div class="word" data-type="article">las</div>
+      </div>
+      <div class="word-bank-section">
+        <h3>Nouns</h3>
+        <div class="word" data-type="noun">papas fritas</div>
+        <div class="word" data-type="noun">computadoras</div>
+        <div class="word" data-type="noun">comida</div>
+        <div class="word" data-type="noun">libros</div>
+        <div class="word" data-type="noun">películas</div>
+        <div class="word" data-type="noun">música</div>
+      </div>
+    </div>
+    <button id="checkButton" class="button">Check Answer</button>
+    <button id="restartButton" class="button" style="display: none;">Restart</button>
+    <p id="answerDisplay" class="answer-display"></p>
+  </div>
+
+  <script>
+    // Game settings
+    const CorrectTimesRequired = 5; // Times each item must be answered correctly
+    const hintTime = 5; // Hint countdown time in seconds
+
+    // Word objects
+    const pronouns = [
+      { type: "pronoun", text: "me", english: "to me" },
+      { type: "pronoun", text: "te", english: "to you" },
+      { type: "pronoun", text: "le", english: "to him/her" },
+      { type: "pronoun", text: "nos", english: "to us" },
+      { type: "pronoun", text: "os", english: "to you all" },
+      { type: "pronoun", text: "les", english: "to them" }
+    ];
+
+    const verbs = [
+      { type: "verb", text: "gusta", english: "is pleasing", number: "s" },
+      { type: "verb", text: "gustan", english: "are pleasing", number: "p" }
+    ];
+
+    const articles = [
+      { type: "article", text: "el", gender: "m", number: "s" },
+      { type: "article", text: "la", gender: "f", number: "s" },
+      { type: "article", text: "los", gender: "m", number: "p" },
+      { type: "article", text: "las", gender: "f", number: "p" }
+    ];
+
+    const nouns = [
+      { type: "noun", text: "papas fritas", english: "french fries", gender: "f", number: "p" },
+      { type: "noun", text: "computadoras", english: "computers", gender: "f", number: "p" },
+      { type: "noun", text: "comida", english: "food", gender: "f", number: "s" },
+      { type: "noun", text: "libros", english: "books", gender: "m", number: "p" },
+      { type: "noun", text: "películas", english: "movies", gender: "f", number: "p" },
+      { type: "noun", text: "música", english: "music", gender: "f", number: "s" }
+    ];
+
+    // DOM elements
+    const promptElement = document.getElementById("prompt");
+    const sentenceLine = document.getElementById("sentenceLine");
+    const hintElement = document.getElementById("hint");
+    const checkButton = document.getElementById("checkButton");
+    const restartButton = document.getElementById("restartButton");
+    const answerDisplay = document.getElementById("answerDisplay");
+    const progressBar = document.getElementById("progressBar");
+
+    // State variables
+    let currentQuestion;
+    let totalCorrect = 0;
+    let startTime, endTime;
+    let hintTimer;
+    let hintCounter = hintTime;
+    let hintUsed = false;
+
+    //-----------------------------------------------------
+    // Start Game
+    //-----------------------------------------------------
+    function startGame() {
+      totalCorrect = 0;
+      progressBar.style.width = "0%";
+      answerDisplay.textContent = "";
+      restartButton.style.display = "none";
+      resetSentenceLine(); // Clear sentence line
+      enableAllWords(); // Enable all words in the word bank
+      startTime = new Date();
+      nextQuestion();
+    }
+
+    //-----------------------------------------------------
+    // Next Question
+    //-----------------------------------------------------
+    function nextQuestion() {
+      if (totalCorrect >= CorrectTimesRequired) {
+        endRound();
+        return;
+      }
+
+      // Randomly select a pronoun, verb, and noun
+      const pronoun = pronouns[Math.floor(Math.random() * pronouns.length)];
+      const noun = nouns[Math.floor(Math.random() * nouns.length)];
+      const verb = verbs.find(v => v.number === noun.number); // Match verb number to noun number
+      const article = articles.find(a => a.gender === noun.gender && a.number === noun.number); // Match article to noun
+
+      // Build the sentence
+      const sentence = `${pronoun.text} ${verb.text} ${article.text} ${noun.text}`;
+      const englishSentence = `${noun.english} ${verb.english} ${pronoun.english}.`;
+
+      // Store the current question
+      currentQuestion = {
+        prompt: englishSentence,
+        answer: sentence,
+        pronoun,
+        verb,
+        article,
+        noun
+      };
+
+      // Display prompt
+      promptElement.textContent = `Construct the sentence: "${englishSentence}"`;
+
+      // Reset the sentence line
+      resetSentenceLine();
+
+      // Start hint countdown
+      hintCounter = hintTime;
+      hintUsed = false;
+      hintElement.textContent = `Hint: (in ${hintCounter} seconds)`;
+      clearInterval(hintTimer);
+      hintTimer = setInterval(updateHintCountdown, 1000);
+    }
+
+    //-----------------------------------------------------
+    // Update Hint Countdown
+    //-----------------------------------------------------
+    function updateHintCountdown() {
+      hintCounter--;
+      if (hintCounter > 0) {
+        hintElement.textContent = `Hint: (in ${hintCounter} seconds)`;
+      } else {
+        hintElement.textContent = `Hint: Press Enter to see answer`;
+        clearInterval(hintTimer);
+
+        // Add event listener for Enter key
+        document.addEventListener('keydown', handleEnterKey);
+      }
+    }
+
+    //-----------------------------------------------------
+    // Handle Enter Key
+    //-----------------------------------------------------
+    function handleEnterKey(e) {
+      if (e.key === "Enter") {
+        showHint();
+        document.removeEventListener('keydown', handleEnterKey); // Remove the listener after use
+      }
+    }
+
+    //-----------------------------------------------------
+    // Show Hint
+    //-----------------------------------------------------
+    function showHint() {
+  // Stop the countdown
+  clearInterval(hintTimer);
+  document.removeEventListener('keydown', handleEnterKey);
+
+  // We'll take the entire English prompt, e.g. "music is pleasing to them."
+  let colorCoded = currentQuestion.prompt;
+
+  // 1) Color-code the noun (e.g. "music", "books", etc.)
+  //    Use a regex with word boundaries to avoid partial matches.
+  const nounRegex = new RegExp(`\\b${currentQuestion.noun.english}\\b`, 'gi');
+  colorCoded = colorCoded.replace(nounRegex, 
+    `<span class="color-noun">${currentQuestion.noun.english}</span>`
+  );
+
+  // 2) Color-code the entire verb phrase ("is pleasing" or "are pleasing").
+  const verbRegex = new RegExp(`\\b${currentQuestion.verb.english}\\b`, 'gi');
+  colorCoded = colorCoded.replace(verbRegex, 
+    `<span class="color-verb">${currentQuestion.verb.english}</span>`
+  );
+
+  // 3) Color-code the pronoun
+  //    If pronoun.english = "to them", you might specifically replace the word "them" in blue
+  //    leaving the "to" black. For example:
+  if (currentQuestion.pronoun.english === "to them") {
+    // Replace "to them" with "to <span>them</span>" so "to" stays black
+    colorCoded = colorCoded.replace("to them", 
+      `to <span class="color-pronoun">them</span>`
+    );
+  } else {
+    // If it's just "to me," "to you," etc. or something else, do a simpler replacement.
+    const pronounRegex = new RegExp(`\\b${currentQuestion.pronoun.english}\\b`, 'gi');
+    colorCoded = colorCoded.replace(pronounRegex, 
+      `<span class="color-pronoun">${currentQuestion.pronoun.english}</span>`
+    );
+  }
+
+  // Finally, replace the text inside the prompt element
+  promptElement.innerHTML = `Construct the sentence: ${colorCoded}`;
+
+  // And display the Spanish hint in color as well
+  hintElement.innerHTML = `Hint: 
+    <span class="color-pronoun">${currentQuestion.pronoun.text}</span> 
+    <span class="color-verb">${currentQuestion.verb.text}</span> 
+    <span class="color-noun">${currentQuestion.article.text} ${currentQuestion.noun.text}</span>
+  `;
+}
+
+    //-----------------------------------------------------
+    // Reset Sentence Line
+    //-----------------------------------------------------
+    function resetSentenceLine() {
+      sentenceLine.innerHTML = ""; // Clear all words from the sentence line
+      enableAllWords(); // Re-enable all words in the word bank
+    }
+
+    //-----------------------------------------------------
+    // Add Word to Sentence Line
+    //-----------------------------------------------------
+    document.querySelectorAll('.word').forEach(word => {
+      word.addEventListener('click', () => {
+        if (!word.classList.contains('disabled')) {
+          const wordText = word.textContent;
+          const wordElement = document.createElement('div');
+          wordElement.className = 'word';
+          wordElement.textContent = wordText;
+          sentenceLine.appendChild(wordElement);
+          word.classList.add('disabled'); // Grey out the word in the word bank
+
+          // Add click event to remove word from sentence line
+          wordElement.addEventListener('click', () => {
+            sentenceLine.removeChild(wordElement);
+            word.classList.remove('disabled'); // Re-enable the word in the word bank
+          });
+        }
+      });
+    });
+
+    //-----------------------------------------------------
+    // Check Answer
+    //-----------------------------------------------------
+    checkButton.addEventListener('click', () => {
+  const sentence = Array.from(sentenceLine.children).map(el => el.textContent).join(' ');
+  const correctSentence = currentQuestion.answer;
+
+  if (sentence === correctSentence) {
+    // Disable the Check button to prevent spamming
+    checkButton.disabled = true;
+
+    answerDisplay.textContent = "Correct!";
+    totalCorrect++;
+    updateProgressBar();
+    
+    // Give a short delay, then load next question
+    setTimeout(() => {
+      nextQuestion();
+      // Re-enable once the new question is displayed
+      checkButton.disabled = false;
+    }, 1000);
+  } else {
+    answerDisplay.textContent = `Incorrect. The correct sentence is: ${correctSentence}`;
+  }
+});
+
+
+    //-----------------------------------------------------
+    // Update Progress Bar
+    //-----------------------------------------------------
+    function updateProgressBar() {
+      const percent = (totalCorrect / CorrectTimesRequired) * 100;
+      progressBar.style.width = percent + "%";
+    }
+
+    //-----------------------------------------------------
+    // End Round
+    //-----------------------------------------------------
+    function endRound() {
+      endTime = new Date();
+      const totalTime = ((endTime - startTime) / 1000).toFixed(2);
+      promptElement.textContent = "All done!";
+      answerDisplay.textContent = `Completed in ${totalTime} seconds!`;
+      restartButton.style.display = "inline-block";
+    }
+
+    //-----------------------------------------------------
+    // Enable All Words
+    //-----------------------------------------------------
+    function enableAllWords() {
+      document.querySelectorAll('.word').forEach(word => {
+        word.classList.remove('disabled');
+      });
+    }
+
+    //-----------------------------------------------------
+    // Restart
+    //-----------------------------------------------------
+    restartButton.addEventListener("click", startGame);
+
+    // Start!
+    startGame();
+  </script>
+</body>
+</html>

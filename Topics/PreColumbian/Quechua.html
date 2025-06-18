@@ -1,0 +1,225 @@
+<html lang="en" class="doc" translate="no"></html>
+<!DOCTYPE html>
+<html lang="en" translate="no">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pre-Columbian Civilizations</title>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: Arial, sans-serif;
+            background: linear-gradient(to bottom, #5ffaff, #7ba9fe);
+        }
+
+        .content-container {
+            width: 80%;
+            height: 100%;
+            background-color: #ffffff;
+            padding: 20px;
+            overflow-y: auto;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .definitions {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #f9f9f9;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            font-size: 15px;
+            line-height: 1.6;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .definitions p {
+            margin: 0;
+            padding: 5px 10px;
+            border-radius: 5px;
+        }
+
+        .content-container img {
+            display: block;
+            margin: 20px auto;
+            width: 80%;
+            height: auto;
+        }
+
+        sup {
+            font-size: 12px;
+        }
+        .game-container {
+      
+      padding: 50px;
+    }
+    .story {
+      font-size: 1.2em;
+      line-height: 1.6;
+      text-align: left;
+      color: #333;
+    }
+    /* Make clickable words more distinguishable */
+    .clickable-word {
+      cursor: pointer;
+      color: #222121; 
+      transition: color 0.2s;
+      font-weight: 600;
+    }
+    .clickable-word:hover {
+      color: #007BFF;
+    }
+    .definition-box {
+      position: absolute;
+      background-color: #fff;
+      border: 1px solid #ccc;
+      padding: 10px;
+      border-radius: 5px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      display: none;
+      z-index: 10;
+      font-size: 0.9em;
+      color: #333;
+    }
+    </style>
+</head>
+<body>
+    <div class="content-container">
+        <div class="game-container">
+        
+            <div class="story">
+              <!-- QUECHUA (Paragraph 1) -->
+              <h2>Quechua</h2>
+
+              <p>
+                <span class="clickable-word" data-definition="an indigenous language family spoken in the Andes region">
+                  Quechua
+                </span> 
+                es una lengua indígena que se 
+                <span class="clickable-word" data-definition="(preterite) originated / began">
+                  originó
+                </span> 
+                en la 
+                <span class="clickable-word" data-definition="the Andes region (mountain range in South America)">
+                  región de los Andes
+                </span> 
+                y se 
+                <span class="clickable-word" data-definition="(preterite passive) it was extended / it spread">
+                  extendió
+                </span> 
+                durante el imperio inca. Los incas 
+                <span class="clickable-word" data-definition="(preterite) they adopted it">
+                  lo adoptaron
+                </span> 
+                como el 
+                <span class="clickable-word" data-definition="language / tongue">
+                  idioma
+                </span> 
+                oficial de su imperio para 
+                <span class="clickable-word" data-definition="to unify / to bring together">
+                  unificar
+                </span> 
+                a los diferentes 
+                <span class="clickable-word" data-definition="peoples / communities">
+                  pueblos
+                </span> 
+                que conquistaron, desde lo que hoy es Colombia hasta Chile y Argentina. Aunque 
+                <span class="clickable-word" data-definition="(imperfect) there were">
+                  había
+                </span> 
+                muchas lenguas en los territorios del imperio, el quechua 
+                <span class="clickable-word" data-definition="(preterite reflexive) became / turned into">
+                  se convirtió
+                </span> 
+                en la lengua de la administración y el comercio, lo que permitió su expansión y consolidación.
+              </p>
+            
+              <p>
+                Hoy en día, el quechua 
+                <span class="clickable-word" data-definition="continues to be spoken">
+                  sigue siendo hablado
+                </span> 
+                por millones de personas en varios países de Sudamérica, especialmente en Perú, Bolivia y Ecuador. Muchos pueblos indígenas lo 
+                <span class="clickable-word" data-definition="use it / speak it">
+                  usan
+                </span> 
+                en su 
+                <span class="clickable-word" data-definition="daily life">
+                  vida diaria
+                </span> 
+                y se están haciendo 
+                <span class="clickable-word" data-definition="efforts / attempts">
+                  esfuerzos
+                </span> 
+                para 
+                <span class="clickable-word" data-definition="to revitalize / to bring back to active use">
+                  revitalizarlo
+                </span>, 
+                tanto en las 
+                <span class="clickable-word" data-definition="schools / educational institutions">
+                  escuelas
+                </span> 
+                como en la 
+                <span class="clickable-word" data-definition="popular culture / mainstream culture">
+                  cultura popular
+                </span>. 
+                En Perú, por ejemplo, el quechua es una lengua oficial junto con el español, y existen programas de 
+                <span class="clickable-word" data-definition="radio">
+                  radio
+                </span>, 
+                <span class="clickable-word" data-definition="television">
+                  televisión
+                </span> 
+                y 
+                <span class="clickable-word" data-definition="literature / written works">
+                  literatura
+                </span> 
+                en quechua, ayudando a mantener viva esta 
+                <span class="clickable-word" data-definition="ancient / old">
+                  antigua
+                </span> 
+                lengua.
+              </p>
+             
+            </div>
+        
+            <!-- Definition Box (appears when a clickable word is clicked) -->
+            <div id="definitionBox" class="definition-box"></div>
+          </div>
+    </div>
+</body>
+</html>
+<script>
+    // Get the definition box element
+    const definitionBox = document.getElementById('definitionBox');
+
+    // Add click event listeners to all clickable words
+    document.querySelectorAll('.clickable-word').forEach(word => {
+      word.addEventListener('click', (e) => {
+        // Get the clicked word's position
+        const rect = word.getBoundingClientRect();
+        const scrollTop = window.scrollY || document.documentElement.scrollTop;
+
+        // Position the definition box above the clicked word
+        definitionBox.style.display = 'block';
+        definitionBox.style.top = `${rect.top + scrollTop - 50}px`; // 50px above the word
+        definitionBox.style.left = `${rect.left}px`;
+
+        // Display the definition from the data-definition attribute
+        definitionBox.textContent = word.getAttribute('data-definition');
+      });
+    });
+
+    // Hide the definition box when clicking outside
+    document.addEventListener('click', (e) => {
+      if (!e.target.classList.contains('clickable-word')) {
+        definitionBox.style.display = 'none';
+      }
+    });
+  </script>

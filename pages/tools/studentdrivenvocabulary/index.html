@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en" translate="no">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">    
+  <title>Class Vocabulary List</title>
+  <style>
+    body {
+      font-family: 'Arial', sans-serif;
+      background-color: #f5f5f5;
+      color: #333;
+      margin: 0;
+      padding: 20px;
+    }
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+    }
+    .input-container {
+      display: flex;
+      gap: 20px;
+      margin-bottom: 20px;
+    }
+    input[type="text"] {
+      flex: 1;
+      padding: 10px;
+      border: 1px solid #dee2e6;
+      border-radius: 5px;
+      background-color: white;
+      color: #333;
+      height: 38px;
+      box-sizing: border-box;
+    }
+    button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      height: 38px !important;
+      line-height: normal;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 5px;
+      background-color: #4CAF50;
+      color: white;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+    button:hover {
+      background-color: #45a049;
+    }
+    .vocabulary-item {
+      background-color: white;
+      padding: 8px 12px;
+      margin: 6px 0;
+      border-radius: 6px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 14px;
+    }
+    .pending {
+      opacity: 0.7;
+      background-color: #f8f9fa;
+    }
+    .word-info {
+      flex: 1;
+    }
+    .actions {
+      display: flex;
+      gap: 6px;
+    }
+    .actions button {
+      padding: 4px 8px;
+      font-size: 12px;
+    }
+    .translate {
+      background-color: #2196F3;
+    }
+    .accent-buttons {
+      display: flex;
+      gap: 4px;
+      margin-top: 4px;
+      flex-wrap: wrap;
+    }
+    .accent-button {
+      height: 28px !important;
+      line-height: 28px;
+      padding: 0 8px;
+      font-size: 12px;
+      background-color: #e9ecef;
+      color: #333;
+    }
+    .accent-button:hover {
+      background-color: #dee2e6;
+    }
+    .pending-label {
+      font-style: italic;
+      color: #aaa;
+      margin-left: 10px;
+    }
+    /* === modal styles === */
+    #classModal {
+      position: fixed; top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0,0,0,0.6);
+      display: none;
+      align-items: center; justify-content: center;
+      z-index: 1000;
+    }
+    #classModal .modal-content {
+      background: #fff; padding: 20px; border-radius: 8px;
+      text-align: center; width: 90%; max-width: 300px;
+    }
+    #classModal select, #classModal button {
+      margin-top: 10px; width: 100%; padding: 8px;
+    }
+  </style>
+</head>
+<body>
+  <!--
+  <div style="position:absolute;top:0;left:0;z-index:2000;display:flex;align-items:center;height:50px;">
+    <img src="/assets/No Phone.png" alt="Flower" style="height:50px;width:auto;">
+    <img src="/assets/Talking.png" alt="Grass" style="height:50px;width:auto;">
+  </div>
+-->
+  <!-- class‐period modal -->
+  <div id="classModal">
+    <div class="modal-content">
+      <h2>Select Class Period</h2>
+      <select id="classSelect">
+        <option value="1">1st Period</option>
+        <option value="2">2nd Period</option>
+        <option value="3">3rd Period</option>
+        <option value="4">4th Period</option>
+        <option value="5">5th Period</option>
+      </select>
+      <button id="confirmClass">Continue</button>
+    </div>
+  </div>
+
+  <div class="container">
+    <h1>Class Vocabulary List</h1>
+    <div class="input-container">
+      <div style="flex:1;display:flex;flex-direction:column;">
+        <input type="text" id="spanishWord" placeholder="Spanish word">
+        <div class="accent-buttons">
+          <button class="accent-button" onclick="insertAccent('á')">á</button>
+          <button class="accent-button" onclick="insertAccent('é')">é</button>
+          <button class="accent-button" onclick="insertAccent('í')">í</button>
+          <button class="accent-button" onclick="insertAccent('ó')">ó</button>
+          <button class="accent-button" onclick="insertAccent('ú')">ú</button>
+          <button class="accent-button" onclick="insertAccent('ñ')">ñ</button>
+          <button class="accent-button" onclick="insertAccent('ü')">ü</button>
+          <button class="accent-button" onclick="insertAccent('¿')">¿</button>
+          <button class="accent-button" onclick="insertAccent('¡')">¡</button>
+        </div>
+      </div>
+      <input type="text" id="englishTranslation" placeholder="English translation">
+      <button onclick="addWord()">Suggest Word</button>
+    </div>
+    <div id="timerDisplay" style="font-size:1.3em;font-weight:bold;margin-bottom:18px;"></div>
+    <div id="vocabularyList"></div>
+  </div>
+
+  <script type="module">
+    import { initializeApp }    from 'https://www.gstatic.com/firebasejs/11.8.1/firebase-app.js';
+    import { getDatabase, ref, push, onValue } from 'https://www.gstatic.com/firebasejs/11.8.1/firebase-database.js';
+
+    // ←– YOUR FIREBASE CONFIG:
+    const firebaseConfig = {
+            apiKey: "AIzaSyBBxUdOHCB1fJI9mZgYHJ0HCg6p_8R_1-s",
+            authDomain: "interactive-whiteboard-8bc1e.firebaseapp.com",
+            projectId: "interactive-whiteboard-8bc1e",
+            storageBucket: "interactive-whiteboard-8bc1e.firebasestorage.app",
+            messagingSenderId: "403793324386",
+            appId: "1:403793324386:web:c5f8da9579cd97f935a43b"
+        };
+
+    const app = initializeApp(firebaseConfig);
+    const db  = getDatabase(app);
+
+    // always show the class‐period modal on each load
+    const modal  = document.getElementById('classModal');
+    const select = document.getElementById('classSelect');
+    document.getElementById('confirmClass').onclick = () => {
+      modal.style.display = 'none';
+      const classPeriod = select.value;
+      initApp(classPeriod);
+    };
+    // fire it off immediately
+    modal.style.display = 'flex';
+
+    // generate ephemeral userId (not stored)
+    const userId = 'user-' + Math.random().toString(36).substr(2,9);
+
+    function insertAccent(accent) {
+      const input = document.getElementById('spanishWord');
+      const [start, end] = [input.selectionStart, input.selectionEnd];
+      input.value = input.value.slice(0,start) + accent + input.value.slice(end);
+      input.focus();
+      input.setSelectionRange(start+1,start+1);
+    }
+    window.insertAccent = insertAccent;
+
+    function initApp(classPeriod) {
+      const pendingVocabRef  = ref(db, `pending_vocabulary/period${classPeriod}`);
+      const approvedVocabRef = ref(db, `approved_vocabulary/period${classPeriod}`);
+      const timerRef = ref(db, `timer/period${classPeriod}`);
+      const timerDisplay = document.getElementById('timerDisplay');
+      let timerInterval;
+      let pendingSubmissions = [];
+
+      function updateTimer(ts) {
+        clearInterval(timerInterval);
+        function render() {
+          const now = Date.now();
+          let diff = Math.max(0, ts - now);
+          if (diff <= 0) {
+            timerDisplay.textContent = '⏰ Time is up!';
+            clearInterval(timerInterval);
+            return;
+          }
+          const min = Math.floor(diff/60000);
+          const sec = Math.floor((diff%60000)/1000);
+          timerDisplay.textContent = `⏳ Time left: ${min}:${sec.toString().padStart(2,'0')}`;
+        }
+        render();
+        timerInterval = setInterval(render, 1000);
+      }
+
+      window.addWord = function() {
+        const s = document.getElementById('spanishWord').value.trim();
+        const e = document.getElementById('englishTranslation').value.trim();
+        if (!s || !e) return;
+        const newWord = { spanish: s, english: e, userId, timestamp: Date.now() };
+        pendingSubmissions.push(newWord);
+        push(pendingVocabRef, newWord);
+        document.getElementById('spanishWord').value = '';
+        document.getElementById('englishTranslation').value = '';
+        displayVocabulary();
+      };
+
+      function createVocabularyItem(w, isPending) {
+        const d = document.createElement('div');
+        d.className = `vocabulary-item ${isPending?'pending':''}`;
+        d.innerHTML = `
+          <div class="word-info">
+            <strong>${w.spanish}</strong> – ${w.english}
+            ${isPending?'<span class="pending-label">(Pending)</span>':''}
+          </div>
+          <div class="actions">
+            <button class="translate"
+              onclick="window.open('https://www.spanishdict.com/translate/${encodeURIComponent(w.spanish)}','_blank')">
+              SpanishDict
+            </button>
+          </div>`;
+        return d;
+      }
+
+      function displayVocabulary() {
+        const list = document.getElementById('vocabularyList');
+        list.innerHTML = '';
+        pendingSubmissions.forEach(w => list.appendChild(createVocabularyItem(w,true)));
+        if (window.approvedWords) {
+          Object.values(window.approvedWords)
+                .sort((a,b)=>b.timestamp-a.timestamp)
+                .forEach(w=> list.appendChild(createVocabularyItem(w,false)));
+        }
+      }
+
+      onValue(approvedVocabRef, snap => {
+        window.approvedWords = snap.val()||{};
+        // filter out approved from pendingSubmissions
+        pendingSubmissions = pendingSubmissions.filter(pw =>
+          !Object.values(window.approvedWords)
+                 .some(aw =>
+                   aw.originalSpanish===pw.spanish &&
+                   aw.originalEnglish===pw.english
+                 )
+        );
+        displayVocabulary();
+      });
+
+      onValue(pendingVocabRef, snap => {
+        const all = snap.val()||{};
+        // keep only those still in DB
+        pendingSubmissions = pendingSubmissions.filter(pw =>
+          Object.values(all)
+                 .some(x=>x.spanish===pw.spanish&&x.english===pw.english)
+        );
+        displayVocabulary();
+      });
+
+      onValue(timerRef, snap => {
+        const ts = snap.val();
+        if (!ts || ts <= Date.now()) {
+          timerDisplay.textContent = '';
+          clearInterval(timerInterval);
+          return;
+        }
+        updateTimer(ts);
+      });
+    }
+  </script>
+</body>
+</html>

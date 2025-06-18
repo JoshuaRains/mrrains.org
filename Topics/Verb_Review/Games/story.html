@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en" translate="no">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Spanish Story with Definitions and Questions</title>
+  <style>
+    body, html {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100%;
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: linear-gradient(to bottom, #5ffaff, #7ba9fe);
+    }
+    .game-container {
+      text-align: center;
+      width: 100%;
+      max-width: 800px;
+      padding: 50px;
+      border: 2px solid #d3d3d3;
+      background-color: #f7f4f4;
+      border-radius: 10px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+    .story {
+      font-size: 1.2em;
+      line-height: 1.6;
+      text-align: left;
+      color: #333;
+    }
+    .clickable-word {
+      cursor: pointer;
+      color: #666;
+      transition: color 0.2s;
+    }
+    .clickable-word:hover {
+      color: #444;
+    }
+    .definition-box {
+      position: absolute;
+      background-color: #fff;
+      border: 1px solid #ccc;
+      padding: 10px;
+      border-radius: 5px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      display: none;
+      z-index: 10;
+      font-size: 0.9em;
+      color: #333;
+    }
+    .questions {
+      margin-top: 30px;
+      text-align: left;
+      font-size: 1.1em;
+    }
+    .questions h3 {
+      margin-bottom: 10px;
+      color: #007BFF;
+    }
+    .questions ol {
+      padding-left: 20px;
+    }
+    .questions li {
+      margin-bottom: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div class="game-container">
+    <h2>Spanish Story with Definitions</h2>
+
+    <!-- The Story -->
+    <div class="story">
+      <p>
+        <span class="clickable-word" data-definition="yesterday">Ayer</span>, 
+        me levanté <span class="clickable-word" data-definition="early">temprano</span>. 
+        <span class="clickable-word" data-definition="I went (ir - irregular)">fui</span> 
+        al <span class="clickable-word" data-definition="market">mercado</span> 
+        con mi <span class="clickable-word" data-definition="family">familia</span> 
+        y compré <span class="clickable-word" data-definition="vegetables">verduras</span> 
+        y <span class="clickable-word" data-definition="fruit">fruta</span>. 
+        <span class="clickable-word" data-definition="afterwards">Después</span>, 
+        volví a casa. Hablé con mis 
+        <span class="clickable-word" data-definition="parents">padres</span> 
+        <span class="clickable-word" data-definition="while">mientras</span> 
+        preparaba la comida. Bebí café y comí un 
+        <span class="clickable-word" data-definition="cake">pastel</span>. 
+        <span class="clickable-word" data-definition="it was (ser - irregular)">fue</span> 
+        un <span class="clickable-word" data-definition="day">día</span> muy 
+        <span class="clickable-word" data-definition="pleasant">agradable</span>.
+      </p>
+
+      <p>
+        <span class="clickable-word" data-definition="today">Hoy</span>, 
+        me levanto un <span class="clickable-word" data-definition="a little">poco</span> 
+        <span class="clickable-word" data-definition="late">tarde</span>. 
+        <span class="clickable-word" data-definition="still">Todavía</span> estoy 
+        <span class="clickable-word" data-definition="tired">cansado</span>, 
+        pero <span class="clickable-word" data-definition="I go (ir - irregular)">voy</span> 
+        a la <span class="clickable-word" data-definition="office">oficina</span> en 
+        <span class="clickable-word" data-definition="bus">autobús</span>. 
+        Trabajo hasta las cinco de la tarde y luego veo una 
+        <span class="clickable-word" data-definition="movie">película</span> 
+        con mi <span class="clickable-word" data-definition="friend">amigo</span>. 
+        <span class="clickable-word" data-definition="finally">Finalmente</span>, 
+        regreso a casa para descansar.
+      </p>
+    </div>
+
+    <!-- Definition Box (appears on click) -->
+    <div id="definitionBox" class="definition-box"></div>
+
+    <!-- Comprehension Questions -->
+    <div class="questions">
+      <h3>Comprehension Questions</h3>
+      <ol>
+        <li>¿Qué compró la persona en el mercado <span class="clickable-word" data-definition="yesterday">ayer</span>?</li>
+        <li>¿Por qué está <span class="clickable-word" data-definition="tired">cansada</span> hoy?</li>
+      </ol>
+    </div>
+  </div>
+
+  <script>
+    // Grab the definition box element
+    const definitionBox = document.getElementById('definitionBox');
+
+    // Add click event listeners to all clickable words
+    document.querySelectorAll('.clickable-word').forEach(word => {
+      word.addEventListener('click', (e) => {
+        // Determine the position of the clicked word
+        const rect = word.getBoundingClientRect();
+        const scrollTop = window.scrollY || document.documentElement.scrollTop;
+
+        // Position the definition box near the clicked word
+        definitionBox.style.display = 'block';
+        definitionBox.style.top = `${rect.top + scrollTop - 50}px`; // 50px above
+        definitionBox.style.left = `${rect.left}px`;
+
+        // Show the definition from the data-definition attribute
+        definitionBox.textContent = word.getAttribute('data-definition');
+      });
+    });
+
+    // Hide the definition box when clicking outside any clickable word
+    document.addEventListener('click', (e) => {
+      if (!e.target.classList.contains('clickable-word')) {
+        definitionBox.style.display = 'none';
+      }
+    });
+  </script>
+</body>
+</html>

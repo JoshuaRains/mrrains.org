@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Clickable Medium-Darker Pastel-on-Dark Spanish-Speaking World Map</title>
+  <style>
+    /* full-height dark background */
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      background-color: #121212;
+      color: #e0e0e0;
+    }
+
+    /* center map with vertical margins */
+    #map-container {
+      text-align: center;
+      margin: 20px 0;
+    }
+
+    /* size based on viewport height */
+    #map-container svg {
+      height: calc(100vh - 40px);
+      width: auto;
+      display: inline-block;
+    }
+
+    /* white borders, smooth fill transitions */
+    #map-container path[id] {
+      stroke: #fff;
+      stroke-width: 1;
+      transition: fill 0.2s;
+    }
+
+    /* hover accent */
+    #map-container path[id]:hover {
+      fill: #F0C040 !important;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <div id="map-container"></div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+      // 1. Load the SVG
+      const resp = await fetch('map_with_ids.svg');
+      const svgText = await resp.text();
+      document.getElementById('map-container').innerHTML = svgText;
+
+      // 2. Medium-darker pastel palette
+      const pastelColors = [
+        '#E9999A', // muted rose
+        '#E9D9A0', // muted sand
+        '#E9E9A0', // muted lemon
+        '#A0E9B4', // muted mint
+        '#A0C6E9', // muted sky
+        '#C1D9A8', // muted sage
+        '#D9A8D9', // muted lavender
+        '#C1D1D1', // muted grey-blue
+        '#B5C3E9', // muted periwinkle
+        '#E9B5B5'  // muted peach
+      ];
+
+      // 3. ID → Country mapping (Spanish names)
+      const countryById = {
+        path17: 'México',
+        path12: 'Guatemala',
+        path4:  'Belice',
+        path24: 'El Salvador',
+        path14: 'Honduras',
+        path18: 'Nicaragua',
+        path7:  'Costa Rica',
+        path19: 'Panamá',
+        path8:  'Cuba',
+        path15: 'Haití',
+        path9:  'República Dominicana',
+        path16: 'Jamaica',
+        path21: 'Puerto Rico',
+        path6:  'Colombia',
+        path26: 'Venezuela',
+        path13: 'Guyana',
+        path23: 'Surinam',
+        path11: 'Guayana Francesa',
+        path29: 'Brasil',
+        path22: 'Paraguay',
+        path25: 'Uruguay',
+        path27: 'Argentina',
+        path5:  'Chile',
+        path20: 'Perú',
+        path28: 'Bolivia',
+        path10: 'Ecuador'
+      };
+
+      // 4. Apply fills & attach click handlers
+      const svg = document.querySelector('#map-container svg');
+      svg.querySelectorAll('path[id]').forEach((path, i) => {
+        path.style.fill = pastelColors[i % pastelColors.length];
+        path.addEventListener('click', () => {
+          console.log(countryById[path.id] || path.id);
+        });
+      });
+    });
+  </script>
+</body>
+</html>

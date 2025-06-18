@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Juego de Países Hispanohablantes</title>
+  <style>
+    /* Full-screen container */
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+    }
+    #game-container {
+      display: flex;
+      height: 100vh;
+      font-family: sans-serif;
+    }
+
+    /* Left panel: question, accuracy, timer */
+    #question-panel {
+      width: 40%;
+      background-color: #1e1e1e;
+      color: #ffffff;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+    #question-panel > * {
+      margin: 10px;
+      text-align: center;
+    }
+    #reset-button {
+      padding: 8px 16px;
+      font-size: 1em;
+      background: #F0C040;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      display: none;
+    }
+
+    /* Right panel: map, now flex-centered and height-based */
+    #map-panel {
+      flex: 1;
+      background-color: #121212;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+    /* Map container sized by viewport height */
+    #map-container {
+      height: 100vh;
+      width: auto;
+    }
+    #map-container svg {
+      height: 100%;
+      width: auto;
+      display: block;
+    }
+
+    /* Country default & transitions */
+    #map-container path[id] {
+      fill: #000;
+      stroke: #fff;
+      stroke-width: 1;
+      transition: fill 0.2s;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <div id="game-container">
+    <div id="question-panel">
+      <div id="question-text">Cargando juego…</div>
+      <div id="accuracy">Precisión: 0%</div>
+      <div id="timer">Tiempo: 00:00</div>
+      <button id="reset-button">Reiniciar</button>
+    </div>
+    <div id="map-panel">
+      <div id="map-container"></div>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+      // --- Elements ---
+      const questionText = document.getElementById('question-text');
+      const accuracyText = document.getElementById('accuracy');
+      const timerText = document.getElementById('timer');
+      const resetButton = document.getElementById('reset-button');
+      const mapContainer = document.getElementById('map-container');
+
+      // --- Load SVG ---
+      const svgResp = await fetch('map_with_ids.svg');
+      const svgText = await svgResp.text();
+      mapContainer.innerHTML = svgText;
+      const svg = mapContainer.querySelector('svg');
+
+      // --- Mappings ---
+      const countryById = {
+        path17:'México',   path12:'Guatemala',
+        path4:'Belice',    path24:'El Salvador',
+        path14:'Honduras', path18:'Nicaragua',
+        path7:'Costa Rica',path19:'Panamá',
+        path8:'Cuba',      path15:'Haití',
+        path9:'República Dominicana', path16:'Jamaica',
+        path21:'Puerto Rico', path6:'Colombia',
+        path26:'Venezuela', path13:'Guyana',
+        path23:'Surinam',   path11:'Guayana Francesa',
+        path29:'Brasil',    path22:'Paraguay',
+        path25:'Uruguay',   path27:'Argentina',
+        path5:'Chile',      path20:'Perú',
+        path28:'Bolivia',   path10:'Ecuador'
+      };
+      const countryIds = Object.keys(countryById);
+
+      // --- Game State ---
+      let unanswered, currentId;
+      let wrongGuesses, correctCount, attemptedCount;
+      let startTime, timerInterval, flashInterval;
+
+      // --- Utility Functions ---
+      function formatTime(ms) {
+        const totalSec = Math.floor(ms / 1000);
+        const m = String(Math.floor(totalSec / 60)).padStart(2,'0');
+        const s = String(totalSec % 60).padStart(2,'0');
+        return `${m}:${s}`;
+      }
+      function updateAccuracy() {
+        const acc = attemptedCount === 0 ? 0
+          : Math.round((correctCount / attemptedCount) * 100);
+        accuracyText.textContent = `Precisión: ${acc}%`;
+      }
+      function updateTimer() {
+        const elapsed = Date.now() - startTime;
+        timerText.textContent = `Tiempo: ${formatTime(elapsed)}`;
+      }
+      function stopTimer() {
+        clearInterval(timerInterval);
+        updateTimer();
+      }
+      function startTimer() {
+        startTime = Date.now();
+        timerText.textContent = 'Tiempo: 00:00';
+        timerInterval = setInterval(updateTimer, 1000);
+      }
+      function clearFlash() {
+        if (flashInterval) clearInterval(flashInterval);
+      }
+
+      // --- Pick Next Country ---
+      function pickNext() {
+        if (unanswered.length === 0) {
+          stopTimer();
+          questionText.textContent = '¡Completado!';
+          resetButton.style.display = 'block';
+          return;
+        }
+        wrongGuesses = 0;
+        clearFlash();
+        const idx = Math.floor(Math.random() * unanswered.length);
+        currentId = unanswered[idx];
+        questionText.textContent = `Haz clic en: ${countryById[currentId]}`;
+      }
+
+      // --- Handle Country Click ---
+      function handleClick(e) {
+        const id = e.currentTarget.id;
+        if (id === currentId) {
+          clearFlash();
+          e.currentTarget.style.fill = 'green';
+          correctCount++;
+          attemptedCount++;
+          updateAccuracy();
+          unanswered = unanswered.filter(cid => cid !== id);
+          pickNext();
+        } else {
+          wrongGuesses++;
+          attemptedCount++;
+          updateAccuracy();
+          const el = e.currentTarget;
+          el.style.fill = 'red';
+          setTimeout(() => {
+            if (unanswered.includes(el.id)) el.style.fill = 'black';
+          }, 300);
+          if (wrongGuesses === 3) {
+            const correctEl = svg.querySelector(`#${currentId}`);
+            let on = false;
+            flashInterval = setInterval(() => {
+              correctEl.style.fill = on ? 'green' : 'black';
+              on = !on;
+            }, 500);
+          }
+        }
+      }
+
+      // --- Start or Reset Game ---
+      function startGame() {
+        unanswered = [...countryIds];
+        correctCount = 0;
+        attemptedCount = 0;
+        updateAccuracy();
+        resetButton.style.display = 'none';
+        clearFlash();
+        svg.querySelectorAll('path[id]').forEach(path => {
+          path.style.fill = 'black';
+          path.removeEventListener('click', handleClick);
+          path.addEventListener('click', handleClick);
+        });
+        pickNext();
+        startTimer();
+      }
+
+      // --- Reset Button ---
+      resetButton.addEventListener('click', startGame);
+
+      // --- Initialize ---
+      startGame();
+    });
+  </script>
+</body>
+</html>

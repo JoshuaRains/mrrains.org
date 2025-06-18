@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Class Check-In/Check-Out</title>
+  <!-- SheetJS for .xlsx generation -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <style>
+    body {
+      font-family: sans-serif;
+      padding: 2rem;
+      background-color: #121212;
+      color: #ffffff;
+    }
+
+    label, input, button {
+      font-size: 1rem;
+      color: #ffffff;
+    }
+
+    #timerDisplay {
+      font-size: 6rem; /* Slightly bigger timer */
+      margin: 1rem 0;
+      display: block;
+      text-align: center;
+    }
+
+    #nameContainer {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 50vh; /* Center vertically */
+    }
+
+    #nameContainer label {
+      font-size: 2rem; /* Bigger label font size */
+    }
+
+    #studentName {
+      font-size: 1.5rem; /* Keep input font size consistent */
+      padding: 0.5rem;
+      width: 50%; /* Wider input field */
+      text-align: left; /* Align text to the left */
+      color: #000000; /* Black font for visibility against white background */
+    }
+
+    #checkButton {
+      font-size: 1.5rem; /* Larger font for button */
+      margin-top: 1rem;
+    }
+
+    button {
+      background-color: #333333;
+      color: #ffffff;
+      border: none;
+      padding: 0.5rem 1rem;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #444444;
+    }
+
+    #downloadButton {
+      position: fixed;
+      bottom: 1rem;
+      left: 1rem;
+    }
+  </style>
+</head>
+<body>
+  <div>
+    <span id="timerDisplay">00:00:00</span>
+  </div>
+
+  <div id="nameContainer">
+    <label for="studentName">First and Last Name:</label>
+    <input type="text" id="studentName" />
+    <button id="checkButton">Check Out</button>
+  </div>
+
+  <div>
+    <button id="downloadButton">Download Log</button>
+  </div>
+
+  <div id="fullscreenContainer" style="position: fixed; bottom: 1rem; right: 1rem;">
+    <img id="fullscreenButton" src="../../../assets/fullscreen.svg" alt="Enter Fullscreen" style="cursor: pointer; width: 2rem; height: 2rem;" />
+    <img id="exitFullscreenButton" src="../../../assets/fullscreen_exit.svg" alt="Exit Fullscreen" style="cursor: pointer; width: 2rem; height: 2rem; display: none;" />
+  </div>
+
+  <script>
+    // ─── CONFIGURE THESE ─────────────────────────────────────────────
+    const acceptableTime   = 5 * 60;   // seconds → green until 5 min
+    const unacceptableTime = 10 * 60;  // seconds → yellow until 10 min, then red
+    // ────────────────────────────────────────────────────────────────
+
+    let entries       = [];
+    let isCheckedOut  = false;
+    let checkoutTime  = null;
+    let timerInterval = null;
+
+    const nameInput     = document.getElementById("studentName");
+    const checkButton   = document.getElementById("checkButton");
+    const timerDisplay  = document.getElementById("timerDisplay");
+    const downloadButton = document.getElementById("downloadButton");
+
+    function pad(num) {
+      return String(num).padStart(2, "0");
+    }
+
+    function formatTime(sec) {
+      const h = Math.floor(sec / 3600);
+      const m = Math.floor((sec % 3600) / 60);
+      const s = sec % 60;
+      return `${pad(h)}:${pad(m)}:${pad(s)}`;
+    }
+
+    checkButton.addEventListener("click", () => {
+      if (!isCheckedOut) {
+        const name = nameInput.value.trim();
+        if (!name) {
+          alert("Please enter your name.");
+          return;
+        }
+        // start
+        isCheckedOut = true;
+        checkoutTime = new Date();
+        checkButton.textContent = "Check In";
+        nameInput.disabled = true;
+
+        timerInterval = setInterval(() => {
+          const elapsed = Math.floor((Date.now() - checkoutTime) / 1000);
+          timerDisplay.textContent = formatTime(elapsed);
+          if (elapsed <= acceptableTime) {
+            timerDisplay.style.color = "green";
+          } else if (elapsed <= unacceptableTime) {
+            timerDisplay.style.color = "orange";
+          } else {
+            timerDisplay.style.color = "red";
+          }
+        }, 1000);
+
+      } else {
+        // stop & record
+        const checkinTime = new Date();
+        clearInterval(timerInterval);
+        const totalSec = Math.floor((checkinTime - checkoutTime) / 1000);
+        entries.push({
+          name:         nameInput.value.trim(),
+          checkout:     checkoutTime,
+          checkin:      checkinTime,
+          totalSeconds: totalSec
+        });
+
+        // reset UI
+        isCheckedOut = false;
+        checkoutTime = null;
+        timerInterval = null;
+        timerDisplay.textContent = "00:00:00";
+        timerDisplay.style.color = "black";
+        checkButton.textContent = "Check Out";
+        nameInput.value = "";
+        nameInput.disabled = false;
+      }
+    });
+
+    downloadButton.addEventListener("click", () => {
+      if (entries.length === 0) {
+        alert("No entries to download yet.");
+        return;
+      }
+      // build worksheet data
+      const wsData = [
+        ["Date", "Name", "Time Checked Out", "Time Checked In", "Total Time"]
+      ];
+      entries.forEach(e => {
+        const checkoutDate = e.checkout.toLocaleDateString();
+        const checkoutTime = e.checkout.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true });
+        const checkinTime = e.checkin.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true });
+        wsData.push([
+          checkoutDate,
+          e.name,
+          checkoutTime,
+          checkinTime,
+          formatTime(e.totalSeconds)
+        ]);
+      });
+      const wb = XLSX.utils.book_new();
+      const ws = XLSX.utils.aoa_to_sheet(wsData);
+      XLSX.utils.book_append_sheet(wb, ws, "Log");
+
+      // Generate filename with current date
+      const today = new Date();
+      const formattedDate = `${today.getMonth() + 1}-${today.getDate()}-${today.getFullYear().toString().slice(-2)}`;
+      const filename = `BathroomLog_${formattedDate}.xlsx`;
+
+      XLSX.writeFile(wb, filename);
+    });
+
+    const fullscreenButton = document.getElementById("fullscreenButton");
+    const exitFullscreenButton = document.getElementById("exitFullscreenButton");
+
+    fullscreenButton.addEventListener("click", () => {
+      if (document.documentElement.requestFullscreen) {
+        document.documentElement.requestFullscreen();
+      } else if (document.documentElement.webkitRequestFullscreen) { // Safari
+        document.documentElement.webkitRequestFullscreen();
+      } else if (document.documentElement.msRequestFullscreen) { // IE11
+        document.documentElement.msRequestFullscreen();
+      }
+      fullscreenButton.style.display = "none";
+      exitFullscreenButton.style.display = "block";
+    });
+
+    exitFullscreenButton.addEventListener("click", () => {
+      if (document.exitFullscreen) {
+        document.exitFullscreen();
+      } else if (document.webkitExitFullscreen) { // Safari
+        document.webkitExitFullscreen();
+      } else if (document.msExitFullscreen) { // IE11
+        document.msExitFullscreen();
+      }
+      fullscreenButton.style.display = "block";
+      exitFullscreenButton.style.display = "none";
+    });
+
+    document.addEventListener("fullscreenchange", () => {
+      if (document.fullscreenElement) {
+        fullscreenButton.style.display = "none";
+        exitFullscreenButton.style.display = "block";
+      } else {
+        fullscreenButton.style.display = "block";
+        exitFullscreenButton.style.display = "none";
+      }
+    });
+
+    window.addEventListener("beforeunload", (event) => {
+      event.preventDefault();
+      event.returnValue = "Are you sure you want to leave? Your data will be lost.";
+    });
+
+    function scheduleLogDownload() {
+      const now = new Date();
+      const targetTime = new Date();
+      targetTime.setHours(15, 0, 0, 0); // Set target time to 3:00 PM
+
+      if (now > targetTime) {
+        targetTime.setDate(targetTime.getDate() + 1); // Schedule for the next day if time has passed
+      }
+
+      const timeUntilDownload = targetTime - now;
+
+      setTimeout(() => {
+        downloadButton.click(); // Trigger the download button click
+        scheduleLogDownload(); // Reschedule for the next day
+      }, timeUntilDownload);
+    }
+
+    scheduleLogDownload();
+  </script>
+</body>
+</html>

@@ -1,0 +1,923 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Bubble Sheet Scanner – Guided</title>
+  <link href="https://fonts.googleapis.com/css?family=Noto+Sans:400,700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <script async src="https://docs.opencv.org/4.8.0/opencv.js" onload="onOpenCvReady();"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <style>
+    :root {
+      --green-main: #517860;
+      --green-light: #a2ebad;
+      --green-dark: #395c48;
+      --canvas-bg: #f6fff8;
+      --canvas-border: #7af1a4;
+      --panel-max: 1080px;
+      --canvas-w: 400px;
+      --canvas-h: 290px;
+    }
+    html, body {
+      height: 100%; width: 100%; margin: 0; padding: 0;
+      font-family: 'Noto Sans', Arial, sans-serif;
+      background: linear-gradient(to bottom, var(--green-main), #5c8a6d);
+      color: #fff;
+      min-height: 100vh;
+    }
+    body { 
+      display: flex; align-items: center; justify-content: center; min-height: 100vh; 
+    }
+    #app {
+      width: 100%; max-width: var(--panel-max); margin: 0 auto; 
+      background: rgba(80, 140, 110, 0.14);
+      border-radius: 36px;
+      box-shadow: 0 12px 32px 0 rgba(50,70,60,0.16);
+      padding: 44px 24px 36px 24px;
+      min-height: 690px;
+    }
+    h1 {
+      text-align: center; font-size: 2.25rem; margin: 0 0 16px 0; letter-spacing: 0.01em;
+    }
+    .step { display: none; }
+    .step.active { display: flex; flex-direction: row; gap: 48px; align-items: flex-start; justify-content: center; animation: fadeIn .5s; }
+    .canvas-panel {
+      min-width: var(--canvas-w); max-width: var(--canvas-w); flex-shrink: 0; display: flex; flex-direction: column; align-items: center;
+    }
+    canvas {
+      background: var(--canvas-bg);
+      border-radius: 16px;
+      border: 3px solid var(--canvas-border);
+      box-shadow: 0 2px 16px 0 rgba(60,160,110,0.11);
+      max-width: var(--canvas-w); min-width: 240px; width: 100%;
+      height: auto;
+      min-height: 180px; max-height: var(--canvas-h);
+      margin-bottom: 10px;
+      object-fit: contain;
+      display: block;
+    }
+    .canvas-panel span {
+      color: #fff;
+      font-weight: 600;
+      font-size: 1.15rem;
+      margin-top: 3px;
+      text-align: center;
+      letter-spacing: 0.01em;
+    }
+    .main-panel {
+      flex: 1;
+      min-width: 320px;
+      max-width: 470px;
+      display: flex; flex-direction: column; align-items: flex-start;
+      justify-content: flex-start;
+      margin-top: 8px;
+    }
+    .big-instruction {
+      font-size: 1.45rem;
+      text-align: left;
+      margin: 0 0 24px 0;
+      line-height: 1.21;
+      font-weight: 700;
+      max-width: 440px;
+      word-break: break-word;
+      letter-spacing: 0.01em;
+    }
+    .material-icons {
+      vertical-align: middle;
+      font-size: 1.7em;
+      margin-right: 9px;
+      color: var(--green-light);
+    }
+    .answer-group, .adjust-group { margin: 17px 0 13px 0; }
+    .answer-group label, .adjust-group label { font-size: 1.13em; font-weight: 600;}
+    .slider-row { display: flex; align-items: center; gap: 15px; margin-bottom: 12px; }
+    input[type="text"], input[type="number"] {
+      border: 2px solid var(--green-light);
+      border-radius: 10px;
+      padding: 12px 14px;
+      font-size: 1.15rem;
+      width: 250px;
+      background: #fafcfb;
+      color: #2a4231;
+      outline: none;
+      margin-bottom: 7px;
+      margin-right: 10px;
+      transition: border 0.13s;
+      box-sizing: border-box;
+    }
+    input[type="text"]:focus, input[type="number"]:focus { border: 2px solid #58b76d;}
+    input[type="range"] { width: 170px; margin-top: 3px;}
+    button {
+      background: linear-gradient(90deg, #58b76d 60%, #3f5f4d 100%);
+      color: #fff;
+      border: none;
+      padding: 13px 30px;
+      font-weight: bold;
+      font-size: 1.14rem;
+      border-radius: 18px;
+      margin-top: 18px;
+      box-shadow: 0 2px 12px 0 rgba(80,140,110,0.12);
+      cursor: pointer;
+      display: flex; align-items: center; gap: 9px;
+      transition: background .18s;
+    }
+    button:hover { background: linear-gradient(90deg, #71f29b 60%, #49705a 100%);}
+    .back-btn {
+      background: none;
+      color: var(--green-light);
+      border: none;
+      font-size: 1.01rem;
+      padding: 6px 10px;
+      margin: 0 0 13px 0;
+      cursor: pointer;
+      display: flex; align-items: center; gap: 6px;
+      box-shadow: none;
+    }
+    .back-btn:hover { color: #fff; }
+    label.file-drop {
+      display: flex; align-items: center; justify-content: center;
+      width: 100%; min-width: 300px; min-height: 175px; height: 225px;
+      border: 3px dashed var(--green-light);
+      border-radius: 20px;
+      cursor: pointer;
+      background: rgba(0,0,0,0.08);
+      font-size: 1.19rem;
+      text-align: center;
+      font-weight: 500;
+      color: #d8f6df;
+      flex-direction: column;
+      transition: background 0.13s, border 0.13s;
+    }
+    label.file-drop.dragover {
+      background: rgba(95, 211, 128, 0.16);
+      border: 3px solid #fff;
+      color: #58b76d;
+    }
+    .counter { font-size: 1.15em; margin-bottom: 17px; color: #e0ffe7; }
+    @media (max-width: 1100px) {
+      #app { max-width: 98vw; padding: 0 0 30px 0;}
+      .step.active { gap: 14vw; }
+      .main-panel { max-width: 99vw;}
+    }
+    @media (max-width: 900px) {
+      :root { --canvas-w: 80vw; }
+      #app { border-radius: 18px; padding: 6vw 2vw;}
+      .step.active { flex-direction: column; align-items: stretch; gap: 28px;}
+      .canvas-panel, .main-panel { min-width: 0; max-width: 98vw;}
+    }
+    @media (max-width: 650px) {
+      :root { --canvas-w: 97vw; --canvas-h: 40vw; }
+      .canvas-panel, .main-panel { padding: 0; }
+      .big-instruction { font-size: 1.11rem; }
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(18px);}
+      to { opacity: 1; transform: translateY(0);}
+    }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <h1><span class="material-icons" style="font-size:2em;color:#a2ebad;">ballot</span>Bubble Sheet Scanner</h1>
+
+    <!-- Step 1: Upload -->
+    <div id="step1" class="step active">
+      <div class="canvas-panel">
+        <label class="file-drop" id="dropZone">
+          <span class="material-icons" style="font-size:2.3em;">add_photo_alternate</span>
+          Drag & drop images here<br>or click to select files
+          <input type="file" id="fileInput" accept="image/*" multiple>
+        </label>
+        <div class="counter"><span id="fileCount">0</span> images selected</div>
+      </div>
+      <div class="main-panel">
+        <div class="big-instruction">
+          <span class="material-icons">upload_file</span>
+          Upload photos or scans of your bubble sheets.
+          <div style="font-size:1em;font-weight:400;opacity:0.86;margin-top:5px;">
+            For best results, make sure all 4 corners are visible and well-lit.
+          </div>
+        </div>
+        <button id="step1Next"><span class="material-icons">arrow_forward</span>Start Calibration</button>
+      </div>
+    </div>
+
+    <!-- Step 2: Calibration Intro -->
+    <div id="step2" class="step">
+      <div class="canvas-panel"></div>
+      <div class="main-panel">
+        <div class="big-instruction">
+          <span class="material-icons">settings</span>
+          Now we are going to go through some calibration steps.
+          <div style="font-size:1.07em;font-weight:400;opacity:0.87;margin-top:10px;">
+            This will help us get the most accurate results.<br>
+            You'll see previews for each stage and can adjust as needed.
+          </div>
+        </div>
+        <button id="step2Next"><span class="material-icons">done</span>Okay</button>
+        <button class="back-btn" id="step2Back"><span class="material-icons">arrow_back</span>Back</button>
+      </div>
+    </div>
+
+    <!-- Step 3: Warped -->
+    <div id="step3" class="step">
+      <div class="canvas-panel">
+        <canvas id="warpCanvas" width="400" height="290"></canvas>
+        <span>Warped preview</span>
+      </div>
+      <div class="main-panel">
+        <div class="big-instruction">
+          <span class="material-icons">crop</span>
+          Does this scan look correct?
+          <div style="font-size:1.07em;font-weight:400;opacity:0.87;margin-top:10px;">
+            The image should look like a flat, straightened version of your bubble sheet.<br>
+            If it's cut off or distorted, go back and try a different image.
+          </div>
+        </div>
+        <div style="margin:22px 0 6px 0;display:flex;gap:18px;">
+          <button id="step3Yes"><span class="material-icons">done</span>Yes</button>
+          <button id="step3Rescan"><span class="material-icons">restart_alt</span>Rescan images</button>
+        </div>
+        <button class="back-btn" id="step3Back"><span class="material-icons">arrow_back</span>Back</button>
+      </div>
+    </div>
+
+    <!-- Step 4: Threshold Calibration -->
+    <div id="step4" class="step">
+      <div class="canvas-panel">
+        <canvas id="threshCanvas" width="400" height="290"></canvas>
+        <span>Thresholded (bubbles outlined in green)</span>
+      </div>
+      <div class="main-panel">
+        <div class="big-instruction">
+          <span class="material-icons">tune</span>
+          Slide the bar until all of the bubbles turn <span style="color:#81faad;font-weight:700;">green</span>.<br>
+          <span style="font-weight:600;color:#fae07a;">Ensure that <i>only</i> the bubbles are green!</span>
+        </div>
+        <div class="adjust-group">
+          <label>Threshold</label>
+          <input type="range" id="thresholdVal" min="0" max="255" value="128">
+          <span id="thresholdDisplay">128</span>
+        </div>
+        <button id="step4Next"><span class="material-icons">arrow_forward</span>Next</button>
+        <button class="back-btn" id="step4Back"><span class="material-icons">arrow_back</span>Back</button>
+      </div>
+    </div>
+
+    <!-- Step 5: Enter Key & Graded Visualization -->
+    <div id="step5" class="step">
+      <div class="canvas-panel">
+        <canvas id="finalCanvas" width="400" height="290"></canvas>
+        <span>Final Graded</span>
+      </div>
+      <div class="main-panel">
+        <div class="big-instruction">
+          <span class="material-icons">fact_check</span>
+          Enter your answer key and see the grading!
+          <div style="font-size:.99em;font-weight:400;opacity:0.89;margin-top:10px;">
+            Enter the answer key as a comma-separated list (e.g. A,B,C,D,A,...) and set number of questions per column.<br>
+            The selected bubbles will be <span style="color:#30e851;font-weight:600;">green</span> if correct, <span style="color:#fd4545;font-weight:600;">red</span> if incorrect.
+          </div>
+        </div>
+        <div class="answer-group">
+          <label><span class="material-icons">key</span>Answer key:</label><br>
+          <input type="text" id="answerKey" placeholder="A,B,C,D,A,...">
+        </div>
+        <div class="answer-group">
+          <label>Rows per column:</label>
+          <input type="number" id="numQuestions" min="5" max="50" value="15">
+        </div>
+        <div class="adjust-group">
+          <div class="slider-row">
+            <label>Min size</label><input type="range" id="minSize" min="5" max="50" value="10">
+          </div>
+          <div class="slider-row">
+            <label>Circularity</label><input type="range" id="circ" min="0" max="1" step="0.01" value="0.6">
+          </div>
+          <div class="slider-row">
+            <label>Fill Thresh</label><input type="range" id="fillThresh" min="0" max="300" value="200">
+          </div>
+        </div>
+        <button id="step5Download"><span class="material-icons">download</span>Download PDF</button>
+        <button class="back-btn" id="step5Back"><span class="material-icons">arrow_back</span>Back</button>
+      </div>
+    </div>
+    <canvas id="captureCanvas" width="600" height="800" style="display:none;"></canvas>
+  </div>
+<script>
+const CANVAS_WIDTH = 400;
+const CANVAS_HEIGHT = 290;
+
+let cvReady = false;
+const files = [];
+let currentSheetIdx = 0;
+let warpedMat = null, bubbles = [];
+let allResults = []; // This stores results for all sheets
+
+function onOpenCvReady() { cvReady = true; }
+
+function showStep(n) {
+  document.querySelectorAll('.step').forEach((el, idx) => {
+    el.classList.toggle('active', idx === n);
+  });
+}
+
+// Step 1: Upload
+const dropZone = document.getElementById("dropZone");
+const fileInput = document.getElementById("fileInput");
+const fileCount = document.getElementById("fileCount");
+fileInput.addEventListener("change", () => handleFiles([...fileInput.files]));
+["dragenter", "dragover"].forEach(e => dropZone.addEventListener(e, ev => {
+  ev.preventDefault(); dropZone.classList.add("dragover");
+}));
+dropZone.addEventListener("dragleave", () => dropZone.classList.remove("dragover"));
+dropZone.addEventListener("drop", ev => {
+  ev.preventDefault(); dropZone.classList.remove("dragover");
+  handleFiles([...ev.dataTransfer.files]);
+});
+function handleFiles(flist) {
+  files.length = 0;
+  flist.forEach(f => { if (f.type.startsWith("image/")) files.push(f); });
+  fileCount.textContent = files.length;
+  currentSheetIdx = 0;
+  allResults = [];
+}
+document.getElementById("step1Next").onclick = () => {
+  if (!files.length) return alert("Please attach at least one image.");
+  showStep(1);
+};
+
+// Step 2: Calibration
+document.getElementById("step2Next").onclick = () => {
+  showStep(2);
+  setTimeout(()=>processWarp(), 120);
+};
+document.getElementById("step2Back").onclick = () => showStep(0);
+
+// Step 3: Warped
+document.getElementById("step3Yes").onclick = () => {
+  showStep(3);
+  setTimeout(()=>processThresh(), 120);
+};
+document.getElementById("step3Rescan").onclick = () => showStep(0);
+document.getElementById("step3Back").onclick = () => showStep(1);
+
+// Step 4: Threshold
+document.getElementById("thresholdVal").oninput = function() {
+  document.getElementById("thresholdDisplay").textContent = this.value;
+  processThresh();
+};
+document.getElementById("step4Next").onclick = () => {
+  showStep(4);
+  setTimeout(()=>processFinal(), 120);
+};
+document.getElementById("step4Back").onclick = () => showStep(2);
+
+// Step 5: Final Graded
+["answerKey","numQuestions","minSize","circ","fillThresh"].forEach(id=>{
+  document.getElementById(id).oninput = ()=>processFinal();
+});
+
+// Add "Next Sheet" button after PDF download, only show if >1 file
+let nextBtn;
+function addNextBtnIfNeeded() {
+  if (!nextBtn && files.length > 1) {
+    nextBtn = document.createElement('button');
+    nextBtn.innerHTML = `<span class="material-icons">navigate_next</span>Next Sheet`;
+    nextBtn.style.marginLeft = '12px';
+    nextBtn.onclick = nextSheet;
+    const step5 = document.getElementById('step5');
+    step5.querySelector('.main-panel').appendChild(nextBtn);
+  }
+}
+function removeNextBtn() {
+  if (nextBtn) {
+    nextBtn.remove();
+    nextBtn = null;
+  }
+}
+
+// PDF export
+document.getElementById("step5Download").onclick = exportPDF;
+document.getElementById("step5Back").onclick = () => showStep(3);
+
+function nextSheet() {
+  saveCurrentSheetResult();
+  currentSheetIdx++;
+  removeNextBtn();
+  if (currentSheetIdx < files.length) {
+    showStep(1);
+    document.getElementById("fileCount").textContent = files.length;
+    document.getElementById("step1Next").click();
+  } else {
+    alert("All sheets scanned! Click Download PDF to export results.");
+  }
+}
+
+// --- Image Processing Logic ---
+function processWarp() {
+  if (!files[currentSheetIdx]) return;
+  const file = files[currentSheetIdx];
+  const reader = new FileReader();
+  reader.onload = e => {
+    const img = new Image();
+    img.onload = () => {
+      const cap = document.getElementById("captureCanvas");
+      cap.width = 600; cap.height = 800;
+      const ctx = cap.getContext("2d");
+      ctx.clearRect(0, 0, cap.width, cap.height);
+      ctx.drawImage(img, 0, 0, cap.width, cap.height);
+      const src = cv.imread(cap);
+
+      // Detect and warp
+      const gray = new cv.Mat();
+      cv.cvtColor(src, gray, cv.COLOR_RGBA2GRAY);
+      const blur = new cv.Mat();
+      cv.GaussianBlur(gray, blur, new cv.Size(5,5), 0);
+      const edges = new cv.Mat();
+      cv.Canny(blur, edges, 75, 200);
+      const ctrs = new cv.MatVector(), hier = new cv.Mat();
+      cv.findContours(edges, ctrs, hier, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE);
+
+      let sheet = null;
+      for (let i = 0; i < ctrs.size(); i++) {
+        const cnt = ctrs.get(i);
+        const peri = cv.arcLength(cnt, true);
+        const approx = new cv.Mat();
+        cv.approxPolyDP(cnt, approx, 0.04 * peri, true);
+        if (approx.rows === 4) { sheet = approx; break; }
+      }
+      if (!sheet) {
+        alert("No sheet detected. Try a clearer photo.");
+        src.delete(); gray.delete(); blur.delete(); edges.delete();
+        ctrs.delete(); hier.delete();
+        return;
+      }
+      const pts = [];
+      for (let i = 0; i < 4; i++) pts.push({ x: sheet.intAt(i,0), y: sheet.intAt(i,1) });
+      warpedMat = fourPointTransform(src, pts);
+
+      // Resize to fit CANVAS_WIDTH for all steps
+      let scaled = new cv.Mat();
+      cv.resize(warpedMat, scaled, new cv.Size(CANVAS_WIDTH, CANVAS_HEIGHT));
+      cv.imshow("warpCanvas", scaled);
+
+      src.delete(); gray.delete(); blur.delete(); edges.delete();
+      ctrs.delete(); hier.delete(); sheet.delete();
+      warpedMat.delete(); warpedMat = scaled;
+    };
+    img.src = e.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+
+function processThresh() {
+  if (!warpedMat) return;
+  const warpedGray = new cv.Mat();
+  cv.cvtColor(warpedMat, warpedGray, cv.COLOR_RGBA2GRAY);
+  const thresh = new cv.Mat();
+  const tVal = +document.getElementById("thresholdVal").value;
+  cv.threshold(warpedGray, thresh, tVal, 255, cv.THRESH_BINARY_INV);
+
+  const minSize = +document.getElementById("minSize").value;
+  const minCirc = +document.getElementById("circ").value;
+  const ctrs = new cv.MatVector(), hier = new cv.Mat();
+  cv.findContours(thresh.clone(), ctrs, hier, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE);
+  const threshMatColor = new cv.Mat();
+  cv.cvtColor(thresh, threshMatColor, cv.COLOR_GRAY2RGB);
+  for (let i = 0; i < ctrs.size(); i++) {
+    const cnt = ctrs.get(i);
+    const rect = cv.boundingRect(cnt);
+    const area = cv.contourArea(cnt);
+    const peri = cv.arcLength(cnt, true);
+    const circ = (4 * Math.PI * area) / (peri * peri);
+    if (rect.width >= minSize && rect.height >= minSize && circ >= minCirc) {
+      const v = new cv.MatVector(); v.push_back(cnt);
+      cv.drawContours(threshMatColor, v, 0, new cv.Scalar(44,230,135,255), 2);
+      v.delete();
+    }
+  }
+  cv.imshow("threshCanvas", threshMatColor);
+  threshMatColor.delete();
+  warpedGray.delete(); thresh.delete(); ctrs.delete(); hier.delete();
+}
+
+function processFinal() {
+  if (!warpedMat) return;
+  const warpedGray = new cv.Mat();
+  cv.cvtColor(warpedMat, warpedGray, cv.COLOR_RGBA2GRAY);
+  const thresh = new cv.Mat();
+  const tVal = +document.getElementById("thresholdVal").value;
+  cv.threshold(warpedGray, thresh, tVal, 255, cv.THRESH_BINARY_INV);
+
+  const minSize = +document.getElementById("minSize").value;
+  const minCirc = +document.getElementById("circ").value;
+  const fillThresh = +document.getElementById("fillThresh").value;
+  const numRows = +document.getElementById("numQuestions").value;
+  const key = document.getElementById("answerKey").value
+    .split(",").map(s=>s.trim().toUpperCase());
+
+  const ctrs = new cv.MatVector(), hier = new cv.Mat();
+  cv.findContours(thresh.clone(), ctrs, hier, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE);
+  let bubbles = [];
+  for (let i = 0; i < ctrs.size(); i++) {
+    const cnt = ctrs.get(i);
+    const rect = cv.boundingRect(cnt);
+    const area = cv.contourArea(cnt);
+    const peri = cv.arcLength(cnt, true);
+    const circ = (4 * Math.PI * area) / (peri * peri);
+    if (rect.width >= minSize && rect.height >= minSize && circ >= minCirc) {
+      bubbles.push({ cnt, rect });
+    }
+  }
+  ctrs.delete(); hier.delete();
+
+  // --- SORT BUBBLES ---
+  const left = [], right = [];
+  const halfW = warpedMat.cols / 2;
+  bubbles.forEach(b => {
+    const cx = b.rect.x + b.rect.width/2;
+    (cx < halfW ? left : right).push(b);
+  });
+  left.sort((a,b)=>a.rect.y - b.rect.y);
+  right.sort((a,b)=>a.rect.y - b.rect.y);
+
+  // --- GRADE & DRAW ---
+  const finalMat = warpedMat.clone();
+  let results = [];
+  function gradeSide(bubbles, offset) {
+    for (let r = 0; r < numRows; r++) {
+      const row = bubbles.slice(r*5, (r+1)*5)
+        .sort((a,b)=>a.rect.x - b.rect.x);
+      // find bubbled index
+      let bubbled = -1, maxVal = 0;
+      row.forEach((b, i) => {
+        const mask = cv.Mat.zeros(thresh.rows, thresh.cols, cv.CV_8UC1);
+        const mv = new cv.MatVector(); mv.push_back(b.cnt);
+        cv.drawContours(mask, mv, 0, new cv.Scalar(255), -1);
+        const masked = new cv.Mat();
+        cv.bitwise_and(thresh, thresh, masked, mask);
+        const total = cv.countNonZero(masked);
+        if (total > maxVal) { maxVal = total; bubbled = i; }
+        mask.delete(); mv.delete(); masked.delete();
+      });
+      let given = "";
+      if (bubbled !== -1 && maxVal >= fillThresh) {
+        given = String.fromCharCode(65 + bubbled);
+        const correct = key[r + offset] || "";
+        const color = (given === correct)
+              ? new cv.Scalar(48, 232, 81, 255)  // green
+              : new cv.Scalar(253, 69, 69, 255); // red
+        const b = row[bubbled];
+        const rad = Math.min(b.rect.width, b.rect.height)/2;
+        const cx = b.rect.x + b.rect.width/2;
+        const cy = b.rect.y + b.rect.height/2;
+        cv.circle(finalMat, new cv.Point(cx, cy), rad, color, 3);
+
+        results.push({
+          number: r+1+offset,
+          correct: correct,
+          given: given,
+          isCorrect: given === correct
+        });
+      } else {
+        // blank
+        results.push({
+          number: r+1+offset,
+          correct: key[r+offset] || "",
+          given: "ø",
+          isCorrect: false
+        });
+      }
+    }
+  }
+  gradeSide(left, 0);
+  gradeSide(right, numRows);
+
+  cv.imshow("finalCanvas", finalMat);
+
+  // --- SAVE CANVAS IMAGE + GRADING RESULTS ---
+  addNextBtnIfNeeded();
+
+  // Optionally: update allResults in nextSheet() so user can tweak answers before saving!
+  // Otherwise, always save (but this can overwrite if user changes values before clicking next)
+}
+
+function saveCurrentSheetResult() {
+  // Called before moving to next sheet or exporting PDF
+  const finalCanvas = document.getElementById("finalCanvas");
+  const imgData = finalCanvas.toDataURL("image/png");
+  const results = [];
+
+  // Rebuild results as in processFinal (or cache them if you prefer)
+  const numRows = +document.getElementById("numQuestions").value;
+  const key = document.getElementById("answerKey").value
+    .split(",").map(s=>s.trim().toUpperCase());
+
+  // We'll use the current settings and processing (should be up-to-date)
+  // but you could cache results from processFinal for efficiency
+
+  // Find the bubbles and grade again
+  // (could refactor to avoid double work but for clarity, this always matches PDF exactly)
+  if (!warpedMat) return;
+
+  const warpedGray = new cv.Mat();
+  cv.cvtColor(warpedMat, warpedGray, cv.COLOR_RGBA2GRAY);
+  const thresh = new cv.Mat();
+  const tVal = +document.getElementById("thresholdVal").value;
+  cv.threshold(warpedGray, thresh, tVal, 255, cv.THRESH_BINARY_INV);
+
+  const minSize = +document.getElementById("minSize").value;
+  const minCirc = +document.getElementById("circ").value;
+  const fillThresh = +document.getElementById("fillThresh").value;
+
+  const ctrs = new cv.MatVector(), hier = new cv.Mat();
+  cv.findContours(thresh.clone(), ctrs, hier, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE);
+  let bubbles = [];
+  for (let i = 0; i < ctrs.size(); i++) {
+    const cnt = ctrs.get(i);
+    const rect = cv.boundingRect(cnt);
+    const area = cv.contourArea(cnt);
+    const peri = cv.arcLength(cnt, true);
+    const circ = (4 * Math.PI * area) / (peri * peri);
+    if (rect.width >= minSize && rect.height >= minSize && circ >= minCirc) {
+      bubbles.push({ cnt, rect });
+    }
+  }
+  ctrs.delete(); hier.delete();
+
+  // --- SORT BUBBLES ---
+  const left = [], right = [];
+  const halfW = warpedMat.cols / 2;
+  bubbles.forEach(b => {
+    const cx = b.rect.x + b.rect.width/2;
+    (cx < halfW ? left : right).push(b);
+  });
+  left.sort((a,b)=>a.rect.y - b.rect.y);
+  right.sort((a,b)=>a.rect.y - b.rect.y);
+
+  function gradeSide(bubbles, offset) {
+    for (let r = 0; r < numRows; r++) {
+      const row = bubbles.slice(r*5, (r+1)*5)
+        .sort((a,b)=>a.rect.x - b.rect.x);
+      let bubbled = -1, maxVal = 0;
+      row.forEach((b, i) => {
+        const mask = cv.Mat.zeros(thresh.rows, thresh.cols, cv.CV_8UC1);
+        const mv = new cv.MatVector(); mv.push_back(b.cnt);
+        cv.drawContours(mask, mv, 0, new cv.Scalar(255), -1);
+        const masked = new cv.Mat();
+        cv.bitwise_and(thresh, thresh, masked, mask);
+        const total = cv.countNonZero(masked);
+        if (total > maxVal) { maxVal = total; bubbled = i; }
+        mask.delete(); mv.delete(); masked.delete();
+      });
+      let given = "";
+      if (bubbled !== -1 && maxVal >= fillThresh) {
+        given = String.fromCharCode(65 + bubbled);
+        const correct = key[r + offset] || "";
+        results.push({
+          number: r+1+offset,
+          correct: correct,
+          given: given,
+          isCorrect: given === correct
+        });
+      } else {
+        results.push({
+          number: r+1+offset,
+          correct: key[r+offset] || "",
+          given: "ø",
+          isCorrect: false
+        });
+      }
+    }
+  }
+  gradeSide(left, 0);
+  gradeSide(right, numRows);
+
+  // Save to allResults
+  allResults[currentSheetIdx] = {
+    filename: files[currentSheetIdx]?.name || `Sheet ${currentSheetIdx+1}`,
+    warpedDetectionDataURL: imgData,
+    answers: results,
+    score: results.filter(r=>r.isCorrect).length,
+    possible: results.length
+  };
+}
+
+function exportPDF() {
+  // Save current result (if not already)
+  saveCurrentSheetResult();
+  if (!allResults.length) return alert("No results to export!");
+
+  const { jsPDF } = window.jspdf;
+  let doc = new jsPDF({ font: "helvetica" });
+  doc.setFont("helvetica", "normal");
+  const pageWidth = doc.internal.pageSize.getWidth();
+  const usableWidth = pageWidth - 20; // 10mm left/right margin
+
+  // === SUMMARY PAGE ===
+  doc.setFontSize(16);
+  doc.text("Bubble Sheet OMR Summary", pageWidth/2, 15, { align: "center" });
+  doc.setFontSize(10);
+  let numSheets = allResults.length;
+  let numQuestions = allResults[0]?.possible || 0;
+  let avgScore = numSheets ? (allResults.reduce((sum, r) => sum + r.score, 0) / numSheets).toFixed(2) : "0.00";
+  doc.text(`Sheets graded: ${numSheets}`, 14, 22);
+  doc.text(`Questions per sheet: ${numQuestions}`, 14, 27);
+  doc.text(`Average score: ${avgScore} / ${numQuestions}`, 14, 32);
+
+  // Table layout settings (compact)
+  let yStart = 40;
+  let rowH = 5;
+  let colW = 15;
+  let headerH = 5;
+  let tableX = 14;
+
+  // Table headers
+  doc.setFontSize(8.5);
+  doc.setFillColor(60, 120, 240);
+  doc.setTextColor(255,255,255);
+  doc.rect(tableX, yStart, colW*4, headerH, 'F');
+  doc.text("Q#", tableX + 2, yStart + 3.5);
+  doc.text("C %", tableX + colW + 2, yStart + 3.5);
+  doc.text("I %", tableX + colW*2 + 2, yStart + 3.5);
+  doc.text("ø %", tableX + colW*3 + 2, yStart + 3.5);
+
+  // Data prep
+  let correct = Array(numQuestions).fill(0);
+  let incorrect = Array(numQuestions).fill(0);
+  let blank = Array(numQuestions).fill(0);
+  allResults.forEach(res => {
+    res.answers.forEach((ans, i) => {
+      if (ans.given === "ø") blank[i]++;
+      else if (ans.isCorrect) correct[i]++;
+      else incorrect[i]++;
+    });
+  });
+
+  // Draw each row
+  doc.setFontSize(8.2);
+  doc.setTextColor(0,0,0);
+  let y = yStart + headerH;
+  for (let i = 0; i < numQuestions; i++) {
+    if (y > 285 - rowH) {
+      doc.addPage();
+      y = 15;
+      doc.setFontSize(8.5);
+      doc.setFillColor(60, 120, 240);
+      doc.setTextColor(255,255,255);
+      doc.rect(tableX, y, colW*4, headerH, 'F');
+      doc.text("Q#", tableX + 2, y + 3.5);
+      doc.text("C %", tableX + colW + 2, y + 3.5);
+      doc.text("I %", tableX + colW*2 + 2, y + 3.5);
+      doc.text("ø %", tableX + colW*3 + 2, y + 3.5);
+      doc.setFontSize(8.2);
+      doc.setTextColor(0,0,0);
+      y += headerH;
+    }
+    let pctC = numSheets ? ((correct[i]/numSheets)*100).toFixed(1) : "0.0";
+    let pctI = numSheets ? ((incorrect[i]/numSheets)*100).toFixed(1) : "0.0";
+    let pctB = numSheets ? ((blank[i]/numSheets)*100).toFixed(1) : "0.0";
+    doc.rect(tableX, y, colW*4, rowH);
+    doc.text(`${i+1}`, tableX + 2, y + 3.7);
+    doc.text(`${pctC}`, tableX + colW + 2, y + 3.7);
+    doc.text(`${pctI}`, tableX + colW*2 + 2, y + 3.7);
+    doc.text(`${pctB}`, tableX + colW*3 + 2, y + 3.7);
+    y += rowH;
+  }
+
+  // === STUDENT PAGES ===
+  allResults.forEach((res, idx) => {
+    doc.addPage();
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(12);
+    doc.text(`Student: ${res.filename}`, 14, 16);
+    doc.setFont("helvetica", "normal");
+
+    // --- Layout math ---
+    let xMargin = 10;
+    let colGap = 3;
+    let imageWidth = ((usableWidth - colGap) * 2) / 3;
+    let tableWidth = ((usableWidth - colGap) / 3);
+    let yTop = 20;
+    let imageHeight = imageWidth * 4/3;
+    if (imageHeight > 180) {
+      imageHeight = 180;
+      imageWidth = imageHeight * 3/4;
+    }
+    if (res.warpedDetectionDataURL) {
+      doc.addImage(res.warpedDetectionDataURL, "PNG", xMargin, yTop, imageWidth, imageHeight);
+    }
+    let scoreY = yTop + imageHeight + 8;
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(11.5);
+    doc.setTextColor(0,0,0);
+    doc.text(`Score: ${res.score} / ${res.possible}`, xMargin, scoreY);
+    doc.setFont("helvetica", "normal");
+
+    let tableX2 = xMargin + imageWidth + colGap;
+    let tableY2 = yTop;
+    let rowH = 6.5, colW = tableWidth/4, headerH = 7;
+
+    doc.setFontSize(9.5);
+    doc.setFillColor(60, 120, 240);
+    doc.setTextColor(255,255,255);
+    doc.rect(tableX2, tableY2, colW*4, headerH, 'F');
+    doc.text("Q#", tableX2 + 1, tableY2 + 5);
+    doc.text("Your", tableX2 + colW + 1, tableY2 + 4.3);
+    doc.text("Key", tableX2 + colW*2 + 1, tableY2 + 4.3);
+    doc.text("Mark", tableX2 + colW*3 + 1, tableY2 + 4.3);
+
+    doc.setFontSize(8.8);
+    let y2 = tableY2 + headerH;
+    for (let i = 0; i < res.answers.length; i++) {
+      let a = res.answers[i];
+      let given = a.given === "No Response" ? "ø" : a.given;
+      let correct = a.correct || "ø";
+      let mark, color;
+      if (given === "ø") {
+        mark = "ø";
+        color = [0,0,0];
+      } else if (a.isCorrect) {
+        mark = "C";
+        color = [0, 150, 0];
+      } else {
+        mark = "I";
+        color = [220, 0, 0];
+      }
+      doc.setDrawColor(160,160,160);
+      doc.rect(tableX2, y2, colW*4, rowH);
+      doc.setTextColor(0,0,0);
+      doc.text(`${a.number}`, tableX2 + 1, y2 + 4.5);
+      doc.text(`${given}`, tableX2 + colW + 1, y2 + 4.5);
+      doc.text(`${correct}`, tableX2 + colW*2 + 1, y2 + 4.5);
+      doc.setTextColor(...color);
+      doc.text(`${mark}`, tableX2 + colW*3 + 1, y2 + 4.5);
+      y2 += rowH;
+      if (y2 + rowH > 280 && i < res.answers.length-1) {
+        doc.addPage();
+        y2 = 20;
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(12);
+        doc.text(`Student: ${res.filename} (cont.)`, xMargin, 16);
+        doc.setFont("helvetica", "normal");
+        doc.setFontSize(9.5);
+        doc.setFillColor(60, 120, 240);
+        doc.setTextColor(255,255,255);
+        doc.rect(tableX2, y2, colW*4, headerH, 'F');
+        doc.text("Q#", tableX2 + 1, y2 + 5);
+        doc.text("Your", tableX2 + colW + 1, y2 + 4.3);
+        doc.text("Key", tableX2 + colW*2 + 1, y2 + 4.3);
+        doc.text("Mark", tableX2 + colW*3 + 1, y2 + 4.3);
+        doc.setFontSize(8.8);
+        y2 += headerH;
+      }
+    }
+  });
+
+  doc.save("OMR_Results.pdf");
+}
+
+// --- Utility ---
+function orderPoints(pts) {
+  let rect = [null, null, null, null];
+  let sum = pts.map(p => p.x + p.y);
+  let diff = pts.map(p => p.y - p.x);
+  rect[0] = pts[sum.indexOf(Math.min(...sum))];
+  rect[2] = pts[sum.indexOf(Math.max(...sum))];
+  rect[1] = pts[diff.indexOf(Math.min(...diff))];
+  rect[3] = pts[diff.indexOf(Math.max(...diff))];
+  return rect;
+}
+function distance(ptA, ptB) {
+  return Math.sqrt((ptA.x - ptB.x) ** 2 + (ptA.y - ptB.y) ** 2);
+}
+function fourPointTransform(src, pts) {
+  let rect = orderPoints(pts);
+  let tl = rect[0], tr = rect[1], br = rect[2], bl = rect[3];
+  let widthA = distance(br, bl);
+  let widthB = distance(tr, tl);
+  let maxWidth = Math.max(widthA, widthB);
+  let heightA = distance(tr, br);
+  let heightB = distance(tl, bl);
+  let maxHeight = Math.max(heightA, heightB);
+
+  let dst = cv.matFromArray(4, 1, cv.CV_32FC2, [
+    0, 0, maxWidth - 1, 0, maxWidth - 1, maxHeight - 1, 0, maxHeight - 1
+  ]);
+  let srcPts = cv.matFromArray(4, 1, cv.CV_32FC2, [
+    tl.x, tl.y, tr.x, tr.y, br.x, br.y, bl.x, bl.y
+  ]);
+  let M = cv.getPerspectiveTransform(srcPts, dst);
+  let warped = new cv.Mat();
+  let dsize = new cv.Size(maxWidth, maxHeight);
+  cv.warpPerspective(src, warped, M, dsize, cv.INTER_LINEAR, cv.BORDER_CONSTANT, new cv.Scalar());
+  srcPts.delete(); dst.delete(); M.delete();
+  return warped;
+}
+</script>
+
+</body>
+</html>

@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en" translate="no">
+<head>
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+	<title>Irregular Preterite Stem Practice</title>
+	<style>
+		body, html {
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			height: 100%;
+			margin: 0;
+			font-family: Arial, sans-serif;
+			background: linear-gradient(to bottom, #517860, #5c8a6d);
+		}
+		.game-container {
+			text-align: center;
+			width: 100%;
+			max-width: 800px;
+			padding: 100px;
+			border: 2px solid #d3d3d3;
+			background-color: #f7f4f4;
+			border-radius: 10px;
+			box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+		}
+		.progress-bar-container {
+			width: 100%;
+			height: 20px;
+			background-color: #d3d3d3;
+			border-radius: 10px;
+			overflow: hidden;
+			margin-bottom: 20px;
+		}
+		.progress-bar {
+			height: 100%;
+			width: 0;
+			background: linear-gradient(to right, #28a745, #5cd85c);
+			border-radius: 10px;
+			transition: width 0.3s;
+		}
+		.input-box {
+			font-size: 1.2em;
+			padding: 10px;
+			width: 90%;
+			border: 2px solid lightgrey;
+			border-radius: 8px;
+			transition: color 0.3s;
+		}
+		.input-box.correct {
+			color: green;
+		}
+		.button {
+			margin-top: 20px;
+			padding: 10px 20px;
+			font-size: 1em;
+			border: none;
+			border-radius: 5px;
+			cursor: pointer;
+			background-color: #007BFF;
+			color: white;
+		}
+		.button:hover {
+			background-color: #0056b3;
+		}
+		.hint {
+			margin-top: 10px;
+			font-size: 1em;
+			color: #555;
+		}
+		.answer-display {
+			margin-top: 10px;
+			font-size: 1.1em;
+			color: #d9534f;
+		}
+	</style>
+</head>
+<body>
+<div class="game-container">
+	<div class="progress-bar-container">
+		<div id="progressBar" class="progress-bar"></div>
+	</div>
+	<h2>Irregular Preterite Stem Practice</h2>
+	<p id="prompt"></p>
+	<p id="hint" class="hint">Hint: (in 5 seconds)</p>
+	<p id="answerDisplay" class="answer-display"></p>
+	<input type="text" id="answerInput" class="input-box" autocomplete="off" spellcheck="false"/>
+	<button id="restartButton" class="button" style="display: none;">Restart</button>
+	<p id="timerDisplay"></p>
+</div>
+
+<script>
+const irregularStems = {
+	tener: "tuv",
+	estar: "estuv",
+	poder: "pud",
+	poner: "pus",
+	saber: "sup",
+	venir: "vin",
+	querer: "quis",
+	hacer: "hic",
+	decir: "dij",
+	traer: "traj"
+};
+
+const subjects = [
+	{ pronoun: "yo", ending: "e" },
+	{ pronoun: "tú", ending: "iste" },
+	{ pronoun: "él/ella/usted", ending: "o" },
+	{ pronoun: "nosotros", ending: "imos" },
+	{ pronoun: "ellos/ellas/ustedes", ending: "ieron" } // default, may be changed below
+];
+
+const questions = [];
+
+for (const [verb, stem] of Object.entries(irregularStems)) {
+	subjects.forEach(subject => {
+		let ending = subject.ending;
+
+		if ((verb === "decir" || verb === "traer") && subject.pronoun === "ellos/ellas/ustedes") {
+			ending = "eron"; // j-stem verbs
+		}
+
+		if (verb === "hacer" && subject.pronoun === "él/ella/usted") {
+			questions.push({
+				verb,
+				subject: subject.pronoun,
+				answer: "hizo"
+			});
+		} else {
+			questions.push({
+				verb,
+				subject: subject.pronoun,
+				answer: stem + ending
+			});
+		}
+	});
+}
+
+let currentQuestionIndex = -1;
+let totalCorrect = 0;
+const totalRequired = questions.length;
+let startTime;
+let hintTimer;
+let hintCounter = 5;
+let hintUsed = false;
+
+const prompt = document.getElementById("prompt");
+const input = document.getElementById("answerInput");
+const progressBar = document.getElementById("progressBar");
+const hint = document.getElementById("hint");
+const answerDisplay = document.getElementById("answerDisplay");
+const restartButton = document.getElementById("restartButton");
+const timerDisplay = document.getElementById("timerDisplay");
+
+function normalize(text) {
+	return text.toLowerCase().trim();
+}
+
+function updateProgressBar() {
+	const percent = (totalCorrect / totalRequired) * 100;
+	progressBar.style.width = `${percent}%`;
+}
+
+function showQuestion() {
+	currentQuestionIndex++;
+	if (currentQuestionIndex >= questions.length) {
+		const timeTaken = ((Date.now() - startTime) / 1000).toFixed(2);
+		timerDisplay.textContent = `Round completed in ${timeTaken} seconds!`;
+		restartButton.style.display = "block";
+		input.disabled = true;
+		return;
+	}
+
+	const q = questions[currentQuestionIndex];
+	prompt.textContent = `Conjugate "${q.verb}" for "${q.subject}"`;
+	input.value = "";
+	input.disabled = false;
+	input.classList.remove("correct");
+	answerDisplay.textContent = "";
+	input.focus();
+	hintUsed = false;
+	startHintCountdown();
+}
+
+function startHintCountdown() {
+	clearInterval(hintTimer);
+	hintCounter = 5;
+	hint.textContent = `Hint: (in ${hintCounter} seconds)`;
+	hintTimer = setInterval(() => {
+		hintCounter--;
+		if (hintCounter > 0) {
+			hint.textContent = `Hint: (in ${hintCounter} seconds)`;
+		} else {
+			hint.textContent = `Hint: (press enter)`;
+			clearInterval(hintTimer);
+		}
+	}, 1000);
+}
+
+input.addEventListener("input", () => {
+	const q = questions[currentQuestionIndex];
+	if (normalize(input.value) === normalize(q.answer)) {
+		input.classList.add("correct");
+		input.disabled = true;
+		if (!hintUsed) totalCorrect++;
+		updateProgressBar();
+		clearInterval(hintTimer);
+		setTimeout(showQuestion, 1000);
+	}
+});
+
+input.addEventListener("keydown", e => {
+	if (e.key === "Enter" && hintCounter <= 0) {
+		answerDisplay.textContent = `Correct answer: ${questions[currentQuestionIndex].answer}`;
+		hintUsed = true;
+	}
+});
+
+restartButton.addEventListener("click", startGame);
+
+function startGame() {
+	// Shuffle questions
+	for (let i = questions.length - 1; i > 0; i--) {
+		const j = Math.floor(Math.random() * (i + 1));
+		[questions[i], questions[j]] = [questions[j], questions[i]];
+	}
+	currentQuestionIndex = -1;
+	totalCorrect = 0;
+	updateProgressBar();
+	timerDisplay.textContent = "";
+	restartButton.style.display = "none";
+	startTime = Date.now();
+	showQuestion();
+}
+
+startGame();
+</script>
+</body>
+</html>

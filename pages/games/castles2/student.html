@@ -1,0 +1,659 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>Student - Capture Game</title>
+    <!-- Firebase CDN (using compat libraries for plain JS) -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
+    <style>
+      html, body {
+        height: 100%;
+      }
+      /* Dark background and overall style */
+      body {
+        background-color: #2e2e2e;
+        color: #f1f1f1;
+        font-family: sans-serif;
+        margin: 0;
+        padding: 20px;
+        text-align: center;
+        position: relative;
+        overflow-x: hidden;
+      }
+      button {
+        background-color: #444;
+        color: #f1f1f1;
+        border: none;
+        padding: 10px 20px;
+        margin: 5px;
+        border-radius: 5px;
+        cursor: pointer;
+      }
+      button:hover {
+        background-color: #555;
+      }
+      input {
+        padding: 10px;
+        font-size: 16px;
+        border-radius: 5px;
+        border: none;
+        margin: 5px;
+      }
+      /* Join & Waiting Sections */
+      #joinSection, #waitingSection {
+        margin-top: 50px;
+      }
+      /* Top-left team display */
+      #topLeftTeam {
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        font-size: 20px;
+        font-weight: bold;
+        padding: 5px 10px;
+        background-color: rgba(0,0,0,0.5);
+        border-radius: 5px;
+        z-index: 101;
+      }
+      /* Top-right game code display */
+      #topRightCode {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        font-size: 20px;
+        font-weight: bold;
+        padding: 5px 10px;
+        background-color: rgba(0,0,0,0.5);
+        border-radius: 5px;
+        z-index: 101;
+      }
+      /* Center the question area vertically */
+      #questionSection {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        min-height: 80vh;
+      }
+      /* Grid Section: fills remaining space underneath header */
+      #gridSection {
+        margin-top: 60px;
+        height: calc(100vh - 60px);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+      /* Grid styling – the JS will update the grid-template properties dynamically */
+      #gridContainer {
+        margin: 20px auto;
+        display: grid;
+        gap: 1px;
+      }
+      .grid-cell {
+        border: 1px solid #555;
+        box-sizing: border-box;
+        position: relative;
+        background-color: #3a3a3a;
+      }
+      /* Capital indicator: yellow diamond */
+      .capital-indicator {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%) rotate(45deg);
+        width: 50%;
+        height: 50%;
+        background-color: yellow;
+        pointer-events: none;
+      }
+      /* Bomb effect class for affected tiles */
+      .bomb-effect {
+        opacity: 0.3;
+        transition: opacity 0.5s ease-out;
+      }
+      /* Student Game Over Screen: centered overlay */
+      #studentGameOver {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background-color: #444;
+        border: 2px solid #666;
+        border-radius: 10px;
+        padding: 20px;
+        width: 300px;
+        text-align: center;
+        z-index: 1000;
+        box-shadow: 0px 0px 10px rgba(0,0,0,0.5);
+      }
+      /* Header text styling for grid section */
+      #gridHeader {
+        font-size: 24px;
+        margin-bottom: 10px;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Always visible team and game code displays -->
+    <div id="topLeftTeam" style="display: none;"></div>
+    <div id="topRightCode" style="display: none;"></div>
+
+    <!-- Join Section -->
+    <div id="joinSection">
+      <h1>Join Game</h1>
+      <input type="text" id="gameCodeInput" placeholder="Enter game code">
+      <button id="joinGameBtn">Join Game</button>
+      <p id="errorMsg" style="color:red;"></p>
+    </div>
+
+    <!-- Waiting Section -->
+    <div id="waitingSection" style="display: none;">
+      <h2>Waiting for game to start...</h2>
+    </div>
+
+    <!-- Question Section -->
+    <div id="questionSection" style="display: none;">
+      <h2 id="questionText"></h2>
+      <div id="optionsContainer"></div>
+    </div>
+
+    <!-- Grid Section -->
+    <div id="gridSection" style="display: none;">
+      <h2 id="gridHeader">Select a tile to capture or fortify</h2>
+      <div id="gridContainer"></div>
+    </div>
+
+    <!-- Student Game Over Screen -->
+    <div id="studentGameOver" style="display: none;">
+      <h2>Game Over</h2>
+      <p>The game has ended.</p>
+    </div>
+
+    <script>
+      // --- Firebase Configuration (replace with your project details) ---
+      const firebaseConfig = {
+        apiKey: "AIzaSyBP4-umlnVxOkvHiUCj6MDVa4Z3452BML0",
+        authDomain: "castles-64558.firebaseapp.com",
+        projectId: "castles-64558",
+        storageBucket: "castles-64558.appspot.com",
+        messagingSenderId: "450284390955",
+        appId: "1:450284390955:web:7e9e30ed7834635755f86e",
+        measurementId: "G-EFJJGH1GDK"
+      };
+      firebase.initializeApp(firebaseConfig);
+      const db = firebase.database();
+
+      // Global variables.
+      let gameCode = "";
+      let studentRef = null;
+      let studentTeam = "";
+      let bombMode = false; // True when the student is placing a bomb.
+      let gridRows = 15, gridCols = 15;
+      let grid = {};
+      let questions = [];
+      let unseenQuestions = [];
+      let currentQuestion = null;
+      let currentChallengeMode = false; // Whether the current question is in challenge mode.
+
+      // Global variable for bomb cursor indicator.
+      let bombCursorIndicator = null;
+
+      // DOM Elements.
+      const joinSection = document.getElementById("joinSection");
+      const waitingSection = document.getElementById("waitingSection");
+      const questionSection = document.getElementById("questionSection");
+      const gridSection = document.getElementById("gridSection");
+      const studentGameOver = document.getElementById("studentGameOver");
+      const gridHeader = document.getElementById("gridHeader");
+
+      const topLeftTeam = document.getElementById("topLeftTeam");
+      const topRightCode = document.getElementById("topRightCode");
+
+      const gameCodeInput = document.getElementById("gameCodeInput");
+      const joinGameBtn = document.getElementById("joinGameBtn");
+      const errorMsg = document.getElementById("errorMsg");
+      const questionText = document.getElementById("questionText");
+      const optionsContainer = document.getElementById("optionsContainer");
+      const gridContainer = document.getElementById("gridContainer");
+
+      joinGameBtn.addEventListener("click", joinGame);
+
+      // --- Bomb Mode Functions ---
+
+      // Enable bomb mode: update header text, set flag, and create bomb cursor indicator.
+      function enableBombMode() {
+        bombMode = true;
+        gridHeader.innerText = "Click to place 💣 and clear an area";
+        bombCursorIndicator = document.createElement("div");
+        bombCursorIndicator.innerText = "💣";
+        bombCursorIndicator.style.position = "fixed";
+        bombCursorIndicator.style.pointerEvents = "none";
+        bombCursorIndicator.style.fontSize = "16px"; // Adjust size as needed.
+        bombCursorIndicator.style.zIndex = "300";
+        document.body.appendChild(bombCursorIndicator);
+        gridSection.addEventListener("mousemove", updateBombIndicatorPosition);
+        renderGrid(); // Re-render grid to update cursor styles.
+      }
+
+      // Update bomb cursor indicator position.
+      function updateBombIndicatorPosition(e) {
+        bombCursorIndicator.style.left = (e.clientX - 8) + "px";
+        bombCursorIndicator.style.top = (e.clientY - 8) + "px";
+      }
+
+      // Disable bomb mode: remove bomb cursor indicator and event listener.
+      function disableBombMode() {
+        bombMode = false;
+        gridHeader.innerText = "Select a tile to capture or fortify";
+        if (bombCursorIndicator) {
+          bombCursorIndicator.remove();
+          bombCursorIndicator = null;
+        }
+        gridSection.removeEventListener("mousemove", updateBombIndicatorPosition);
+      }
+
+      // --- End Bomb Mode Functions ---
+
+      function joinGame() {
+        gameCode = gameCodeInput.value.trim();
+        if (!gameCode) return;
+        db.ref("games/" + gameCode).once("value").then(snapshot => {
+          if (snapshot.exists()) {
+            db.ref("games/" + gameCode + "/players").once("value").then(snap => {
+              const players = snap.val() || {};
+              const count = Object.keys(players).length;
+              // Alternate teams: even count -> red, odd -> blue.
+              studentTeam = (count % 2 === 0) ? "red" : "blue";
+              studentRef = db.ref("games/" + gameCode + "/players").push();
+              studentRef.set({
+                team: studentTeam,
+                joinedAt: firebase.database.ServerValue.TIMESTAMP
+              });
+              studentRef.onDisconnect().remove();
+              joinSection.style.display = "none";
+              waitingSection.style.display = "block";
+              topLeftTeam.innerText = "Team: " + studentTeam.toUpperCase();
+              topLeftTeam.style.color = (studentTeam === "red") ? "#ff6b6b" : "#4dabf7";
+              topLeftTeam.style.display = "block";
+              topRightCode.innerText = "Game Code: " + gameCode;
+              topRightCode.style.display = "block";
+              listenForGameState();
+              listenForGridUpdates();
+            });
+          } else {
+            errorMsg.innerText = "Game not found. Please check the game code.";
+          }
+        }).catch(err => {
+          console.error("Error joining game:", err);
+          errorMsg.innerText = "Error connecting to server.";
+        });
+      }
+
+      function listenForGameState() {
+        db.ref("games/" + gameCode + "/state").on("value", snapshot => {
+          const state = snapshot.val();
+          if (state === "started") {
+            waitingSection.style.display = "none";
+            studentGameOver.style.display = "none";
+            db.ref("games/" + gameCode + "/gridSize").once("value").then(snap => {
+              const gridSize = parseInt(snap.val()) || 15;
+              gridRows = gridSize;
+              gridCols = gridSize;
+              db.ref("games/" + gameCode + "/questions").once("value").then(snap => {
+                questions = snap.val() || [];
+                if (!Array.isArray(questions)) {
+                  questions = Object.values(questions);
+                }
+                unseenQuestions = questions.map((q, idx) => idx);
+                showNextQuestion();
+              });
+            });
+          } else if (state === "over") {
+            studentGameOver.style.display = "block";
+            questionSection.style.display = "none";
+            gridSection.style.display = "none";
+          }
+        });
+      }
+
+      function listenForGridUpdates() {
+        db.ref("games/" + gameCode + "/grid").on("value", snapshot => {
+          const data = snapshot.val();
+          if (data) {
+            grid = data;
+            if (gridSection.style.display !== "none") {
+              renderGrid();
+            }
+          }
+        });
+      }
+
+      // Helper: Shuffle an array.
+      function shuffleArray(array) {
+        for (let i = array.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [array[i], array[j]] = [array[j], array[i]];
+        }
+        return array;
+      }
+
+      // Record performance data.
+      function recordQuestionPerformance(question, isCorrect) {
+        const sanitize = str => str.replace(/[.#$\[\]]/g, '_');
+        const questionKey = sanitize(question);
+        const perfRef = db.ref("games/" + gameCode + "/questionPerformance/" + questionKey);
+        perfRef.transaction(currentData => {
+          if (currentData === null) {
+            return { correctCount: isCorrect ? 1 : 0, totalCount: 1 };
+          } else {
+            return {
+              correctCount: currentData.correctCount + (isCorrect ? 1 : 0),
+              totalCount: currentData.totalCount + 1
+            };
+          }
+        });
+      }
+
+      function showNextQuestion() {
+        gridSection.style.display = "none";
+        // Reset header and bomb mode.
+        gridHeader.innerText = "Select a tile to capture or fortify";
+        disableBombMode();
+        if (!questions || questions.length === 0) {
+          questionText.innerText = "No questions available. Please wait for the teacher to update them.";
+          optionsContainer.innerHTML = "";
+          questionSection.style.display = "flex";
+          return;
+        }
+        questionSection.style.display = "flex";
+        if (unseenQuestions.length === 0) {
+          unseenQuestions = questions.map((q, idx) => idx);
+        }
+        const randomIndex = Math.floor(Math.random() * unseenQuestions.length);
+        const questionIndex = unseenQuestions.splice(randomIndex, 1)[0];
+        currentQuestion = questions[questionIndex];
+        questionText.innerText = currentQuestion.question;
+        optionsContainer.innerHTML = "";
+        // Randomly decide challenge mode (10% chance).
+        currentChallengeMode = Math.random() < 0.1;
+        if (currentChallengeMode) {
+          const input = document.createElement("input");
+          input.type = "text";
+          input.placeholder = "Type your answer here";
+          input.id = "challengeInput";
+          optionsContainer.appendChild(input);
+          input.addEventListener("keydown", function(e) {
+            if (e.key === "Enter") {
+              e.preventDefault();
+            }
+          });
+          input.addEventListener("input", function() {
+            if (input.value.trim().toLowerCase() === currentQuestion.answer.trim().toLowerCase()) {
+              input.style.backgroundColor = "#51cf66";
+              setTimeout(() => {
+                submitChallengeAnswer(true);
+              }, 1000);
+            } else {
+              input.style.backgroundColor = "";
+            }
+          });
+          // Add accent mark buttons.
+          const accentSymbols = ['á', 'é', 'í', 'ó', 'ú', 'ñ', 'ü'];
+          const accentContainer = document.createElement("div");
+          accentContainer.style.marginTop = "10px";
+          accentSymbols.forEach(symbol => {
+            const btn = document.createElement("button");
+            btn.type = "button";
+            btn.innerText = symbol;
+            // Prevent the input from losing focus.
+            btn.addEventListener("mousedown", function(e) {
+              e.preventDefault();
+            });
+            btn.addEventListener("click", function() {
+              const startPos = input.selectionStart;
+              const endPos = input.selectionEnd;
+              const originalText = input.value;
+              input.value = originalText.substring(0, startPos) + symbol + originalText.substring(endPos);
+              input.selectionStart = input.selectionEnd = startPos + symbol.length;
+              input.focus();
+              input.dispatchEvent(new Event('input'));
+            });
+            accentContainer.appendChild(btn);
+          });
+          optionsContainer.appendChild(accentContainer);
+          // Skip Challenge Button.
+          const skipBtn = document.createElement("button");
+          skipBtn.innerText = "Skip Challenge";
+          skipBtn.addEventListener("click", function() {
+            renderMultipleChoice();
+          });
+          optionsContainer.appendChild(skipBtn);
+        } else {
+          renderMultipleChoice();
+        }
+      }
+
+      function renderMultipleChoice() {
+        optionsContainer.innerHTML = "";
+        const shuffledOptions = shuffleArray([...currentQuestion.options]);
+        shuffledOptions.forEach(option => {
+          const btn = document.createElement("button");
+          btn.innerText = option;
+          btn.addEventListener("click", function(e) {
+            checkAnswer(e, option);
+          });
+          optionsContainer.appendChild(btn);
+        });
+      }
+
+      function checkAnswer(e, selectedOption) {
+        const isCorrect = (selectedOption.trim().toLowerCase() === currentQuestion.answer.trim().toLowerCase());
+        const responseData = {
+          question: currentQuestion.question,
+          selected: selectedOption,
+          correctAnswer: currentQuestion.answer,
+          correct: isCorrect,
+          timestamp: firebase.database.ServerValue.TIMESTAMP
+        };
+        db.ref("games/" + gameCode + "/players/" + studentRef.key + "/responses").push(responseData);
+        recordQuestionPerformance(currentQuestion.question, isCorrect);
+        if (isCorrect) {
+          questionSection.style.display = "none";
+          gridSection.style.display = "flex";
+          renderGrid();
+        } else {
+          e.target.style.backgroundColor = "#ff6b6b";
+          const buttons = optionsContainer.getElementsByTagName("button");
+          for (let btn of buttons) {
+            if (btn.innerText.trim().toLowerCase() === currentQuestion.answer.trim().toLowerCase()) {
+              btn.style.backgroundColor = "#51cf66";
+            }
+          }
+          setTimeout(() => {
+            for (let btn of buttons) {
+              btn.style.backgroundColor = "";
+            }
+            showNextQuestion();
+          }, 2000);
+        }
+      }
+
+      function submitChallengeAnswer(isCorrect) {
+        const input = document.getElementById("challengeInput");
+        const responseData = {
+          question: currentQuestion.question,
+          selected: input.value,
+          correctAnswer: currentQuestion.answer,
+          correct: isCorrect,
+          timestamp: firebase.database.ServerValue.TIMESTAMP
+        };
+        db.ref("games/" + gameCode + "/players/" + studentRef.key + "/responses").push(responseData);
+        recordQuestionPerformance(currentQuestion.question, isCorrect);
+        questionSection.style.display = "none";
+        gridSection.style.display = "block";
+        renderGrid();
+        if (isCorrect) {
+          enableBombMode();
+        } else {
+          setTimeout(() => {
+            showNextQuestion();
+          }, 2000);
+        }
+      }
+
+      // Compute tile size based on available space.
+      function computeTileSize() {
+        const availableWidth = window.innerWidth * 0.9;
+        const availableHeight = gridSection.clientHeight;
+        return Math.min(availableWidth / gridCols, availableHeight / gridRows);
+      }
+
+      // Valid move: if at least one adjacent cell is owned by the student.
+      function isValidMove(r, c) {
+        const directions = [
+          [-1, -1], [-1, 0], [-1, 1],
+          [0, -1],           [0, 1],
+          [1, -1],  [1, 0],  [1, 1]
+        ];
+        for (let [dr, dc] of directions) {
+          const nr = r + dr, nc = c + dc;
+          if (nr >= 0 && nr < gridRows && nc >= 0 && nc < gridCols) {
+            const neighborKey = nr + "_" + nc;
+            if (grid[neighborKey] && grid[neighborKey].team === studentTeam) {
+              return true;
+            }
+          }
+        }
+        return false;
+      }
+
+      // Render grid with appropriate cursor styles.
+      function renderGrid() {
+        questionSection.style.display = "none";
+        gridContainer.innerHTML = "";
+        gridContainer.style.gridTemplateColumns = "repeat(" + gridCols + ", 1fr)";
+        gridContainer.style.gridTemplateRows = "repeat(" + gridRows + ", 1fr)";
+        const tileSize = computeTileSize();
+        gridContainer.style.width = (tileSize * gridCols) + "px";
+        gridContainer.style.height = (tileSize * gridRows) + "px";
+        for (let r = 0; r < gridRows; r++) {
+          for (let c = 0; c < gridCols; c++) {
+            const key = r + "_" + c;
+            const cell = grid[key] || { team: null, fort: 0 };
+            const cellDiv = document.createElement("div");
+            cellDiv.className = "grid-cell";
+            cellDiv.style.width = tileSize + "px";
+            cellDiv.style.height = tileSize + "px";
+            cellDiv.setAttribute("data-row", r);
+            cellDiv.setAttribute("data-col", c);
+            if (cell.capital) {
+              cellDiv.setAttribute("data-capital", "true");
+            }
+            if (cell.team === "red") {
+              cellDiv.style.backgroundColor = "#ff6b6b";
+            } else if (cell.team === "blue") {
+              cellDiv.style.backgroundColor = "#4dabf7";
+            }
+            if (cell.capital) {
+              const indicator = document.createElement("div");
+              indicator.className = "capital-indicator";
+              cellDiv.appendChild(indicator);
+            }
+            if (cell.fort && cell.fort > 0) {
+              const fortDiv = document.createElement("div");
+              fortDiv.style.position = "absolute";
+              fortDiv.style.bottom = "2px";
+              fortDiv.style.right = "2px";
+              fortDiv.style.backgroundColor = "rgba(0, 0, 0, 0.5)";
+              fortDiv.style.color = "#fff";
+              fortDiv.style.padding = "2px";
+              fortDiv.style.borderRadius = "3px";
+              fortDiv.style.fontSize = "10px";
+              fortDiv.innerText = cell.fort;
+              cellDiv.appendChild(fortDiv);
+            }
+            // Set cursor style.
+            if (bombMode) {
+              cellDiv.style.cursor = "pointer";
+            } else {
+              if (!cell.capital) {
+                if (cell.team === studentTeam) {
+                  cellDiv.style.cursor = cell.fort < 5 ? "pointer" : "not-allowed";
+                } else if (isValidMove(r, c)) {
+                  cellDiv.style.cursor = "pointer";
+                } else {
+                  cellDiv.style.cursor = "not-allowed";
+                }
+              } else {
+                cellDiv.style.cursor = "not-allowed";
+              }
+            }
+            cellDiv.onclick = function() {
+              if (bombMode) {
+                // Bomb mode: place bomb.
+                placeBomb(r, c);
+                disableBombMode();
+                showBombEffect(r, c);
+                setTimeout(() => {
+                  showNextQuestion();
+                }, 2000);
+              } else {
+                // Normal move actions.
+                if (!cell.capital) {
+                  if (cell.team === studentTeam) {
+                    if (cell.fort < 5) {
+                      db.ref("games/" + gameCode + "/grid/" + key + "/fort").set(cell.fort + 1);
+                      gridSection.style.display = "none";
+                      showNextQuestion();
+                    }
+                  } else if (isValidMove(r, c)) {
+                    if (cell.fort && cell.fort > 0) {
+                      db.ref("games/" + gameCode + "/grid/" + key + "/fort").set(cell.fort - 1);
+                    } else {
+                      db.ref("games/" + gameCode + "/grid/" + key).set({ team: studentTeam, fort: 0 });
+                    }
+                    gridSection.style.display = "none";
+                    showNextQuestion();
+                  }
+                }
+              }
+            };
+            gridContainer.appendChild(cellDiv);
+          }
+        }
+      }
+
+      // Show bomb effect by highlighting affected tiles.
+      function showBombEffect(bombRow, bombCol) {
+        for (let r = bombRow - 1; r <= bombRow + 1; r++) {
+          for (let c = bombCol - 1; c <= bombCol + 1; c++) {
+            const cellElem = gridContainer.querySelector(`.grid-cell[data-row='${r}'][data-col='${c}']`);
+            if (cellElem && !cellElem.hasAttribute("data-capital")) {
+              cellElem.classList.add("bomb-effect");
+            }
+          }
+        }
+      }
+
+      window.addEventListener("resize", () => {
+        if (gridSection.style.display !== "none") {
+          renderGrid();
+        }
+      });
+
+      window.addEventListener("beforeunload", () => {
+        if (studentRef) {
+          studentRef.remove();
+        }
+      });
+
+      function placeBomb(r, c) {
+        db.ref("games/" + gameCode + "/bomb").push({
+          row: r,
+          col: c
+        });
+      }
+    </script>
+  </body>
+</html>

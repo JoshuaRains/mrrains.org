@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spanish Number Review Game</title>
+    <style>
+        /* Center content and style input */
+        body, html {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100%;
+            margin: 0;
+            font-family: Arial, sans-serif;
+        }
+        body {
+      font-family: Arial, sans-serif;
+      background: linear-gradient(to bottom, #5ffaff, #7ba9fe);
+      min-height: 100vh;
+    }
+        .game-container {
+            text-align: center;
+            width: 100%; /* Make the container larger */
+            max-width: 800px; /* Cap the size */
+            padding: 100px;
+            border: 2px solid #d3d3d3;
+            background-color: #f7f4f4;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        .input-box {
+            font-size: 1.2em;
+            padding: 10px;
+            width: 90%;
+            border: 2px solid lightgrey;
+            border-radius: 8px;
+            transition: color 0.3s;
+        }
+        .input-box.correct {
+            color: green;
+        }
+        .button {
+            margin-top: 20px;
+            padding: 10px 20px;
+            font-size: 1em;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            background-color: #007BFF;
+            color: white;
+        }
+        .button:hover {
+            background-color: #0056b3;
+        }
+        .hint {
+            margin-top: 10px;
+            font-size: 1em;
+            color: #555;
+        }
+        .answer-display {
+            margin-top: 10px;
+            font-size: 1.1em;
+            color: #d9534f;
+        }
+        .accent-buttons {
+            margin-top: 10px;
+        }
+        .accent-button {
+            font-size: 1.2em;
+            padding: 5px 10px;
+            margin: 2px;
+            border: 1px solid #d3d3d3;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .accent-button:hover {
+            background-color: #e0e0e0;
+        }
+    </style>
+</head>
+<body>
+
+<div class="game-container">
+    <h2>Spanish Number Review</h2>
+    <p id="prompt"></p>
+    <p id="hint" class="hint">Hint: (in 5 seconds)</p>
+    <p id="answerDisplay" class="answer-display"></p>
+    <input type="text" id="answerInput" class="input-box" autocomplete="off" spellcheck="false" />
+    <div class="accent-buttons">
+        <button class="accent-button" onclick="insertAccent('á')">á</button>
+        <button class="accent-button" onclick="insertAccent('é')">é</button>
+        <button class="accent-button" onclick="insertAccent('í')">í</button>
+        <button class="accent-button" onclick="insertAccent('ó')">ó</button>
+        <button class="accent-button" onclick="insertAccent('ú')">ú</button>
+        <button class="accent-button" onclick="insertAccent('ñ')">ñ</button>
+    </div>
+    <button id="restartButton" class="button" style="display: none;">Restart</button>
+    <p id="timerDisplay"></p>
+</div>
+
+<script>
+    // Game settings
+    const roundLength = 5; // Customize number of questions per round
+    const startNumber = 1000; // Starting number range
+    const endNumber = 10000; // Final number range up to 1 million
+    const answerTime = 1000; // Delay before next question (in milliseconds)
+    
+    // State variables
+    let roundCount = 0;
+    let correctAnswer = "";
+    let startTime, endTime;
+    let hintTimer;
+    let hintCounter = 5;
+
+    // Helper function to convert numbers to written-out Spanish, including irregular numbers in the 20s
+    function numberToSpanish(num) {
+        const units = ["cero", "uno", "dos", "tres", "cuatro", "cinco", "seis", "siete", "ocho", "nueve"];
+        const teens = ["diez", "once", "doce", "trece", "catorce", "quince", "dieciséis", "diecisiete", "dieciocho", "diecinueve"];
+        const tens = ["", "", "veinte", "treinta", "cuarenta", "cincuenta", "sesenta", "setenta", "ochenta", "noventa"];
+        const hundreds = ["", "cien", "doscientos", "trescientos", "cuatrocientos", "quinientos", "seiscientos", "setecientos", "ochocientos", "novecientos"];
+
+        if (num === 1000000) return "un millón";
+        if (num >= 1000) {
+            let thousands = Math.floor(num / 1000);
+            let remainder = num % 1000;
+            let thousandPart = thousands === 1 ? "mil" : numberToSpanish(thousands) + " mil";
+            return remainder === 0 ? thousandPart : thousandPart + " " + numberToSpanish(remainder);
+        }
+        if (num >= 100) {
+            let hundredsPart = hundreds[Math.floor(num / 100)];
+            let remainder = num % 100;
+            return remainder === 0 ? hundredsPart : hundredsPart + " " + numberToSpanish(remainder);
+        }
+        if (num >= 20 && num < 30) {
+            return num === 20 ? "veinte" : "veinti" + units[num % 10]; // Handle 20-29 irregulars
+        }
+        if (num >= 20) {
+            let tensPart = tens[Math.floor(num / 10)];
+            let unit = num % 10;
+            return unit === 0 ? tensPart : tensPart + " y " + units[unit];
+        }
+        if (num >= 10) {
+            return teens[num - 10];
+        }
+        return units[num];
+    }
+
+    // Function to insert accents into the input field
+    function insertAccent(char) {
+        const input = document.getElementById("answerInput");
+        const startPos = input.selectionStart;
+        const endPos = input.selectionEnd;
+        input.value = input.value.substring(0, startPos) + char + input.value.substring(endPos);
+        input.focus();
+        input.setSelectionRange(startPos + char.length, startPos + char.length);
+    }
+
+    const promptElement = document.getElementById("prompt");
+    const answerInput = document.getElementById("answerInput");
+    const hintElement = document.getElementById("hint");
+    const answerDisplay = document.getElementById("answerDisplay");
+    const restartButton = document.getElementById("restartButton");
+    const timerDisplay = document.getElementById("timerDisplay");
+
+    // Function to start the game
+    function startGame() {
+        roundCount = 0;
+        timerDisplay.textContent = "";
+        restartButton.style.display = "none";
+        answerDisplay.textContent = "";
+        startTime = new Date();
+        answerInput.value = "";
+        answerInput.disabled = false;
+        answerInput.classList.remove("correct");
+        answerInput.focus();
+        nextQuestion();
+    }
+
+    // Function to show the next question
+    function nextQuestion() {
+        if (roundCount >= roundLength) {
+            endRound();
+            return;
+        }
+
+        // Pick a random number in range
+        const randomNumber = Math.floor(Math.random() * (endNumber - startNumber + 1)) + startNumber;
+        correctAnswer = numberToSpanish(randomNumber);
+        promptElement.textContent = `Write out the number: ${randomNumber}`;
+        answerInput.value = "";
+        answerInput.classList.remove("correct");
+        answerInput.disabled = false;
+        answerInput.focus();
+        startHintCountdown();
+        roundCount++;
+    }
+
+    // Function to start the hint countdown
+    function startHintCountdown() {
+        answerDisplay.textContent = "";
+        hintCounter = 5;
+        hintElement.textContent = `Hint: (in ${hintCounter} seconds)`;
+        clearInterval(hintTimer);
+        hintTimer = setInterval(() => {
+            hintCounter--;
+            if (hintCounter > 0) {
+                hintElement.textContent = `Hint: (in ${hintCounter} seconds)`;
+            } else {
+                hintElement.textContent = `Hint: (press enter)`;
+                clearInterval(hintTimer);
+            }
+        }, 1000);
+    }
+
+    // Function to handle input and check answer
+    answerInput.addEventListener("input", () => {
+        if (answerInput.value.trim().toLowerCase() === correctAnswer) {
+            answerInput.classList.add("correct");
+            answerInput.disabled = true;
+            clearInterval(hintTimer);
+            setTimeout(nextQuestion, answerTime);
+        }
+    });
+
+    // Show the answer when the student presses enter
+    answerInput.addEventListener("keydown", (event) => {
+        if (event.key === "Enter" && hintCounter <= 0) {
+            answerDisplay.textContent = `Correct answer: ${correctAnswer}`;
+        }
+    });
+
+    // Function to end the round and show total time
+    function endRound() {
+        endTime = new Date();
+        const totalTime = ((endTime - startTime) / 1000).toFixed(2);
+        timerDisplay.textContent = `Round completed in ${totalTime} seconds!`;
+        restartButton.style.display = "block";
+    }
+
+    // Event listener for restart button
+    restartButton.addEventListener("click", startGame);
+
+    // Start game on page load
+    startGame();
+</script>
+
+</body>
+</html>

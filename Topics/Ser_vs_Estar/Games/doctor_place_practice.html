@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en" translate="no">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Spanish Acronym Review Game</title>
+  <style>
+    body, html {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100%;
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: linear-gradient(to bottom, #5ffaff, #7ba9fe);
+    }
+    .game-container {
+      text-align: center;
+      width: 100%;
+      max-width: 800px;
+      padding: 50px;
+      border: 2px solid #d3d3d3;
+      background-color: #f7f4f4;
+      border-radius: 10px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+    .progress-bar-container {
+      width: 100%;
+      height: 20px;
+      background-color: #d3d3d3;
+      border-radius: 10px;
+      overflow: hidden;
+      margin-bottom: 20px;
+    }
+    .progress-bar {
+      height: 100%;
+      width: 0;
+      background: linear-gradient(to right, #28a745, #5cd85c);
+      border-radius: 10px;
+      transition: width 0.3s;
+    }
+    h2 {
+      margin-top: 0;
+    }
+    #prompt {
+      font-size: 1.2em;
+      margin: 20px 0;
+    }
+    .hint {
+      font-size: 0.9em;
+      color: #555;
+      margin-top: 10px;
+      min-height: 1.2em;
+    }
+    .answer-display {
+      font-size: 1.1em;
+      color: #d9534f;
+      margin-top: 10px;
+      min-height: 1.2em;
+    }
+    .input-box {
+      font-size: 1.2em;
+      padding: 10px;
+      width: 90%;
+      border: 2px solid lightgrey;
+      border-radius: 8px;
+      transition: color 0.3s;
+      text-align: center;
+    }
+    .input-box.correct {
+      color: green;
+    }
+    .button {
+      margin-top: 20px;
+      padding: 10px 20px;
+      font-size: 1em;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      background-color: #007BFF;
+      color: white;
+    }
+    .button:hover {
+      background-color: #0056b3;
+    }
+    .accent-buttons {
+      margin-top: 20px;
+    }
+    .accent-button {
+      font-size: 1.2em;
+      padding: 5px 10px;
+      margin: 2px;
+      border: 1px solid #d3d3d3;
+      border-radius: 5px;
+      cursor: pointer;
+      background-color: #ddd;
+      transition: background-color 0.2s, color 0.2s, transform 0.1s;
+    }
+    .accent-button:hover {
+      background-color: #ccc;
+    }
+    .accent-button:active {
+      transform: scale(0.95);
+    }
+    #timerDisplay {
+      margin-top: 10px;
+      font-size: 1em;
+    }
+  </style>
+</head>
+<body>
+  <div class="game-container">
+    <div class="progress-bar-container">
+      <div id="progressBar" class="progress-bar"></div>
+    </div>
+    <h2>Spanish Acronym Review: Ser and Estar</h2>
+    <p id="prompt"></p>
+    <p id="hint" class="hint">Hint: (in 5 seconds)</p>
+    <p id="answerDisplay" class="answer-display"></p>
+    <input type="text" id="answerInput" class="input-box" autocomplete="off" spellcheck="false" />
+    <button id="restartButton" class="button" style="display: none;">Restart</button>
+    <p id="timerDisplay"></p>
+    <div class="accent-buttons">
+      <button class="accent-button" onclick="insertAccent('á')">á</button>
+      <button class="accent-button" onclick="insertAccent('é')">é</button>
+      <button class="accent-button" onclick="insertAccent('í')">í</button>
+      <button class="accent-button" onclick="insertAccent('ó')">ó</button>
+      <button class="accent-button" onclick="insertAccent('ú')">ú</button>
+      <button class="accent-button" onclick="insertAccent('ñ')">ñ</button>
+    </div>
+  </div>
+
+  <script>
+    // Game settings
+    const CorrectTimesRequired = 1; // Times each item must be answered correctly
+    const answerTime = 1000;        // Delay before next question (ms)
+    let totalCorrectPoints = 0;
+    
+    // The total points equals the number of questions times the required correct answers.
+    let totalPoints = 0;
+
+    // Each question is a separate object with a full question text and a list of acceptable answers.
+    const questions = [
+      { question: 'For the "DOCTOR" acronym, what does the letter "D" stand for?', answers: ["description","descriptions"], times_seen: 0, times_correct: 0 },
+      { question: 'For the "DOCTOR" acronym, what does the letter "O" stand for?', answers: ["occupation","origin","occupations","origins"], times_seen: 0, times_correct: 0 },
+      { question: 'For the "DOCTOR" acronym, what does the letter "C" stand for?', answers: ["characteristic","characteristics"], times_seen: 0, times_correct: 0 },
+      { question: 'For the "DOCTOR" acronym, what does the letter "T" stand for?', answers: ["time","times"], times_seen: 0, times_correct: 0 },
+      { question: 'For the "DOCTOR" acronym, what does the letter "R" stand for?', answers: ["relationship","relationships"], times_seen: 0, times_correct: 0 },
+      { question: 'For the "PLACE" acronym, what does the letter "P" stand for?', answers: ["position","positions"], times_seen: 0, times_correct: 0 },
+      { question: 'For the "PLACE" acronym, what does the letter "L" stand for?', answers: ["location","locations"], times_seen: 0, times_correct: 0 },
+      { question: 'For the "PLACE" acronym, what does the letter "A" stand for?', answers: ["action","actions"], times_seen: 0, times_correct: 0 },
+      { question: 'For the "PLACE" acronym, what does the letter "C" stand for?', answers: ["condition","conditions"], times_seen: 0, times_correct: 0 },
+      { question: 'For the "PLACE" acronym, what does the letter "E" stand for?', answers: ["emotion","emotions"], times_seen: 0, times_correct: 0 },
+      { question: 'Which verb does the "DOCTOR" acronym represent?', answers: ["ser"], times_seen: 0, times_correct: 0 },
+      { question: 'Which verb does the "PLACE" acronym represent?', answers: ["estar"], times_seen: 0, times_correct: 0 },
+      { question: 'Ser and Estar both mean...', answers: ["to be"], times_seen: 0, times_correct: 0 }
+    ];
+
+    totalPoints = questions.length * CorrectTimesRequired;
+
+    // DOM elements
+    const promptElement = document.getElementById("prompt");
+    const hintElement = document.getElementById("hint");
+    const answerDisplay = document.getElementById("answerDisplay");
+    const restartButton = document.getElementById("restartButton");
+    const timerDisplay = document.getElementById("timerDisplay");
+    const answerInput = document.getElementById("answerInput");
+    const progressBar = document.getElementById("progressBar");
+
+    // State variables
+    let currentQuestion = null;
+    let startTime, endTime;
+    let hintTimer;
+    let hintCounter = 5;
+    let hintUsed = false;
+
+    // Utility: Normalize answer (ignores case and extra spaces)
+    function normalizeAnswer(answer) {
+      return answer.toLowerCase().trim();
+    }
+
+    // Accent insertion utility
+    function insertAccent(char) {
+      const input = document.getElementById("answerInput");
+      const startPos = input.selectionStart;
+      const endPos = input.selectionEnd;
+      input.value = input.value.substring(0, startPos) + char + input.value.substring(endPos);
+      input.focus();
+      input.setSelectionRange(startPos + char.length, startPos + char.length);
+    }
+
+    // Update progress bar based on total correct answers
+    function updateProgressBar() {
+      const progressPercentage = (totalCorrectPoints / totalPoints) * 100;
+      progressBar.style.width = `${progressPercentage}%`;
+    }
+
+    // Start the game: reset counters and states, then load the first question.
+    function startGame() {
+      totalCorrectPoints = 0;
+      for (let item of questions) {
+        item.times_seen = 0;
+        item.times_correct = 0;
+      }
+      restartButton.style.display = "none";
+      answerDisplay.textContent = "";
+      timerDisplay.textContent = "";
+      progressBar.style.width = "0%";
+      answerInput.disabled = false;
+      answerInput.value = "";
+      answerInput.classList.remove("correct");
+      hintElement.textContent = "Hint: (in 5 seconds)";
+      hintElement.style.display = "block";
+      startTime = new Date();
+      nextQuestion();
+    }
+
+    // Load the next question from those not yet mastered.
+    function nextQuestion() {
+      const remainingQuestions = questions.filter(item => item.times_correct < CorrectTimesRequired);
+      if (remainingQuestions.length === 0) {
+        endRound();
+        return;
+      }
+      // Pick a random question from the remaining ones
+      currentQuestion = remainingQuestions[Math.floor(Math.random() * remainingQuestions.length)];
+      currentQuestion.times_seen++;
+
+      // Set the prompt text to the full question text from the object
+      promptElement.textContent = currentQuestion.question;
+
+      // Reset input and hint
+      answerInput.value = "";
+      answerInput.disabled = false;
+      answerInput.classList.remove("correct");
+      answerInput.focus();
+      answerDisplay.textContent = "";
+      hintUsed = false;
+      startHintCountdown();
+    }
+
+    // Start a 5-second countdown for hint display
+    function startHintCountdown() {
+      hintCounter = 5;
+      hintElement.textContent = `Hint: (in ${hintCounter} seconds)`;
+      clearInterval(hintTimer);
+      hintTimer = setInterval(() => {
+        hintCounter--;
+        if (hintCounter > 0) {
+          hintElement.textContent = `Hint: (in ${hintCounter} seconds)`;
+        } else {
+          hintElement.textContent = `Hint: Press Enter to see answer`;
+          clearInterval(hintTimer);
+        }
+      }, 1000);
+    }
+
+    // Listen for Enter key to check the answer
+    answerInput.addEventListener("keydown", (event) => {
+      if (event.key === "Enter") {
+        const userAnswer = normalizeAnswer(answerInput.value);
+        // Check if the normalized user answer is included in the acceptable answers list
+        const correctAnswers = currentQuestion.answers.map(ans => normalizeAnswer(ans));
+        if (correctAnswers.includes(userAnswer)) {
+          // Correct answer
+          answerInput.classList.add("correct");
+          answerInput.disabled = true;
+          if (!hintUsed) {
+            currentQuestion.times_correct++;
+            totalCorrectPoints++;
+            updateProgressBar();
+          }
+          clearInterval(hintTimer);
+          setTimeout(nextQuestion, answerTime);
+        } else {
+          // If the hint timer has expired, show the correct answer(s)
+          if (hintCounter <= 0) {
+            answerDisplay.textContent = `Correct answer: ${currentQuestion.answers.join(", ")}`;
+            hintUsed = true;
+          }
+        }
+      }
+    });
+
+    // End the round once all questions are mastered
+    function endRound() {
+      endTime = new Date();
+      const totalTime = ((endTime - startTime) / 1000).toFixed(2);
+      promptElement.textContent = "All done!";
+      timerDisplay.textContent = `Completed in ${totalTime} seconds!`;
+      answerInput.disabled = true;
+      restartButton.style.display = "block";
+    }
+
+    restartButton.addEventListener("click", startGame);
+
+    // Start the game when the page loads
+    startGame();
+  </script>
+</body>
+</html>

@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8" />
+	<title>Handwriting Worksheet Generator</title>
+
+	<!-- Playwrite MX Guides only -->
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link href="https://fonts.googleapis.com/css2?family=Playwrite+MX+Guides&display=swap" rel="stylesheet">
+
+	<style>
+		body {
+			font-family: 'Noto Sans', sans-serif;
+			margin: 0;
+			padding: 0;
+			background: #f0f0f0;
+		}
+		#config {
+			background: #dde;
+			padding: 1em;
+			border-bottom: 1px solid #ccc;
+		}
+		#preview {
+			background: white;
+			max-width: 8.5in;
+			min-height: 11in;
+			margin: auto;
+			padding: 2em;
+			box-sizing: border-box;
+		}
+		#worksheetTitle {
+			font-size: 24px;
+			text-align: center;
+			margin-bottom: 1em;
+			display: none;
+		}
+		.header {
+			display: flex;
+			gap: 1em;
+			margin-bottom: 2em;
+			font-size: 14px;
+			align-items: flex-end;
+			font-family: 'Noto Sans', sans-serif;
+		}
+		.header-field {
+			display: flex;
+			flex-grow: 1;
+			align-items: flex-end;
+		}
+		.name { flex-grow: 3; }
+		.date { flex-grow: 1.5; }
+		.class { flex-grow: 1; }
+		.label {
+			margin-right: 0.25em;
+			white-space: nowrap;
+		}
+		.line {
+			flex-grow: 1;
+			height: 1.5em;
+			border-bottom: 1px solid black;
+		}
+		.worksheet-text {
+			white-space: pre-wrap;
+			word-wrap: break-word;
+			font-size: 48px;
+			font-family: 'Playwrite MX Guides', cursive;
+		}
+		label, input[type="number"], input[type="text"], textarea {
+			font-family: 'Noto Sans', sans-serif;
+			font-size: 14px;
+		}
+		@media print {
+			#config {
+				display: none;
+			}
+			body {
+				background: white;
+			}
+		}
+	</style>
+</head>
+<body>
+	<div id="config">
+		<label>
+			Title:
+			<input type="text" id="titleInput" style="width: 400px;" placeholder="Optional worksheet title" />
+		</label><br><br>
+		<label>
+			Text:
+			<textarea id="inputText" rows="5" cols="60">This is a sample sentence that wraps and shows underscore lines under the font.</textarea>
+		</label><br><br>
+		<label>
+			Size:
+			<input type="number" id="fontSize" value="48" min="12" max="100"> px
+		</label>
+	</div>
+
+	<div id="preview">
+		<div id="worksheetTitle"></div>
+
+		<div class="header">
+			<div class="header-field name">
+				<span class="label">Name:</span>
+				<div class="line"></div>
+			</div>
+			<div class="header-field date">
+				<span class="label">Date:</span>
+				<div class="line"></div>
+			</div>
+			<div class="header-field class">
+				<span class="label">Class:</span>
+				<div class="line"></div>
+			</div>
+		</div>
+
+		<div id="worksheetOutput" class="worksheet-text"></div>
+	</div>
+
+	<script>
+		const inputText = document.getElementById('inputText');
+		const fontSize = document.getElementById('fontSize');
+		const titleInput = document.getElementById('titleInput');
+		const titleDisplay = document.getElementById('worksheetTitle');
+		const output = document.getElementById('worksheetOutput');
+
+		function update() {
+			const raw = inputText.value;
+			const size = fontSize.value + 'px';
+			const title = titleInput.value.trim();
+
+			titleDisplay.textContent = title;
+			titleDisplay.style.display = title ? 'block' : 'none';
+
+			output.textContent = raw.replace(/ /g, '_');
+			output.style.fontSize = size;
+		}
+
+		inputText.addEventListener('input', update);
+		fontSize.addEventListener('input', update);
+		titleInput.addEventListener('input', update);
+
+		update();
+	</script>
+</body>
+</html>

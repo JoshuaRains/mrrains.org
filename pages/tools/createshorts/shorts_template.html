@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Vídeos Cortos con Preguntas</title>
+  <style>
+    :root {
+      --green-light: #79b791;
+      --green-dark: #517860;
+      --bg-gradient: linear-gradient(90deg, var(--green-light) 60%, var(--green-dark) 100%);
+      --text-color: #fff;
+      --card-bg: rgba(255, 255, 255, 0.1);
+      --card-hover: rgba(255, 255, 255, 0.2);
+      --border-radius: 8px;
+      --shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+      --spacing: 1rem;
+    }
+
+    /* Asegurar que el body y html ocupen todo el alto */
+    html, body {
+      height: 100%;
+      margin: 0;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      background: var(--bg-gradient);
+      color: var(--text-color);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    /* Header */
+
+    .header {
+      padding: var(--spacing);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: rgba(0, 0, 0, 0.15);
+      box-shadow: var(--shadow);
+      flex-shrink: 0;
+    }
+
+    .nav-buttons {
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    .nav-buttons button {
+      background-color: var(--card-bg);
+      border: 1px solid #fff;
+      color: var(--text-color);
+      padding: 0.5rem 1rem;
+      font-size: 1rem;
+      cursor: pointer;
+      border-radius: 4px;
+      transition: background 0.2s;
+    }
+
+    .nav-buttons button:hover:not(:disabled) {
+      background-color: var(--card-hover);
+    }
+
+    .nav-buttons button:disabled {
+      opacity: 0.5;
+      cursor: default;
+    }
+
+    .volume-slider {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: var(--card-bg);
+      padding: 0.5rem 1rem;
+      border-radius: 6px;
+      box-shadow: var(--shadow);
+    }
+
+    .volume-slider label {
+      font-size: 0.9rem;
+    }
+
+    .volume-slider input[type="range"] {
+      width: 100px;
+      cursor: pointer;
+    }
+
+    /* Main Content: ocupar el espacio restante y evitar desbordes */
+
+    main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      padding: var(--spacing);
+      gap: var(--spacing);
+    }
+
+    .video-and-questions {
+      display: flex;
+      flex-direction: row;
+      align-items: stretch;
+      gap: var(--spacing);
+      height: 100%; /* Ensure parent container takes full height */
+    }
+
+    .video-container {
+      margin: 0.5rem auto; /* Add slight margin to prevent clipping */
+      max-width: calc(80vh * 9 / 16);
+    }
+
+    .questions {
+      max-width: 40%;
+      display: flex;
+      flex-direction: column;
+      gap: var(--spacing);
+      overflow-y: auto; /* Ensure vertical scrolling */
+      flex: 1;
+      padding-right: 0.5rem;
+      height: 100%; /* Ensure it takes up the full height */
+    }
+
+    @media (max-width: 768px) {
+      .questions {
+        max-width: 100%; /* Adjust for smaller screens */
+      }
+    }
+
+    /* Video Container (9:16) */
+
+    .video-container {
+      position: relative;
+      background: #000;
+      border-radius: var(--border-radius);
+      overflow: hidden;
+      aspect-ratio: 9 / 16;
+      width: 100%;
+      max-width: calc(80vh * 9 / 16);
+      max-height: 80vh;
+      box-shadow: var(--shadow);
+      flex-shrink: 0;
+      margin: 0 auto;
+    }
+
+    .video-container iframe {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+    }
+
+    /* Questions: hacer scroll si exceden el alto disponible */
+
+    .questions {
+      display: flex;
+      flex-direction: column;
+      gap: var(--spacing);
+      overflow-y: auto; /* Ensure vertical scrolling */
+      flex: 1;
+      padding-right: 0.5rem;
+      height: 100%; /* Ensure it takes up the full height */
+    }
+
+    /* Custom Scrollbar Styling */
+    .questions::-webkit-scrollbar {
+      width: 8px; /* Ensure scrollbar width */
+    }
+
+    .questions::-webkit-scrollbar-track {
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 4px;
+    }
+
+    .questions::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 4px;
+    }
+
+    .questions::-webkit-scrollbar-thumb:hover {
+      background: rgba(255, 255, 255, 0.3);
+    }
+
+    .question {
+      background: var(--card-bg);
+      padding: var(--spacing);
+      border-radius: var(--border-radius);
+      box-shadow: var(--shadow);
+      transition: none; /* Removed hover effect */
+    }
+
+    .question-text {
+      font-weight: bold;
+      margin-bottom: 0.5rem;
+      font-size: 1rem;
+    }
+
+    .answers {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      margin-bottom: 0.75rem;
+    }
+
+    .answers label {
+      display: flex;
+      align-items: center;
+      background: rgba(255, 255, 255, 0.05);
+      padding: 0.5rem;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: background 0.2s, border 0.2s;
+      font-size: 0.95rem;
+      border: 2px solid transparent; /* Default border */
+    }
+
+    .answers label:hover {
+      background: rgba(255, 255, 255, 0.12);
+    }
+
+    .answers input[type="radio"] {
+      display: none; /* Hide the radio button */
+    }
+
+    .answers label.selected {
+      background: rgba(255, 255, 255, 0.2); /* Highlight selected answer */
+      border: 2px solid var(--green-light); /* Add border to selected answer */
+    }
+
+    .timestamp {
+      background: var(--card-bg);
+      border: 1px solid #fff;
+      color: var(--text-color);
+      padding: 0.3rem 0.6rem;
+      font-size: 0.9rem;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: background 0.2s;
+      align-self: flex-start;
+    }
+
+    .timestamp:hover {
+      background: var(--card-hover);
+    }
+
+    /* Layout de escritorio: video y preguntas lado a lado */
+
+    @media (min-width: 768px) {
+      .video-and-questions {
+        flex-direction: row; /* Always horizontal layout */
+        align-items: stretch;
+      }
+
+      .video-container {
+        margin: 0;
+        max-width: calc(80vh * 9 / 16);
+      }
+
+      .questions {
+        max-width: 40%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <div class="nav-buttons">
+      <button id="prevBtn">Anterior</button>
+      <button id="nextBtn">Siguiente</button>
+    </div>
+    <div class="volume-slider">
+      <label for="volumeRange">Volumen:</label>
+      <input type="range" id="volumeRange" min="0" max="100" value="50" />
+    </div>
+  </header>
+
+  <main>
+    <div class="video-and-questions">
+      <div class="video-container" id="videoContainer">
+        <div id="player"></div>
+      </div>
+      <div class="questions" id="questionsContainer">
+        <!-- Las preguntas se inyectarán aquí -->
+      </div>
+    </div>
+  </main>
+
+  <script>
+    // Datos de ejemplo: reemplazar o extender según se necesite
+const slidesData = [
+  {
+    "videoId": "mD3-wzyF5fI",
+    "questions": [
+      {
+        "text": "test",
+        "answers": [
+          "2",
+          "1"
+        ],
+        "selectedIndex": null,
+        "timeStart": 0,
+        "timeEnd": 85
+      },
+      {
+        "text": "2",
+        "answers": [
+          "2",
+          "2"
+        ],
+        "selectedIndex": null,
+        "timeStart": 0,
+        "timeEnd": 85
+      }
+    ]
+  }
+];
+
+    let currentIndex = 0;
+    let player;
+    let segmentTimer = null;
+
+    function onYouTubeIframeAPIReady() {
+      const firstVideo = slidesData[0];
+      player = new YT.Player("player", {
+        videoId: firstVideo.videoId,
+        playerVars: {
+          playsinline: 1,
+          rel: 0,
+          modestbranding: 1,
+        },
+        events: {
+          onReady: onPlayerReady,
+          onStateChange: onPlayerStateChange,
+        },
+      });
+    }
+
+    function onPlayerReady(event) {
+      // Volumen inicial
+      const volumeRange = document.getElementById("volumeRange");
+      player.setVolume(volumeRange.value);
+      volumeRange.addEventListener("input", () => {
+        player.setVolume(volumeRange.value);
+      });
+
+      renderQuestions(currentIndex);
+      updateNavButtons();
+    }
+
+    function onPlayerStateChange(event) {
+      // Se puede agregar lógica adicional si se requiere
+    }
+
+    function renderQuestions(index) {
+      const container = document.getElementById("questionsContainer");
+      container.innerHTML = "";
+
+      const data = slidesData[index];
+      data.questions.forEach((q, qIndex) => {
+        const qDiv = document.createElement("div");
+        qDiv.classList.add("question");
+
+        const qText = document.createElement("div");
+        qText.classList.add("question-text");
+        qText.textContent = q.text;
+        qDiv.appendChild(qText);
+
+        const answersDiv = document.createElement("div");
+        answersDiv.classList.add("answers");
+        q.answers.forEach((ans, aIndex) => {
+          const label = document.createElement("label");
+          const radio = document.createElement("input");
+          radio.type = "radio";
+          radio.name = `q-${index}-${qIndex}`;
+          radio.value = aIndex;
+          radio.checked = q.selectedIndex === aIndex;
+          radio.addEventListener("change", () => {
+            q.selectedIndex = aIndex;
+
+            // Remove 'selected' class from all labels in the group
+            const allLabels = answersDiv.querySelectorAll("label");
+            allLabels.forEach(label => label.classList.remove("selected"));
+
+            // Add 'selected' class to the clicked label
+            label.classList.add("selected");
+          });
+          label.appendChild(radio);
+          label.appendChild(document.createTextNode(ans));
+          answersDiv.appendChild(label);
+        });
+        qDiv.appendChild(answersDiv);
+
+        const tsButton = document.createElement("button");
+        tsButton.classList.add("timestamp");
+        const start = formatTime(q.timeStart);
+        const end = formatTime(q.timeEnd);
+        tsButton.textContent = `▶︎ ${start} - ${end}`;
+        tsButton.addEventListener("click", () => {
+          playSegment(q.timeStart, q.timeEnd);
+        });
+        qDiv.appendChild(tsButton);
+
+        container.appendChild(qDiv);
+      });
+    }
+
+    function formatTime(seconds) {
+      const mins = Math.floor(seconds / 60);
+      const secs = Math.floor(seconds % 60)
+        .toString()
+        .padStart(2, "0");
+      return `${mins}:${secs}`;
+    }
+
+    function playSegment(start, end) {
+      if (!player || typeof player.seekTo !== "function") return;
+      clearInterval(segmentTimer);
+      player.seekTo(start, true);
+      player.playVideo();
+      segmentTimer = setInterval(() => {
+        const current = player.getCurrentTime();
+        if (current >= end) {
+          player.pauseVideo();
+          clearInterval(segmentTimer);
+        }
+      }, 200);
+    }
+
+    function loadVideoByIndex(index) {
+      const data = slidesData[index];
+      player.loadVideoById(data.videoId);
+      renderQuestions(index);
+      updateNavButtons();
+    }
+
+    function updateNavButtons() {
+      document.getElementById("prevBtn").disabled = currentIndex === 0;
+      document.getElementById("nextBtn").disabled =
+        currentIndex === slidesData.length - 1;
+    }
+
+    document.getElementById("prevBtn").addEventListener("click", () => {
+      if (currentIndex > 0) {
+        currentIndex--;
+        loadVideoByIndex(currentIndex);
+      }
+    });
+
+    document.getElementById("nextBtn").addEventListener("click", () => {
+      if (currentIndex < slidesData.length - 1) {
+        currentIndex++;
+        loadVideoByIndex(currentIndex);
+      }
+    });
+
+    // Cargar la API de IFrame de YouTube de forma asíncrona
+    const tag = document.createElement("script");
+    tag.src = "https://www.youtube.com/iframe_api";
+    document.body.appendChild(tag);
+  </script>
+</body>
+</html>

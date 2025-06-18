@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Generador de Prueba</title>
+  <link href="https://fonts.googleapis.com/css?family=Noto+Sans:400&display=swap" rel="stylesheet">
+  <style>
+    @page { size: Letter portrait; margin: 8mm; }
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 200mm;
+      height: 263mm;
+      font-family: 'Noto Sans', Arial, sans-serif;
+      font-size: 11pt;
+      background: #fff;
+    }
+    body {
+      box-sizing: border-box;
+      min-height: 100vh;
+      position: relative;
+    }
+    .controls {
+      padding: 12px 0 16px 0;
+      font-size: 13px;
+      font-family: 'Noto Sans', Arial, sans-serif;
+    }
+    .controls textarea {
+      width: 99%;
+      min-height: 120px;
+      font-size: 12px;
+      font-family: 'Noto Sans', monospace;
+      margin-bottom: 8px;
+    }
+    .controls button {
+      font-size: 1em;
+      padding: 6px 18px;
+      border-radius: 6px;
+      background: #f2f2f2;
+      border: 1px solid #aaa;
+      cursor: pointer;
+      margin-top: 6px;
+    }
+    /* Hide controls when printing */
+    @media print {
+      .controls { display: none !important; }
+    }
+
+    /* Quiz styles below */
+    .quiz-root {
+      width: 100%;
+      max-width: 200mm;
+      margin: 0 auto;
+      background: #fff;
+      position: relative;
+      font-family: 'Noto Sans', Arial, sans-serif;
+    }
+    .header {
+      width: 100%;
+      max-width: 200mm;
+      margin: 0 auto 2mm auto;
+      position: relative;
+      z-index: 2;
+      font-family: 'Noto Sans', Arial, sans-serif;
+    }
+    .header-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      margin-bottom: 2mm;
+    }
+    .test-title {
+      font-size: 14pt;
+      font-weight: 400;
+      letter-spacing: 0.04em;
+    }
+    .unit-title {
+      font-size: 11pt;
+      font-weight: 400;
+      letter-spacing: 0.04em;
+    }
+    .header-hr {
+      border: none;
+      border-top: 1px solid #000;
+      margin: 0 0 2mm 0;
+      height: 0;
+      width: 100%;
+    }
+    .header-fields {
+      display: flex;
+      gap: 10mm;
+      align-items: baseline;
+      margin-bottom: 4mm;
+      font-size: 12pt;
+      font-family: 'Noto Sans', Arial, sans-serif;
+    }
+    .header-field {
+      display: flex;
+      align-items: baseline;
+      white-space: nowrap;
+    }
+    .header-field label {
+      margin-right: 2mm;
+    }
+    .header-field .field-underline {
+      border-bottom: 1px solid #000;
+      display: inline-block;
+      height: 1.2em;
+      vertical-align: bottom;
+    }
+    .field-nombre { width: 77mm; }
+    .field-fecha { width: 35mm; }
+    .field-clase { width: 20mm; }
+
+    :root {
+      --header-h: 32mm;
+      --bubble-max-h: 90mm;
+      --usable-h: 263mm;
+      --usable-w: 200mm;
+      --column-gap: 6mm;
+      --col1-w: 60mm;
+      --col2-w: 60mm;
+      --col3-w: 60mm;
+    }
+    .columns-area {
+      position: relative;
+      width: 100%;
+      max-width: var(--usable-w);
+      height: calc(var(--usable-h) - var(--header-h));
+      margin: 0 auto;
+      min-height: 120mm;
+      font-family: 'Noto Sans', Arial, sans-serif;
+    }
+    .col1, .col2, .col3 {
+      position: absolute;
+      top: 0;
+      overflow: hidden;
+      font-family: 'Noto Sans', Arial, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: stretch;
+    }
+    .col1 {
+      left: 0;
+      width: var(--col1-w);
+      height: 100%;
+    }
+    .col2 {
+      left: calc(var(--col1-w) + var(--column-gap));
+      width: var(--col2-w);
+      height: 70%;
+    }
+    .col3 {
+      left: calc(var(--col1-w) + var(--col2-w) + 2 * var(--column-gap));
+      width: var(--col3-w);
+      height: 70%;
+    }
+    .question {
+      break-inside: avoid;
+      page-break-inside: avoid;
+      margin-bottom: 2.8mm;
+      font-size: 10pt;
+      line-height: 1.17;
+      max-width: 56mm;
+      font-family: 'Noto Sans', Arial, sans-serif;
+      background: transparent;
+    }
+    .question > strong {
+      font-weight: 400;
+      line-height: 1.18;
+    }
+    .options {
+      list-style-type: none;
+      padding-left: 4mm;
+      margin: 0.7mm 0 0 0;
+      font-size: 9pt;
+      line-height: 1.12;
+      font-family: 'Noto Sans', Arial, sans-serif;
+    }
+    .options li {
+      margin-bottom: 0.6mm;
+      text-indent: -2mm;
+    }
+    .options li::before {
+      content: attr(data-option) ". ";
+      font-weight: 400;
+      margin-right: 1mm;
+    }
+    .bubble-sheet {
+      position: absolute;
+      right: 0;
+      bottom: 0;
+      max-height: var(--bubble-max-h);
+      max-width: 100mm;
+      z-index: 20;
+      box-sizing: border-box;
+      background: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2mm;
+    }
+    .bubble-sheet img {
+      display: block;
+      max-height: var(--bubble-max-h);
+      width: auto;
+      max-width: 100%;
+    }
+    @media print {
+      .controls { display: none !important; }
+      textarea, button { display: none !important; }
+      body { background: #fff; }
+    }
+  </style>
+</head>
+<body>
+  <div class="controls">
+    <label for="json-in"><b>Ingrese el guion JSON del examen:</b></label><br>
+    <textarea id="json-in" placeholder='{
+  "title": "Test Quiz",
+  "unit": "Unit 0",
+  "bubbleSheet": "bubble-sheet.png",
+  "questions": [
+    {
+      "text": "¿Cuál es la capital de España?",
+      "options": ["Barcelona", "Madrid", "Sevilla", "Valencia"]
+    },
+    {
+      "text": "¿Cuántos continentes hay?",
+      "options": ["5", "6", "7", "8"]
+    }
+  ]
+}'></textarea><br>
+    <button onclick="generateQuiz()">Generar página</button>
+  </div>
+  <div id="quiz-container"></div>
+
+  <script>
+    // Helper: generate question element from data
+    function makeQuestion(n, qData) {
+      const q = document.createElement('div');
+      q.className = 'question';
+      let opts = '';
+      if (Array.isArray(qData.options)) {
+        const letters = ['A','B','C','D','E','F','G','H'];
+        opts = `<ul class="options">` + qData.options.map(
+          (opt, i) => `<li data-option="${letters[i]||''}">${opt}</li>`
+        ).join('') + `</ul>`;
+      }
+      q.innerHTML = `<strong>${n}. ${qData.text}</strong>${opts}`;
+      return q;
+    }
+
+    // Distribute questions as before (col1 full, then col2, then col3)
+    function distributeQuestions(questionEls, root) {
+      const col1 = root.querySelector('.col1');
+      const col2 = root.querySelector('.col2');
+      const col3 = root.querySelector('.col3');
+      [col1, col2, col3].forEach(col => col.innerHTML = '');
+
+      // Get column max heights in px
+      const col1Max = col1.clientHeight;
+      const col2Max = col2.clientHeight;
+      const col3Max = col3.clientHeight;
+
+      let colIdx = 0;
+      let columns = [col1, col2, col3];
+      let maxHeights = [col1Max, col2Max, col3Max];
+
+      for (let i = 0; i < questionEls.length; ++i) {
+        const qEl = questionEls[i];
+        columns[colIdx].appendChild(qEl);
+        let hNow = columns[colIdx].scrollHeight;
+        if (hNow > maxHeights[colIdx] && colIdx < 2) {
+          columns[colIdx].removeChild(qEl);
+          colIdx++;
+          columns[colIdx].appendChild(qEl);
+        }
+      }
+    }
+
+    function generateQuiz() {
+      const jsonStr = document.getElementById('json-in').value;
+      let data;
+      try {
+        data = JSON.parse(jsonStr);
+      } catch(e) {
+        alert("JSON inválido: " + e);
+        return;
+      }
+      // Remove any previous quiz
+      document.getElementById('quiz-container').innerHTML = '';
+
+      // Build root container
+      const root = document.createElement('div');
+      root.className = 'quiz-root';
+
+      // Header
+      root.innerHTML = `
+        <div class="header">
+          <div class="header-top">
+            <span class="test-title">${data.title || 'Test Quiz'}</span>
+            <span class="unit-title">${data.unit || ''}</span>
+          </div>
+          <hr class="header-hr">
+          <div class="header-fields">
+            <div class="header-field">
+              <label>Nombre:</label>
+              <span class="field-underline field-nombre"></span>
+            </div>
+            <div class="header-field">
+              <label>Fecha:</label>
+              <span class="field-underline field-fecha"></span>
+            </div>
+            <div class="header-field">
+              <label>Clase:</label>
+              <span class="field-underline field-clase"></span>
+            </div>
+          </div>
+        </div>
+        <div class="columns-area">
+          <div class="col1"></div>
+          <div class="col2"></div>
+          <div class="col3"></div>
+          <div class="bubble-sheet">
+            <img src="${data.bubbleSheet || 'bubble-sheet.png'}" alt="Bubble Sheet">
+          </div>
+        </div>
+      `;
+
+      // Create question elements
+      const questionEls = [];
+      if (data.questions && Array.isArray(data.questions)) {
+        data.questions.forEach((q, i) => {
+          questionEls.push(makeQuestion(i + 1, q));
+        });
+      }
+      // Wait for DOM to attach, then distribute (to ensure columns are measured)
+      setTimeout(() => distributeQuestions(questionEls, root), 0);
+
+      document.getElementById('quiz-container').appendChild(root);
+    }
+
+    // For demonstration, generate a quiz on load
+    window.onload = () => {
+      document.getElementById('json-in').value = JSON.stringify({
+        title: "Test Quiz",
+        unit: "Unit 0",
+        bubbleSheet: "bubble-sheet.png",
+        questions: [
+          {text: "¿Cuál es la capital de España?", options: ["Barcelona", "Madrid", "Sevilla", "Valencia"]},
+          {text: "¿Cuántos continentes hay?", options: ["5", "6", "7", "8"]},
+          {text: "Ejemplo de pregunta larga que ocupa más espacio visual.", options: ["A", "B", "C", "D"]},
+          {text: "Pregunta de ejemplo 4.", options: ["Opción uno", "Opción dos", "Opción tres", "Opción cuatro"]},
+          {text: "Pregunta de ejemplo 5.", options: ["Opción uno", "Opción dos", "Opción tres", "Opción cuatro"]},
+          {text: "Pregunta de ejemplo 6.", options: ["Opción uno", "Opción dos", "Opción tres", "Opción cuatro"]},
+          {text: "Pregunta de ejemplo 7.", options: ["Opción uno", "Opción dos", "Opción tres", "Opción cuatro"]},
+          {text: "Pregunta de ejemplo 8.", options: ["Opción uno", "Opción dos", "Opción tres", "Opción cuatro"]},
+          {text: "Pregunta de ejemplo 9.", options: ["Opción uno", "Opción dos", "Opción tres", "Opción cuatro"]},
+          {text: "Pregunta de ejemplo 10.", options: ["Opción uno", "Opción dos", "Opción tres", "Opción cuatro"]},
+          {text: "Pregunta de ejemplo 11.", options: ["Opción uno", "Opción dos", "Opción tres", "Opción cuatro"]},
+          {text: "Pregunta de ejemplo 12.", options: ["Opción uno", "Opción dos", "Opción tres", "Opción cuatro"]},
+          {text: "Pregunta de ejemplo 13.", options: ["Opción uno", "Opción dos", "Opción tres", "Opción cuatro"]},
+          {text: "Pregunta de ejemplo 14.", options: ["Opción uno", "Opción dos", "Opción tres", "Opción cuatro"]},
+          {text: "Pregunta de ejemplo 15.", options: ["Opción uno", "Opción dos", "Opción tres", "Opción cuatro"]},
+          {text: "Pregunta de ejemplo 16.", options: ["Opción uno", "Opción dos", "Opción tres", "Opción cuatro"]}
+        ]
+      }, null, 2);
+      generateQuiz();
+    };
+  </script>
+</body>
+</html>

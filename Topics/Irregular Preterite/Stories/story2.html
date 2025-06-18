@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Actividad de Pretérito: La historia de Clara</title>
+  <style>
+    body {
+      background-color: #1b1a1a; /* Darker grey background */
+      margin: 10px;
+      font-family: Arial, sans-serif;
+    }
+    /* Single container for the combined activity */
+    #container {
+      width: 80%;
+      margin: 20px auto;
+      background-color: #f5f5f5; /* Soft grey background */
+      box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+      padding: 20px;
+      font-size: 20px;
+    }
+    /* Navigation area styling */
+    #sentence-nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0; /* So progress bar touches */
+      background-color: #444;
+      border-radius: 5px 5px 0 0; /* Rounded top only */
+      padding: 10px;
+      box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.3);
+    }
+    #nav-buttons, #symbol-buttons {
+      display: flex;
+      align-items: center;
+    }
+    #nav-buttons button,
+    #symbol-buttons button {
+      font-size: 18px;
+      padding: 2px 5px;
+      margin: 0 5px;
+      cursor: pointer;
+      border: none;
+      border-radius: 3px;
+      box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.2);
+      background: #fff;
+    }
+    /* Progress bar container and fill */
+    #progressBarContainer {
+      width: 100%;
+      height: 4px;
+      background-color: #ddd;
+      box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.3);
+      border-radius: 0 0 5px 5px; /* Rounded bottom only */
+      margin-bottom: 20px;
+    }
+    #progressBar {
+      height: 100%;
+      width: 0%;
+      background-color: #4caf50;
+      border-radius: 0 0 5px 5px;
+      transition: width 0.3s;
+    }
+    /* Combined reading paragraph: each sentence flows inline */
+    .sentence {
+      display: inline; 
+      padding: 2px;
+      transition: border-radius 0.3s, color 0.3s;
+    }
+    .sentence.active {
+      color: black;
+    }
+    .sentence.inactive {
+      color: #aaa;
+    }
+    /* Clickable words for definitions */
+    .clickable {
+      cursor: help;
+    }
+    /* Blank input styling – hints come from placeholder text */
+    .blank {
+      border: none;
+      border-bottom: 2px solid;
+      outline: none;
+      font-size: 20px;
+      padding: 2px;
+      background-color: transparent;
+      transition: width 0.2s;
+    }
+    .sentence.active input.blank {
+      border-bottom-color: black;
+    }
+    .sentence.inactive input.blank {
+      border-bottom-color: #aaa;
+    }
+    /* Translation box for word definitions and blank translations */
+    #translationBox {
+      position: absolute;
+      display: none;
+      background: #f9f9f9;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      box-shadow: 0px 4px 8px rgba(0,0,0,0.2);
+      padding: 8px;
+      z-index: 1000;
+    }
+    /* Hidden span for measuring text width for auto-resizing inputs */
+    #widthTester {
+      position: absolute;
+      visibility: hidden;
+      white-space: pre;
+    }
+  </style>
+</head>
+<body>
+  <div id="container">
+    <!-- Navigation area -->
+    <div id="sentence-nav">
+      <div id="nav-buttons">
+        <button id="prevBtn">←</button>
+        <button id="nextBtn">→</button>
+      </div>
+      <div id="symbol-buttons">
+        <button class="symbolBtn" data-symbol="á">á</button>
+        <button class="symbolBtn" data-symbol="é">é</button>
+        <button class="symbolBtn" data-symbol="í">í</button>
+        <button class="symbolBtn" data-symbol="ó">ó</button>
+        <button class="symbolBtn" data-symbol="ú">ú</button>
+        <button class="symbolBtn" data-symbol="ñ">ñ</button>
+        <button class="symbolBtn" data-symbol="ü">ü</button>
+        <button class="symbolBtn" data-symbol="¿">¿</button>
+        <button class="symbolBtn" data-symbol="¡">¡</button>
+      </div>
+    </div>
+    <!-- Progress bar -->
+    <div id="progressBarContainer">
+      <div id="progressBar"></div>
+    </div>
+    <!-- Combined reading paragraph with blanks and clickable words -->
+    <p>
+      <!-- Sentence 0 -->
+      <span class="sentence active" data-index="0">
+        <span data-index="0" class="clickable">Clara</span> 
+        <span data-index="1" class="clickable">tenía</span> 
+        <span data-index="2" class="clickable">diez</span> 
+        <span data-index="3" class="clickable">años</span> 
+        <span data-index="4" class="clickable">cuando</span> 
+        <input type="text" class="blank" data-blank-index="0" style="width: 80px;" placeholder="decidir">
+        <span data-index="5" class="clickable">que</span> 
+        <span data-index="6" class="clickable">no</span> 
+        <span data-index="7" class="clickable">valía</span> 
+        <span data-index="8" class="clickable">la</span> 
+        <span data-index="9" class="clickable">pena</span> 
+        <span data-index="10" class="clickable">hablar</span> 
+        <span data-index="11" class="clickable">y</span> 
+        <span data-index="12" class="clickable">se</span> 
+        <input type="text" class="blank" data-blank-index="1" style="width: 100px;" placeholder="encerrarse">
+        <span data-index="13" class="clickable">en</span> 
+        <span data-index="14" class="clickable">el</span> 
+        <span data-index="15" class="clickable">mutismo.</span>
+      </span>
+      <!-- Sentence 1 -->
+      <span class="sentence inactive" data-index="1">
+        <span data-index="16" class="clickable">Su</span> 
+        <span data-index="17" class="clickable">vida</span> 
+        <input type="text" class="blank" data-blank-index="2" style="width: 80px;" placeholder="cambiar">
+        <span data-index="18" class="clickable">notablemente.</span>
+      </span>
+      <!-- Sentence 2 -->
+      <span class="sentence inactive" data-index="2">
+        <span data-index="19" class="clickable">El</span> 
+        <span data-index="20" class="clickable">médico</span> 
+        <span data-index="21" class="clickable">de</span> 
+        <span data-index="22" class="clickable">la</span> 
+        <span data-index="23" class="clickable">familia,</span> 
+        <span data-index="24" class="clickable">el</span> 
+        <span data-index="25" class="clickable">gordo</span> 
+        <span data-index="26" class="clickable">y</span> 
+        <span data-index="27" class="clickable">afable</span> 
+        <span data-index="28" class="clickable">doctor</span> 
+        <span data-index="29" class="clickable">Cuevas,</span> 
+        <input type="text" class="blank" data-blank-index="3" style="width: 80px;" placeholder="intentar">
+        <span data-index="30" class="clickable">curarle</span> 
+        <span data-index="31" class="clickable">el</span> 
+        <span data-index="32" class="clickable">silencio</span> 
+        <span data-index="33" class="clickable">con</span> 
+        <span data-index="34" class="clickable">píldoras</span> 
+        <span data-index="35" class="clickable">de</span> 
+        <span data-index="36" class="clickable">su</span> 
+        <span data-index="37" class="clickable">invención,</span> 
+        <span data-index="38" class="clickable">con</span> 
+        <span data-index="39" class="clickable">vitaminas</span> 
+        <span data-index="40" class="clickable">en</span> 
+        <span data-index="41" class="clickable">jarabe</span> 
+        <span data-index="42" class="clickable">y</span> 
+        <span data-index="43" class="clickable">tocaciones</span> 
+        <span data-index="44" class="clickable">de</span> 
+        <span data-index="45" class="clickable">miel</span> 
+        <span data-index="46" class="clickable">de</span> 
+        <span data-index="47" class="clickable">bórax</span> 
+        <span data-index="48" class="clickable">en</span> 
+        <span data-index="49" class="clickable">la</span> 
+        <span data-index="50" class="clickable">garganta,</span> 
+        <span data-index="51" class="clickable">pero</span> 
+        <span data-index="52" class="clickable">sin</span> 
+        <span data-index="53" class="clickable">ningún</span> 
+        <span data-index="54" class="clickable">resultado</span> 
+        <span data-index="55" class="clickable">aparente.</span>
+      </span>
+    </p>
+  </div>
+  
+  <!-- Hidden span for auto-resizing inputs -->
+  <span id="widthTester"></span>
+  <!-- Translation box -->
+  <div id="translationBox"></div>
+  
+  <script>
+    /* Updated Translations JSON for clickable words */
+    var translations = {
+      "translations": [
+        { "index": 0, "text": "Clara" },
+        { "index": 1, "text": "was" },
+        { "index": 2, "text": "ten" },
+        { "index": 3, "text": "years" },
+        { "index": 4, "text": "when" },
+        { "index": 5, "text": "that" },
+        { "index": 6, "text": "not" },
+        { "index": 7, "text": "was worth" },
+        { "index": 8, "text": "the" },
+        { "index": 9, "text": "effort" },
+        { "index": 10, "text": "talking" },
+        { "index": 11, "text": "and" },
+        { "index": 12, "text": "herself" },
+        { "index": 13, "text": "in" },
+        { "index": 14, "text": "the" },
+        { "index": 15, "text": "mutism." },
+        { "index": 16, "text": "Her" },
+        { "index": 17, "text": "life" },
+        { "index": 18, "text": "remarkably." },
+        { "index": 19, "text": "The" },
+        { "index": 20, "text": "doctor" },
+        { "index": 21, "text": "of" },
+        { "index": 22, "text": "the" },
+        { "index": 23, "text": "family," },
+        { "index": 24, "text": "the" },
+        { "index": 25, "text": "chubby" },
+        { "index": 26, "text": "and" },
+        { "index": 27, "text": "kind" },
+        { "index": 28, "text": "doctor" },
+        { "index": 29, "text": "Cuevas," },
+        { "index": 30, "text": "to cure" },
+        { "index": 31, "text": "the" },
+        { "index": 32, "text": "silence" },
+        { "index": 33, "text": "with" },
+        { "index": 34, "text": "pills" },
+        { "index": 35, "text": "of" },
+        { "index": 36, "text": "his" },
+        { "index": 37, "text": "invention," },
+        { "index": 38, "text": "with" },
+        { "index": 39, "text": "vitamins" },
+        { "index": 40, "text": "in" },
+        { "index": 41, "text": "syrup" },
+        { "index": 42, "text": "and" },
+        { "index": 43, "text": "doses" },
+        { "index": 44, "text": "of" },
+        { "index": 45, "text": "honey" },
+        { "index": 46, "text": "of" },
+        { "index": 47, "text": "borax" },
+        { "index": 48, "text": "in" },
+        { "index": 49, "text": "the" },
+        { "index": 50, "text": "throat," },
+        { "index": 51, "text": "but" },
+        { "index": 52, "text": "without" },
+        { "index": 53, "text": "any" },
+        { "index": 54, "text": "result" },
+        { "index": 55, "text": "apparent." }
+      ]
+    };
+
+    /* Answers JSON includes correct conjugation, hint (infinitive), and English translation */
+    var answers = {
+      "answers": [
+        { "blankIndex": "0", "text": "decidió", "hint": "decidir", "english": "decided" },
+        { "blankIndex": "1", "text": "encerró", "hint": "encerrarse", "english": "shut herself in" },
+        { "blankIndex": "2", "text": "cambió", "hint": "cambiar", "english": "changed" },
+        { "blankIndex": "3", "text": "intentó", "hint": "intentar", "english": "attempted" }
+      ]
+    };
+
+    /* Helper functions */
+    function getTranslation(index) {
+      for (var i = 0; i < translations.translations.length; i++) {
+        if (translations.translations[i].index == index) {
+          return translations.translations[i].text;
+        }
+      }
+      return "";
+    }
+    function getAnswerData(blankIndex) {
+      for (var i = 0; i < answers.answers.length; i++) {
+        if (answers.answers[i].blankIndex === blankIndex) {
+          return answers.answers[i];
+        }
+      }
+      return null;
+    }
+
+    /* Translation click functionality for clickable words */
+    var clickableElements = document.getElementsByClassName("clickable");
+    for (var i = 0; i < clickableElements.length; i++) {
+      clickableElements[i].addEventListener("click", function(event) {
+        event.stopPropagation();
+        var index = this.getAttribute("data-index");
+        var translationText = getTranslation(index);
+        var translationBox = document.getElementById("translationBox");
+        translationBox.innerText = translationText;
+        translationBox.style.display = "block";
+        var rect = this.getBoundingClientRect();
+        translationBox.style.left = "0px";
+        translationBox.style.top = "0px";
+        var boxRect = translationBox.getBoundingClientRect();
+        var left = rect.left + (rect.width / 2) - (boxRect.width / 2);
+        var top = rect.top - boxRect.height - 5;
+        translationBox.style.left = left + "px";
+        translationBox.style.top = top + "px";
+      });
+    }
+    document.addEventListener("click", function(event) {
+      document.getElementById("translationBox").style.display = "none";
+    });
+
+    /* Auto-resize function for blank inputs, check correctness, and auto-advance */
+    function autoResize() {
+      var tester = document.getElementById("widthTester");
+      var style = window.getComputedStyle(this);
+      tester.style.fontSize = style.fontSize;
+      tester.style.fontFamily = style.fontFamily;
+      tester.textContent = this.value;
+      var newWidth = tester.offsetWidth + 10;
+      this.style.width = newWidth + "px";
+      
+      var blankIndex = this.getAttribute("data-blank-index");
+      var answerData = getAnswerData(blankIndex);
+      if (answerData && this.value.trim() === answerData.text) {
+        this.style.color = "green";
+        this.disabled = true;
+      } else {
+        this.style.color = "inherit";
+      }
+      updateProgressBar();
+      
+      // Auto-advance if all blanks in active sentence are correct
+      var activeSentence = document.querySelector('.sentence.active');
+      if (activeSentence) {
+        var blanks = activeSentence.querySelectorAll('input.blank');
+        var allCorrect = true;
+        blanks.forEach(function(blank) {
+          if (!blank.disabled) { allCorrect = false; }
+        });
+        if (allCorrect) {
+          var nextSentence = activeSentence.nextElementSibling;
+          if (nextSentence && nextSentence.classList.contains('sentence')) {
+            currentSentenceIndex++;
+            updateSentenceFocus();
+            var firstBlank = nextSentence.querySelector('input.blank');
+            if (firstBlank) { firstBlank.focus(); }
+          }
+        }
+      }
+    }
+    var blankInputs = document.getElementsByClassName("blank");
+    for (var i = 0; i < blankInputs.length; i++) {
+      blankInputs[i].addEventListener("input", autoResize);
+      // When clicking a blank, display the intended word's English translation above it.
+      blankInputs[i].addEventListener("click", function(event) {
+        event.stopPropagation();
+        var blankIndex = this.getAttribute("data-blank-index");
+        var answerData = getAnswerData(blankIndex);
+        if (answerData && answerData.english) {
+          var translationBox = document.getElementById("translationBox");
+          translationBox.innerText = answerData.english;
+          translationBox.style.display = "block";
+          var rect = this.getBoundingClientRect();
+          translationBox.style.left = "0px";
+          translationBox.style.top = "0px";
+          var boxRect = translationBox.getBoundingClientRect();
+          var left = rect.left + (rect.width / 2) - (boxRect.width / 2);
+          var top = rect.top - boxRect.height - 5;
+          translationBox.style.left = left + "px";
+          translationBox.style.top = top + "px";
+        }
+      });
+    }
+
+    /* Update progress bar based on correct answers */
+    function updateProgressBar() {
+      var blanks = document.getElementsByClassName("blank");
+      var total = blanks.length;
+      var correctCount = 0;
+      for (var i = 0; i < blanks.length; i++) {
+        var blankIndex = blanks[i].getAttribute("data-blank-index");
+        var answerData = getAnswerData(blankIndex);
+        if (blanks[i].disabled && blanks[i].value.trim() === answerData.text) {
+          correctCount++;
+        }
+      }
+      var percent = (correctCount / total) * 100;
+      document.getElementById("progressBar").style.width = percent + "%";
+    }
+
+    /* Sentence navigation and focus functionality */
+    var currentSentenceIndex = 0;
+    var sentences = document.getElementsByClassName("sentence");
+    function updateSentenceFocus() {
+      for (var i = 0; i < sentences.length; i++) {
+        var inputs = sentences[i].querySelectorAll("input.blank");
+        if (i === currentSentenceIndex) {
+          sentences[i].classList.add("active");
+          sentences[i].classList.remove("inactive");
+          inputs.forEach(function(input) {
+            if (input.value.trim() !== getAnswerData(input.getAttribute("data-blank-index")).text) {
+              input.disabled = false;
+            }
+          });
+        } else {
+          sentences[i].classList.add("inactive");
+          sentences[i].classList.remove("active");
+          inputs.forEach(function(input) {
+            input.disabled = true;
+          });
+        }
+      }
+    }
+    document.getElementById("prevBtn").addEventListener("click", function() {
+      if (currentSentenceIndex > 0) {
+        currentSentenceIndex--;
+        updateSentenceFocus();
+      }
+    });
+    document.getElementById("nextBtn").addEventListener("click", function() {
+      if (currentSentenceIndex < sentences.length - 1) {
+        currentSentenceIndex++;
+        updateSentenceFocus();
+      }
+    });
+    /* Special symbols insertion functionality */
+    var symbolButtons = document.getElementsByClassName("symbolBtn");
+    for (var i = 0; i < symbolButtons.length; i++) {
+      symbolButtons[i].addEventListener("mousedown", function(event) {
+        event.preventDefault();
+      });
+      symbolButtons[i].addEventListener("click", function() {
+        var symbol = this.getAttribute("data-symbol");
+        var activeElement = document.activeElement;
+        if (activeElement && activeElement.classList.contains("blank")) {
+          var start = activeElement.selectionStart;
+          var end = activeElement.selectionEnd;
+          var text = activeElement.value;
+          activeElement.value = text.substring(0, start) + symbol + text.substring(end);
+          activeElement.selectionStart = activeElement.selectionEnd = start + symbol.length;
+          autoResize.call(activeElement);
+        }
+      });
+    }
+    // Initial update
+    updateSentenceFocus();
+    updateProgressBar();
+  </script>
+</body>
+</html>

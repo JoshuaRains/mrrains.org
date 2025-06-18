@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="en" translate="no">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Present vs Preterite Practice</title>
+  <style>
+    body, html {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100%;
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: linear-gradient(to bottom, #5ffaff, #7ba9fe);
+    }
+    .game-container {
+      text-align: center;
+      width: 100%;
+      max-width: 800px;
+      padding: 50px;
+      border: 2px solid #d3d3d3;
+      background-color: #f7f4f4;
+      border-radius: 10px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+    .progress-bar-container {
+      width: 100%;
+      height: 20px;
+      background-color: #d3d3d3;
+      border-radius: 10px;
+      overflow: hidden;
+      margin-bottom: 20px;
+    }
+    .progress-bar {
+      height: 100%;
+      width: 0;
+      background: linear-gradient(to right, #28a745, #5cd85c);
+      border-radius: 10px;
+      transition: width 0.3s;
+    }
+    h2 {
+      margin-top: 0;
+    }
+    #prompt {
+      font-size: 1.2em;
+      margin: 20px 0;
+    }
+    .sentence-line {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin-bottom: 20px;
+      min-height: 50px;
+      align-items: center;
+      border: 2px dashed #ccc;
+      padding: 10px;
+      border-radius: 5px;
+    }
+    .word-bank {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      margin-top: 20px;
+    }
+    .word-bank-section {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      justify-content: center;
+    }
+    .word-bank-section h3 {
+      width: 100%;
+      margin: 0 0 10px 0;
+      font-size: 1em;
+      color: #007BFF;
+      text-align: left;
+    }
+    .word {
+      padding: 10px 20px;
+      background-color: #ccc;
+      border-radius: 5px;
+      cursor: pointer;
+      user-select: none;
+      transition: background-color 0.2s, transform 0.1s;
+    }
+    .word:hover {
+      background-color: #bbb;
+    }
+    .word:active {
+      transform: scale(0.95);
+    }
+    .word.disabled {
+      background-color: #e0e0e0;
+      color: #a0a0a0;
+      cursor: not-allowed;
+    }
+    .button {
+      margin-top: 20px;
+      padding: 10px 20px;
+      font-size: 1em;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      background-color: #007BFF;
+      color: white;
+    }
+    .button:hover {
+      background-color: #0056b3;
+    }
+    .hint {
+      font-size: 0.9em;
+      color: #555;
+      margin-top: 10px;
+      min-height: 1.2em;
+    }
+    /* Color-coding for hint display */
+    .color-pronoun {
+      color: #007BFF; /* Blue for pronouns */
+      text-decoration: underline;
+    }
+    .color-verb {
+      color: #28a745; /* Green for verbs */
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <div class="game-container">
+    <div class="progress-bar-container">
+      <div id="progressBar" class="progress-bar"></div>
+    </div>
+    <h2>Present vs Preterite Practice</h2>
+    <p id="prompt"></p>
+    <p id="hint" class="hint"></p>
+
+    <div class="sentence-line" id="sentenceLine"></div>
+
+    <!-- Word Bank -->
+    <div class="word-bank">
+      <!-- Subject Pronouns -->
+      <div class="word-bank-section" id="subjectPronounsSection">
+        <h3>Subject Pronouns</h3>
+        <div class="word" data-type="pronoun">yo</div>
+        <div class="word" data-type="pronoun">tú</div>
+        <div class="word" data-type="pronoun">él</div>
+        <div class="word" data-type="pronoun">ella</div>
+        <div class="word" data-type="pronoun">nosotros</div>
+        <div class="word" data-type="pronoun">ellos</div>
+      </div>
+
+      <!-- Verb Conjugations (Will be dynamically filled) -->
+      <div class="word-bank-section" id="verbConjugationsSection">
+        <h3>Verb Conjugations</h3>
+        <!-- JS will populate the 6 forms for the chosen verb + tense -->
+      </div>
+    </div>
+
+    <button id="checkButton" class="button">Check Answer</button>
+    <button id="restartButton" class="button" style="display: none;">Restart</button>
+    <p id="answerDisplay" class="answer-display"></p>
+  </div>
+
+  <script>
+    // ================================
+    // Game Configuration
+    // ================================
+    const CorrectTimesRequired = 5;  // How many correct answers to finish
+    const hintTime = 5;             // Seconds before a hint appears
+
+    // ================================
+    // Data
+    // ================================
+    const subjectPronouns = ["yo", "tú", "él", "ella", "nosotros", "ellos"];
+    const subjectPronounsEnglish = {
+      "yo": "I",
+      "tú": "you",
+      "él": "he",
+      "ella": "she",
+      "nosotros": "we",
+      "ellos": "they"
+    };
+
+    // Example regular verbs with present & preterite forms
+    // Index mapping: 0->yo, 1->tú, 2->él/ella, 3->nosotros, 4->vosotros, 5->ellos
+    const verbsData = [
+      {
+        name: "mirar",
+        englishBase: "watch",
+        english3rd: "watches",
+        englishPreterite: "watched",
+        present:   ["miro", "miras", "mira", "miramos", "miráis", "miran"],
+        preterite: ["miré", "miraste", "miró", "miramos", "mirasteis", "miraron"]
+      },
+      {
+        name: "escribir",
+        englishBase: "write",
+        english3rd: "writes",
+        englishPreterite: "wrote",
+        present:   ["escribo", "escribes", "escribe", "escribimos", "escribís", "escriben"],
+        preterite: ["escribí", "escribiste", "escribió", "escribimos", "escribisteis", "escribieron"]
+      },
+      {
+        name: "hablar",
+        englishBase: "speak",
+        english3rd: "speaks",
+        englishPreterite: "spoke",
+        present:   ["hablo", "hablas", "habla", "hablamos", "habláis", "hablan"],
+        preterite: ["hablé", "hablaste", "habló", "hablamos", "hablasteis", "hablaron"]
+      },
+      {
+        name: "comer",
+        englishBase: "eat",
+        english3rd: "eats",
+        englishPreterite: "ate",
+        present:   ["como", "comes", "come", "comemos", "coméis", "comen"],
+        preterite: ["comí", "comiste", "comió", "comimos", "comisteis", "comieron"]
+      }
+    ];
+
+    // ================================
+    // DOM Elements
+    // ================================
+    const promptElement   = document.getElementById("prompt");
+    const sentenceLine    = document.getElementById("sentenceLine");
+    const hintElement     = document.getElementById("hint");
+    const checkButton     = document.getElementById("checkButton");
+    const restartButton   = document.getElementById("restartButton");
+    const answerDisplay   = document.getElementById("answerDisplay");
+    const progressBar     = document.getElementById("progressBar");
+    const verbConjugationsSection = document.getElementById("verbConjugationsSection");
+
+    // ================================
+    // State Variables
+    // ================================
+    let currentQuestion;
+    let totalCorrect = 0;
+    let startTime, endTime;
+    let hintTimer;
+    let hintCounter = hintTime;
+
+    // ================================
+    // Start / Restart Game
+    // ================================
+    function startGame() {
+      totalCorrect = 0;
+      progressBar.style.width = "0%";
+      answerDisplay.textContent = "";
+      restartButton.style.display = "none";
+      startTime = new Date();
+      nextQuestion();
+    }
+
+    // ================================
+    // Pick Next Question
+    // ================================
+    function nextQuestion() {
+      if (totalCorrect >= CorrectTimesRequired) {
+        endRound();
+        return;
+      }
+
+      // 1. Choose a random subject pronoun
+      const randomPronoun = subjectPronouns[Math.floor(Math.random() * subjectPronouns.length)];
+
+      // 2. Choose a random verb + random tense
+      const chosenVerbData = verbsData[Math.floor(Math.random() * verbsData.length)];
+      const tenses = ["present", "preterite"];
+      const chosenTense = tenses[Math.floor(Math.random() * tenses.length)];
+
+      // 3. Find correct Spanish form
+      const formIndex = getFormIndex(randomPronoun);
+      const spanishVerbForm = chosenVerbData[chosenTense][formIndex];
+
+      // 4. Build the correct Spanish sentence: "yo hablo" or "ellos comieron", etc.
+      const correctSentence = `${randomPronoun} ${spanishVerbForm}`;
+
+      // 5. Build the English prompt
+      const pronounEng = subjectPronounsEnglish[randomPronoun];
+      const englishVerb = getEnglishVerb(
+        pronounEng,
+        chosenVerbData.englishBase,
+        chosenVerbData.english3rd,
+        chosenVerbData.englishPreterite,
+        chosenTense
+      );
+      let englishPrompt = pronounEng + " " + englishVerb;
+      englishPrompt = englishPrompt.charAt(0).toUpperCase() + englishPrompt.slice(1);
+
+      // 6. Store the question
+      currentQuestion = {
+        prompt: englishPrompt,
+        answer: correctSentence,
+        pronoun: randomPronoun,
+        verbData: chosenVerbData,
+        formIndex: formIndex,
+        tense: chosenTense
+      };
+
+      // 7. Update the DOM
+      promptElement.textContent = `Construct the sentence: "${englishPrompt}"`;
+      resetSentenceLine();
+      populateVerbConjugations(chosenVerbData, chosenTense);
+
+      // 8. Start hint timer
+      startHintTimer();
+    }
+
+    // Determines array index for the chosen pronoun
+    function getFormIndex(pronoun) {
+      switch (pronoun) {
+        case "yo":        return 0;
+        case "tú":        return 1;
+        case "él":
+        case "ella":      return 2;
+        case "nosotros":  return 3;
+        // vosotros => index 4 (not used here by default)
+        case "ellos":     return 5;
+      }
+      return 0;
+    }
+
+    // Chooses correct English verb form based on subject & tense
+    function getEnglishVerb(subjectEng, baseForm, thirdPersonForm, preteriteForm, tense) {
+      if (tense === "present") {
+        if (subjectEng === "he" || subjectEng === "she") {
+          return thirdPersonForm; // e.g., speaks, watches, writes
+        }
+        return baseForm; // e.g., speak, watch, write
+      } else {
+        // preterite
+        return preteriteForm; // e.g., spoke, watched, wrote
+      }
+    }
+
+    // ================================
+    // Populate Verb Conjugations Section
+    // ================================
+    function populateVerbConjugations(verbData, tense) {
+      verbConjugationsSection.innerHTML = "";
+      const forms = verbData[tense];
+      forms.forEach(form => {
+        const div = document.createElement("div");
+        div.className = "word";
+        div.dataset.type = "verb";
+        div.textContent = form;
+        verbConjugationsSection.appendChild(div);
+
+        // Add click
+        div.addEventListener('click', () => {
+          if (!div.classList.contains('disabled')) {
+            addWordToSentenceLine(div);
+          }
+        });
+      });
+    }
+
+    // ================================
+    // Word-Bank Click & Sentence Line
+    // ================================
+    // Attach click to existing .word elements (pronouns, set in HTML)
+    document.querySelectorAll('.word').forEach(word => {
+      word.addEventListener('click', () => {
+        if (!word.classList.contains('disabled')) {
+          addWordToSentenceLine(word);
+        }
+      });
+    });
+
+    function addWordToSentenceLine(wordElement) {
+      const clone = document.createElement('div');
+      clone.className = 'word';
+      clone.textContent = wordElement.textContent;
+      sentenceLine.appendChild(clone);
+
+      wordElement.classList.add('disabled'); // disable in bank
+
+      // Remove from sentence line
+      clone.addEventListener('click', () => {
+        sentenceLine.removeChild(clone);
+        wordElement.classList.remove('disabled');
+      });
+    }
+
+    function resetSentenceLine() {
+      sentenceLine.innerHTML = "";
+      document.querySelectorAll('.word').forEach(w => w.classList.remove('disabled'));
+    }
+
+    // ================================
+    // Hint System
+    // ================================
+    function startHintTimer() {
+      hintCounter = hintTime;
+      hintElement.textContent = `Hint: (in ${hintCounter} seconds)`;
+      clearInterval(hintTimer);
+
+      hintTimer = setInterval(() => {
+        hintCounter--;
+        if (hintCounter > 0) {
+          hintElement.textContent = `Hint: (in ${hintCounter} seconds)`;
+        } else {
+          hintElement.textContent = "Hint: Press Enter to see answer";
+          clearInterval(hintTimer);
+          document.addEventListener('keydown', handleEnterForHint);
+        }
+      }, 1000);
+    }
+
+    function handleEnterForHint(e) {
+      if (e.key === "Enter") {
+        showHint();
+        document.removeEventListener('keydown', handleEnterForHint);
+      }
+    }
+
+    function showHint() {
+      clearInterval(hintTimer);
+      document.removeEventListener('keydown', handleEnterForHint);
+
+      // Show pronoun + verb in color
+      const pronoun = currentQuestion.pronoun;
+      const verbForm = currentQuestion.verbData[currentQuestion.tense][currentQuestion.formIndex];
+
+      hintElement.innerHTML = `Hint: 
+        <span class="color-pronoun">${pronoun}</span> 
+        <span class="color-verb">${verbForm}</span>`;
+    }
+
+    // ================================
+    // Check Answer
+    // ================================
+    checkButton.addEventListener('click', () => {
+      const constructed = Array.from(sentenceLine.children).map(el => el.textContent).join(' ');
+      const correct = currentQuestion.answer;
+
+      if (constructed === correct) {
+        answerDisplay.textContent = "Correct!";
+        totalCorrect++;
+        updateProgressBar();
+
+        // Short delay, then next question
+        checkButton.disabled = true;
+        setTimeout(() => {
+          checkButton.disabled = false;
+          nextQuestion();
+        }, 1000);
+      } else {
+        answerDisplay.textContent = `Incorrect. The correct sentence is: "${correct}"`;
+      }
+    });
+
+    // ================================
+    // Update Progress Bar
+    // ================================
+    function updateProgressBar() {
+      const percent = (totalCorrect / CorrectTimesRequired) * 100;
+      progressBar.style.width = percent + "%";
+    }
+
+    // ================================
+    // End Round
+    // ================================
+    function endRound() {
+      endTime = new Date();
+      const totalTime = ((endTime - startTime) / 1000).toFixed(2);
+      promptElement.textContent = "All done!";
+      answerDisplay.textContent = `Completed in ${totalTime} seconds!`;
+      restartButton.style.display = "inline-block";
+    }
+
+    // ================================
+    // Restart
+    // ================================
+    restartButton.addEventListener("click", startGame);
+
+    // Start immediately
+    startGame();
+  </script>
+</body>
+</html>

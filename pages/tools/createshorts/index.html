@@ -1,0 +1,965 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Shorts Page Builder</title>
+  <!-- Google Material Icons -->
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:FILL,GRAD,opsz,wght@0,0,24,400" rel="stylesheet" />
+  <style>
+    body {
+      background: #181a20;
+      color: #f1f1f1;
+      font-family: 'Segoe UI', Arial, sans-serif;
+      min-height: 100vh;
+      margin: 0;
+      padding: 0;
+    }
+    .header-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #23242a;
+      padding: 18px 32px 18px 24px;
+      border-bottom: 1px solid #333;
+    }
+    .header-bar h1 {
+      margin: 0;
+      font-size: 2rem;
+      font-weight: 600;
+      letter-spacing: 1px;
+    }
+    .copy-btn {
+      background: #222;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      padding: 10px 18px;
+      font-size: 1rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: background 0.2s;
+    }
+    .copy-btn:hover {
+      background: #444;
+    }
+    .instructions {
+      margin: 32px auto 18px auto;
+      max-width: 700px;
+      background: #23242a;
+      border-radius: 8px;
+      padding: 18px 28px;
+      font-size: 1.1rem;
+      color: #cfcfcf;
+      box-shadow: 0 2px 12px #0002;
+    }
+    .builder-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 16px 60px 16px;
+    }
+    .add-video-btn {
+      display: block;
+      margin: 40px auto 0 auto;
+      background: #e96443;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 16px 32px;
+      font-size: 1.2rem;
+      font-weight: 500;
+      cursor: pointer;
+      box-shadow: 0 2px 8px #0003;
+      transition: background 0.2s;
+    }
+    .add-video-btn:hover {
+      background: #904e95;
+    }
+    .video-block {
+      background: #23242a;
+      border-radius: 10px;
+      margin: 32px 0 0 0;
+      padding: 24px 24px 24px 16px;
+      display: flex;
+      align-items: flex-start;
+      gap: 32px;
+      box-shadow: 0 2px 12px #0002;
+      position: relative;
+    }
+    .video-form {
+      flex: 1 1 400px;
+      min-width: 340px;
+    }
+    .video-id-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 18px;
+    }
+    .material-symbols-outlined {
+      font-variation-settings:
+        'FILL' 0,
+        'wght' 400,
+        'GRAD' 0,
+        'opsz' 24;
+      font-size: 2rem;
+      transition: color 0.2s;
+    }
+    .icon-red {
+      color: #e53935;
+    }
+    .icon-green {
+      color: #43a047;
+    }
+    .video-id-input {
+      background: #181a20;
+      color: #fff;
+      border: 1.5px solid #444;
+      border-radius: 6px;
+      padding: 10px 14px;
+      font-size: 1.1rem;
+      width: 260px;
+      outline: none;
+      transition: border 0.2s;
+    }
+    .video-id-input:focus {
+      border: 1.5px solid #e96443;
+    }
+    .add-question-btn {
+      background: #43a047;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      padding: 8px 18px;
+      font-size: 1rem;
+      font-weight: 500;
+      margin: 10px 0 18px 0;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .add-question-btn:hover {
+      background: #388e3c;
+    }
+    .question-block {
+      background: #181a20;
+      border-radius: 8px;
+      margin-bottom: 18px;
+      padding: 16px 18px 12px 18px;
+      box-shadow: 0 1px 6px #0002;
+      position: relative;
+    }
+    .question-row {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+    .question-label {
+      min-width: 70px;
+      color: #ffd700;
+      font-weight: 500;
+    }
+    .question-input, .answer-input, .section-input {
+      background: #23242a;
+      color: #fff;
+      border: 1px solid #444;
+      border-radius: 5px;
+      padding: 7px 10px;
+      font-size: 1rem;
+      outline: none;
+      transition: border 0.2s;
+    }
+    .question-input:focus, .answer-input:focus, .section-input:focus {
+      border: 1.5px solid #e96443;
+    }
+    .answers-list {
+      margin: 0 0 0 0;
+      padding: 0;
+      list-style: none;
+    }
+    .answer-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 6px;
+    }
+    .add-answer-btn {
+      background: #904e95;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      padding: 5px 12px;
+      font-size: 0.95rem;
+      cursor: pointer;
+      margin-top: 4px;
+      transition: background 0.2s;
+    }
+    .add-answer-btn:hover {
+      background: #e96443;
+    }
+    .remove-answer-btn {
+      background: #e53935;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      padding: 2px 8px;
+      font-size: 0.95rem;
+      cursor: pointer;
+      margin-left: 4px;
+      transition: background 0.2s;
+    }
+    .remove-answer-btn:hover {
+      background: #b71c1c;
+    }
+    .slide-preview {
+      min-width: 340px;
+      max-width: 420px;
+      background: #111216;
+      border-radius: 10px;
+      padding: 18px 12px 18px 12px;
+      margin-left: 10px;
+      box-shadow: 0 2px 12px #0003;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .videoWrapper {
+      width: 315px;
+      height: 560px;
+      background: #000;
+      border-radius: 8px;
+      overflow: hidden;
+      margin-bottom: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .videoWrapper iframe {
+      width: 315px;
+      height: 560px;
+      border: none;
+    }
+    .preview-questions {
+      width: 100%;
+    }
+    .preview-question-block {
+      background: #23242a;
+      border-radius: 7px;
+      margin-bottom: 10px;
+      padding: 10px 12px 8px 12px;
+    }
+    .preview-question-block h3 {
+      margin: 0 0 6px 0;
+      font-size: 1.05rem;
+      color: #ffd700;
+    }
+    .preview-answers {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+    }
+    .preview-answers li {
+      margin: 4px 0;
+      padding: 4px 8px;
+      border-radius: 4px;
+      background: #181a20;
+      color: #fff;
+      font-size: 0.98rem;
+    }
+    .timestamp {
+      color: #ffd700;
+      font-size: 0.98rem;
+      margin-left: 8px;
+    }
+    @media (max-width: 900px) {
+      .video-block {
+        flex-direction: column;
+        gap: 18px;
+      }
+      .slide-preview {
+        margin-left: 0;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="header-bar">
+    <h1>Shorts Page Builder</h1>
+    <button class="copy-btn" id="copyCodeBtn">
+      <span class="material-icons">content_copy</span>
+      Copy full page code
+    </button>
+  </div>
+  <div class="instructions">
+    <b>Instructions:</b> Use this tool to build interactive Shorts pages. Add videos by their YouTube ID, then add questions and answers for each. The preview updates live. When finished, use "Copy full page code" to copy a ready-to-use HTML file for your shorts page.
+  </div>
+  <div class="builder-container" id="builderContainer">
+    <!-- Video blocks and add button will be rendered here -->
+    <button class="add-video-btn" id="addVideoBtn">Add a video</button>
+  </div>
+  <script>
+    // --- Data Model ---
+    let slidesData = [];
+
+    // --- DOM Elements ---
+    const builderContainer = document.getElementById('builderContainer');
+    const addVideoBtn = document.getElementById('addVideoBtn');
+    const copyCodeBtn = document.getElementById('copyCodeBtn');
+
+    // --- Helper: Validate YouTube Video ID ---
+    function isValidYouTubeId(id) {
+      // Basic check: 11 chars, alphanumeric, _ or -
+      if (!/^[-_a-zA-Z0-9]{11}$/.test(id)) return false;
+      // Check if video exists (async)
+      return fetch(`https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=${id}&format=json`)
+        .then(r => r.ok)
+        .catch(() => false);
+    }
+
+    // --- Render All ---
+    function renderBuilder() {
+      builderContainer.innerHTML = '';
+      slidesData.forEach((slide, idx) => {
+        builderContainer.appendChild(renderVideoBlock(slide, idx));
+      });
+      builderContainer.appendChild(addVideoBtn);
+    }
+
+    // --- Render Video Block ---
+    function renderVideoBlock(slide, idx) {
+      const block = document.createElement('div');
+      block.className = 'video-block';
+      // Left: Form
+      const form = document.createElement('div');
+      form.className = 'video-form';
+      // Video ID row
+      const idRow = document.createElement('div');
+      idRow.className = 'video-id-row';
+      // Icon
+      const icon = document.createElement('span');
+      icon.className = 'material-symbols-outlined icon-red';
+      icon.textContent = 'search';
+      // Input
+      const input = document.createElement('input');
+      input.className = 'video-id-input';
+      input.placeholder = 'N7Qak6kka_U';
+      input.value = slide.videoId || '';
+      input.maxLength = 11;
+      idRow.appendChild(icon);
+      idRow.appendChild(input);
+      form.appendChild(idRow);
+      // Add question button (hidden until valid)
+      const addQBtn = document.createElement('button');
+      addQBtn.className = 'add-question-btn';
+      addQBtn.textContent = 'Add a question';
+      addQBtn.style.display = slide._valid ? '' : 'none';
+      // Questions
+      const questionsDiv = document.createElement('div');
+      questionsDiv.className = 'questions-form-container';
+      questionsDiv.id = `questions-form-${idx}`;
+      slide.questions.forEach((q, qIdx) => {
+        questionsDiv.appendChild(renderQuestionBlock(slide, idx, q, qIdx));
+      });
+      form.appendChild(questionsDiv);
+      form.appendChild(addQBtn);
+      // --- Video ID input logic ---
+      let debounceTimer;
+      input.addEventListener('input', () => {
+        clearTimeout(debounceTimer);
+        icon.textContent = 'search';
+        icon.className = 'material-symbols-outlined icon-red';
+        addQBtn.style.display = 'none';
+        slide._valid = false;
+        slide.videoId = input.value.trim();
+        if (input.value.trim().length === 11) {
+          debounceTimer = setTimeout(() => {
+            isValidYouTubeId(input.value.trim()).then(valid => {
+              if (valid) {
+                icon.textContent = 'check_circle';
+                icon.className = 'material-symbols-outlined icon-green';
+                slide._valid = true;
+                slide.videoId = input.value.trim();
+                addQBtn.style.display = '';
+                // Fetch video duration
+                if (window.YT && window.YT.Player) {
+                  fetchYouTubeDuration(slide.videoId, dur => {
+                    if (dur && !isNaN(dur)) {
+                      slide.videoDuration = dur;
+                      renderBuilder();
+                    }
+                  });
+                }
+              } else {
+                icon.textContent = 'error';
+                icon.className = 'material-symbols-outlined icon-red';
+                slide._valid = false;
+                addQBtn.style.display = 'none';
+              }
+              renderBuilder(); // Update preview
+            });
+          }, 400);
+        }
+        renderBuilder();
+      });
+      // --- Add question logic ---
+      addQBtn.addEventListener('click', e => {
+        e.preventDefault();
+        slide.questions.push({
+          text: '',
+          answers: ['', ''],
+          correctIndex: 0,
+          timeStart: 0,
+          timeEnd: 0
+        });
+        // Only update questions form and preview
+        updateQuestionsAndPreview(idx);
+      });
+      block.appendChild(form);
+      // Right: Preview
+      const preview = document.createElement('div');
+      preview.className = 'slide-preview';
+      // Video preview
+      const videoWrap = document.createElement('div');
+      videoWrap.className = 'videoWrapper';
+      if (slide._valid && slide.videoId) {
+        // Use a div with a unique id for YT.Player API, not an iframe
+        videoWrap.innerHTML = `<div id="yt-player-${idx}"></div>`;
+      } else {
+        videoWrap.innerHTML = `<div style="color:#888;text-align:center;width:100%;padding-top:250px;">Video preview</div>`;
+      }
+      preview.appendChild(videoWrap);
+
+      // --- YT.Player API integration for preview video ---
+      if (slide._valid && slide.videoId) {
+        // Store players globally by idx
+        if (!window._shortsPreviewPlayers) window._shortsPreviewPlayers = {};
+        // If already exists, destroy before recreating
+        if (window._shortsPreviewPlayers[idx]) {
+          try { window._shortsPreviewPlayers[idx].destroy(); } catch(e) {}
+          window._shortsPreviewPlayers[idx] = null;
+        }
+        // Wait for YT to be ready
+        function createPlayer() {
+          window._shortsPreviewPlayers[idx] = new YT.Player(`yt-player-${idx}`, {
+            height: '560',
+            width: '315',
+            videoId: slide.videoId,
+            playerVars: { playsinline: 1 },
+            events: {
+              onReady: function(event) {
+                event.target.unMute();
+              }
+            }
+          });
+        }
+        if (window.YT && window.YT.Player) {
+          setTimeout(createPlayer, 0);
+        } else {
+          // Wait for API
+          let check = setInterval(() => {
+            if (window.YT && window.YT.Player) {
+              clearInterval(check);
+              createPlayer();
+            }
+          }, 100);
+        }
+      }
+      // Questions preview
+      const qPreview = document.createElement('div');
+      qPreview.className = 'preview-questions';
+      qPreview.id = `preview-questions-${idx}`;
+      slide.questions.forEach((q, qIdx) => {
+        const qBlock = document.createElement('div');
+        qBlock.className = 'preview-question-block';
+
+        // Helper to convert M:SS or H:MM:SS to seconds
+        function parseTimestamp(str) {
+          if (!str) return null;
+          const parts = str.trim().split(':').map(Number);
+          if (parts.some(isNaN)) return null;
+          if (parts.length === 2) {
+            // MM:SS
+            return parts[0] * 60 + parts[1];
+          } else if (parts.length === 3) {
+            // H:MM:SS
+            return parts[0] * 3600 + parts[1] * 60 + parts[2];
+          } else if (parts.length === 1 && str.trim() !== '') {
+            // SS
+            return parts[0];
+          }
+          return null;
+        }
+
+        // Timestamp click handler
+        function handleTimestampClick(start, end) {
+          function parseTimestamp(str) {
+            if (!str) return null;
+            const parts = str.trim().split(':').map(Number);
+            if (parts.some(isNaN)) return null;
+            if (parts.length === 2) {
+              return parts[0] * 60 + parts[1];
+            } else if (parts.length === 3) {
+              return parts[0] * 3600 + parts[1] * 60 + parts[2];
+            } else if (parts.length === 1 && str.trim() !== '') {
+              return parts[0];
+            }
+            return null;
+          }
+          const startSec = parseTimestamp(start);
+          const endSec = parseTimestamp(end);
+          if (start && startSec === null) {
+            alert('Invalid start timestamp: ' + start);
+            return;
+          }
+          if (end && endSec === null) {
+            alert('Invalid end timestamp: ' + end);
+            return;
+          }
+          // Use YT.Player API
+          const player = window._shortsPreviewPlayers && window._shortsPreviewPlayers[slideIdx];
+          if (player && typeof player.seekTo === 'function') {
+            player.seekTo(startSec || 0, true);
+            player.playVideo();
+            if (endSec !== null && endSec > (startSec || 0)) {
+              if (window._shortsPlaySectionTimer) clearTimeout(window._shortsPlaySectionTimer);
+              window._shortsPlaySectionTimer = setTimeout(() => {
+                player.pauseVideo();
+              }, (endSec - (startSec || 0)) * 1000);
+            }
+          } else {
+            alert('Video player not ready.');
+          }
+        }
+
+        const tStart = (q.sectionStart !== undefined && q.sectionStart !== null) ? q.sectionStart : '';
+        const tEnd = (q.sectionEnd !== undefined && q.sectionEnd !== null) ? q.sectionEnd : '';
+        // Timestamp HTML with clickable spans
+        qBlock.innerHTML = `<h3>${q.text || '<i>Question text</i>'}<span class="timestamp" style="cursor:pointer;" data-start="${tStart}" data-end="${tEnd}">(${tStart} - ${tEnd})</span></h3>`;
+        const ansList = document.createElement('ul');
+        ansList.className = 'preview-answers';
+        q.answers.forEach(a => {
+          const li = document.createElement('li');
+          li.textContent = a || '<answer>';
+          ansList.appendChild(li);
+        });
+        qBlock.appendChild(ansList);
+        // Add click event to timestamp
+        const ts = qBlock.querySelector('.timestamp');
+        if (ts) {
+          ts.addEventListener('click', e => {
+            handleTimestampClick(ts.getAttribute('data-start'), ts.getAttribute('data-end'));
+          });
+        }
+        qPreview.appendChild(qBlock);
+      });
+      preview.appendChild(qPreview);
+      block.appendChild(preview);
+      return block;
+    }
+
+    // --- Render Question Block ---
+    function renderQuestionBlock(slide, slideIdx, q, qIdx) {
+      const block = document.createElement('div');
+      block.className = 'question-block';
+      // Question text
+      const qRow = document.createElement('div');
+      qRow.className = 'question-row';
+      const qLabel = document.createElement('span');
+      qLabel.className = 'question-label';
+      qLabel.textContent = 'Text:';
+      const qInput = document.createElement('input');
+      qInput.className = 'question-input';
+      qInput.type = 'text';
+      qInput.placeholder = 'Enter question text';
+      qInput.value = q.text;
+      qInput.addEventListener('input', () => {
+        q.text = qInput.value;
+        updateQuestionsAndPreview(slideIdx);
+      });
+      qRow.appendChild(qLabel);
+      qRow.appendChild(qInput);
+      block.appendChild(qRow);
+      // Answers
+      const ansList = document.createElement('ul');
+      ansList.className = 'answers-list';
+      q.answers.forEach((a, aIdx) => {
+        const ansRow = document.createElement('li');
+        ansRow.className = 'answer-row';
+        const ansInput = document.createElement('input');
+        ansInput.className = 'answer-input';
+        ansInput.type = 'text';
+        ansInput.placeholder = 'Answer choice';
+        ansInput.value = a;
+        ansInput.addEventListener('input', () => {
+          q.answers[aIdx] = ansInput.value;
+          updateQuestionsAndPreview(slideIdx);
+        });
+        ansRow.appendChild(ansInput);
+        // Remove answer button (if more than 2)
+        if (q.answers.length > 2) {
+          const remBtn = document.createElement('button');
+          remBtn.className = 'remove-answer-btn';
+          remBtn.textContent = '✕';
+          remBtn.addEventListener('click', e => {
+            e.preventDefault();
+            q.answers.splice(aIdx, 1);
+            updateQuestionsAndPreview(slideIdx);
+          });
+          ansRow.appendChild(remBtn);
+        }
+        ansList.appendChild(ansRow);
+      });
+      block.appendChild(ansList);
+      // Add answer button
+      const addAnsBtn = document.createElement('button');
+      addAnsBtn.className = 'add-answer-btn';
+      addAnsBtn.textContent = 'Add answer choice';
+      addAnsBtn.addEventListener('click', e => {
+        e.preventDefault();
+        q.answers.push('');
+        updateQuestionsAndPreview(slideIdx);
+      });
+      block.appendChild(addAnsBtn);
+      // Relevant section start/end
+      const relSection = document.createElement('div');
+      relSection.className = 'question-row';
+      relSection.style.marginTop = '10px';
+      const relHeader = document.createElement('span');
+      relHeader.className = 'question-label';
+      relHeader.textContent = 'Relevant section:';
+      relSection.appendChild(relHeader);
+      // Start time input
+      const startInput = document.createElement('input');
+      startInput.className = 'section-input';
+      startInput.type = 'text';
+      startInput.placeholder = '0:00';
+      // Only set value to "0:00" when the field is first created (not on every render)
+      if (typeof q.sectionStart === 'undefined') {
+        q.sectionStart = '0:00';
+      }
+      startInput.value = q.sectionStart;
+      startInput.style.width = '60px';
+      startInput.style.marginRight = '10px';
+      startInput.addEventListener('input', () => {
+        q.sectionStart = startInput.value;
+        updateQuestionsAndPreview(slideIdx);
+      });
+      relSection.appendChild(startInput);
+      // End time input
+      const endInput = document.createElement('input');
+      endInput.className = 'section-input';
+      endInput.type = 'text';
+      // Use video duration if available, else fallback to placeholder
+      let videoDuration = '';
+      if (slide.videoDuration && typeof slide.videoDuration === 'number' && !isNaN(slide.videoDuration)) {
+        const m = Math.floor(slide.videoDuration / 60);
+        const s = Math.floor(slide.videoDuration % 60);
+        videoDuration = `${m}:${s.toString().padStart(2, '0')}`;
+      }
+      endInput.placeholder = videoDuration || 'end of video';
+      // Only set value to video duration string when the field is first created (not on every render)
+      if (typeof q.sectionEnd === 'undefined') {
+        q.sectionEnd = videoDuration || '';
+      }
+      endInput.value = q.sectionEnd;
+      endInput.style.width = '90px';
+      endInput.style.marginRight = '10px';
+      endInput.addEventListener('input', () => {
+        q.sectionEnd = endInput.value;
+        updateQuestionsAndPreview(slideIdx);
+      });
+      relSection.appendChild(endInput);
+      // Play section button
+      const playBtn = document.createElement('button');
+      playBtn.textContent = '▶ Play section';
+      playBtn.style.marginLeft = '10px';
+      playBtn.style.background = '#ffd700';
+      playBtn.style.color = '#23242a';
+      playBtn.style.border = 'none';
+      playBtn.style.borderRadius = '5px';
+      playBtn.style.padding = '6px 14px';
+      playBtn.style.fontWeight = 'bold';
+      playBtn.style.cursor = 'pointer';
+      playBtn.addEventListener('click', () => {
+        function parseTimestamp(str) {
+          if (!str) return null;
+          const parts = str.trim().split(':').map(Number);
+          if (parts.some(isNaN)) return null;
+          if (parts.length === 2) {
+            return parts[0] * 60 + parts[1];
+          } else if (parts.length === 3) {
+            return parts[0] * 3600 + parts[1] * 60 + parts[2];
+          } else if (parts.length === 1 && str.trim() !== '') {
+            return parts[0];
+          }
+          return null;
+        }
+        const start = startInput.value;
+        const end = endInput.value;
+        const startSec = parseTimestamp(start);
+        const endSec = parseTimestamp(end);
+        if (start && startSec === null) {
+          alert('Invalid start timestamp: ' + start);
+          return;
+        }
+        if (end && endSec === null) {
+          alert('Invalid end timestamp: ' + end);
+          return;
+        }
+        // Use YT.Player API
+        const player = window._shortsPreviewPlayers && window._shortsPreviewPlayers[slideIdx];
+        if (player && typeof player.seekTo === 'function') {
+          player.seekTo(startSec || 0, true);
+          player.playVideo();
+          if (endSec !== null && endSec > (startSec || 0)) {
+            if (window._shortsPlaySectionTimer) clearTimeout(window._shortsPlaySectionTimer);
+            window._shortsPlaySectionTimer = setTimeout(() => {
+              player.pauseVideo();
+            }, (endSec - (startSec || 0)) * 1000);
+          }
+        } else {
+          alert('Video player not ready.');
+        }
+      });
+      relSection.appendChild(playBtn);
+      block.appendChild(relSection);
+      return block;
+    }
+
+    // --- Only update questions and preview for a video ---
+    function updateQuestionsAndPreview(slideIdx) {
+      // --- Preserve focus and cursor position ---
+      const active = document.activeElement;
+      let focusInfo = null;
+      if (active && (active.classList.contains('question-input') || active.classList.contains('answer-input') || active.classList.contains('section-input'))) {
+        focusInfo = {
+          id: active.id,
+          name: active.getAttribute('name'),
+          className: active.className,
+          value: active.value,
+          selectionStart: active.selectionStart,
+          selectionEnd: active.selectionEnd
+        };
+      }
+      // Update questions form
+      const questionsDiv = document.getElementById(`questions-form-${slideIdx}`);
+      if (questionsDiv) {
+        questionsDiv.innerHTML = '';
+        slidesData[slideIdx].questions.forEach((q, qIdx) => {
+          questionsDiv.appendChild(renderQuestionBlock(slidesData[slideIdx], slideIdx, q, qIdx));
+        });
+      }
+      // Update preview
+      const qPreview = document.getElementById(`preview-questions-${slideIdx}`);
+      if (qPreview) {
+        qPreview.innerHTML = '';
+        slidesData[slideIdx].questions.forEach((q, qIdx) => {
+          const qBlock = document.createElement('div');
+          qBlock.className = 'preview-question-block';
+
+          // Helper to convert M:SS or H:MM:SS to seconds
+          function parseTimestamp(str) {
+            if (!str) return null;
+            const parts = str.trim().split(':').map(Number);
+            if (parts.some(isNaN)) return null;
+            if (parts.length === 2) {
+              // MM:SS
+              return parts[0] * 60 + parts[1];
+            } else if (parts.length === 3) {
+              // H:MM:SS
+              return parts[0] * 3600 + parts[1] * 60 + parts[2];
+            } else if (parts.length === 1 && str.trim() !== '') {
+              // SS
+              return parts[0];
+            }
+            return null;
+          }
+
+          // Timestamp click handler
+          function handleTimestampClick(start, end) {
+            const startSec = parseTimestamp(start);
+            const endSec = parseTimestamp(end);
+            if (start && startSec === null) {
+              alert('Invalid start timestamp: ' + start);
+              return;
+            }
+            if (end && endSec === null) {
+              alert('Invalid end timestamp: ' + end);
+              return;
+            }
+            // Use YT.Player API
+            const player = window._shortsPreviewPlayers && window._shortsPreviewPlayers[slideIdx];
+            if (player && typeof player.seekTo === 'function') {
+              player.seekTo(startSec || 0, true);
+              player.playVideo();
+              if (endSec !== null && endSec > (startSec || 0)) {
+                if (window._shortsPlaySectionTimer) clearTimeout(window._shortsPlaySectionTimer);
+                window._shortsPlaySectionTimer = setTimeout(() => {
+                  player.pauseVideo();
+                }, (endSec - (startSec || 0)) * 1000);
+              }
+            } else {
+              alert('Video player not ready.');
+            }
+          }
+
+          const tStart = (q.sectionStart !== undefined && q.sectionStart !== null) ? q.sectionStart : '';
+          const tEnd = (q.sectionEnd !== undefined && q.sectionEnd !== null) ? q.sectionEnd : '';
+          // Timestamp HTML with clickable spans
+          qBlock.innerHTML = `<h3>${q.text || '<i>Question text</i>'}<span class="timestamp" style="cursor:pointer;" data-start="${tStart}" data-end="${tEnd}">(${tStart} - ${tEnd})</span></h3>`;
+          const ansList = document.createElement('ul');
+          ansList.className = 'preview-answers';
+          q.answers.forEach(a => {
+            const li = document.createElement('li');
+            li.textContent = a || '<answer>';
+            ansList.appendChild(li);
+          });
+          qBlock.appendChild(ansList);
+          // Add click event to timestamp
+          const ts = qBlock.querySelector('.timestamp');
+          if (ts) {
+            ts.addEventListener('click', e => {
+              handleTimestampClick(ts.getAttribute('data-start'), ts.getAttribute('data-end'));
+            });
+          }
+          qPreview.appendChild(qBlock);
+        });
+      }
+      // --- Restore focus and cursor position ---
+      if (focusInfo) {
+        // Try to find the input with the same value and class in the new DOM
+        const inputs = questionsDiv.querySelectorAll('input');
+        for (const inp of inputs) {
+          if (
+            inp.className === focusInfo.className &&
+            inp.value === focusInfo.value &&
+            (!focusInfo.name || inp.getAttribute('name') === focusInfo.name)
+          ) {
+            inp.focus();
+            if (typeof focusInfo.selectionStart === 'number' && typeof focusInfo.selectionEnd === 'number') {
+              inp.setSelectionRange(focusInfo.selectionStart, focusInfo.selectionEnd);
+            }
+            break;
+          }
+        }
+      }
+    }
+
+    // --- Copy Code Button ---
+    copyCodeBtn.addEventListener('click', () => {
+      // Now buildFullPageCode returns a Promise
+      copyCodeBtn.disabled = true;
+      copyCodeBtn.textContent = 'Building...';
+      buildFullPageCode().then(code => {
+        navigator.clipboard.writeText(code).then(() => {
+          copyCodeBtn.textContent = 'Copied!';
+          setTimeout(() => {
+            copyCodeBtn.innerHTML = '<span class="material-icons">content_copy</span> Copy full page code';
+            copyCodeBtn.disabled = false;
+          }, 1200);
+        });
+      }).catch(() => {
+        copyCodeBtn.textContent = 'Error!';
+        setTimeout(() => {
+          copyCodeBtn.innerHTML = '<span class="material-icons">content_copy</span> Copy full page code';
+          copyCodeBtn.disabled = false;
+        }, 2000);
+      });
+    });
+
+    // --- Add Video Button ---
+    addVideoBtn.addEventListener('click', e => {
+      e.preventDefault();
+      slidesData.push({
+        videoId: '',
+        questions: [],
+        _valid: false
+      });
+      renderBuilder();
+    });
+
+    // --- Initial Render ---
+    renderBuilder();
+
+    // --- YouTube Player API for video duration detection ---
+    if (!window.YT) {
+      const tag = document.createElement('script');
+      tag.src = 'https://www.youtube.com/iframe_api';
+      document.head.appendChild(tag);
+    }
+    window.onYouTubeIframeAPIReady = function() {};
+
+    function fetchYouTubeDuration(videoId, cb) {
+      // Create a hidden div for the player
+      let hiddenDiv = document.getElementById('yt-hidden-div');
+      if (!hiddenDiv) {
+        hiddenDiv = document.createElement('div');
+        hiddenDiv.id = 'yt-hidden-div';
+        hiddenDiv.style.display = 'none';
+        document.body.appendChild(hiddenDiv);
+      }
+      // Remove any previous player
+      hiddenDiv.innerHTML = '';
+      const playerId = 'yt-hidden-player';
+      const playerDiv = document.createElement('div');
+      playerDiv.id = playerId;
+      hiddenDiv.appendChild(playerDiv);
+      let player;
+      function onPlayerReady(event) {
+        const duration = event.target.getDuration();
+        cb(duration);
+        player.destroy();
+      }
+      function onPlayerError() {
+        cb(null);
+        player.destroy();
+      }
+      player = new YT.Player(playerId, {
+        height: '0',
+        width: '0',
+        videoId: videoId,
+        events: {
+          'onReady': onPlayerReady,
+          'onError': onPlayerError
+        }
+      });
+    }
+
+    // --- Build Full Page Code ---
+    function buildFullPageCode() {
+      return new Promise((resolve) => {
+        const slidesDataFormatted = slidesData.map(slide => ({
+          videoId: slide.videoId,
+          questions: slide.questions.map(q => ({
+            text: q.text,
+            answers: q.answers,
+            selectedIndex: null, // Default value for selectedIndex
+            timeStart: parseTimestamp(q.sectionStart),
+            timeEnd: parseTimestamp(q.sectionEnd),
+          })),
+        }));
+
+        const code = `const slidesData = ${JSON.stringify(slidesDataFormatted, null, 2)};`;
+        resolve(code);
+      });
+    }
+
+    // Helper to parse timestamps into seconds
+    function parseTimestamp(str) {
+      if (!str) return null;
+      const parts = str.trim().split(':').map(Number);
+      if (parts.some(isNaN)) return null;
+      if (parts.length === 2) {
+        return parts[0] * 60 + parts[1];
+      } else if (parts.length === 3) {
+        return parts[0] * 3600 + parts[1] * 60 + parts[2];
+      } else if (parts.length === 1 && str.trim() !== '') {
+        return parts[0];
+      }
+      return null;
+    }
+  </script>
+</body>
+</html>

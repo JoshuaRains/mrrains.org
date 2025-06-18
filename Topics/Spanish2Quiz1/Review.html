@@ -1,0 +1,1143 @@
+<!DOCTYPE html>
+<html lang="en" translate="no">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Spanish Review Game - Multiple Choice (Random Questions)</title>
+  <style>
+    /* Basic page styling */
+    body, html {
+      font-family: Arial, sans-serif;
+      background: linear-gradient(to bottom, #5ffaff, #7ba9fe);
+      margin: 0;
+      padding: 20px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    .container {
+      background-color: #f7f4f4;
+      padding: 30px;
+      border: 2px solid #d3d3d3;
+      border-radius: 10px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      max-width: 800px;
+      width: 100%;
+      text-align: center;
+    }
+    .topic-select-container {
+      margin-bottom: 20px;
+    }
+    .topic-select {
+      padding: 10px;
+      font-size: 1em;
+    }
+    h2 {
+      margin-top: 0;
+      margin-bottom: 20px;
+    }
+    .question {
+      font-size: 1.2em;
+      margin-bottom: 20px;
+    }
+    .choices {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+    .choice-button {
+      padding: 10px 20px;
+      font-size: 1em;
+      border: 1px solid #007BFF;
+      border-radius: 5px;
+      background-color: #fff;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+    .choice-button:hover {
+      background-color: #e0e0ff;
+    }
+    .choice-button.correct {
+      background-color: #28a745;
+      color: white;
+      border-color: #28a745;
+    }
+    .choice-button.incorrect {
+      background-color: #d9534f;
+      color: white;
+      border-color: #d9534f;
+    }
+    .feedback {
+      font-size: 1.1em;
+      margin-bottom: 20px;
+    }
+    .next-button {
+      padding: 10px 20px;
+      font-size: 1em;
+      border: none;
+      border-radius: 5px;
+      background-color: #007BFF;
+      color: white;
+      cursor: pointer;
+      margin: 5px; /* spacing for buttons */
+    }
+    .next-button:hover {
+      background-color: #0056b3;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <div class="topic-select-container">
+        <label for="topicSelect">Select Topic: </label>
+        <select id="topicSelect" class="topic-select">
+          <option value="Verb Conjugations">Verb Conjugations</option>
+          <option value="Weather">Weather</option>
+          <option value="Time">Time</option>
+          <option value="Colors">Colors</option>
+          <option value="Days">Days</option>
+          <option value="Seasons">Seasons</option>
+          <option value="Months">Months</option>
+          <option value="Ser vs Estar">Ser vs Estar</option>
+          <option value="Greetings">Greetings</option>
+          <option value="Numbers">Numbers</option>
+          <option value="Gustar">Gustar</option>
+        </select>
+      </div>
+      
+    <h2 id="gameTitle">Review Game: Verb Conjugations</h2>
+    <div class="question" id="questionText">Question text goes here</div>
+    <div class="choices" id="choicesContainer">
+      <!-- Multiple choice buttons will be inserted here -->
+    </div>
+    <div class="feedback" id="feedback"></div>
+
+    <!-- Buttons -->
+    <button class="next-button" id="nextButton" style="display:none;">Next Question</button>
+    <button class="next-button" id="restartButton" style="display:none;">Restart</button>
+  </div>
+
+  <script>
+    /*******************************************************************
+     *  Replace the placeholder arrays below with your own questions. *
+     ******************************************************************/
+     const mcqConfigs = {
+  "Verb Conjugations": {
+    questions: [
+      {
+        question: "Which conjugation corresponds to 'yo' for the verb 'hablar' in the present tense?",
+        choices: ["hablo", "hablas", "hablan", "hablamos"],
+        answer: "hablo"
+      },
+      {
+        question: "Select the correct conjugation for 'tú' with the verb 'comer' in the present tense.",
+        choices: ["come", "comen", "comes", "comemos"],
+        answer: "comes"
+      },
+      {
+        question: "Which is the correct present-tense form for 'ellos' with the verb 'vivir'?",
+        choices: ["vive", "vivo", "vives", "viven"],
+        answer: "viven"
+      },
+      {
+        question: "Which is the correct 'nosotros' form of 'estudiar' in the present tense?",
+        choices: ["estudiamos", "estudian", "estudio", "estudias"],
+        answer: "estudiamos"
+      },
+      {
+        question: "Which conjugation is correct for 'ella' with the verb 'beber' in the present tense?",
+        choices: ["beben", "bebo", "bebes", "bebe"],
+        answer: "bebe"
+      },
+      {
+        question: "Which is the correct 'vosotros' form of 'hablar' in the present tense?",
+        choices: ["hablan", "habláis", "hablas", "hablamos"],
+        answer: "habláis"
+      },
+      {
+        question: "Which is the correct 'yo' form of the irregular verb 'tener' in the present tense?",
+        choices: ["tienen", "tienes", "tengo", "tenemos"],
+        answer: "tengo"
+      },
+      {
+        question: "Select the correct conjugation for 'ustedes' with the verb 'comer' in the present tense.",
+        choices: ["comemos", "comes", "coméis", "comen"],
+        answer: "comen"
+      },
+      {
+        question: "What is the correct 'tú' form of the verb 'vivir' in the present tense?",
+        choices: ["vives", "vivimos", "viven", "vivo"],
+        answer: "vives"
+      },
+      {
+        question: "Select the correct conjugation for 'yo' with the verb 'estudiar' in the present tense.",
+        choices: ["estudiamos", "estudias", "estudio", "estudia"],
+        answer: "estudio"
+      }
+    ]
+  },
+
+  "Cognates": {
+    questions: [
+      {
+        question: "Which of these is a direct cognate for 'doctor' in Spanish?",
+        choices: ["doctor", "doctora", "docente", "dólar"],
+        answer: "doctor"
+      },
+      {
+        question: "Which word is a cognate of 'animal'?",
+        choices: ["animal", "análisis", "anemia", "animar"],
+        answer: "animal"
+      },
+      {
+        question: "Select the English word that is a cognate of 'información' (Spanish).",
+        choices: ["information", "inspiration", "inflation", "imagination"],
+        answer: "information"
+      },
+      {
+        question: "Which of these is a cognate for 'hospital' in Spanish?",
+        choices: ["hospital", "hostal", "hospicio", "hostigador"],
+        answer: "hospital"
+      },
+      {
+        question: "Which word is NOT a true cognate?",
+        choices: ["elefante", "hotel", "actual", "nación"],
+        answer: "actual"
+      },
+      {
+        question: "Which of these is a cognate for 'inteligente' (Spanish)?",
+        choices: ["intelligent", "integrate", "interest", "intend"],
+        answer: "intelligent"
+      },
+      {
+        question: "Which English word is a cognate of 'familia' (Spanish)?",
+        choices: ["family", "famish", "fame", "familiar"],
+        answer: "family"
+      },
+      {
+        question: "Which of these is a direct cognate for 'memoria' (Spanish)?",
+        choices: ["memory", "memoir", "moment", "memorial"],
+        answer: "memory"
+      },
+      {
+        question: "Which is a cognate for 'televisión' in Spanish?",
+        choices: ["telephone", "television", "telescope", "telepathy"],
+        answer: "television"
+      },
+      {
+        question: "Which is a cognate for 'chocolate' in Spanish?",
+        choices: ["chocolate", "choir", "cocoa", "chocante"],
+        answer: "chocolate"
+      }
+    ]
+  },
+
+  "Weather": {
+    questions: [
+      {
+        question: "Translate 'It is sunny' into Spanish.",
+        choices: ["Hace sol", "Hace viento", "Llueve", "Está nevando"],
+        answer: "Hace sol"
+      },
+      {
+        question: "How do you say 'It is raining' in Spanish?",
+        choices: ["Llueve", "Hace frío", "Está despejado", "Hace calor"],
+        answer: "Llueve"
+      },
+      {
+        question: "Which phrase means 'It is cloudy' in Spanish?",
+        choices: ["Hace viento", "Está nublado", "Hace sol", "Nieva"],
+        answer: "Está nublado"
+      },
+      {
+        question: "How do you say 'It is snowing' in Spanish?",
+        choices: ["Hace calor", "Nieva", "Llueve", "Está nublado"],
+        answer: "Nieva"
+      },
+      {
+        question: "Which expression means 'It is hot' in Spanish?",
+        choices: ["Hace calor", "Hace fresco", "Hace frío", "Hace viento"],
+        answer: "Hace calor"
+      },
+      {
+        question: "How do you say 'It is cold' in Spanish?",
+        choices: ["Está soleado", "Hace calor", "Hace frío", "Llueve"],
+        answer: "Hace frío"
+      },
+      {
+        question: "Which phrase translates to 'It is windy' in Spanish?",
+        choices: ["Hace viento", "Nieva", "Hace sol", "Hace frío"],
+        answer: "Hace viento"
+      },
+      {
+        question: "Translate 'It is clear (skies)' into Spanish.",
+        choices: ["Está despejado", "Hace frío", "Llueve", "Hace calor"],
+        answer: "Está despejado"
+      },
+      {
+        question: "Which phrase means 'It is warm' in Spanish?",
+        choices: ["Hace calor", "Hace fresco", "Hace buen tiempo", "Hace viento"],
+        answer: "Hace buen tiempo"
+      },
+      {
+        question: "Select the best translation for 'It is cool' in Spanish.",
+        choices: ["Hace sol", "Hace fresco", "Nieva", "Está nublado"],
+        answer: "Hace fresco"
+      }
+    ]
+  },
+
+  "ABCs": {
+    questions: [
+      {
+        question: "What is the first letter of the Spanish alphabet?",
+        choices: ["A", "B", "C", "D"],
+        answer: "A"
+      },
+      {
+        question: "Which letter comes after 'C' in the Spanish alphabet?",
+        choices: ["D", "F", "B", "E"],
+        answer: "D"
+      },
+      {
+        question: "Which of these letters is unique to Spanish?",
+        choices: ["Ñ", "R", "S", "T"],
+        answer: "Ñ"
+      },
+      {
+        question: "How many letters are in the modern Spanish alphabet?",
+        choices: ["27", "26", "25", "28"],
+        answer: "27"
+      },
+      {
+        question: "Which letter used to be listed separately in the Spanish alphabet but no longer is?",
+        choices: ["Ch", "W", "K", "V"],
+        answer: "Ch"
+      },
+      {
+        question: "Which letter is commonly used in Spanish loanwords but not native Spanish words?",
+        choices: ["K", "Ñ", "V", "R"],
+        answer: "K"
+      },
+      {
+        question: "Which letter traditionally does not exist in Spanish (though seen in borrowed words)?",
+        choices: ["W", "Z", "Q", "H"],
+        answer: "W"
+      },
+      {
+        question: "How do you pronounce the letter 'Z' in most parts of Spain?",
+        choices: ["Like 'th'", "Like 's'", "Like 'k'", "Like 'sh'"],
+        answer: "Like 'th'"
+      },
+      {
+        question: "Which group of letters once had special status in Spanish but now is not considered separate?",
+        choices: ["Ch and Ll", "Ñ and RR", "B and V", "K and W"],
+        answer: "Ch and Ll"
+      },
+      {
+        question: "Which letter is used for the harsh /x/ sound in words like 'jamón' or 'jugar'?",
+        choices: ["J", "G", "X", "H"],
+        answer: "J"
+      }
+    ]
+  },
+
+  "Time": {
+    questions: [
+      {
+        question: "How do you say 'It is 1:00' in Spanish?",
+        choices: ["Es la una", "Son la una", "Son las uno", "Es la uno"],
+        answer: "Es la una"
+      },
+      {
+        question: "How do you say 'It is 2:30' in Spanish?",
+        choices: [
+          "Es la dos y media",
+          "Son las dos y media",
+          "Son la dos treinta",
+          "Es la dos treinta"
+        ],
+        answer: "Son las dos y media"
+      },
+      {
+        question: "How do you say 'It is noon' in Spanish?",
+        choices: ["Es mediodía", "Es medianoche", "Son las doce", "Son las doce de la tarde"],
+        answer: "Es mediodía"
+      },
+      {
+        question: "How do you say 'It is midnight' in Spanish?",
+        choices: ["Es mediodía", "Son las doce de la tarde", "Es medianoche", "Hace medianoche"],
+        answer: "Es medianoche"
+      },
+      {
+        question: "How do you say 'It is 5:15 PM' in Spanish (using 'de la tarde')?",
+        choices: [
+          "Es la cinco y quince de la tarde",
+          "Son las cinco y cuarto de la tarde",
+          "Son las cinco menos cuarto de la tarde",
+          "Es la cinco de la tarde"
+        ],
+        answer: "Son las cinco y cuarto de la tarde"
+      },
+      {
+        question: "How do you say 'It is 7:45' in Spanish using 'menos'?",
+        choices: [
+          "Son las ocho menos cuarto",
+          "Son las siete menos cuarto",
+          "Es la siete cuarenta y cinco",
+          "Son las siete y cuarenta y cinco"
+        ],
+        answer: "Son las ocho menos cuarto"
+      },
+      {
+        question: "How do you say 'It is 9:20' in Spanish?",
+        choices: [
+          "Son las nueve y veinte",
+          "Es la nueve veinte",
+          "Son las nueve menos veinte",
+          "Es medianoche"
+        ],
+        answer: "Son las nueve y veinte"
+      },
+      {
+        question: "Which is correct for 'It is 3:15' using 'y cuarto'?",
+        choices: [
+          "Son las tres y media",
+          "Son las tres y cuarto",
+          "Es la tres y cuarto",
+          "Son las tres menos cuarto"
+        ],
+        answer: "Son las tres y cuarto"
+      },
+      {
+        question: "Translate 'It is 10:55' using 'menos' form.",
+        choices: [
+          "Son las once menos cinco",
+          "Son las diez menos cinco",
+          "Es la once y cincuenta y cinco",
+          "Son las once y media"
+        ],
+        answer: "Son las once menos cinco"
+      },
+      {
+        question: "How do you say 'It is 4:00 on the dot' in Spanish?",
+        choices: [
+          "Son las cuatro y cuarto",
+          "Son las cuatro en punto",
+          "Son las cuatro menos cuarto",
+          "Es la cuatro en punto"
+        ],
+        answer: "Son las cuatro en punto"
+      }
+    ]
+  },
+
+  "Colors": {
+    questions: [
+      {
+        question: "Which color does 'rojo' represent?",
+        choices: ["Red", "Blue", "Green", "Yellow"],
+        answer: "Red"
+      },
+      {
+        question: "Translate the color 'amarillo' into English.",
+        choices: ["Yellow", "Orange", "Green", "Gray"],
+        answer: "Yellow"
+      },
+      {
+        question: "Which color is 'negro' in English?",
+        choices: ["Black", "Brown", "Purple", "White"],
+        answer: "Black"
+      },
+      {
+        question: "How do you say 'blue' in Spanish?",
+        choices: ["azul", "rojo", "amarillo", "gris"],
+        answer: "azul"
+      },
+      {
+        question: "Translate the color 'morado' into English.",
+        choices: ["Purple", "Green", "Red", "Orange"],
+        answer: "Purple"
+      },
+      {
+        question: "Which color does 'verde' represent in English?",
+        choices: ["Green", "Pink", "Brown", "Gray"],
+        answer: "Green"
+      },
+      {
+        question: "How do you say 'white' in Spanish?",
+        choices: ["blanco", "negro", "azul", "marrón"],
+        answer: "blanco"
+      },
+      {
+        question: "Translate 'café' (as a color) into English.",
+        choices: ["Brown", "Gray", "Blue", "Pink"],
+        answer: "Brown"
+      },
+      {
+        question: "Which color is 'rosado' in English?",
+        choices: ["Pink", "Orange", "Green", "Purple"],
+        answer: "Pink"
+      },
+      {
+        question: "Translate the color 'gris' into English.",
+        choices: ["Gray", "Brown", "Black", "White"],
+        answer: "Gray"
+      }
+    ]
+  },
+
+  "Days": {
+    questions: [
+      {
+        question: "Which day of the week is 'lunes' in English?",
+        choices: ["Monday", "Tuesday", "Wednesday", "Sunday"],
+        answer: "Monday"
+      },
+      {
+        question: "How do you say 'Thursday' in Spanish?",
+        choices: ["miércoles", "jueves", "martes", "viernes"],
+        answer: "jueves"
+      },
+      {
+        question: "Which day is 'domingo' in English?",
+        choices: ["Sunday", "Saturday", "Friday", "Monday"],
+        answer: "Sunday"
+      },
+      {
+        question: "Which day is 'sábado' in English?",
+        choices: ["Saturday", "Sunday", "Friday", "Tuesday"],
+        answer: "Saturday"
+      },
+      {
+        question: "How do you say 'Wednesday' in Spanish?",
+        choices: ["lunes", "martes", "miércoles", "viernes"],
+        answer: "miércoles"
+      },
+      {
+        question: "Which day is 'martes' in English?",
+        choices: ["Monday", "Tuesday", "Thursday", "Friday"],
+        answer: "Tuesday"
+      },
+      {
+        question: "Which Spanish day comes after 'jueves'?",
+        choices: ["sábado", "lunes", "domingo", "viernes"],
+        answer: "viernes"
+      },
+      {
+        question: "Which Spanish day comes before 'martes'?",
+        choices: ["lunes", "miércoles", "jueves", "domingo"],
+        answer: "lunes"
+      },
+      {
+        question: "How do you say 'Friday' in Spanish?",
+        choices: ["jueves", "viernes", "sábado", "domingo"],
+        answer: "viernes"
+      },
+      {
+        question: "Which day is 'miércoles' in English?",
+        choices: ["Wednesday", "Thursday", "Monday", "Sunday"],
+        answer: "Wednesday"
+      }
+    ]
+  },
+
+  "Seasons": {
+    questions: [
+      {
+        question: "Which is the Spanish word for 'spring'?",
+        choices: ["primavera", "verano", "otoño", "invierno"],
+        answer: "primavera"
+      },
+      {
+        question: "Which season is 'verano' in English?",
+        choices: ["Summer", "Winter", "Spring", "Autumn"],
+        answer: "Summer"
+      },
+      {
+        question: "Which season is 'otoño' in English?",
+        choices: ["Autumn (Fall)", "Winter", "Summer", "Spring"],
+        answer: "Autumn (Fall)"
+      },
+      {
+        question: "Which season is 'invierno' in English?",
+        choices: ["Winter", "Autumn (Fall)", "Spring", "Summer"],
+        answer: "Winter"
+      },
+      {
+        question: "Which of these is NOT a Spanish season?",
+        choices: ["inundación", "otoño", "verano", "invierno"],
+        answer: "inundación"
+      },
+      {
+        question: "Which Spanish season follows 'invierno'?",
+        choices: ["primavera", "verano", "otoño", "invierno"],
+        answer: "primavera"
+      },
+      {
+        question: "Which Spanish season comes before 'otoño'?",
+        choices: ["verano", "invierno", "primavera", "otoño"],
+        answer: "verano"
+      },
+      {
+        question: "How do you say 'fall' in Spanish?",
+        choices: ["otoño", "invierno", "verano", "primavera"],
+        answer: "otoño"
+      },
+      {
+        question: "Which season is typically the hottest in Spain?",
+        choices: ["verano", "invierno", "primavera", "otoño"],
+        answer: "verano"
+      },
+      {
+        question: "Which season starts around December in the Northern Hemisphere?",
+        choices: ["invierno", "otoño", "verano", "primavera"],
+        answer: "invierno"
+      }
+    ]
+  },
+
+  "Months": {
+    questions: [
+      {
+        question: "Which month is 'enero' in English?",
+        choices: ["January", "February", "April", "June"],
+        answer: "January"
+      },
+      {
+        question: "How do you say 'May' in Spanish?",
+        choices: ["marzo", "abril", "mayo", "junio"],
+        answer: "mayo"
+      },
+      {
+        question: "Which month is 'agosto' in English?",
+        choices: ["August", "April", "October", "July"],
+        answer: "August"
+      },
+      {
+        question: "Which month is 'febrero' in English?",
+        choices: ["February", "January", "November", "September"],
+        answer: "February"
+      },
+      {
+        question: "How do you say 'October' in Spanish?",
+        choices: ["octubre", "noviembre", "septiembre", "octavo"],
+        answer: "octubre"
+      },
+      {
+        question: "Which month is 'julio' in English?",
+        choices: ["July", "June", "January", "May"],
+        answer: "July"
+      },
+      {
+        question: "Which month comes after 'marzo' in Spanish?",
+        choices: ["abril", "mayo", "febrero", "marzo"],
+        answer: "abril"
+      },
+      {
+        question: "Which month is 'diciembre' in English?",
+        choices: ["December", "September", "August", "October"],
+        answer: "December"
+      },
+      {
+        question: "Which Spanish month precedes 'junio'?",
+        choices: ["mayo", "julio", "enero", "marzo"],
+        answer: "mayo"
+      },
+      {
+        question: "How do you say 'September' in Spanish?",
+        choices: ["septiembre", "setiembre", "septembro", "septima"],
+        answer: "septiembre"
+      }
+    ]
+  },
+
+  "You're Welcome": {
+    questions: [
+      {
+        question: "Which of the following is a common way to say 'You're welcome' in Spanish?",
+        choices: ["De nada", "Lo siento", "Hasta luego", "Hola"],
+        answer: "De nada"
+      },
+      {
+        question: "Which of these phrases also means 'You're welcome'?",
+        choices: ["No hay de qué", "¿Cómo estás?", "Buenos días", "Por favor"],
+        answer: "No hay de qué"
+      },
+      {
+        question: "Which is NOT a correct way to respond 'You're welcome' in Spanish?",
+        choices: ["Por nada", "Con gusto", "De nada", "Muchas gracias"],
+        answer: "Muchas gracias"
+      },
+      {
+        question: "Which phrase literally means 'There is nothing of it' and is used for 'You're welcome'?",
+        choices: ["No hay de qué", "Bienvenido", "De nada", "Por nada"],
+        answer: "No hay de qué"
+      },
+      {
+        question: "Which phrase can be used as 'You're welcome' and also 'It's nothing'?",
+        choices: ["De nada", "Lo siento", "Buenas tardes", "Adiós"],
+        answer: "De nada"
+      },
+      {
+        question: "Which phrase might you hear in some countries meaning 'With pleasure' (for 'You're welcome')?",
+        choices: ["Con gusto", "¿Qué tal?", "Por favor", "Hasta pronto"],
+        answer: "Con gusto"
+      },
+      {
+        question: "Which of these is the most informal way to say 'You're welcome' in Spanish?",
+        choices: ["Por nada", "De nada", "No hay de qué", "Lo siento"],
+        answer: "Por nada"
+      },
+      {
+        question: "Which phrase is a polite response to 'gracias'?",
+        choices: ["Con mucho gusto", "¿Qué pasa?", "Hasta luego", "Buenos días"],
+        answer: "Con mucho gusto"
+      },
+      {
+        question: "Which one means roughly 'No worries' or 'Don't mention it' in Spanish?",
+        choices: ["No hay de qué", "Hasta mañana", "Tengo prisa", "Muy bien"],
+        answer: "No hay de qué"
+      },
+      {
+        question: "Which phrase is commonly heard in many Spanish-speaking countries to politely respond 'You're welcome'?",
+        choices: ["De nada", "Perdón", "Qué lástima", "Bienvenido"],
+        answer: "De nada"
+      }
+    ]
+  },
+
+  "Ser vs Estar": {
+    questions: [
+      {
+        question: "Which verb is generally used for permanent traits, profession, or nationality?",
+        choices: ["Ser", "Estar", "Tener", "Haber"],
+        answer: "Ser"
+      },
+      {
+        question: "Which verb is generally used for location or temporary states?",
+        choices: ["Estar", "Ser", "Tener", "Ir"],
+        answer: "Estar"
+      },
+      {
+        question: "Complete the sentence: 'Yo ____ de México.'",
+        choices: ["soy", "estoy", "eres", "son"],
+        answer: "soy"
+      },
+      {
+        question: "Complete the sentence: 'Nosotros ____ en la escuela ahora.'",
+        choices: ["estamos", "somos", "es", "soy"],
+        answer: "estamos"
+      },
+      {
+        question: "Which is correct for describing mood or emotion (e.g., 'I am happy')?",
+        choices: ["Estoy feliz", "Soy feliz", "Fui feliz", "Seré feliz"],
+        answer: "Estoy feliz"
+      },
+      {
+        question: "Which is correct for 'She is tall' in Spanish?",
+        choices: ["Ella es alta", "Ella está alta", "Ella soy alta", "Ella somos alta"],
+        answer: "Ella es alta"
+      },
+      {
+        question: "For describing origin, we typically use which verb?",
+        choices: ["Ser", "Estar", "Gustar", "Ir"],
+        answer: "Ser"
+      },
+      {
+        question: "Complete the sentence: 'La fiesta ____ en mi casa.' (location of event)",
+        choices: ["es", "está", "son", "eres"],
+        answer: "es"
+        // Trick note: location of an event is usually "ser": "La fiesta es en mi casa."
+      },
+      {
+        question: "Complete the sentence: 'Mi libro ____ sobre la mesa.'",
+        choices: ["está", "es", "son", "soy"],
+        answer: "está"
+      },
+      {
+        question: "Which form of 'ser' is correct for 'They are doctors' in Spanish?",
+        choices: ["Ellos son doctores", "Ellos están doctores", "Ellos sois doctores", "Ellos ser doctores"],
+        answer: "Ellos son doctores"
+      }
+    ]
+  },
+
+  "Greetings": {
+    questions: [
+      {
+        question: "Which of these is a common Spanish greeting meaning 'Hello'?",
+        choices: ["Hola", "Adiós", "Por favor", "Gracias"],
+        answer: "Hola"
+      },
+      {
+        question: "How do you say 'Good morning' in Spanish?",
+        choices: ["Buenos días", "Buenas noches", "Buenas tardes", "Buen día"],
+        answer: "Buenos días"
+      },
+      {
+        question: "Which of these means 'Good afternoon' in Spanish?",
+        choices: ["Buenas tardes", "Buenas noches", "Buenos días", "Buenas horas"],
+        answer: "Buenas tardes"
+      },
+      {
+        question: "Which of these means 'Good night' in Spanish?",
+        choices: ["Buenas noches", "Buenos días", "Buena suerte", "Buenas tardes"],
+        answer: "Buenas noches"
+      },
+      {
+        question: "What is a common informal way to ask 'How are you?' in Spanish?",
+        choices: ["¿Cómo estás?", "¿Cómo es?", "¿Qué haces?", "¿De dónde eres?"],
+        answer: "¿Cómo estás?"
+      },
+      {
+        question: "Which phrase is used to say 'See you later' in Spanish?",
+        choices: ["Hasta luego", "Adiós", "Buenas noches", "Por favor"],
+        answer: "Hasta luego"
+      },
+      {
+        question: "How do you say 'Nice to meet you' in Spanish?",
+        choices: ["Mucho gusto", "Lo siento", "Buenas tardes", "Buen provecho"],
+        answer: "Mucho gusto"
+      },
+      {
+        question: "Which response would you give if someone says 'gracias'?",
+        choices: ["De nada", "Adiós", "Hola", "Mucho gusto"],
+        answer: "De nada"
+      },
+      {
+        question: "Which phrase is used to greet someone in the evening?",
+        choices: ["Buenas noches", "Buenas tardes", "Buenos días", "Hasta luego"],
+        answer: "Buenas noches"
+      },
+      {
+        question: "Which greeting is more formal for 'How are you?' in Spanish?",
+        choices: ["¿Cómo está usted?", "¿Qué pasa?", "¿Todo bien?", "¿Qué tal?"],
+        answer: "¿Cómo está usted?"
+      }
+    ]
+  },
+
+  "Numbers": {
+    questions: [
+      {
+        question: "Which is the Spanish word for the number 15?",
+        choices: ["quince", "catorce", "cinco", "veinte"],
+        answer: "quince"
+      },
+      {
+        question: "How do you say 100 in Spanish?",
+        choices: ["cien", "cincuenta", "mil", "uno"],
+        answer: "cien"
+      },
+      {
+        question: "Which is the Spanish word for 50?",
+        choices: ["cincuenta", "cuarenta", "sesenta", "quince"],
+        answer: "cincuenta"
+      },
+      {
+        question: "Translate the number '22' into Spanish.",
+        choices: ["veintidós", "doce", "veintinueve", "veintitrés"],
+        answer: "veintidós"
+      },
+      {
+        question: "Which is the Spanish word for 1,000?",
+        choices: ["mil", "cien", "diez mil", "un millón"],
+        answer: "mil"
+      },
+      {
+        question: "How do you say '40' in Spanish?",
+        choices: ["cuarenta", "catorce", "quince", "quince mil"],
+        answer: "cuarenta"
+      },
+      {
+        question: "Which Spanish number means '31'?",
+        choices: ["treinta y uno", "treinta y dos", "veintiuno", "cuarenta y uno"],
+        answer: "treinta y uno"
+      },
+      {
+        question: "How do you say '77' in Spanish?",
+        choices: ["setenta y siete", "sesenta y siete", "setenta y seis", "siete"],
+        answer: "setenta y siete"
+      },
+      {
+        question: "Which Spanish number means '99'?",
+        choices: ["noventa y nueve", "noventa y cinco", "cincuenta y nueve", "noventa y dos"],
+        answer: "noventa y nueve"
+      },
+      {
+        question: "How do you say '200' in Spanish?",
+        choices: ["doscientos", "dos mil", "doscientas", "dos millones"],
+        answer: "doscientos"
+      }
+    ]
+  },
+
+  "Parts of Speech": {
+    questions: [
+      {
+        question: "Which part of speech describes an action or state of being?",
+        choices: ["Verb", "Noun", "Adjective", "Adverb"],
+        answer: "Verb"
+      },
+      {
+        question: "Which part of speech names a person, place, thing, or idea?",
+        choices: ["Noun", "Adjective", "Verb", "Conjunction"],
+        answer: "Noun"
+      },
+      {
+        question: "Which part of speech modifies a noun?",
+        choices: ["Adjective", "Verb", "Adverb", "Pronoun"],
+        answer: "Adjective"
+      },
+      {
+        question: "Which part of speech replaces a noun?",
+        choices: ["Pronoun", "Preposition", "Interjection", "Adjective"],
+        answer: "Pronoun"
+      },
+      {
+        question: "Which part of speech connects words or phrases (like 'y', 'pero')?",
+        choices: ["Conjunction", "Interjection", "Preposition", "Pronoun"],
+        answer: "Conjunction"
+      },
+      {
+        question: "Which part of speech modifies a verb, adjective, or another adverb?",
+        choices: ["Adverb", "Noun", "Conjunction", "Interjection"],
+        answer: "Adverb"
+      },
+      {
+        question: "Which part of speech shows relationship between a noun (or pronoun) and another word?",
+        choices: ["Preposition", "Conjunction", "Verb", "Adjective"],
+        answer: "Preposition"
+      },
+      {
+        question: "Which is the Spanish pronoun for 'I'?",
+        choices: ["yo", "tú", "él", "ellos"],
+        answer: "yo"
+      },
+      {
+        question: "Which Spanish word is a conjunction meaning 'and'?",
+        choices: ["y", "o", "pero", "cuando"],
+        answer: "y"
+      },
+      {
+        question: "Which is a common Spanish preposition meaning 'with'?",
+        choices: ["con", "sin", "sobre", "hasta"],
+        answer: "con"
+      }
+    ]
+  },
+
+  "Gustar": {
+    questions: [
+      {
+        question: "Which is the correct way to say 'I like apples' in Spanish?",
+        choices: ["Me gustan las manzanas", "Me gusta las manzanas", "Yo gusto manzanas", "Le gustan manzanas"],
+        answer: "Me gustan las manzanas"
+      },
+      {
+        question: "Which pronoun would you use for 'They like' in Spanish with 'gustar'?",
+        choices: ["Les", "Nos", "Me", "Le"],
+        answer: "Les"
+      },
+      {
+        question: "Complete the sentence: 'A mí ____ la música.' (I like music)",
+        choices: ["me gusta", "te gusta", "le gusta", "nos gusta"],
+        answer: "me gusta"
+      },
+      {
+        question: "Which is correct for 'Do you like coffee?' (tú form)",
+        choices: [
+          "¿Te gusta el café?",
+          "¿Le gustan el café?",
+          "¿Te gustan el café?",
+          "¿Les gusta el café?"
+        ],
+        answer: "¿Te gusta el café?"
+      },
+      {
+        question: "Which form is correct for 'He likes to dance'?",
+        choices: [
+          "A él le gusta bailar",
+          "A él le gustan bailar",
+          "Él gusta bailar",
+          "Le gustar bailar"
+        ],
+        answer: "A él le gusta bailar"
+      },
+      {
+        question: "Complete the sentence: 'A nosotros ____ jugar fútbol.'",
+        choices: ["nos gusta", "me gusta", "te gusta", "les gusta"],
+        answer: "nos gusta"
+      },
+      {
+        question: "Which structure is correct when emphasizing 'I really like dogs'?",
+        choices: [
+          "A mí me gustan mucho los perros",
+          "Me gusto muchos perros",
+          "A mí gusto perros mucho",
+          "Yo me gusto los perros"
+        ],
+        answer: "A mí me gustan mucho los perros"
+      },
+      {
+        question: "Which sentence means 'She doesn't like parties'?",
+        choices: [
+          "A ella no le gustan las fiestas",
+          "No me gustan las fiestas de ella",
+          "Ella no gusta las fiestas",
+          "A ella no gusta las fiestas"
+        ],
+        answer: "A ella no le gustan las fiestas"
+      },
+      {
+        question: "Which pronoun fits 'A ellos ____ cantar' (They like to sing)?",
+        choices: ["les gusta", "te gusta", "nos gusta", "me gusta"],
+        answer: "les gusta"
+      },
+      {
+        question: "Which form is correct for 'You (formal) like chocolate'?",
+        choices: [
+          "A usted le gusta el chocolate",
+          "Te gusta el chocolate, señor",
+          "A usted gustan el chocolate",
+          "Usted me gusta chocolate"
+        ],
+        answer: "A usted le gusta el chocolate"
+      }
+    ]
+  }
+};
+
+
+
+
+    /************************************************************
+     *  Utility function to shuffle and slice the questions.    *
+     *  Returns a random subset of 'count' questions.           *
+     ************************************************************/
+    function getRandomQuestions(fullList, count) {
+      const shuffled = [...fullList].sort(() => 0.5 - Math.random());
+      return shuffled.slice(0, count);
+    }
+
+    let currentTopic = "Verb Conjugations";
+    let currentQuestions = [];
+    let currentIndex = 0;
+    let totalCorrect = 0;
+
+    // Track the time when a new topic/round is loaded
+    let startTime = 0;
+
+    const topicSelect = document.getElementById("topicSelect");
+    const gameTitle = document.getElementById("gameTitle");
+    const questionText = document.getElementById("questionText");
+    const choicesContainer = document.getElementById("choicesContainer");
+    const feedbackElement = document.getElementById("feedback");
+    const nextButton = document.getElementById("nextButton");
+    const restartButton = document.getElementById("restartButton");
+
+    // Load selected topic: pull random questions, reset counters, start timer
+    function loadTopic(topic) {
+      currentTopic = topic;
+      const fullList = mcqConfigs[topic].questions;
+      
+      // Example: choose 5 random questions from the topic's question bank
+      currentQuestions = getRandomQuestions(fullList, 5);
+
+      currentIndex = 0;
+      totalCorrect = 0;
+      // Start the timer for this round
+      startTime = new Date().getTime();
+
+      gameTitle.textContent = `Review Game: ${topic}`;
+      loadQuestion();
+
+      // Hide buttons that shouldn’t show at the start
+      nextButton.style.display = "none";
+      restartButton.style.display = "none";
+    }
+
+    // Load the current question
+    function loadQuestion() {
+      if (currentIndex >= currentQuestions.length) {
+        endGame();
+        return;
+      }
+
+      const q = currentQuestions[currentIndex];
+      questionText.textContent = q.question;
+      choicesContainer.innerHTML = "";
+      feedbackElement.textContent = "";
+
+      q.choices.forEach(choice => {
+        const btn = document.createElement("button");
+        btn.className = "choice-button";
+        btn.textContent = choice;
+        btn.addEventListener("click", () => checkAnswer(choice, btn));
+        choicesContainer.appendChild(btn);
+      });
+
+      nextButton.style.display = "none";
+    }
+
+    // Check answer, show feedback
+    function checkAnswer(choice, btn) {
+      const q = currentQuestions[currentIndex];
+
+      if (choice === q.answer) {
+        btn.classList.add("correct");
+        feedbackElement.textContent = "Correct!";
+        totalCorrect++;
+      } else {
+        btn.classList.add("incorrect");
+        feedbackElement.textContent = `Incorrect! The correct answer is "${q.answer}".`;
+      }
+
+      // Disable all choice buttons after selection
+      document.querySelectorAll(".choice-button").forEach(b => b.disabled = true);
+
+      // Show "Next" button if there are more questions
+      nextButton.style.display = "inline-block";
+    }
+
+    // End of round: display score, time, show restart button
+    function endGame() {
+      // Calculate how long the round took (in seconds)
+      const endTime = new Date().getTime();
+      const totalTimeInSeconds = ((endTime - startTime) / 1000).toFixed(2);
+
+      questionText.textContent = "Game over!";
+      choicesContainer.innerHTML = "";
+      feedbackElement.textContent =
+        `You got ${totalCorrect} out of ${currentQuestions.length} correct.\n` +
+        `You completed this round in ${totalTimeInSeconds} seconds.`;
+
+      // Hide Next button; show Restart button
+      nextButton.style.display = "none";
+      restartButton.style.display = "inline-block";
+    }
+
+    // Move to next question
+    nextButton.addEventListener("click", () => {
+      currentIndex++;
+      loadQuestion();
+    });
+
+    // Restart the same topic
+    restartButton.addEventListener("click", () => {
+      loadTopic(currentTopic);
+    });
+
+    // Listen for topic changes
+    topicSelect.addEventListener("change", () => {
+      loadTopic(topicSelect.value);
+    });
+
+    // Initial load
+    loadTopic(topicSelect.value);
+  </script>
+</body>
+</html>

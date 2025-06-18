@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Tarjetas de Preguntas de Español 1</title>
+    <style>
+        :root {
+            --card-width: 210px; /* Adjust the width of the cards here */
+            --card-height: 170px; /* Adjust the height of the cards here */
+        }
+
+        body {
+            margin: 0;
+            padding: 20px;
+            background-color: #f0f0f0;
+            font-family: Arial, sans-serif;
+        }
+
+        .container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .card {
+            width: var(--card-width);
+            height: var(--card-height);
+            border: 2px solid black;
+            background-color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-sizing: border-box;
+            page-break-inside: avoid; /* Prevent splitting cards across pages */
+            text-align: center;
+            padding: 10px;
+            font-size: 16px;
+        }
+
+        /* Ensure cards don't break between pages when printing */
+        @media print {
+            .card {
+                page-break-inside: avoid;
+            }
+        }
+
+        /* Optional: Section header (change display from none to block if you want it visible) */
+        .section-header {
+            width: 100%;
+            font-size: 20px;
+            font-weight: bold;
+            margin-top: 20px;
+            margin-bottom: 10px;
+            text-align: left;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Preguntas Básicas de Español 1 -->
+        <div class="section-header">Preguntas Básicas de Español 1</div>
+        <div class="card">¿Cómo te llamas?</div>
+        <div class="card">¿Cómo están?</div>
+        <div class="card">¿De dónde eres?</div>
+        <div class="card">¿Cuántos años tienes?</div>
+        <div class="card">¿Dónde vives?</div>
+        <div class="card">¿Cómo estás?</div>
+        <div class="card">¿Qué hora es?</div>
+        <div class="card">¿Qué día es hoy?</div>
+        <div class="card">¿Qué te gusta hacer?</div>
+        <div class="card">¿Cuál es tu color favorito?</div>
+        <div class="card">¿Cuál es tu comida favorita?</div>
+        <div class="card">¿Tienes hermanos o hermanas?</div>
+        <div class="card">¿Qué estudias?</div>
+        <div class="card">¿Trabajas?</div>
+        <div class="card">¿Qué haces los fines de semana?</div>
+    </div>
+</body>
+</html>

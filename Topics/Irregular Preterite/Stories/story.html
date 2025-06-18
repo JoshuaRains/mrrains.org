@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Spanish Preterite Activity</title>
+  <style>
+    body {
+      background-color: #1b1a1a; /* Darker grey background */
+      margin: 10px;
+      font-family: Arial, sans-serif;
+    }
+    /* Main container styling for present-tense story */
+    #container {
+      width: 80%;
+      margin: 20px auto;
+      background-color: #f5f5f5; /* Soft grey background */
+      box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2); /* Drop shadow */
+      padding: 20px;
+      font-size: 20px; /* Increased font size */
+    }
+    /* Wrap each sentence in a span for highlighting with transition */
+    .present-sentence {
+      padding: 2px;
+      transition: background-color 0.3s, border-radius 0.3s;
+    }
+    .present-sentence.active {
+      background-color: #ddd;
+      border-radius: 5px;
+    }
+    /* Translation box for main container */
+    #translationBox {
+      position: absolute;
+      display: none;
+      background: #f9f9f9;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+      padding: 8px;
+      z-index: 1000;
+    }
+    /* Exercise container styling */
+    #exerciseContainer {
+      width: 80%;
+      margin: 20px auto;
+      background-color: #f5f5f5;
+      box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+      padding: 20px;
+      font-size: 20px;
+    }
+    /* Navigation area styling */
+    #sentence-nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0; /* So progress bar touches */
+      background-color: #444;
+      border-radius: 5px 5px 0 0; /* Rounded top only */
+      padding: 10px;
+      box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.3);
+    }
+    #nav-buttons, #symbol-buttons {
+      display: flex;
+      align-items: center;
+    }
+    #nav-buttons button,
+    #symbol-buttons button {
+      font-size: 18px;
+      padding: 2px 5px;
+      margin: 0 5px;
+      cursor: pointer;
+      border: none;
+      border-radius: 3px;
+      box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.2);
+      background: #fff;
+    }
+    /* Progress bar container and fill */
+    #progressBarContainer {
+      width: 100%;
+      height: 4px;
+      background-color: #ddd;
+      box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.3);
+      border-radius: 0 0 5px 5px; /* Rounded bottom only */
+      margin-bottom: 20px; /* Increased margin under progress bar */
+    }
+    #progressBar {
+      height: 100%;
+      width: 0%;
+      background-color: #4caf50;
+      border-radius: 0 0 5px 5px;
+      transition: width 0.3s;
+    }
+    /* Exercise sentence styling: Flow inline as a single paragraph */
+    .sentence {
+      display: inline-block;
+      vertical-align: top;
+      font-size: 20px;
+      margin-right: 10px;
+      transition: color 0.3s;
+    }
+    .sentence.active {
+      color: black;
+    }
+    .sentence.inactive {
+      color: #aaa;
+    }
+    /* Blank input styling */
+    .blank {
+      border: none;
+      border-bottom: 2px solid;
+      outline: none;
+      font-size: 20px;
+      padding: 2px;
+      background-color: transparent;
+      transition: width 0.2s;
+    }
+    .sentence.active input.blank {
+      border-bottom-color: black;
+    }
+    .sentence.inactive input.blank {
+      border-bottom-color: #aaa;
+    }
+    /* Hidden span for measuring text width */
+    #widthTester {
+      position: absolute;
+      visibility: hidden;
+      white-space: pre;
+    }
+  </style>
+</head>
+<body>
+  <!-- Present-tense story in main container with sentence spans -->
+  <div id="container">
+    <p>
+      <span data-index="0" class="present-sentence active">
+        <span data-index="0" class="clickable">El</span> 
+        <span data-index="1" class="clickable">sol</span> 
+        <span data-index="2" class="clickable">brilla</span> 
+        <span data-index="3" class="clickable">y</span> 
+        <span data-index="4" class="clickable">la</span> 
+        <span data-index="5" class="clickable">gente</span> 
+        <span data-index="6" class="clickable">camina</span> 
+        <span data-index="7" class="clickable">por</span> 
+        <span data-index="8" class="clickable">la</span> 
+        <span data-index="9" class="clickable">calle.</span>
+      </span>
+      <span data-index="1" class="present-sentence">
+        <span data-index="10" class="clickable">Los</span> 
+        <span data-index="11" class="clickable">niños</span> 
+        <span data-index="12" class="clickable">juegan</span> 
+        <span data-index="13" class="clickable">en</span> 
+        <span data-index="14" class="clickable">el</span> 
+        <span data-index="15" class="clickable">parque</span> 
+        <span data-index="16" class="clickable">y</span> 
+        <span data-index="17" class="clickable">ríen</span> 
+        <span data-index="18" class="clickable">felices.</span>
+      </span>
+    </p>
+  </div>
+  
+  <!-- Translation box for main container -->
+  <div id="translationBox"></div>
+  
+  <!-- Exercise area for converting the story to past tense -->
+  <div id="exerciseContainer">
+    <!-- Navigation area split into two divs for navigation and symbol buttons -->
+    <div id="sentence-nav">
+      <div id="nav-buttons">
+        <button id="prevBtn">←</button>
+        <button id="nextBtn">→</button>
+      </div>
+      <div id="symbol-buttons">
+        <button class="symbolBtn" data-symbol="á">á</button>
+        <button class="symbolBtn" data-symbol="é">é</button>
+        <button class="symbolBtn" data-symbol="í">í</button>
+        <button class="symbolBtn" data-symbol="ó">ó</button>
+        <button class="symbolBtn" data-symbol="ú">ú</button>
+        <button class="symbolBtn" data-symbol="ñ">ñ</button>
+        <button class="symbolBtn" data-symbol="ü">ü</button>
+        <button class="symbolBtn" data-symbol="¿">¿</button>
+        <button class="symbolBtn" data-symbol="¡">¡</button>
+      </div>
+    </div>
+    <!-- Progress bar directly under the sentence-nav -->
+    <div id="progressBarContainer">
+      <div id="progressBar"></div>
+    </div>
+    <!-- Exercise sentences (inline) -->
+    <div class="sentence active" data-index="0">
+      El sol 
+      <input type="text" class="blank" data-blank-index="0" style="width: 60px;"> 
+      y la gente 
+      <input type="text" class="blank" data-blank-index="1" style="width: 70px;"> 
+      por la calle.
+    </div>
+    <div class="sentence inactive" data-index="1">
+      Los niños 
+      <input type="text" class="blank" data-blank-index="2" style="width: 70px;"> 
+      en el parque y 
+      <input type="text" class="blank" data-blank-index="3" style="width: 40px;"> 
+      felices.
+    </div>
+  </div>
+  
+  <!-- Hidden span for measuring text width -->
+  <span id="widthTester"></span>
+  
+  <script>
+    // Translation functionality for main container
+    var translations = {
+      "translations": [
+        { "index": 0, "text": "The" },
+        { "index": 1, "text": "sun" },
+        { "index": 2, "text": "shines" },
+        { "index": 3, "text": "and" },
+        { "index": 4, "text": "the" },
+        { "index": 5, "text": "people" },
+        { "index": 6, "text": "walk" },
+        { "index": 7, "text": "along" },
+        { "index": 8, "text": "the" },
+        { "index": 9, "text": "street." },
+        { "index": 10, "text": "The" },
+        { "index": 11, "text": "children" },
+        { "index": 12, "text": "play" },
+        { "index": 13, "text": "in" },
+        { "index": 14, "text": "the" },
+        { "index": 15, "text": "park" },
+        { "index": 16, "text": "and" },
+        { "index": 17, "text": "laugh" },
+        { "index": 18, "text": "happily." }
+      ]
+    };
+
+    // JSON for correct answers for blanks
+    var answers = {
+      "answers": [
+        { "blankIndex": "0", "text": "brilló" },
+        { "blankIndex": "1", "text": "caminó" },
+        { "blankIndex": "2", "text": "jugaron" },
+        { "blankIndex": "3", "text": "rieron" }
+      ]
+    };
+
+    function getTranslation(index) {
+      for (var i = 0; i < translations.translations.length; i++) {
+        if (translations.translations[i].index == index) {
+          return translations.translations[i].text;
+        }
+      }
+      return "";
+    }
+
+    function getAnswer(blankIndex) {
+      for (var i = 0; i < answers.answers.length; i++) {
+        if (answers.answers[i].blankIndex === blankIndex) {
+          return answers.answers[i].text;
+        }
+      }
+      return "";
+    }
+
+    // Translation click functionality for present-tense text in main container
+    var clickableElements = document.getElementsByClassName("clickable");
+    for (var i = 0; i < clickableElements.length; i++) {
+      clickableElements[i].addEventListener("click", function(event) {
+        event.stopPropagation();
+        var index = this.getAttribute("data-index");
+        var translationText = getTranslation(index);
+        var translationBox = document.getElementById("translationBox");
+        translationBox.innerText = translationText;
+        translationBox.style.display = "block";
+        var rect = this.getBoundingClientRect();
+        translationBox.style.left = "0px";
+        translationBox.style.top = "0px";
+        var boxRect = translationBox.getBoundingClientRect();
+        var left = rect.left + (rect.width / 2) - (boxRect.width / 2);
+        var top = rect.top - boxRect.height - 5;
+        translationBox.style.left = left + "px";
+        translationBox.style.top = top + "px";
+      });
+    }
+
+    document.addEventListener("click", function(event) {
+      var translationBox = document.getElementById("translationBox");
+      translationBox.style.display = "none";
+    });
+
+    // Auto-resize and correctness check for blank inputs,
+    // plus automatically move to next sentence if all blanks are correct
+    function autoResize() {
+      var tester = document.getElementById("widthTester");
+      var style = window.getComputedStyle(this);
+      tester.style.fontSize = style.fontSize;
+      tester.style.fontFamily = style.fontFamily;
+      tester.textContent = this.value || " ";
+      var newWidth = tester.offsetWidth + 10;
+      this.style.width = newWidth + "px";
+      
+      // Check if input matches correct answer
+      var blankIndex = this.getAttribute("data-blank-index");
+      var correctAnswer = getAnswer(blankIndex);
+      if (this.value.trim() === correctAnswer) {
+        this.style.color = "green";
+        this.disabled = true;
+      } else {
+        this.style.color = "inherit";
+      }
+      updateProgressBar();
+      
+      // Auto-advance if all blanks in the active sentence are correct
+      var activeSentence = document.querySelector('.sentence.active');
+      if (activeSentence) {
+        var blanks = activeSentence.querySelectorAll('input.blank');
+        var allCorrect = true;
+        blanks.forEach(function(blank) {
+          if (!blank.disabled) { allCorrect = false; }
+        });
+        if (allCorrect) {
+          var nextSentence = activeSentence.nextElementSibling;
+          if (nextSentence && nextSentence.classList.contains('sentence')) {
+            currentSentenceIndex++;
+            updateSentenceFocus();
+            var firstBlank = nextSentence.querySelector('input.blank');
+            if (firstBlank) {
+              firstBlank.focus();
+            }
+          }
+        }
+      }
+    }
+
+    var blankInputs = document.getElementsByClassName("blank");
+    for (var i = 0; i < blankInputs.length; i++) {
+      blankInputs[i].addEventListener("input", autoResize);
+    }
+
+    // Update progress bar based on correctly answered blanks only
+    function updateProgressBar() {
+      var blanks = document.getElementsByClassName("blank");
+      var total = blanks.length;
+      var correctCount = 0;
+      for (var i = 0; i < blanks.length; i++) {
+        var blankIndex = blanks[i].getAttribute("data-blank-index");
+        var correctAnswer = getAnswer(blankIndex);
+        if (blanks[i].disabled && blanks[i].value.trim() === correctAnswer) {
+          correctCount++;
+        }
+      }
+      var percent = (correctCount / total) * 100;
+      document.getElementById("progressBar").style.width = percent + "%";
+    }
+
+    // Exercise area: Sentence navigation functionality and updating main container highlight
+    var currentSentenceIndex = 0;
+    var sentences = document.getElementsByClassName("sentence");
+
+    function updateSentenceFocus() {
+      // Update exercise sentences
+      for (var i = 0; i < sentences.length; i++) {
+        var inputs = sentences[i].querySelectorAll("input.blank");
+        if (i === currentSentenceIndex) {
+          sentences[i].classList.add("active");
+          sentences[i].classList.remove("inactive");
+          inputs.forEach(function(input) {
+            if (input.value.trim() !== getAnswer(input.getAttribute("data-blank-index"))) {
+              input.disabled = false;
+            }
+          });
+        } else {
+          sentences[i].classList.add("inactive");
+          sentences[i].classList.remove("active");
+          inputs.forEach(function(input) {
+            input.disabled = true;
+          });
+        }
+      }
+      // Update present-tense story highlighting in main container
+      var presentSentences = document.getElementsByClassName("present-sentence");
+      for (var j = 0; j < presentSentences.length; j++) {
+        if (parseInt(presentSentences[j].getAttribute("data-index")) === currentSentenceIndex) {
+          presentSentences[j].classList.add("active");
+        } else {
+          presentSentences[j].classList.remove("active");
+        }
+      }
+    }
+
+    document.getElementById("prevBtn").addEventListener("click", function() {
+      if (currentSentenceIndex > 0) {
+        currentSentenceIndex--;
+        updateSentenceFocus();
+      }
+    });
+
+    document.getElementById("nextBtn").addEventListener("click", function() {
+      if (currentSentenceIndex < sentences.length - 1) {
+        currentSentenceIndex++;
+        updateSentenceFocus();
+      }
+    });
+
+    // Special symbols insertion functionality
+    var symbolButtons = document.getElementsByClassName("symbolBtn");
+    for (var i = 0; i < symbolButtons.length; i++) {
+      symbolButtons[i].addEventListener("mousedown", function(event) {
+        event.preventDefault();
+      });
+      symbolButtons[i].addEventListener("click", function() {
+        var symbol = this.getAttribute("data-symbol");
+        var activeElement = document.activeElement;
+        if (activeElement && activeElement.classList.contains("blank")) {
+          var start = activeElement.selectionStart;
+          var end = activeElement.selectionEnd;
+          var text = activeElement.value;
+          activeElement.value = text.substring(0, start) + symbol + text.substring(end);
+          activeElement.selectionStart = activeElement.selectionEnd = start + symbol.length;
+          autoResize.call(activeElement);
+        }
+      });
+    }
+
+    // Initial update of sentence focus and progress bar
+    updateSentenceFocus();
+    updateProgressBar();
+  </script>
+</body>
+</html>

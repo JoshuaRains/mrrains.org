@@ -1,0 +1,643 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Simulador de Teléfono – Ajustes</title>
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <style>
+    html, body {
+      height: 100%;
+      margin: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #999;
+      font-family: sans-serif;
+    }
+    .phone {
+      width: 360px;
+      height: 640px;
+      border: 16px solid #333;
+      border-radius: 40px;
+      box-shadow: 0 0 20px rgba(0,0,0,0.5);
+      position: relative;
+      overflow: hidden;
+      background: linear-gradient(to bottom, #0a0f1e, #2c3242);
+      color: #fff;
+    }
+
+    /* STATUS BAR */
+    .status-bar {
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 32px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 12px;
+      font-size: 12px;
+      backdrop-filter: blur(8px);
+      background: rgba(0,0,0,0.2);
+      z-index: 10;
+    }
+    .status-bar .battery {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .status-bar .battery .material-icons {
+      font-size: 14px;
+    }
+
+    /* SWIPABLE PAGES */
+    .pages-wrapper {
+      position: absolute;
+      top: 32px;
+      bottom: 100px;
+      left: 0; right: 0;
+      overflow: hidden;
+      touch-action: none;
+      cursor: grab;
+    }
+    .pages-wrapper.grabbing { cursor: grabbing; }
+    .pages-container {
+      display: flex;
+      width: 200%;
+      height: 100%;
+      transition: transform 0.3s ease;
+    }
+    .page {
+      width: 50%;
+      padding: 0 16px;
+      box-sizing: border-box;
+      overflow-y: auto;
+    }
+
+    /* PAGE 1 */
+    .page1 .clock-widget {
+      text-align: center;
+      margin: 16px 0;
+    }
+    .page1 .clock-widget .date { font-size: 14px; opacity: 0.8; }
+    .page1 .clock-widget .time { font-size: 64px; line-height:1; margin:4px 0; }
+    .page1 .clock-widget .alarm { font-size: 12px; opacity:0.7; }
+    .page1 .app-row {
+      display: flex;
+      justify-content: space-around;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: auto;
+      padding-bottom: 16px;
+    }
+
+    /* PAGE 2 (GRID) */
+    .page2 .apps-grid {
+      display: grid;
+      grid-template-columns: repeat(4,1fr);
+      gap: 16px;
+      justify-items: center;
+      padding-top: 16px;
+    }
+
+    /* APP ICONS (both pages) */
+    .app-app {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      cursor: pointer;
+      user-select: none;
+    }
+    .app-icon {
+      width: 56px; height:56px;
+      background: rgba(255,255,255,0.2);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background .2s;
+    }
+    .app-app:hover .app-icon {
+      background: rgba(255,255,255,0.3);
+    }
+    .app-label {
+      margin-top:4px;
+      font-size:12px;
+    }
+
+    /* DOCK */
+    .home-indicator { display: none; }
+    .dock {
+      position: absolute;
+      bottom: 16px;
+      left: 50%; transform: translateX(-50%);
+      width: 88%; height: 48px;
+      background: rgba(255,255,255,0.9);
+      border-radius: 24px;
+      display: flex; align-items: center;
+      padding: 0 12px; gap: 12px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+      z-index: 10;
+    }
+    .dock .material-icons { font-size:24px; color:#555; cursor:pointer; }
+    .dock input {
+      flex:1; border:none; outline:none;
+      font-size:14px;
+      background:transparent;
+      color:#333;
+    }
+
+    /* SETTINGS PAGE (hidden by default) */
+    .settings-page {
+      position: absolute;
+      top: 32px; bottom: 0;
+      left: 0; right: 0;
+      background: #000;
+      color: #fff;
+      padding: 0;
+      box-sizing: border-box;
+      overflow: hidden; /* Remove scrollbar */
+      display: none;
+      z-index: 5; /* behind status‐bar */
+    }
+    .settings-page.active { display: block; }
+
+    .settings-content {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      touch-action: none; /* Enable drag scrolling */
+    }
+
+    .settings-content-inner {
+      position: relative;
+      width: 100%;
+      height: 200%; /* Simulate a scrollable area */
+    }
+
+    .settings‐header‐bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 56px;
+      padding: 0 16px;
+      background: #000;
+      border-bottom: 1px solid #333;
+    }
+    .settings‐header‐bar .title {
+      font-size: 20px;
+      font-weight: 500;
+    }
+    .settings‐header‐bar .material-icons {
+      display: none; /* Remove the search button */
+    }
+
+    .home-button-container {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 60px;
+      background: black;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .home-button {
+      width: 40px;
+      height: 40px;
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+    }
+
+    .home-button i {
+      font-size: 20px;
+      color: white;
+    }
+
+    .back-button-container {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-right: 8px;
+    }
+
+    .back-button {
+      width: 40px;
+      height: 40px;
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+    }
+
+    .back-button i {
+      font-size: 20px;
+      color: white;
+    }
+
+    /* Each setting item */
+    .settings-list {
+      padding: 0 8px 16px;
+    }
+    .settings-item {
+      display: flex;
+      align-items: center;
+      padding: 12px 16px;
+      background: #1e1e1e;
+      border-radius: 12px;
+      margin: 4px 0;
+      gap: 12px;
+    }
+    .settings-item .material-icons {
+      font-size: 24px;
+      color: #4fc3f7;
+    }
+    .item-text {
+      display: flex;
+      flex-direction: column;
+    }
+    .item-text .item-title {
+      font-size: 14px;
+    }
+    .item-text .item-subtitle {
+      font-size: 12px;
+      color: #888;
+      margin-top: 2px;
+    }
+
+    /* prevent text selection */
+    * { user-select: none; }
+
+    .general-settings-page {
+      display: none;
+      position: absolute;
+      top: 32px;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: #000;
+      color: #fff;
+      padding: 16px;
+      box-sizing: border-box;
+      overflow-y: auto;
+      z-index: 6;
+    }
+
+    .general-settings-page.active {
+      display: block;
+    }
+
+    .general-settings-header {
+      font-size: 20px;
+      font-weight: bold;
+      margin-bottom: 16px;
+    }
+
+    .general-settings-option {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 16px;
+      background: #1e1e1e;
+      border-radius: 12px;
+      margin: 8px 0;
+      cursor: pointer;
+    }
+
+    .general-settings-option .material-icons {
+      font-size: 24px;
+      color: #4fc3f7;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="phone">
+    <!-- STATUS BAR -->
+    <div class="status-bar">
+      <div>16:49</div>
+      <div class="battery">
+        <i class="material-icons">battery_20</i>
+        <span>20 %</span>
+      </div>
+    </div>
+
+    <!-- SWIPABLE HOME PAGES -->
+    <div class="pages-wrapper" id="pagesWrapper">
+      <div class="pages-container" id="pagesContainer">
+
+        <!-- Página 1 -->
+        <div class="page page1">
+          <div class="clock-widget">
+            <div class="date">Jue, 25 jul</div>
+            <div class="time">12:55</div>
+            <div class="alarm">⏰ Jue, 20:45</div>
+          </div>
+          <div class="app-row">
+            <div class="app-app" data-app="Teléfono">
+              <div class="app-icon"><i class="material-icons">phone</i></div>
+              <div class="app-label">Teléfono</div>
+            </div>
+            <div class="app-app" data-app="Correo">
+              <div class="app-icon"><i class="material-icons">mail_outline</i></div>
+              <div class="app-label">Correo</div>
+            </div>
+            <div class="app-app" data-app="Mensajes">
+              <div class="app-icon"><i class="material-icons">chat_bubble_outline</i></div>
+              <div class="app-label">Mensajes</div>
+            </div>
+            <div class="app-app" data-app="Drive">
+              <div class="app-icon"><i class="material-icons">cloud_circle</i></div>
+              <div class="app-label">Drive</div>
+            </div>
+            <div class="app-app" data-app="Fotos">
+              <div class="app-icon"><i class="material-icons">photo</i></div>
+              <div class="app-label">Fotos</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Página 2 -->
+        <div class="page page2">
+          <div class="apps-grid">
+            <div class="app-app" data-app="YouTube">
+              <div class="app-icon"><i class="material-icons">ondemand_video</i></div>
+              <div class="app-label">YouTube</div>
+            </div>
+            <div class="app-app" data-app="Ajustes">
+              <div class="app-icon"><i class="material-icons">settings</i></div>
+              <div class="app-label">Ajustes</div>
+            </div>
+            <div class="app-app" data-app="Calendario">
+              <div class="app-icon"><i class="material-icons">calendar_today</i></div>
+              <div class="app-label">Calendario</div>
+            </div>
+            <div class="app-app" data-app="Mapas">
+              <div class="app-icon"><i class="material-icons">map</i></div>
+              <div class="app-label">Mapas</div>
+            </div>
+            <div class="app-app" data-app="Cámara">
+              <div class="app-icon"><i class="material-icons">photo_camera</i></div>
+              <div class="app-label">Cámara</div>
+            </div>
+            <div class="app-app" data-app="WhatsApp">
+              <div class="app-icon"><i class="material-icons">chat</i></div>
+              <div class="app-label">WhatsApp</div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- DOCK -->
+    <div class="dock">
+      <i class="material-icons">search</i>
+      <input type="text" placeholder="Buscar en el teléfono">
+      <i class="material-icons">mic</i>
+      <i class="material-icons">photo_camera</i>
+    </div>
+
+    <!-- SETTINGS PAGE -->
+    <div class="settings-page" id="settingsPage">
+      <div class="settings-content" id="settingsContent">
+        <div class="settings-content-inner">
+          <div class="settings‐header‐bar">
+            <div class="title">Settings</div>
+          </div>
+          <div class="settings-list">
+            <div class="settings-item">
+              <i class="material-icons">wifi</i>
+              <div class="item-text">
+                <div class="item-title">Connections</div>
+                <div class="item-subtitle">Wi-Fi · Bluetooth · Airplane mode</div>
+              </div>
+            </div>
+            <div class="settings-item">
+              <i class="material-icons">volume_up</i>
+              <div class="item-text">
+                <div class="item-title">Sounds and vibration</div>
+                <div class="item-subtitle">Sound mode · Ringtone</div>
+              </div>
+            </div>
+            <div class="settings-item">
+              <i class="material-icons">notifications</i>
+              <div class="item-text">
+                <div class="item-title">Notifications</div>
+                <div class="item-subtitle">Status bar · Do not disturb</div>
+              </div>
+            </div>
+            <div class="settings-item">
+              <i class="material-icons">brightness_6</i>
+              <div class="item-text">
+                <div class="item-title">Display</div>
+                <div class="item-subtitle">Brightness · Eye comfort shield · Navigation bar</div>
+              </div>
+            </div>
+            <div class="settings-item">
+              <i class="material-icons">wallpaper</i>
+              <div class="item-text">
+                <div class="item-title">Wallpaper and style</div>
+                <div class="item-subtitle">Wallpapers · Color palette</div>
+              </div>
+            </div>
+            <div class="settings-item">
+              <i class="material-icons">palette</i>
+              <div class="item-text">
+                <div class="item-title">Themes</div>
+                <div class="item-subtitle">Themes · Wallpapers · Icons</div>
+              </div>
+            </div>
+            <div class="settings-item">
+              <i class="material-icons">home</i>
+              <div class="item-text">
+                <div class="item-title">Home screen</div>
+                <div class="item-subtitle">Layout · App icon badges</div>
+              </div>
+            </div>
+            <div class="settings-item">
+              <i class="material-icons">lock</i>
+              <div class="item-text">
+                <div class="item-title">Lock screen</div>
+                <div class="item-subtitle">Screen lock type · Always On Display</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="home-button-container">
+          <div class="home-button" id="homeButton">
+            <i class="material-icons">home</i>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- GENERAL SETTINGS PAGE -->
+    <div class="general-settings-page" id="generalSettingsPage">
+      <div class="general-settings-header">General Settings</div>
+      <div class="general-settings-option" id="languageButton">
+        <span>Language</span>
+        <i class="material-icons">language</i>
+      </div>
+      <div class="general-settings-option" id="timeDateButton">
+        <span>Time and Date</span>
+        <i class="material-icons">schedule</i>
+      </div>
+      <div class="home-button-container">
+        <div class="home-button" id="generalSettingsHomeButton">
+          <i class="material-icons">home</i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // SWIPE LOGIC (unchanged)
+    const wrapper = document.getElementById('pagesWrapper');
+    const container = document.getElementById('pagesContainer');
+    const pages = 2;
+    let currentPage = 0, startX = 0, isDragging = false;
+    const threshold = 50, wrapperWidth = wrapper.offsetWidth;
+
+    wrapper.addEventListener('pointerdown', e => {
+      isDragging = true; startX = e.clientX;
+      wrapper.classList.add('grabbing'); container.style.transition = 'none';
+    });
+    wrapper.addEventListener('pointermove', e => {
+      if (!isDragging) return;
+      const dx = e.clientX - startX;
+      container.style.transform = `translateX(${-currentPage*wrapperWidth + dx}px)`;
+    });
+    const endDrag = e => {
+      if (!isDragging) return;
+      isDragging = false; wrapper.classList.remove('grabbing');
+      container.style.transition = 'transform 0.3s ease';
+      const dx = e.clientX - startX;
+      if (dx < -threshold && currentPage < pages-1) currentPage++;
+      if (dx >  threshold && currentPage > 0) currentPage--;
+      container.style.transform = `translateX(${-currentPage*wrapperWidth}px)`;
+    };
+    wrapper.addEventListener('pointerup', endDrag);
+    wrapper.addEventListener('pointerleave', endDrag);
+    wrapper.addEventListener('pointercancel', endDrag);
+
+    // APP CLICK → console.log
+    document.querySelectorAll('.app-app').forEach(el =>
+      el.addEventListener('click', () =>
+        console.log(`Abriendo ${el.dataset.app}…`)
+      )
+    );
+
+    // “Ajustes” opens settings‐page
+    const settingsApp = document.querySelector('[data-app="Ajustes"]');
+    const settingsPage = document.getElementById('settingsPage');
+    settingsApp.addEventListener('click', () => {
+      document.querySelector('.pages-wrapper').style.display = 'none';
+      document.querySelector('.dock').style.display = 'none';
+      settingsPage.classList.add('active');
+    });
+
+    // Back home from settings
+    const homeButton = document.getElementById('homeButton');
+
+    homeButton.addEventListener('click', () => {
+      settingsPage.classList.remove('active');
+      document.querySelector('.pages-wrapper').style.display = 'block';
+      document.querySelector('.dock').style.display = 'flex';
+    });
+
+    // Drag-based scrolling for settings page
+    const settingsContent = document.getElementById('settingsContent');
+    const settingsInner = document.querySelector('.settings-content-inner');
+    let startY = 0;
+    let currentY = 0;
+
+    settingsContent.addEventListener('pointerdown', (e) => {
+      startY = e.clientY;
+      settingsContent.style.cursor = 'grabbing';
+    });
+
+    settingsContent.addEventListener('pointermove', (e) => {
+      if (startY === 0) return;
+      const dy = e.clientY - startY;
+      const maxScroll = 0;
+      const minScroll = -settingsInner.offsetHeight + settingsContent.offsetHeight;
+      currentY = Math.max(Math.min(currentY + dy, maxScroll), minScroll);
+      settingsInner.style.transform = `translateY(${currentY}px)`;
+      startY = e.clientY;
+    });
+
+    settingsContent.addEventListener('pointerup', () => {
+      startY = 0;
+      settingsContent.style.cursor = 'grab';
+    });
+
+    settingsContent.addEventListener('pointerleave', () => {
+      startY = 0;
+      settingsContent.style.cursor = 'grab';
+    });
+
+    // General Settings logic
+    const generalSettingsButton = document.createElement('div');
+    generalSettingsButton.classList.add('settings-item');
+    generalSettingsButton.innerHTML = `
+      <i class="material-icons">settings</i>
+      <div class="item-text">
+        <div class="item-title">General Settings</div>
+        <div class="item-subtitle">Language · Time and Date</div>
+      </div>
+    `;
+    document.querySelector('.settings-list').appendChild(generalSettingsButton);
+
+    const generalSettingsPage = document.getElementById('generalSettingsPage');
+    const generalSettingsHomeButton = document.getElementById('generalSettingsHomeButton');
+
+    generalSettingsButton.addEventListener('click', () => {
+      document.getElementById('settingsPage').classList.remove('active');
+      generalSettingsPage.classList.add('active');
+    });
+
+    generalSettingsHomeButton.addEventListener('click', () => {
+      generalSettingsPage.classList.remove('active');
+      document.getElementById('settingsPage').classList.add('active');
+    });
+
+    // Add a back button to the left of the home button
+    const backButtonContainer = document.createElement('div');
+    backButtonContainer.classList.add('back-button-container');
+    backButtonContainer.innerHTML = `
+      <div class="back-button" id="backButton">
+        <i class="material-icons">arrow_back</i>
+      </div>
+    `;
+    document.querySelector('.home-button-container').prepend(backButtonContainer);
+
+    document.getElementById('backButton').addEventListener('click', () => {
+      // Logic for back button navigation
+      generalSettingsPage.classList.remove('active');
+      settingsPage.classList.add('active');
+    });
+
+    // Add an invisible button to the right of the home button to center it
+    const invisibleButton = document.createElement('div');
+    invisibleButton.classList.add('invisible-button');
+    invisibleButton.style.width = '40px';
+    invisibleButton.style.height = '40px';
+    invisibleButton.style.visibility = 'hidden';
+
+    document.querySelector('.home-button-container').appendChild(invisibleButton);
+  </script>
+</body>
+</html>

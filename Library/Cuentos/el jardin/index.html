@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>MrRains.org</title>
+  <style>
+    /* Layout */
+    body, html {
+      margin: 0;
+      height: 100%;
+      font-family: Arial, sans-serif;
+    }
+    #main {
+      display: flex;
+      height: 100%;
+    }
+    /* PDF panel */
+    #pdf-container {
+      flex: 2;
+      border-right: 2px solid #ddd;
+      overflow: hidden;
+    }
+    #pdf-container object {
+      width: 100%;
+      height: 100%;
+    }
+    /* Quiz panel */
+    #quiz-container {
+      flex: 1;
+      padding: 0 20px 20px;
+      background: #f7f9fc;
+      overflow-y: auto;
+      position: relative;
+    }
+    /* Sticky header */
+    #quiz-container h2 {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      margin: 0 0 16px;
+      padding: 12px 0;
+      background: #f7f9fc;
+      border-bottom: 1px solid #ddd;
+    }
+    /* Questions */
+    .question {
+      margin-bottom: 24px;
+    }
+    .question h3 {
+      margin-bottom: 12px;
+      font-size: 1.1em;
+      color: #333;
+    }
+    /* Multiple choice */
+    .options input[type="radio"] {
+      display: none;
+    }
+    .options label {
+      display: block;
+      padding: 10px 14px;
+      margin-bottom: 8px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: background-color 0.2s, border-color 0.2s;
+    }
+    .options label:hover {
+      background-color: #eef7ff;
+    }
+    .options input[type="radio"]:checked + label {
+      background-color: #d0ebff;
+      border-color: #339af0;
+    }
+    /* Short response */
+    .short-response textarea {
+      width: 100%;
+      min-height: 80px;
+      padding: 8px;
+      font-size: 1em;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      resize: vertical;
+    }
+    .accent-buttons {
+      margin-top: 8px;
+    }
+    .accent-buttons button {
+      margin-right: 4px;
+      padding: 6px 10px;
+      border: 1px solid #888;
+      border-radius: 4px;
+      background: #fff;
+      cursor: pointer;
+      font-size: 1em;
+    }
+    .accent-buttons button:hover {
+      background: #f0f0f0;
+    }
+    /* Download button */
+    #download-btn {
+      display: block;
+      width: 100%;
+      max-width: 220px;
+      margin: 30px auto 0;
+      padding: 12px;
+      background: #339af0;
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      font-size: 1em;
+      cursor: pointer;
+      text-align: center;
+    }
+    #download-btn:hover {
+      background: #227ac0;
+    }
+  </style>
+</head>
+<body>
+  <div id="main">
+    <!-- Left: PDF Viewer -->
+    <div id="pdf-container">
+      <object data="el jardin.pdf" type="application/pdf">
+        <p>We had an issue loading the pdf. 
+           
+        </p>
+      </object>
+    </div>
+
+    <!-- Right: Quiz Panel -->
+    <div id="quiz-container">
+      <h2>Preguntas de Comprensión</h2>
+      <form id="quiz-form">
+        <!-- Multiple Choice Questions -->
+        <div class="question" data-q="1">
+          <h3>¿En qué guerra se ambienta el libro?</h3>
+          <div class="options">
+            <input type="radio" id="q1a" name="q1" value="Paris">
+            <label for="q1a">a) La Guerra Civil Española</label>
+            <input type="radio" id="q1b" name="q1" value="Rome">
+            <label for="q1b">b) La Primera Guerra Mundial</label>
+            <input type="radio" id="q1c" name="q1" value="Madrid">
+            <label for="q1c">c) La Segunda Guerra Mundial</label>
+            <input type="radio" id="q1d" name="q1" value="Berlin">
+            <label for="q1d">d) La Revolución Mexicana</label>
+          </div>
+        </div>
+
+      
+
+        <!-- Short Response Questions -->
+        <div class="question short-response" data-q="3">
+          <h3>¿Quién es el narrador?</h3>
+          <textarea name="q3" placeholder="Escribe tu respuesta aquí..."></textarea>
+          <div class="accent-buttons">
+            <button type="button" data-char="¿">¿</button>
+            <button type="button" data-char="¡">¡</button>
+            <button type="button" data-char="á">á</button>
+            <button type="button" data-char="é">é</button>
+            <button type="button" data-char="í">í</button>
+            <button type="button" data-char="ó">ó</button>
+            <button type="button" data-char="ú">ú</button>
+            <button type="button" data-char="ü">ü</button>
+          </div>
+        </div>
+
+
+        <!-- Download Answers Button -->
+        <button type="button" id="download-btn">Download Answers</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- jsPDF -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script>
+    const { jsPDF } = window.jspdf;
+
+    // Insert accent/inverted punctuation into the focused textarea
+    document.querySelectorAll('.accent-buttons button').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const char = btn.getAttribute('data-char');
+        const textarea = btn.closest('.short-response').querySelector('textarea');
+        const start = textarea.selectionStart;
+        const end = textarea.selectionEnd;
+        const text = textarea.value;
+        textarea.value = text.slice(0, start) + char + text.slice(end);
+        textarea.selectionStart = textarea.selectionEnd = start + 1;
+        textarea.focus();
+      });
+    });
+
+    // Generate PDF of answers
+    document.getElementById('download-btn').addEventListener('click', () => {
+      const form = document.getElementById('quiz-form');
+      const doc = new jsPDF({ unit: 'pt' });
+      doc.setFontSize(14);
+      doc.text('Quiz Answers', 40, 40);
+
+      let y = 70;
+      form.querySelectorAll('.question').forEach(qDiv => {
+        const qNum = qDiv.getAttribute('data-q');
+        const questionText = qDiv.querySelector('h3').textContent;
+        let answerText = '';
+
+        // Multiple choice
+        const selected = form.querySelector(`input[name="q${qNum}"]:checked`);
+        if (selected) {
+          answerText = selected.value;
+        }
+        // Short response
+        else {
+          const ta = qDiv.querySelector('textarea');
+          answerText = ta && ta.value.trim() ? ta.value.trim() : '[No response]';
+        }
+
+        doc.setFontSize(12);
+        doc.text(`${qNum}. ${questionText}`, 40, y);
+        y += 20;
+        doc.text(`Answer: ${answerText}`, 60, y);
+        y += 30;
+
+        if (y > 720) {
+          doc.addPage();
+          y = 40;
+        }
+      });
+
+      doc.save('BookQuestions.pdf');
+    });
+  </script>
+</body>
+</html>

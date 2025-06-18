@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>Teacher - Capture Game (Squares)</title>
+    <!-- Firebase CDN (using compat libraries for plain JS) -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
+    <style>
+      /* Global styles */
+      body {
+        background-color: #2e2e2e;
+        color: #f1f1f1;
+        font-family: sans-serif;
+        margin: 0;
+        padding: 20px;
+        text-align: center;
+        position: relative;
+      }
+      .hidden {
+        display: none;
+      }
+      /* Always-visible Game Code in top left (simple background, no border) */
+      #topLeftCode {
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        background-color: rgba(0,0,0,0.5);
+        padding: 5px 10px;
+        border-radius: 5px;
+        font-size: 20px;
+        font-weight: bold;
+        z-index: 100;
+      }
+      /* Waiting Room & Create Game Sections */
+      #createGameSection, #waitingRoomSection {
+        margin-top: 50px;
+      }
+      /* Textarea style remains similar */
+      textarea {
+        width: 70%;
+        height: 150px;
+        margin-top: 10px;
+        border-radius: 5px;
+        border: none;
+        padding: 10px;
+      }
+      /* Grid container styling – the JS will update the grid-template properties dynamically */
+      #gridContainer {
+        display: grid;
+        gap: 1px;
+        margin: 20px auto;
+      }
+      /* Grid cell styling */
+      .grid-cell {
+        border: 1px solid #555;
+        background-color: #3a3a3a;
+        box-sizing: border-box;
+        position: relative;
+      }
+      /* Capital indicator: yellow diamond */
+      .capital-indicator {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%) rotate(45deg);
+        width: 50%;
+        height: 50%;
+        background-color: yellow;
+        pointer-events: none;
+      }
+      /* Game Over Popup styling */
+      #gameOverPopup {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background-color: #444;
+        border: 2px solid #666;
+        border-radius: 10px;
+        padding: 20px;
+        width: 300px;
+        box-shadow: 0px 0px 10px rgba(0,0,0,0.5);
+        z-index: 1000;
+      }
+      /* Button styling (same as student side) */
+      button {
+        background-color: #444;
+        color: #f1f1f1;
+        border: none;
+        padding: 10px 20px;
+        margin: 5px;
+        border-radius: 5px;
+        cursor: pointer;
+      }
+      button:hover {
+        background-color: #555;
+      }
+      input {
+        padding: 10px;
+        font-size: 16px;
+        border-radius: 5px;
+        border: none;
+        margin: 5px;
+      }
+      /* New grid header style */
+      #gridHeader {
+        font-size: 24px;
+        margin-bottom: 10px;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Always-visible Game Code in top left -->
+    <div id="topLeftCode" class="hidden"></div>
+
+    <!-- Create Game Section -->
+    <div id="createGameSection">
+      <h1>Teacher Panel</h1>
+      <button id="createGameBtn">Create Game</button>
+    </div>
+
+    <!-- Waiting Room Section -->
+    <div id="waitingRoomSection" class="hidden">
+      <h2>Game Code: <span id="gameCodeDisplay"></span></h2>
+      <p>Students Joined: <span id="studentCount">0</span></p>
+      <!-- New custom grid size input -->
+      <div>
+        <label for="gridSizeInput">Grid Size:</label>
+        <input type="number" id="gridSizeInput" value="15" min="5" max="50">
+      </div>
+      <div>
+        <br>
+        <button id="startGameBtn">Start Game</button>
+        <br><br>
+        <h3>Scroll down to input questions</h3>
+        <br>
+        <h3>Multiple Choice Questions</h3>
+        <p>
+          Paste your questions here (one per line, using the format:<br>
+          question|optionA|optionB|optionC|optionD|answer)
+        </p>
+        <textarea id="questionBox" placeholder="What is 2+2?|3|4|5|6|4"></textarea>
+      </div>
+    </div>
+
+    <!-- Game Grid Section -->
+    <div id="gameGridSection" class="hidden">
+      <!-- Accuracy header (updated in realtime) -->
+      <h2>Accuracy: 0%</h2>
+      <div id="gridContainer"></div>
+    </div>
+
+    <!-- Game Over Popup (initially hidden) -->
+    <div id="gameOverPopup" class="hidden">
+      <h2>Game Over</h2>
+      <p id="tileCounts"></p>
+      <p id="winnerText"></p>
+      <p id="roundTime"></p>
+      <button id="restartBtn">Restart Game</button>
+    </div>
+
+    <script>
+      // --- Firebase Configuration (replace with your project details) ---
+      const firebaseConfig = {
+        apiKey: "AIzaSyBP4-umlnVxOkvHiUCj6MDVa4Z3452BML0",
+        authDomain: "castles-64558.firebaseapp.com",
+        projectId: "castles-64558",
+        storageBucket: "castles-64558.appspot.com",
+        messagingSenderId: "450284390955",
+        appId: "1:450284390955:web:7e9e30ed7834635755f86e",
+        measurementId: "G-EFJJGH1GDK"
+      };
+      firebase.initializeApp(firebaseConfig);
+      const db = firebase.database();
+
+      let gameCode = "";
+      // gridRows and gridCols will be set based on teacher input (default 15)
+      let gridRows = 15, gridCols = 15;
+      let grid = {};
+      let startTime = 0;
+      let gameOver = false;
+
+      // Utility: Generate a random game code
+      function generateGameCode(length = 6) {
+        const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+        let code = "";
+        for (let i = 0; i < length; i++) {
+          code += chars.charAt(Math.floor(Math.random() * chars.length));
+        }
+        return code;
+      }
+
+      // Utility: Compute tile size based on window dimensions
+      function computeTileSize() {
+        const availableWidth = window.innerWidth * 0.9;
+        const availableHeight = window.innerHeight * 0.9;
+        return Math.min(availableWidth / gridCols, availableHeight / gridRows);
+      }
+
+      // Listen for players joining
+      function listenForPlayers() {
+        db.ref("games/" + gameCode + "/players").on("value", snapshot => {
+          const players = snapshot.val() || {};
+          document.getElementById("studentCount").innerText = Object.keys(players).length;
+        });
+      }
+
+      // Listen for grid updates
+      function listenForGridUpdates() {
+        db.ref("games/" + gameCode + "/grid").on("value", snapshot => {
+          const data = snapshot.val();
+          if (data) {
+            grid = data;
+            if (!document.getElementById("gameGridSection").classList.contains("hidden")) {
+              renderGrid();
+            }
+            if (!gameOver) {
+              checkGameOver();
+            }
+          }
+        });
+      }
+
+      // Listen for performance updates and update the accuracy header
+      function listenForPerformanceUpdates() {
+        db.ref("games/" + gameCode + "/questionPerformance").on("value", snapshot => {
+          const performanceData = snapshot.val() || {};
+          let totalCorrect = 0, totalCount = 0;
+          for (let key in performanceData) {
+            totalCorrect += performanceData[key].correctCount;
+            totalCount += performanceData[key].totalCount;
+          }
+          const percentage = totalCount > 0 ? Math.round((totalCorrect / totalCount) * 100) : 0;
+          document.querySelector("#gameGridSection h2").innerText = "Accuracy: " + percentage + "%";
+        });
+      }
+
+      // Create Game Button Handler
+      document.getElementById("createGameBtn").addEventListener("click", function () {
+        gameCode = generateGameCode();
+        // Initialize the game with waiting state
+        db.ref("games/" + gameCode).set({
+          state: "waiting",
+          players: {},
+          questions: {}
+        }).then(() => {
+          document.getElementById("createGameSection").classList.add("hidden");
+          document.getElementById("waitingRoomSection").classList.remove("hidden");
+          document.getElementById("gameCodeDisplay").innerText = gameCode;
+          const topLeft = document.getElementById("topLeftCode");
+          topLeft.innerText = "Game Code: " + gameCode;
+          topLeft.classList.remove("hidden");
+          listenForPlayers();
+          listenForGridUpdates();
+        });
+      });
+
+      // Start Game Button Handler
+      document.getElementById("startGameBtn").addEventListener("click", function () {
+        // Read custom grid size from teacher input
+        const gridSize = parseInt(document.getElementById("gridSizeInput").value) || 15;
+        gridRows = gridSize;
+        gridCols = gridSize;
+
+        const questionsText = document.getElementById("questionBox").value.trim();
+        let questionsArray = [];
+        if (questionsText) {
+          const lines = questionsText.split("\n");
+          lines.forEach(line => {
+            const parts = line.split("|").map(p => p.trim());
+            if (parts.length >= 6) {
+              questionsArray.push({
+                question: parts[0],
+                options: parts.slice(1, 5),
+                answer: parts[5]
+              });
+            }
+          });
+        }
+        // Build a new grid with every cell set to null and fort level 0
+        grid = {};
+        for (let r = 0; r < gridRows; r++) {
+          for (let c = 0; c < gridCols; c++) {
+            grid[r + "_" + c] = { team: null, fort: 0 };
+          }
+        }
+        // Choose capitals only from interior positions (rows 1 to gridRows-2, cols 1 to gridCols-2)
+        function randomInteriorIndex(max) {
+          return Math.floor(Math.random() * (max - 2)) + 1;
+        }
+        let row1 = randomInteriorIndex(gridRows);
+        let col1 = randomInteriorIndex(gridCols);
+        let row2, col2;
+        // Ensure the capitals are at least 20 blocks apart (Manhattan distance)
+        do {
+          row2 = randomInteriorIndex(gridRows);
+          col2 = randomInteriorIndex(gridCols);
+        } while (Math.abs(row1 - row2) + Math.abs(col1 - col2) < gridSize - 3);
+        const pos1 = row1 + "_" + col1;
+        const pos2 = row2 + "_" + col2;
+        grid[pos1] = { team: "red", capital: true, fort: 0 };
+        grid[pos2] = { team: "blue", capital: true, fort: 0 };
+
+        // Update Firebase with new grid, questions, gridSize, and change state to "started"
+        db.ref("games/" + gameCode).update({
+          state: "started",
+          grid: grid,
+          questions: questionsArray,
+          gridSize: gridSize
+        }).then(() => {
+          startTime = Date.now();
+          gameOver = false;
+          document.getElementById("waitingRoomSection").classList.add("hidden");
+          document.getElementById("gameGridSection").classList.remove("hidden");
+          renderGrid();
+          listenForPerformance();
+        });
+      });
+
+      // End Game Early Button Handler
+      document.getElementById("endGameBtn").addEventListener("click", endGameEarly);
+      function endGameEarly() {
+        // Compute tile counts.
+        let redCount = 0, blueCount = 0;
+        for (let k in grid) {
+          const t = grid[k].team;
+          if (t === "red") redCount++;
+          else if (t === "blue") blueCount++;
+        }
+        let winner;
+        if (redCount > blueCount) winner = "red";
+        else if (blueCount > redCount) winner = "blue";
+        else winner = "Tie";
+        const elapsedTime = Math.floor((Date.now() - startTime) / 1000);
+        db.ref("games/" + gameCode).update({ state: "over" });
+        displayGameOverPopup(winner, { red: redCount, blue: blueCount }, elapsedTime);
+      }
+
+      // Render the grid (with capital indicator)
+      function renderGrid() {
+        const container = document.getElementById("gridContainer");
+        container.innerHTML = "";
+        // Update grid-template properties dynamically
+        container.style.gridTemplateColumns = "repeat(" + gridCols + ", 1fr)";
+        container.style.gridTemplateRows = "repeat(" + gridRows + ", 1fr)";
+        const tileSize = computeTileSize();
+        container.style.width = (tileSize * gridCols) + "px";
+        container.style.height = (tileSize * gridRows) + "px";
+        for (let r = 0; r < gridRows; r++) {
+          for (let c = 0; c < gridCols; c++) {
+            const key = r + "_" + c;
+            const cell = grid[key] || { team: null, fort: 0 };
+            const cellDiv = document.createElement("div");
+            cellDiv.className = "grid-cell";
+            cellDiv.style.width = tileSize + "px";
+            cellDiv.style.height = tileSize + "px";
+            if (cell.team === "red") {
+              cellDiv.style.backgroundColor = "#ff6b6b";
+            } else if (cell.team === "blue") {
+              cellDiv.style.backgroundColor = "#4dabf7";
+            }
+            // If the cell is a capital, overlay a yellow diamond indicator
+            if (cell.capital) {
+              const indicator = document.createElement("div");
+              indicator.className = "capital-indicator";
+              cellDiv.appendChild(indicator);
+            }
+            // Display fortification level if > 0
+            if (cell.fort && cell.fort > 0) {
+              const fortDiv = document.createElement("div");
+              fortDiv.style.position = "absolute";
+              fortDiv.style.bottom = "2px";
+              fortDiv.style.right = "2px";
+              fortDiv.style.backgroundColor = "rgba(0, 0, 0, 0.5)";
+              fortDiv.style.color = "#fff";
+              fortDiv.style.padding = "2px";
+              fortDiv.style.borderRadius = "3px";
+              fortDiv.style.fontSize = "10px";
+              fortDiv.innerText = cell.fort;
+              cellDiv.appendChild(fortDiv);
+            }
+            container.appendChild(cellDiv);
+          }
+        }
+      }
+
+      // End Game Check: for each capital, if all 8 adjacent cells are occupied by the enemy, game over.
+      function checkGameOver() {
+        const directions = [
+          [-1, -1], [-1, 0], [-1, 1],
+          [0, -1],           [0, 1],
+          [1, -1],  [1, 0],  [1, 1]
+        ];
+        for (let key in grid) {
+          const cell = grid[key];
+          if (cell.capital) {
+            const [r, c] = key.split("_").map(Number);
+            const capitalTeam = cell.team;
+            const enemyTeam = (capitalTeam === "red") ? "blue" : "red";
+            let surrounded = true;
+            for (let [dr, dc] of directions) {
+              const nr = r + dr, nc = c + dc;
+              if (nr >= 0 && nr < gridRows && nc >= 0 && nc < gridCols) {
+                const neighbor = grid[nr + "_" + nc];
+                if (!neighbor || neighbor.team !== enemyTeam) {
+                  surrounded = false;
+                  break;
+                }
+              }
+            }
+            if (surrounded) {
+              gameOver = true;
+              let redCount = 0, blueCount = 0;
+              for (let k in grid) {
+                const t = grid[k].team;
+                if (t === "red") redCount++;
+                else if (t === "blue") blueCount++;
+              }
+              const elapsedTime = Math.floor((Date.now() - startTime) / 1000);
+              displayGameOverPopup(enemyTeam, { red: redCount, blue: blueCount }, elapsedTime);
+              db.ref("games/" + gameCode).update({ state: "over" });
+              break;
+            }
+          }
+        }
+      }
+
+      // Display the Game Over popup (with Restart button)
+      function displayGameOverPopup(winner, tileCounts, roundTime) {
+        document.getElementById("tileCounts").innerText =
+          "Red Tiles: " + tileCounts.red + " | Blue Tiles: " + tileCounts.blue;
+        let winText = winner === "Tie" ? "Tie" : (winner === "red" ? "Red" : "Blue");
+        document.getElementById("winnerText").innerText =
+          "Winner: " + winText;
+        document.getElementById("roundTime").innerText =
+          "Round Time: " + roundTime + " seconds";
+        document.getElementById("gameOverPopup").classList.remove("hidden");
+      }
+
+      // Restart Game: clear all non-capital cells (set team to null and reset fort level), update Firebase, and restart timer.
+      document.getElementById("restartBtn").addEventListener("click", restartGame);
+      function restartGame() {
+        for (let key in grid) {
+          if (!grid[key].capital) {
+            grid[key].team = null;
+            grid[key].fort = 0;
+          }
+        }
+        startTime = Date.now();
+        db.ref("games/" + gameCode + "/grid").set(grid);
+        document.getElementById("gameOverPopup").classList.add("hidden");
+      }
+
+      window.addEventListener("resize", function () {
+        if (!document.getElementById("gameGridSection").classList.contains("hidden")) {
+          renderGrid();
+        }
+      });
+
+      window.addEventListener("beforeunload", function () {
+        if (gameCode) {
+          db.ref("games/" + gameCode).remove();
+        }
+      });
+    </script>
+  </body>
+</html>

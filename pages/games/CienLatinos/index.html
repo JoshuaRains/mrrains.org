@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Family Feud Teacher Control</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f2f2f2;
+      padding: 20px;
+    }
+    /* Group container for buttons */
+    .button-group {
+      margin-bottom: 10px;
+      display: flex;
+      gap: 5px;
+      flex-wrap: wrap;
+      padding: 5px;
+      border-radius: 5px;
+    }
+    /* Individual button styling */
+    .button-group button {
+      font-size: 14px;
+      padding: 5px 10px;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    /* Color coding groups */
+    .group1 { background-color: #cce5ff; }   /* Start/Navigation */
+    .group2 { background-color: #d4edda; }   /* Overlay Images */
+    .group3 { background-color: #fff3cd; }   /* Screen Switch */
+    .group4 { background-color: #f8d7da; }   /* Reset & Sound */
+    
+    .question-container {
+      margin-bottom: 20px;
+      display: none; /* hidden until game starts */
+    }
+    .answers-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 5px;
+      max-height: 300px; /* reduced height so answers area is smaller */
+      overflow-y: auto;
+    }
+    .answer-button {
+      padding: 10px;
+      background: #fff;
+      border: 2px solid #333;
+      border-radius: 10px;
+      text-align: center;
+      cursor: pointer;
+      font-size: 14px;
+      transition: background-color 0.3s ease, transform 0.3s ease;
+    }
+    .answer-button:hover {
+      transform: scale(1.05);
+    }
+    .answer-button.revealed {
+      background: #a6e22e;
+    }
+    .answer-button.animate {
+      animation: clickAnimation 0.5s ease;
+    }
+    @keyframes clickAnimation {
+      from { transform: scale(0.9); }
+      to { transform: scale(1); }
+    }
+    /* Score input section styling */
+    .score-section {
+      margin: 20px auto;
+      padding: 10px;
+      border: 2px solid #333;
+      border-radius: 10px;
+      background: #fff;
+      max-width: 500px;
+      text-align: center;
+    }
+    .score-section label {
+      display: block;
+      margin-top: 5px;
+    }
+    .score-section input {
+      width: 90%;
+      padding: 5px;
+      margin-top: 5px;
+      font-size: 14px;
+      box-sizing: border-box;
+      display: block;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .score-buttons {
+      margin-top: 10px;
+      display: flex;
+      gap: 5px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+  </style>
+</head>
+<body>
+  <h1>Cien Latinos Dijeron  Teacher Controls</h1>
+  
+  <!-- Group 1: Navigation Buttons -->
+  <div class="button-group group1">
+    <button onclick="startGame()">Start Game</button>
+    <button onclick="prevQuestion()">Previous Question</button>
+    <button onclick="nextQuestion()">Next Question</button>
+    <button onclick="resetQuestion()">Reset Question</button>
+    <button onclick="makeStudentFullScreen()">Full Screen Student</button>
+  </div>
+  
+  <!-- Group 2: Overlay Images -->
+  <div class="button-group group2">
+    <button onclick="showOverlayImages(1)">x</button>
+    <button onclick="showOverlayImages(2)">xx</button>
+    <button onclick="showOverlayImages(3)">xxx</button>
+  </div>
+  
+  <!-- Group 3: Screen Switching -->
+  <div class="button-group group3">
+    <button onclick="switchScreen('game')">Game Screen</button>
+    <button onclick="switchScreen('buzz')">Buzz Screen</button>
+    <button onclick="switchScreen('placeholder')">Placeholder Screen</button>
+  </div>
+  
+  <!-- Group 4: Reset & Sound -->
+  <div class="button-group group4">
+    <button onclick="resetBuzzersTeacher()">Reset Buzzers</button>
+    <button onclick="resetGame()">Reset Game</button>
+    <button onclick="toggleSoundEffect()">♫</button>
+  </div>
+  
+  <!-- Game container -->
+  <div class="question-container" id="gameContainer">
+    <h2 id="questionText"></h2>
+    <div class="answers-grid" id="answersGrid"></div>
+  </div>
+  
+  <!-- Score input section -->
+  <div class="score-section">
+    <h3>Team Scores</h3>
+    <div>
+      <label for="teamAName">Team A Name:</label>
+      <input type="text" id="teamAName" placeholder="Team A" />
+      <label for="teamAScore">Team A Points:</label>
+      <input type="number" id="teamAScore" placeholder="0" />
+    </div>
+    <div style="margin-top: 10px;">
+      <label for="teamBName">Team B Name:</label>
+      <input type="text" id="teamBName" placeholder="Team B" />
+      <label for="teamBScore">Team B Points:</label>
+      <input type="number" id="teamBScore" placeholder="0" />
+    </div>
+    <div class="score-buttons">
+      <button onclick="awardPointsTo('A')">Award to Team A</button>
+      <button onclick="awardPointsTo('B')">Award to Team B</button>
+      <button onclick="updateScores()">Update Scores</button>
+    </div>
+  </div>
+  
+  <!-- Pre-populated questions text area -->
+  <textarea id="questionsInput" style="width: 100%; height: 250px; margin-top: 20px; padding: 10px; font-size: 14px; box-sizing: border-box; border: 1px solid #ccc; border-radius: 5px;">
+Name something you might eat for breakfast.
+Eggs / 30
+Pancakes / 20
+Cereal / 15
+Toast / 10
+Bacon / 10
+Fruit / 5
+
+Name a popular vacation destination.
+Beach / 25
+Mountains / 20
+City / 20
+Resort / 15
+Theme Park / 10
+Cruise / 5
+Countryside / 3
+Skiing / 2
+  </textarea>
+  
+  <script>
+    let boardWindow;
+    let questions = []; // Array to store parsed questions
+    let currentQuestionIndex = 0;
+    let teacherBuzzed = false;  // tracks if a team has buzzed in (teacher side)
+    let soundLooping = false;   // tracks if sound is currently looping
+    // Create an Audio object for the sound effect.
+    const soundEffect = new Audio("../assets/CienLatinosTheme.mp3");
+    soundEffect.loop = false; // initially not looping
+
+    window.onload = function() {
+      boardWindow = window.open("board.html", "boardWindow", "width=800,height=600");
+    };
+
+    function startGame() {
+      const text = document.getElementById("questionsInput").value;
+      questions = parseQuestions(text);
+      if (questions.length === 0) {
+        alert("No valid questions were found. Please check your format.");
+        return;
+      }
+      currentQuestionIndex = 0;
+      document.getElementById("gameContainer").style.display = "block";
+      loadQuestion();
+    }
+
+    function parseQuestions(text) {
+      let qArray = [];
+      const blocks = text.split(/\n\s*\n/).map(block => block.trim()).filter(block => block !== "");
+      blocks.forEach((block, blockIndex) => {
+        const lines = block.split("\n").map(line => line.trim()).filter(line => line !== "");
+        if (lines.length < 2) {
+          alert("Error in question block " + (blockIndex + 1) + ": Must have a question and at least one answer.");
+          return;
+        }
+        const questionText = lines[0];
+        let answers = [];
+        for (let i = 1; i < lines.length && i <= 8; i++) {
+          const parts = lines[i].split("/");
+          if (parts.length < 2) {
+            alert("Error in question block " + (blockIndex + 1) + ": Answer line " + i + " is not in 'Answer / point' format.");
+            return;
+          }
+          const answerText = parts[0].trim();
+          const points = parseInt(parts[1].trim(), 10);
+          if (isNaN(points)) {
+            alert("Error in question block " + (blockIndex + 1) + ": Invalid point value for answer '" + answerText + "'.");
+            return;
+          }
+          answers.push({ text: answerText, points: points, revealed: false });
+        }
+        qArray.push({ question: questionText, answers: answers });
+      });
+      return qArray;
+    }
+
+    function loadQuestion() {
+      const questionData = questions[currentQuestionIndex];
+      const sortedAnswers = questionData.answers.slice().sort((a, b) => b.points - a.points);
+      const n = sortedAnswers.length;
+      const rows = Math.ceil(n / 2);
+      const leftColumn = sortedAnswers.slice(0, rows);
+      const rightColumn = sortedAnswers.slice(rows);
+      let displayAnswers = [];
+      for (let i = 0; i < rows; i++) {
+        if (leftColumn[i]) { displayAnswers.push(leftColumn[i]); }
+        if (rightColumn[i]) { displayAnswers.push(rightColumn[i]); }
+      }
+      questionData.displayAnswers = displayAnswers;
+      document.getElementById("questionText").textContent = questionData.question;
+      const grid = document.getElementById("answersGrid");
+      grid.innerHTML = "";
+      displayAnswers.forEach((ans, index) => {
+        const btn = document.createElement("div");
+        btn.className = "answer-button";
+        btn.id = "answerBtn" + index;
+        btn.innerHTML = `<strong>${ans.text}</strong><br>${ans.points}`;
+        if (ans.revealed) {
+          btn.classList.add("revealed");
+        }
+        btn.onclick = function() {
+          if (!ans.revealed) { revealAnswer(index); }
+        };
+        grid.appendChild(btn);
+      });
+      sendUpdateToBoard();
+    }
+
+    function revealAnswer(index) {
+      const questionData = questions[currentQuestionIndex];
+      questionData.displayAnswers[index].revealed = true;
+      const btn = document.getElementById("answerBtn" + index);
+      btn.classList.add("animate");
+      setTimeout(() => { btn.classList.remove("animate"); }, 500);
+      btn.classList.add("revealed");
+      boardWindow.postMessage({
+        type: "reveal",
+        questionIndex: currentQuestionIndex,
+        revealedIndex: index,
+        questionData: questionData
+      }, "*");
+    }
+
+    function resetQuestion() {
+      const questionData = questions[currentQuestionIndex];
+      questionData.answers.forEach(ans => ans.revealed = false);
+      loadQuestion();
+    }
+
+    function nextQuestion() {
+      if (currentQuestionIndex < questions.length - 1) {
+        currentQuestionIndex++;
+        loadQuestion();
+      } else {
+        alert("This is the last question.");
+      }
+    }
+
+    function prevQuestion() {
+      if (currentQuestionIndex > 0) {
+        currentQuestionIndex--;
+        loadQuestion();
+      } else {
+        alert("This is the first question.");
+      }
+    }
+
+    function sendUpdateToBoard() {
+      const questionData = questions[currentQuestionIndex];
+      boardWindow.postMessage({
+        type: "update",
+        questionIndex: currentQuestionIndex,
+        questionData: questionData
+      }, "*");
+    }
+
+    function makeStudentFullScreen() {
+      boardWindow.postMessage({ type: "fullscreen" }, "*");
+    }
+
+    function updateScores() {
+      const teamAName = document.getElementById("teamAName").value || "Team A";
+      const teamAScore = document.getElementById("teamAScore").value || "0";
+      const teamBName = document.getElementById("teamBName").value || "Team B";
+      const teamBScore = document.getElementById("teamBScore").value || "0";
+      boardWindow.postMessage({
+        type: "score",
+        teamA: { name: teamAName, score: teamAScore },
+        teamB: { name: teamBName, score: teamBScore }
+      }, "*");
+    }
+
+    function computeAutoScore() {
+      const questionData = questions[currentQuestionIndex];
+      let total = 0;
+      if (questionData.displayAnswers) {
+        questionData.displayAnswers.forEach(ans => {
+          if (ans.revealed) { total += ans.points; }
+        });
+      }
+      return total;
+    }
+
+    function awardPointsTo(team) {
+      const autoScore = computeAutoScore();
+      if (autoScore === 0) {
+        alert("No points to award (no answers revealed).");
+        return;
+      }
+      if (team === 'A') {
+        const current = parseInt(document.getElementById("teamAScore").value || "0", 10);
+        document.getElementById("teamAScore").value = current + autoScore;
+      } else if (team === 'B') {
+        const current = parseInt(document.getElementById("teamBScore").value || "0", 10);
+        document.getElementById("teamBScore").value = current + autoScore;
+      }
+      updateScores();
+    }
+
+    function showOverlayImages(count) {
+      boardWindow.postMessage({
+        type: "displayImages",
+        count: count
+      }, "*");
+    }
+    
+    function switchScreen(screen) {
+      boardWindow.postMessage({
+        type: "switchScreen",
+        screen: screen
+      }, "*");
+    }
+    
+    function resetGame() {
+      resetQuestion();
+      document.getElementById("teamAScore").value = 0;
+      document.getElementById("teamBScore").value = 0;
+      updateScores();
+      resetBuzzersTeacher();
+      boardWindow.postMessage({ type: "resetBuzz" }, "*");
+    }
+    
+    // Buzzing: teacher side now handles keypresses.
+    document.addEventListener("keydown", function(event) {
+	if (teacherBuzzed) return;
+
+	if (event.key.toLowerCase() === "a") {
+		boardWindow.postMessage({ type: "buzz", team: "A" }, "*");
+		teacherBuzzed = true;
+	} else if (event.key === "6" || event.code === "Numpad6") {
+		boardWindow.postMessage({ type: "buzz", team: "B" }, "*");
+		teacherBuzzed = true;
+	}
+});
+
+    
+    function resetBuzzersTeacher() {
+      teacherBuzzed = false;
+      boardWindow.postMessage({ type: "resetBuzz" }, "*");
+    }
+    
+    // NEW: Toggle Sound Effect button functionality.
+    function toggleSoundEffect() {
+      soundEffect.play();
+
+    }
+  </script>
+</body>
+</html>

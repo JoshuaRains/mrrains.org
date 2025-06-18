@@ -1,0 +1,996 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>Battleship Review Game</title>
+    <!-- Firebase CDN (using compat libraries for plain JS) -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
+    <style>
+      /* Ensure full viewport height and no extra scrolling */
+      html, body {
+        height: 100vh;
+        margin: 0;
+        padding: 0;
+        overflow: hidden;
+      }
+      body {
+        background-color: #2e2e2e;
+        color: #f1f1f1;
+        font-family: sans-serif;
+      }
+      .hidden { display: none !important; }
+      button {
+        background-color: #444;
+        color: #f1f1f1;
+        border: none;
+        padding: 10px 20px;
+        margin: 5px;
+        border-radius: 5px;
+        cursor: pointer;
+      }
+      /* When enabled, Start Game, Ready, Rotate, and Reset buttons turn green */
+      #startGameBtn:enabled,
+      #readyBtn:enabled,
+      #rotateBtn:enabled,
+      #resetBtn:enabled {
+        background-color: #4CAF50;
+      }
+      input {
+        padding: 10px;
+        font-size: 16px;
+        border-radius: 5px;
+        border: none;
+        margin: 5px;
+      }
+      /* -------------------- Non-Game Screens -------------------- */
+      #homeScreen, #createGameScreen, #joinGameScreen, #waitingScreen {
+        text-align: center;
+        padding: 20px;
+      }
+      /* -------------------- Game View Layout -------------------- */
+      #gameView {
+        display: flex;
+        flex-direction: column;
+        height: 100vh;
+      }
+      /* Grid Section: 70% of height */
+      #gridSection {
+        flex: 0 0 70%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background-color: #444;
+        position: relative;
+      }
+      /* Grid wrapper reserves space for axis labels */
+      #gridWrapper {
+        position: relative;
+        margin-left: 80px;  /* reserve space for vertical labels */
+        margin-bottom: 50px; /* reserve space for horizontal labels */
+        display: inline-block;
+      }
+      /* Grid container using CSS Grid; size computed in JS */
+      #gridContainer {
+        position: relative;
+        display: grid;
+        border: 2px solid #555;
+      }
+      .grid-cell {
+        border: 1px solid #555;
+        box-sizing: border-box;
+        background-color: #3a3a3a;
+      }
+      /* Conflict marker: red overlay */
+      .conflict-marker {
+        position: absolute;
+        background-color: red;
+        opacity: 0.5;
+      }
+      /* Placed ship styling on grid */
+      .placed-ship {
+        position: absolute;
+        background-color: rgba(0, 255, 0, 0.5);
+        border: 2px solid #0f0;
+        cursor: grab;
+      }
+      /* Dragging clone style for clear visual feedback */
+      .dragging {
+        opacity: 0.8;
+        border: 2px dashed #fff;
+        background-color: rgba(255,255,255,0.3);
+        pointer-events: none;
+      }
+      /* Dots for attack results */
+      .conjugation-dot {
+        position: absolute;
+        border-radius: 50%;
+      }
+      /* Ship Placement Section: 30% of height */
+      #shipPlacementSection {
+        flex: 0 0 30%;
+        background-color: #222;
+        padding: 10px;
+        box-sizing: border-box;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+      }
+      /* Instruction text */
+      #instruction {
+        margin-bottom: 10px;
+        font-size: 1.2em;
+      }
+      #shipList {
+        display: flex;
+        justify-content: center;
+        gap: 20px;
+        margin-bottom: 10px;
+      }
+      .ship {
+        display: inline-block;
+        background-color: #888;
+        border: 2px solid #666;
+        cursor: grab;
+        user-select: none;
+      }
+      /* Accent Buttons */
+      #accentButtons {
+        margin-top: 10px;
+      }
+      .accentBtn {
+        margin: 0 3px;
+        padding: 5px 10px;
+        font-size: 16px;
+        border-radius: 5px;
+        border: none;
+        cursor: pointer;
+      }
+      /* Axis Labels */
+      #verticalLabels {
+        position: absolute;
+        left: -80px;
+        top: 0;
+        width: 80px;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        align-items: flex-end;
+        font-size: 12px;
+        padding-right: 5px;
+      }
+      #horizontalLabels {
+        position: absolute;
+        left: 0;
+        bottom: -50px;
+        width: 100%;
+        height: 50px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+      #horizontalLabels div {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 12px;
+        transform: rotate(-90deg);
+        transform-origin: center;
+      }
+      /* Game Over Screen */
+      #gameOverScreen {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0,0,0,0.8);
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        font-size: 2em;
+        color: #fff;
+        z-index: 2000;
+      }
+
+      #fixedSquare {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 50px;
+        height: 100px;
+        background: linear-gradient(to right, #FFA500, rgba(255,87,51,0));
+        z-index: 9999;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Non-game screens -->
+    <div id="fixedSquare"></div>
+
+    <div id="homeScreen">
+      <button id="createGameBtn">Create Game</button>
+      <button id="joinGameBtn">Join Game</button>
+    </div>
+    <div id="createGameScreen" class="hidden">
+      <h2>Game Created</h2>
+      <p>Your Game Code: <span id="gameCodeDisplay"></span></p>
+      <p>Waiting for another player to join...</p>
+      <button id="startGameBtn" disabled>Start Game</button>
+    </div>
+    <div id="joinGameScreen" class="hidden">
+      <h2>Join Game</h2>
+      <input type="text" id="joinGameCodeInput" placeholder="Enter game code">
+      <button id="confirmJoinBtn">Join</button>
+      <p id="joinError" style="color: red;"></p>
+    </div>
+    <div id="waitingScreen" class="hidden">
+      <h2>Waiting for the game to start...</h2>
+    </div>
+    <!-- Game View: Contains Grid and Ship Placement -->
+    <div id="gameView" class="hidden">
+      <!-- Grid Section (70%) -->
+      <div id="gridSection">
+        <div id="gridWrapper">
+          <div id="gridContainer"></div>
+          <div id="verticalLabels"></div>
+          <div id="horizontalLabels"></div>
+        </div>
+      </div>
+      <!-- Ship Placement Section (30%) -->
+      <div id="shipPlacementSection">
+        <div id="instruction">Place your ships</div>
+        <div id="shipList"></div>
+        <div>
+          <button id="rotateBtn" disabled>Rotate Ship</button>
+          <button id="resetBtn">Reset Ships</button>
+          <button id="readyBtn" disabled>Ready</button>
+        </div>
+      </div>
+    </div>
+    <!-- Game Over Screen (hidden by default) -->
+    <div id="gameOverScreen" class="hidden"></div>
+
+    <script>
+      // --- Firebase Configuration ---
+      const firebaseConfig = {
+        apiKey: "AIzaSyBP4-umlnVxOkvHiUCj6MDVa4Z3452BML0",
+        authDomain: "castles-64558.firebaseapp.com",
+        projectId: "castles-64558",
+        storageBucket: "castles-64558.appspot.com",
+        messagingSenderId: "450284390955",
+        appId: "1:450284390955:web:7e9e30ed7834635755f86e",
+        measurementId: "G-EFJJGH1GDK"
+      };
+      firebase.initializeApp(firebaseConfig);
+      const db = firebase.database();
+
+      // ------------- Global Variables -------------
+      let gameCode = "";
+      let playerKey = "";
+      let isCreator = false;
+      let currentTurn = null; // whose turn it is
+      let myHits = 0;
+      let totalEnemyTiles = 0;
+      // Global object to store attack dots.
+      let attackDots = {}; // key: "row_col" => isHit (true/false)
+
+      // Conjugation game arrays.
+      const spanishVerbs = ["hablar", "comer", "vivir", "estudiar","escribir", "correr", "saltar", "nadar", "soñar", "trabajar", "bailar", "cantar", "pensar"];
+      const pronouns = ["yo", "tú", "él/ella/Ud.", "nosotros", "vosotros", "ellos/Uds."];
+      let gridRows = spanishVerbs.length;
+      let gridCols = pronouns.length;
+      let tileSize = 30; // computed dynamically
+
+      // Full mapping for conjugations.
+      const conjugationsData = {
+        "hablar":    ["hablé", "hablaste", "habló", "hablamos", "hablasteis", "hablaron"],
+        "comer":     ["comí", "comiste", "comió", "comimos", "comisteis", "comieron"],
+        "vivir":     ["viví", "viviste", "vivió", "vivimos", "vivisteis", "vivieron"],
+        "estudiar":  ["estudié", "estudiaste", "estudió", "estudiamos", "estudiasteis", "estudiaron"],
+        "escribir":  ["escribí", "escribiste", "escribió", "escribimos", "escribisteis", "escribieron"],
+        "correr":    ["corrí", "corriste", "corrió", "corrimos", "corristeis", "corrieron"],
+        "saltar":    ["salté", "saltaste", "saltó", "saltamos", "saltasteis", "saltaron"],
+        "nadar":     ["nadé", "nadaste", "nadó", "nadamos", "nadasteis", "nadaron"],
+        "soñar":     ["soñé", "soñaste", "soñó", "soñamos", "soñasteis", "soñaron"],
+        "trabajar":  ["trabajé", "trabajaste", "trabajó", "trabajamos", "trabajasteis", "trabajaron"],
+        "bailar":    ["bailé", "bailaste", "bailó", "bailamos", "bailasteis", "bailaron"],
+        "cantar":    ["canté", "cantaste", "cantó", "cantamos", "cantasteis", "cantaron"],
+        "pensar":    ["pensé", "pensaste", "pensó", "pensamos", "pensasteis", "pensaron"]
+      };
+
+
+      // Expected conjugations lookup.
+      let expectedConjugations = {}; // key: "row_col" => expected answer
+      let markedCells = {}; // tracks attacked cells
+
+      let ships = [
+        { id: "ship2", length: 2, placed: false, position: null, orientation: "horizontal" },
+        { id: "ship3", length: 3, placed: false, position: null, orientation: "horizontal" },
+        { id: "ship4", length: 4, placed: false, position: null, orientation: "horizontal" }
+      ];
+
+      let lastSelectedShip = null;
+      let draggingShip = null; // for drag/drop
+
+      // ------------- DOM Elements -------------
+      const homeScreen = document.getElementById("homeScreen");
+      const createGameScreen = document.getElementById("createGameScreen");
+      const joinGameScreen = document.getElementById("joinGameScreen");
+      const waitingScreen = document.getElementById("waitingScreen");
+      const gameView = document.getElementById("gameView");
+      const shipPlacementSection = document.getElementById("shipPlacementSection");
+      shipPlacementSection.style.display = "none";
+      const createGameBtn = document.getElementById("createGameBtn");
+      const joinGameBtn = document.getElementById("joinGameBtn");
+      const startGameBtn = document.getElementById("startGameBtn");
+      const gameCodeDisplay = document.getElementById("gameCodeDisplay");
+      const joinGameCodeInput = document.getElementById("joinGameCodeInput");
+      const confirmJoinBtn = document.getElementById("confirmJoinBtn");
+      const joinError = document.getElementById("joinError");
+      const gridContainer = document.getElementById("gridContainer");
+      const shipList = document.getElementById("shipList");
+      const readyBtn = document.getElementById("readyBtn");
+      const rotateBtn = document.getElementById("rotateBtn");
+      const resetBtn = document.getElementById("resetBtn");
+      const gameOverScreen = document.getElementById("gameOverScreen");
+
+      // ------------- Home / Create / Join Handlers -------------
+      createGameBtn.addEventListener("click", () => {
+        isCreator = true;
+        gameCode = generateGameCode();
+        db.ref("games/" + gameCode).set({
+          state: "waiting",
+          players: {}
+        }).then(() => {
+          const playerRef = db.ref("games/" + gameCode + "/players").push();
+          playerKey = playerRef.key;
+          playerRef.set({ creator: true, joinedAt: firebase.database.ServerValue.TIMESTAMP });
+          homeScreen.classList.add("hidden");
+          createGameScreen.classList.remove("hidden");
+          gameCodeDisplay.innerText = gameCode;
+          listenForPlayers();
+        });
+      });
+
+      joinGameBtn.addEventListener("click", () => {
+        homeScreen.classList.add("hidden");
+        joinGameScreen.classList.remove("hidden");
+      });
+
+      confirmJoinBtn.addEventListener("click", () => {
+        const code = joinGameCodeInput.value.trim();
+        if (!code) return;
+        db.ref("games/" + code).once("value").then(snapshot => {
+          if (snapshot.exists()) {
+            gameCode = code;
+            const playerRef = db.ref("games/" + gameCode + "/players").push();
+            playerKey = playerRef.key;
+            playerRef.set({ creator: false, joinedAt: firebase.database.ServerValue.TIMESTAMP });
+            joinGameScreen.classList.add("hidden");
+            waitingScreen.classList.remove("hidden");
+            listenForGameState();
+          } else {
+            joinError.innerText = "Game code not found. Please try again.";
+          }
+        });
+      });
+
+      function listenForPlayers() {
+        db.ref("games/" + gameCode + "/players").on("value", snapshot => {
+          const players = snapshot.val() || {};
+          const count = Object.keys(players).length;
+          startGameBtn.disabled = !(isCreator && count >= 2);
+        });
+      }
+
+      startGameBtn.addEventListener("click", () => {
+        if (startGameBtn.disabled) return;
+        // Host goes first.
+        db.ref("games/" + gameCode).update({ state: "started", gridSize: gridRows, turn: playerKey });
+        createGameScreen.classList.add("hidden");
+        waitingScreen.classList.remove("hidden");
+        listenForGameState();
+      });
+
+      function listenForGameState() {
+        db.ref("games/" + gameCode + "/state").on("value", snapshot => {
+          const state = snapshot.val();
+          if (state === "started") {
+            shipPlacementSection.style.display = "flex";
+            initGameView();
+            db.ref("games/" + gameCode + "/turn").on("value", snapTurn => {
+              currentTurn = snapTurn.val();
+              updateConjugationInputState();
+            });
+            db.ref("games/" + gameCode + "/gameOver").on("value", snapOver => {
+              if (snapOver.exists() && snapOver.val() === true) {
+                db.ref("games/" + gameCode + "/winner").once("value").then(wSnap => {
+                  const winner = wSnap.val();
+                  endGame(winner === playerKey);
+                });
+              }
+            });
+          }
+        });
+      }
+
+      window.addEventListener("beforeunload", () => {
+        if (gameCode) {
+          if (playerKey) {
+            db.ref("games/" + gameCode + "/players/" + playerKey).remove();
+          }
+          if (isCreator) {
+            db.ref("games/" + gameCode).remove();
+          }
+        }
+      });
+
+      function generateGameCode(length = 6) {
+        const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+        let code = "";
+        for (let i = 0; i < length; i++) {
+          code += chars.charAt(Math.floor(Math.random() * chars.length));
+        }
+        return code;
+      }
+
+      // Build expected conjugations lookup.
+      function buildExpectedConjugations() {
+        expectedConjugations = {};
+        markedCells = {};
+        for (let r = 0; r < gridRows; r++) {
+          let verb = spanishVerbs[r];
+          if (conjugationsData[verb]) {
+            for (let c = 0; c < gridCols; c++) {
+              expectedConjugations[`${r}_${c}`] = conjugationsData[verb][c];
+            }
+          }
+        }
+      }
+
+      function initGameView() {
+        waitingScreen.classList.add("hidden");
+        gameView.classList.remove("hidden");
+        computeTileSize();
+        renderGrid();
+        renderShipList();
+        renderVerticalLabels();
+        renderHorizontalLabels();
+        buildExpectedConjugations();
+      }
+
+      function computeTileSize() {
+        const gridSection = document.getElementById("gridSection");
+        const availableWidth = gridSection.clientWidth - 80;
+        const availableHeight = gridSection.clientHeight - 50;
+        tileSize = Math.floor(Math.min(availableWidth / gridCols, availableHeight / gridRows));
+        gridContainer.style.width = (tileSize * gridCols) + "px";
+        gridContainer.style.height = (tileSize * gridRows) + "px";
+        gridContainer.style.gridTemplateColumns = "repeat(" + gridCols + ", 1fr)";
+        gridContainer.style.gridTemplateRows = "repeat(" + gridRows + ", 1fr)";
+      }
+
+      function renderGrid() {
+        gridContainer.innerHTML = "";
+        for (let r = 0; r < gridRows; r++) {
+          for (let c = 0; c < gridCols; c++) {
+            const cell = document.createElement("div");
+            cell.className = "grid-cell";
+            cell.dataset.row = r;
+            cell.dataset.col = c;
+            gridContainer.appendChild(cell);
+          }
+        }
+        ships.filter(s => s.placed && s.position).forEach(renderPlacedShip);
+        checkConflicts();
+        // Re-render attack dots.
+        renderAttackDots();
+      }
+
+      function renderShipList() {
+        shipList.innerHTML = "";
+        ships.filter(s => !s.placed).forEach(ship => {
+          const shipElem = document.createElement("div");
+          shipElem.className = "ship";
+          shipElem.style.backgroundColor = "#888";
+          if (ship.orientation === "horizontal") {
+            shipElem.style.width = (tileSize * ship.length - 4) + "px";
+            shipElem.style.height = (tileSize - 4) + "px";
+          } else {
+            shipElem.style.width = (tileSize - 4) + "px";
+            shipElem.style.height = (tileSize * ship.length - 4) + "px";
+          }
+          shipElem.dataset.shipId = ship.id;
+          shipElem.addEventListener("mousedown", startDrag);
+          shipList.appendChild(shipElem);
+        });
+      }
+
+      function renderPlacedShip(ship) {
+        const existing = document.querySelector(`[data-placed-ship="${ship.id}"]`);
+        if (existing) existing.remove();
+        const placedElem = document.createElement("div");
+        placedElem.className = "placed-ship";
+        placedElem.dataset.placedShip = ship.id;
+        if (ship.orientation === "horizontal") {
+          placedElem.style.width = (ship.length * tileSize - 4) + "px";
+          placedElem.style.height = (tileSize - 4) + "px";
+        } else {
+          placedElem.style.width = (tileSize - 4) + "px";
+          placedElem.style.height = (ship.length * tileSize - 4) + "px";
+        }
+        placedElem.style.top = (ship.position.row * tileSize) + "px";
+        placedElem.style.left = (ship.position.col * tileSize) + "px";
+        placedElem.addEventListener("mousedown", (e) => {
+          const rect = placedElem.getBoundingClientRect();
+          const oldPosition = { ...ship.position };
+          placedElem.remove();
+          ship.placed = false;
+          startDragForShip(e, ship, null, rect, true, oldPosition);
+          lastSelectedShip = ship;
+          updateRotateButton();
+        });
+        gridContainer.appendChild(placedElem);
+        checkConflicts();
+      }
+
+      function checkConflicts() {
+        document.querySelectorAll(".conflict-marker").forEach(marker => marker.remove());
+        let cellCounts = {};
+        ships.filter(s => s.placed && s.position).forEach(ship => {
+          if (ship.orientation === "horizontal") {
+            for (let c = ship.position.col; c < ship.position.col + ship.length; c++) {
+              let key = ship.position.row + "_" + c;
+              cellCounts[key] = (cellCounts[key] || 0) + 1;
+            }
+          } else {
+            for (let r = ship.position.row; r < ship.position.row + ship.length; r++) {
+              let key = r + "_" + ship.position.col;
+              cellCounts[key] = (cellCounts[key] || 0) + 1;
+            }
+          }
+        });
+        for (let key in cellCounts) {
+          if (cellCounts[key] > 1) {
+            const [r, c] = key.split("_").map(Number);
+            const marker = document.createElement("div");
+            marker.className = "conflict-marker";
+            marker.style.top = (r * tileSize) + "px";
+            marker.style.left = (c * tileSize) + "px";
+            marker.style.width = tileSize + "px";
+            marker.style.height = tileSize + "px";
+            gridContainer.appendChild(marker);
+          }
+        }
+      }
+
+      function startDrag(e) {
+        const shipId = e.currentTarget.dataset.shipId;
+        const ship = ships.find(s => s.id === shipId);
+        if (!ship) return;
+        startDragForShip(e, ship, e.currentTarget);
+      }
+
+      function startDragForShip(e, ship, sourceElem, customRect = null, isReposition = false, oldPosition = null) {
+        e.preventDefault();
+        let rect = customRect || (sourceElem ? sourceElem.getBoundingClientRect() : null);
+        if (sourceElem && sourceElem.parentElement && sourceElem.parentElement.id === "shipList") {
+          sourceElem.remove();
+        }
+        let clone;
+        if (sourceElem && !customRect) {
+          clone = sourceElem.cloneNode(true);
+        } else {
+          clone = document.createElement("div");
+          clone.className = "ship";
+          if (ship.orientation === "horizontal") {
+            clone.style.width = (tileSize * ship.length - 4) + "px";
+            clone.style.height = (tileSize - 4) + "px";
+          } else {
+            clone.style.width = (tileSize - 4) + "px";
+            clone.style.height = (tileSize * ship.length - 4) + "px";
+          }
+        }
+        clone.classList.add("dragging");
+        clone.style.position = "absolute";
+        clone.style.zIndex = 1000;
+        document.body.appendChild(clone);
+        const offsetX = e.clientX - rect.left;
+        const offsetY = e.clientY - rect.top;
+        draggingShip = { ship, sourceElem, clone, offsetX, offsetY, isReposition, oldPosition };
+        clone.style.left = (e.clientX - offsetX) + "px";
+        clone.style.top = (e.clientY - offsetY) + "px";
+        lastSelectedShip = ship;
+        updateRotateButton();
+        document.addEventListener("mousemove", onDrag);
+        document.addEventListener("mouseup", onDrop);
+      }
+
+      function onDrag(e) {
+        if (!draggingShip) return;
+        draggingShip.clone.style.left = (e.clientX - draggingShip.offsetX) + "px";
+        draggingShip.clone.style.top = (e.clientY - draggingShip.offsetY) + "px";
+      }
+
+      function onDrop(e) {
+        if (!draggingShip) return;
+        document.removeEventListener("mousemove", onDrag);
+        document.removeEventListener("mouseup", onDrop);
+        const gridRect = gridContainer.getBoundingClientRect();
+        if (
+          e.clientX >= gridRect.left && e.clientX <= gridRect.right &&
+          e.clientY >= gridRect.top && e.clientY <= gridRect.bottom
+        ) {
+          const ghostX = e.clientX - gridRect.left - draggingShip.offsetX;
+          const ghostY = e.clientY - gridRect.top - draggingShip.offsetY;
+          let col, row;
+          if (draggingShip.ship.orientation === "horizontal") {
+            col = Math.floor(ghostX / tileSize);
+            row = Math.floor(ghostY / tileSize);
+            if (col < 0) col = 0;
+            if (col + draggingShip.ship.length > gridCols) {
+              col = gridCols - draggingShip.ship.length;
+            }
+          } else {
+            col = Math.floor(ghostX / tileSize);
+            row = Math.floor(ghostY / tileSize);
+            if (row < 0) row = 0;
+            if (row + draggingShip.ship.length > gridRows) {
+              row = gridRows - draggingShip.ship.length;
+            }
+          }
+          if (row < 0) row = 0;
+          if (row >= gridRows) row = gridRows - 1;
+          draggingShip.ship.placed = true;
+          draggingShip.ship.position = { row, col };
+          renderPlacedShip(draggingShip.ship);
+          draggingShip.clone.remove();
+          draggingShip = null;
+          checkReady();
+          return;
+        }
+        if (draggingShip.isReposition && draggingShip.oldPosition) {
+          draggingShip.ship.placed = true;
+          draggingShip.ship.position = draggingShip.oldPosition;
+          renderPlacedShip(draggingShip.ship);
+        } else {
+          renderShipList();
+        }
+        draggingShip.clone.remove();
+        draggingShip = null;
+      }
+
+      function updateRotateButton() {
+        if (!lastSelectedShip) {
+          rotateBtn.disabled = true;
+          return;
+        }
+        if (!lastSelectedShip.placed || !lastSelectedShip.position) {
+          rotateBtn.disabled = false;
+          return;
+        }
+        const newOrientation = lastSelectedShip.orientation === "horizontal" ? "vertical" : "horizontal";
+        let fits = true;
+        if (newOrientation === "vertical") {
+          if (lastSelectedShip.position.row + lastSelectedShip.length > gridRows) {
+            fits = false;
+          }
+        } else {
+          if (lastSelectedShip.position.col + lastSelectedShip.length > gridCols) {
+            fits = false;
+          }
+        }
+        rotateBtn.disabled = !fits;
+      }
+
+      rotateBtn.addEventListener("click", () => {
+        if (!lastSelectedShip) return;
+        const newOrientation = lastSelectedShip.orientation === "horizontal" ? "vertical" : "horizontal";
+        if (lastSelectedShip.placed && lastSelectedShip.position) {
+          if (newOrientation === "vertical" && (lastSelectedShip.position.row + lastSelectedShip.length > gridRows)) {
+            return;
+          }
+          if (newOrientation === "horizontal" && (lastSelectedShip.position.col + lastSelectedShip.length > gridCols)) {
+            return;
+          }
+        }
+        lastSelectedShip.orientation = newOrientation;
+        if (lastSelectedShip.placed) {
+          renderPlacedShip(lastSelectedShip);
+        }
+        renderShipList();
+        updateRotateButton();
+      });
+
+      resetBtn.addEventListener("click", () => {
+        ships.forEach(ship => {
+          ship.placed = false;
+          ship.position = null;
+        });
+        renderGrid();
+        renderShipList();
+        checkReady();
+      });
+
+      // When Ready is clicked, update ship positions and mark ready.
+      readyBtn.addEventListener("click", () => {
+        let shipPositions = {};
+        ships.forEach(ship => {
+          if (ship.placed && ship.position) {
+            let positions = [];
+            if (ship.orientation === "horizontal") {
+              for (let i = 0; i < ship.length; i++) {
+                positions.push({ row: ship.position.row, col: ship.position.col + i });
+              }
+            } else {
+              for (let i = 0; i < ship.length; i++) {
+                positions.push({ row: ship.position.row + i, col: ship.position.col });
+              }
+            }
+            shipPositions[ship.id] = positions;
+          }
+        });
+        db.ref("games/" + gameCode + "/players/" + playerKey).update({
+          shipPositions: shipPositions,
+          ready: true
+        }).then(() => {
+          console.log("Player ready and ship positions saved.");
+          // Keep ships green.
+          document.querySelectorAll(".placed-ship").forEach(shipElem => {
+            shipElem.style.backgroundColor = "rgba(0, 255, 0, 0.5)";
+            shipElem.style.borderColor = "#0f0";
+          });
+          readyBtn.disabled = true;
+          rotateBtn.disabled = true;
+          resetBtn.disabled = true;
+          shipPlacementSection.innerHTML = `<div style="font-size: 1.2em; margin-bottom: 10px;">Waiting for the other player to be ready...</div>`;
+          checkBothReady();
+        }).catch(err => {
+          console.error("Error saving ready state:", err);
+        });
+      });
+
+      function checkReady() {
+        const allPlaced = ships.every(s => s.placed);
+        checkConflicts();
+        readyBtn.disabled = !allPlaced;
+      }
+
+      // Check if both players are ready.
+      function checkBothReady() {
+        db.ref("games/" + gameCode + "/players").once("value").then(snapshot => {
+          const players = snapshot.val() || {};
+          let allReady = true;
+          for (let key in players) {
+            if (!players[key].ready) {
+              allReady = false;
+              break;
+            }
+          }
+          if (allReady) {
+            startConjugationRound();
+          } else {
+            setTimeout(checkBothReady, 2000);
+          }
+        });
+      }
+
+      // Start the conjugation round, compute enemy tile total.
+      function startConjugationRound() {
+        myHits = 0;
+        db.ref("games/" + gameCode + "/players").once("value").then(snapshot => {
+          const players = snapshot.val() || {};
+          let enemyKey = null;
+          for (let key in players) {
+            if (key !== playerKey) {
+              enemyKey = key;
+              break;
+            }
+          }
+          if (enemyKey) {
+            db.ref("games/" + gameCode + "/players/" + enemyKey + "/shipPositions").once("value").then(snap2 => {
+              const enemyPositions = snap2.val() || {};
+              totalEnemyTiles = 0;
+              for (let shipId in enemyPositions) {
+                totalEnemyTiles += enemyPositions[shipId].length;
+              }
+              shipPlacementSection.innerHTML = `
+                <div style="font-size: 1.2em; margin-bottom: 10px;">All ships are set! Now, conjugate the given verbs.</div>
+                <input type="text" id="conjugationInput" placeholder="Enter your answer here" style="padding: 10px; font-size: 16px; border-radius: 5px; border: none; width: 80%;">
+                <div id="accentButtons" style="margin-top: 10px;">
+                  <button type="button" class="accentBtn">á</button>
+                  <button type="button" class="accentBtn">é</button>
+                  <button type="button" class="accentBtn">í</button>
+                  <button type="button" class="accentBtn">ó</button>
+                  <button type="button" class="accentBtn">ú</button>
+                  <button type="button" class="accentBtn">ñ</button>
+                </div>
+              `;
+              setupConjugationInput();
+              setupAccentButtons();
+              updateConjugationInputState();
+            });
+          }
+        });
+      }
+
+      // Disable the conjugation input if it's not your turn.
+      function updateConjugationInputState() {
+        const input = document.getElementById("conjugationInput");
+        if (input) {
+          input.disabled = (currentTurn !== playerKey);
+        }
+      }
+
+      // Set up conjugation input behavior.
+      function setupConjugationInput() {
+        const input = document.getElementById("conjugationInput");
+        if (!input) return;
+        input.addEventListener("keydown", function(e) {
+          if (e.key === "Enter") {
+            if (currentTurn !== playerKey) {
+              alert("It is not your turn.");
+              return;
+            }
+            const answer = this.value.trim().toLowerCase();
+            let cellKey = null;
+            for (let key in expectedConjugations) {
+              if (expectedConjugations[key].toLowerCase() === answer) {
+                cellKey = key;
+                break;
+              }
+            }
+            if (!cellKey) {
+              alert("Incorrect conjugation.");
+              return;
+            }
+            const [r, c] = cellKey.split("_").map(Number);
+            db.ref("games/" + gameCode + "/players").once("value").then(snapshot => {
+              const players = snapshot.val() || {};
+              let enemyKey = null;
+              for (let key in players) {
+                if (key !== playerKey) {
+                  enemyKey = key;
+                  break;
+                }
+              }
+              if (!enemyKey) return;
+              db.ref("games/" + gameCode + "/players/" + enemyKey + "/shipPositions").once("value").then(snap2 => {
+                const enemyPositions = snap2.val() || {};
+                let isHit = false;
+                for (let shipId in enemyPositions) {
+                  const positions = enemyPositions[shipId];
+                  for (let pos of positions) {
+                    if (pos.row === r && pos.col === c) {
+                      isHit = true;
+                      break;
+                    }
+                  }
+                  if (isHit) break;
+                }
+                if (!markedCells[cellKey]) {
+                  placeAttackDot(cellKey, isHit);
+                  markedCells[cellKey] = true;
+                  if (isHit) {
+                    myHits++;
+                    if (myHits >= totalEnemyTiles) {
+                      db.ref("games/" + gameCode).update({ gameOver: true, winner: playerKey });
+                      endGame(true);
+                      return;
+                    }
+                  }
+                }
+                this.value = "";
+                db.ref("games/" + gameCode).update({ turn: enemyKey });
+              });
+            });
+          }
+        });
+      }
+
+      // Place an attack dot on the grid.
+      function placeAttackDot(cellKey, isHit) {
+        // Save the dot data.
+        attackDots[cellKey] = isHit;
+        const [r, c] = cellKey.split("_").map(Number);
+        const dot = document.createElement("div");
+        dot.className = "conjugation-dot";
+        dot.style.width = (tileSize / 2) + "px";
+        dot.style.height = (tileSize / 2) + "px";
+        dot.style.left = (c * tileSize + tileSize / 4) + "px";
+        dot.style.top = (r * tileSize + tileSize / 4) + "px";
+        dot.style.backgroundColor = isHit ? "red" : "black";
+        gridContainer.appendChild(dot);
+      }
+
+      // Re-render all attack dots based on stored data.
+      function renderAttackDots() {
+        // Remove existing dots first.
+        document.querySelectorAll(".conjugation-dot").forEach(dot => dot.remove());
+        for (let cellKey in attackDots) {
+          const isHit = attackDots[cellKey];
+          const [r, c] = cellKey.split("_").map(Number);
+          const dot = document.createElement("div");
+          dot.className = "conjugation-dot";
+          dot.style.width = (tileSize / 2) + "px";
+          dot.style.height = (tileSize / 2) + "px";
+          dot.style.left = (c * tileSize + tileSize / 4) + "px";
+          dot.style.top = (r * tileSize + tileSize / 4) + "px";
+          dot.style.backgroundColor = isHit ? "red" : "black";
+          gridContainer.appendChild(dot);
+        }
+      }
+
+      // Display the game over screen.
+      function endGame(didIWin) {
+        const message = didIWin ? "You Won!" : "The Enemy Won!";
+        const stats = `Ship tiles found: ${didIWin ? myHits : totalEnemyTiles - myHits} / ${totalEnemyTiles}`;
+        gameOverScreen.innerHTML = `<div>${message}</div><div style="font-size: 0.5em; margin-top: 10px;">${stats}</div>`;
+        gameOverScreen.classList.remove("hidden");
+        const input = document.getElementById("conjugationInput");
+        if (input) input.disabled = true;
+      }
+
+      // Set up accent buttons.
+      function setupAccentButtons() {
+        const accentButtons = document.querySelectorAll(".accentBtn");
+        const input = document.getElementById("conjugationInput");
+        accentButtons.forEach(btn => {
+          btn.addEventListener("click", () => {
+            if (input && !input.disabled) {
+              input.value += btn.innerText;
+              input.focus();
+            }
+          });
+        });
+      }
+
+      // Axis label rendering.
+      function renderVerticalLabels() {
+        const verticalLabelsContainer = document.getElementById("verticalLabels");
+        verticalLabelsContainer.innerHTML = "";
+        for (let i = 0; i < gridRows; i++) {
+          const label = document.createElement("div");
+          label.innerText = spanishVerbs[i] || "";
+          label.style.height = tileSize + "px";
+          label.style.display = "flex";
+          label.style.alignItems = "center";
+          label.style.justifyContent = "flex-end";
+          label.style.paddingRight = "5px";
+          verticalLabelsContainer.appendChild(label);
+        }
+      }
+
+      function renderHorizontalLabels() {
+        const horizontalLabelsContainer = document.getElementById("horizontalLabels");
+        horizontalLabelsContainer.innerHTML = "";
+        for (let j = 0; j < gridCols; j++) {
+          const label = document.createElement("div");
+          label.innerText = pronouns[j] || "";
+          label.style.width = tileSize + "px";
+          label.style.display = "flex";
+          label.style.alignItems = "center";
+          label.style.justifyContent = "center";
+          label.style.transform = "rotate(-90deg)";
+          label.style.transformOrigin = "center";
+          horizontalLabelsContainer.appendChild(label);
+        }
+      }
+
+      // Window resize handler to recompute tile size and re-render grid and dots.
+      window.addEventListener("resize", () => {
+        if (!gameView.classList.contains("hidden")) {
+          computeTileSize();
+          renderGrid();
+          renderShipList();
+          renderVerticalLabels();
+          renderHorizontalLabels();
+        }
+      });
+    </script>
+  </body>
+</html>

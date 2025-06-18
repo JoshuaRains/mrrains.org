@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Educational Snake Game</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background-color: #f0f0f0;
+            font-family: Arial, sans-serif;
+            overflow: hidden;
+        }
+        #gameContainer {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+        }
+        #gameCanvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+        #questionContainer {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            text-align: center;
+            padding: 10px;
+            background-color: rgba(255, 255, 255, 0.9);
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            z-index: 1000;
+        }
+        #timer {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #444;
+        }
+        #question {
+            font-size: 1.4em;
+            margin: 10px 0;
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+    <div id="questionContainer">
+        <div id="timer">Time: 10s</div>
+        <div id="question">Loading question...</div>
+    </div>
+    <div id="gameContainer">
+        <canvas id="gameCanvas"></canvas>
+    </div>
+
+    <script>
+        const WORLD_WIDTH = 3000;
+        const WORLD_HEIGHT = 3000;
+        let VIEWPORT_WIDTH = window.innerWidth;
+        let VIEWPORT_HEIGHT = window.innerHeight;
+
+        class Camera {
+            constructor(snake) {
+                this.x = 0;
+                this.y = 0;
+                this.snake = snake;
+                this.scale = 1;
+                this.targetScale = 1;
+                this.smoothSpeed = 0.1; // Camera smoothing factor
+            }
+
+            update() {
+                // Calculate target scale based on snake size
+                this.targetScale = Math.max(0.5, 1 - (this.snake.size - 10) * 0.02);
+                
+                // Smooth scale transition
+                this.scale += (this.targetScale - this.scale) * this.smoothSpeed;
+
+                // Follow the snake's head with zoom consideration
+                const head = this.snake.segments[0];
+                const scaledViewportWidth = VIEWPORT_WIDTH / this.scale;
+                const scaledViewportHeight = VIEWPORT_HEIGHT / this.scale;
+                
+                // Calculate target camera position (centered on snake)
+                const targetX = head.x - (scaledViewportWidth / 2);
+                const targetY = head.y - (scaledViewportHeight / 2);
+
+                // Smooth camera movement
+                this.x += (targetX - this.x) * this.smoothSpeed;
+                this.y += (targetY - this.y) * this.smoothSpeed;
+
+                // Clamp camera to world bounds
+                this.x = Math.max(0, Math.min(this.x, WORLD_WIDTH - scaledViewportWidth));
+                this.y = Math.max(0, Math.min(this.y, WORLD_HEIGHT - scaledViewportHeight));
+            }
+
+            applyToContext(ctx) {
+                ctx.save();
+                
+                // Scale from the center of the viewport
+                ctx.translate(VIEWPORT_WIDTH / 2, VIEWPORT_HEIGHT / 2);
+                ctx.scale(this.scale, this.scale);
+                ctx.translate(-VIEWPORT_WIDTH / 2, -VIEWPORT_HEIGHT / 2);
+                
+                ctx.translate(-this.x, -this.y);
+            }
+
+            restoreContext(ctx) {
+                ctx.restore();
+            }
+
+            screenToWorld(screenX, screenY) {
+                // Convert screen coordinates to world coordinates with zoom
+                const centerX = VIEWPORT_WIDTH / 2;
+                const centerY = VIEWPORT_HEIGHT / 2;
+                
+                // Adjust for camera center offset
+                const offsetX = (screenX - centerX) / this.scale;
+                const offsetY = (screenY - centerY) / this.scale;
+                
+                return {
+                    x: this.x + (VIEWPORT_WIDTH / 2) / this.scale + offsetX,
+                    y: this.y + (VIEWPORT_HEIGHT / 2) / this.scale + offsetY
+                };
+            }
+        }
+
+        class Snake {
+            constructor(x, y) {
+                this.segments = [{x, y}];
+                this.direction = 0;
+                this.speed = 3;
+                this.size = 10;
+                this.velocityX = 0;
+                this.velocityY = 0;
+                this.acceleration = 0.2;
+                this.turnSpeed = 0.15;
+            }
+
+            update(mousePos) {
+                const head = this.segments[0];
+                // Calculate angle to mouse
+                const dx = mousePos.x - head.x;
+                const dy = mousePos.y - head.y;
+                const targetDirection = Math.atan2(dy, dx);
+
+                // Calculate the shortest turn direction
+                let angleDiff = targetDirection - this.direction;
+                if (angleDiff > Math.PI) angleDiff -= Math.PI * 2;
+                if (angleDiff < -Math.PI) angleDiff += Math.PI * 2;
+                
+                // Apply turn speed
+                const turnAmount = Math.min(Math.abs(angleDiff), this.turnSpeed) * Math.sign(angleDiff);
+                this.direction += turnAmount;
+                
+                // Keep direction in bounds
+                if (this.direction > Math.PI) this.direction -= Math.PI * 2;
+                if (this.direction < -Math.PI) this.direction += Math.PI * 2;
+
+                // Update velocity with smooth acceleration
+                const targetVelocityX = Math.cos(this.direction) * this.speed;
+                const targetVelocityY = Math.sin(this.direction) * this.speed;
+                
+                this.velocityX += (targetVelocityX - this.velocityX) * this.acceleration;
+                this.velocityY += (targetVelocityY - this.velocityY) * this.acceleration;
+
+                const newX = head.x + this.velocityX;
+                const newY = head.y + this.velocityY;
+
+                // Keep snake within world bounds with smooth boundary approach
+                const margin = this.size;
+                const boundedX = Math.max(margin, Math.min(WORLD_WIDTH - margin, newX));
+                const boundedY = Math.max(margin, Math.min(WORLD_HEIGHT - margin, newY));
+                
+                this.segments.unshift({x: boundedX, y: boundedY});
+
+                // Remove tail
+                if (this.segments.length > this.size) {
+                    this.segments.pop();
+                }
+            }
+
+            draw(ctx) {
+                ctx.fillStyle = '#4CAF50';
+                this.segments.forEach((segment, index) => {
+                    const size = this.size - (index * 0.1);
+                    ctx.beginPath();
+                    ctx.arc(segment.x, segment.y, size, 0, Math.PI * 2);
+                    ctx.fill();
+                });
+
+                // Draw eyes
+                const head = this.segments[0];
+                ctx.fillStyle = 'white';
+                const eyeOffset = 4;
+                const eyeAngle = Math.PI / 4;
+                ctx.beginPath();
+                ctx.arc(
+                    head.x + Math.cos(this.direction - eyeAngle) * eyeOffset,
+                    head.y + Math.sin(this.direction - eyeAngle) * eyeOffset,
+                    2, 0, Math.PI * 2
+                );
+                ctx.arc(
+                    head.x + Math.cos(this.direction + eyeAngle) * eyeOffset,
+                    head.y + Math.sin(this.direction + eyeAngle) * eyeOffset,
+                    2, 0, Math.PI * 2
+                );
+                ctx.fill();
+            }
+
+            grow(amount) {
+                this.size = Math.max(5, Math.min(30, this.size + amount));
+            }
+
+            checkCollision(orb) {
+                const head = this.segments[0];
+                const dx = head.x - orb.x;
+                const dy = head.y - orb.y;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+                return distance < (this.size + orb.radius);
+            }
+        }
+
+        class Orb {
+            constructor(x, y) {
+                this.x = x;
+                this.y = y;
+                this.radius = 10;
+                this.answer = "";
+                this.opacity = 0; // Start fully transparent
+                this.isSpawning = true; // Track spawning state
+                this.spawnStartTime = Date.now();
+                this.spawnDuration = 2000; // 2 seconds to fully spawn
+            }
+
+            setAnswer(answer) {
+                this.answer = answer;
+            }
+
+            update() {
+                if (this.isSpawning) {
+                    const elapsed = Date.now() - this.spawnStartTime;
+                    this.opacity = Math.min(1, elapsed / this.spawnDuration);
+                    if (this.opacity >= 1) {
+                        this.isSpawning = false;
+                    }
+                }
+            }
+
+            draw(ctx) {
+                // Set color based on spawn state
+                if (this.isSpawning) {
+                    ctx.fillStyle = `rgba(255, 0, 0, ${this.opacity})`; // Red while spawning
+                } else {
+                    ctx.fillStyle = '#3498db'; // Blue when ready
+                }
+
+                // Draw orb
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+                ctx.fill();
+
+                // Draw answer text with matching opacity
+                ctx.fillStyle = `rgba(0, 0, 0, ${this.opacity})`;
+                ctx.font = '14px Arial';
+                ctx.textAlign = 'center';
+                ctx.fillText(this.answer, this.x, this.y - 20);
+            }
+
+            canBeEaten() {
+                return !this.isSpawning;
+            }
+        }
+
+        const questions = [
+            {
+                question: "I",
+                answers: ["yo", "tú", "él", "nosotros"],
+                correctAnswer: "yo"
+            },
+            {
+                question: "you (informal)",
+                answers: ["tú", "usted", "él", "ella"],
+                correctAnswer: "tú"
+            },
+            {
+                question: "you (formal)",
+                answers: ["usted", "tú", "vosotros", "yo"],
+                correctAnswer: "usted"
+            },
+            {
+                question: "he",
+                answers: ["él", "ella", "yo", "tú"],
+                correctAnswer: "él"
+            },
+            {
+                question: "she",
+                answers: ["ella", "él", "yo", "tú"],
+                correctAnswer: "ella"
+            },
+            {
+                question: "we",
+                answers: ["nosotros", "vosotros", "ellos", "yo"],
+                correctAnswer: "nosotros"
+            },
+            {
+                question: "you all (Spain)",
+                answers: ["vosotros", "ustedes", "ellos", "nosotros"],
+                correctAnswer: "vosotros"
+            },
+            {
+                question: "they",
+                answers: ["ellos", "nosotros", "vosotros", "ustedes"],
+                correctAnswer: "ellos"
+            },
+            {
+                question: "you all (formal)",
+                answers: ["ustedes", "vosotros", "ellos", "nosotros"],
+                correctAnswer: "ustedes"
+            }
+        ];
+
+        class Game {
+            constructor() {
+                this.canvas = document.getElementById('gameCanvas');
+                this.resizeCanvas();
+                this.ctx = this.canvas.getContext('2d');
+                this.snake = new Snake(WORLD_WIDTH / 2, WORLD_HEIGHT / 2);
+                this.camera = new Camera(this.snake);
+                this.orbs = [];
+                this.mousePos = { x: WORLD_WIDTH / 2, y: WORLD_HEIGHT / 2 };
+                this.currentQuestion = null;
+                this.timer = 10;
+                this.score = 0;
+                this.gridSize = 50;
+                this.numberOfOrbs = 200;
+                this.allPossibleAnswers = this.getAllPossibleAnswers();
+
+                this.setupEventListeners();
+                this.createInitialOrbs();
+                this.newQuestion();
+                this.gameLoop();
+                this.startTimer();
+
+                window.addEventListener('resize', () => this.resizeCanvas());
+            }
+
+            resizeCanvas() {
+                this.canvas.width = window.innerWidth;
+                this.canvas.height = window.innerHeight;
+                VIEWPORT_WIDTH = window.innerWidth;
+                VIEWPORT_HEIGHT = window.innerHeight;
+            }
+
+            getAllPossibleAnswers() {
+                // Collect all unique answers from all questions
+                const answerSet = new Set();
+                questions.forEach(question => {
+                    question.answers.forEach(answer => {
+                        answerSet.add(answer);
+                    });
+                });
+                return Array.from(answerSet);
+            }
+
+            createInitialOrbs() {
+                // Create a fixed set of orbs spread across the map
+                for (let i = 0; i < this.numberOfOrbs; i++) {
+                    const x = Math.random() * (WORLD_WIDTH - 100) + 50;
+                    const y = Math.random() * (WORLD_HEIGHT - 100) + 50;
+                    const orb = new Orb(x, y);
+                    // Assign a random answer from all possible answers
+                    orb.setAnswer(this.allPossibleAnswers[Math.floor(Math.random() * this.allPossibleAnswers.length)]);
+                    this.orbs.push(orb);
+                }
+            }
+
+            setupEventListeners() {
+                // Track mouse movement with proper zoom handling
+                this.canvas.addEventListener('mousemove', (e) => {
+                    const rect = this.canvas.getBoundingClientRect();
+                    const screenX = e.clientX - rect.left;
+                    const screenY = e.clientY - rect.top;
+                    
+                    // Convert screen coordinates to world coordinates
+                    const centerX = VIEWPORT_WIDTH / 2;
+                    const centerY = VIEWPORT_HEIGHT / 2;
+                    
+                    // Calculate offset from center, adjusted for zoom
+                    const offsetX = (screenX - centerX) / this.camera.scale;
+                    const offsetY = (screenY - centerY) / this.camera.scale;
+                    
+                    // Calculate final world position
+                    this.mousePos = {
+                        x: this.camera.x + centerX / this.camera.scale + offsetX,
+                        y: this.camera.y + centerY / this.camera.scale + offsetY
+                    };
+                });
+            }
+
+            newQuestion() {
+                this.currentQuestion = questions[Math.floor(Math.random() * questions.length)];
+                document.getElementById('question').textContent = this.currentQuestion.question;
+                // No longer need to update orb answers here
+            }
+
+            startTimer() {
+                setInterval(() => {
+                    this.timer--;
+                    document.getElementById('timer').textContent = `Time: ${this.timer}s`;
+                    if (this.timer <= 0) {
+                        this.timer = 10;
+                        this.newQuestion();
+                    }
+                }, 1000);
+            }
+
+            update() {
+                this.snake.update(this.mousePos);
+                this.camera.update();
+
+                // Update all orbs
+                this.orbs.forEach(orb => orb.update());
+
+                // Check collisions only for fully spawned orbs
+                this.orbs = this.orbs.filter(orb => {
+                    if (orb.canBeEaten() && this.snake.checkCollision(orb)) {
+                        if (orb.answer === this.currentQuestion.correctAnswer) {
+                            this.snake.grow(2);
+                        } else {
+                            this.snake.grow(-2);
+                        }
+                        // Create a new orb at a random location with a random answer
+                        const x = Math.random() * (WORLD_WIDTH - 100) + 50;
+                        const y = Math.random() * (WORLD_HEIGHT - 100) + 50;
+                        const newOrb = new Orb(x, y);
+                        newOrb.setAnswer(this.allPossibleAnswers[Math.floor(Math.random() * this.allPossibleAnswers.length)]);
+                        this.orbs.push(newOrb);
+                        return false;
+                    }
+                    return true;
+                });
+
+                // Ensure we maintain the correct number of orbs
+                while (this.orbs.length < this.numberOfOrbs) {
+                    const x = Math.random() * (WORLD_WIDTH - 100) + 50;
+                    const y = Math.random() * (WORLD_HEIGHT - 100) + 50;
+                    const newOrb = new Orb(x, y);
+                    newOrb.setAnswer(this.allPossibleAnswers[Math.floor(Math.random() * this.allPossibleAnswers.length)]);
+                    this.orbs.push(newOrb);
+                }
+            }
+
+            drawGrid() {
+                const gridSize = this.gridSize;
+                const scale = this.camera.scale;
+                
+                // Calculate visible grid area based on camera position and zoom
+                const startX = Math.floor(this.camera.x / gridSize) * gridSize;
+                const startY = Math.floor(this.camera.y / gridSize) * gridSize;
+                const endX = Math.ceil((this.camera.x + VIEWPORT_WIDTH / scale) / gridSize) * gridSize;
+                const endY = Math.ceil((this.camera.y + VIEWPORT_HEIGHT / scale) / gridSize) * gridSize;
+                
+                this.ctx.strokeStyle = '#ccc';
+                this.ctx.lineWidth = 1 / scale; // Adjust line width based on zoom
+                
+                // Draw vertical lines
+                for (let x = startX; x <= endX; x += gridSize) {
+                    this.ctx.beginPath();
+                    this.ctx.moveTo(x, startY);
+                    this.ctx.lineTo(x, endY);
+                    this.ctx.stroke();
+                }
+                
+                // Draw horizontal lines
+                for (let y = startY; y <= endY; y += gridSize) {
+                    this.ctx.beginPath();
+                    this.ctx.moveTo(startX, y);
+                    this.ctx.lineTo(endX, y);
+                    this.ctx.stroke();
+                }
+            }
+
+            draw() {
+                this.ctx.clearRect(0, 0, VIEWPORT_WIDTH, VIEWPORT_HEIGHT);
+                
+                this.camera.applyToContext(this.ctx);
+
+                // Draw the grid first
+                this.drawGrid();
+
+                // Draw world bounds
+                this.ctx.strokeStyle = '#333';
+                this.ctx.lineWidth = 4;
+                this.ctx.strokeRect(0, 0, WORLD_WIDTH, WORLD_HEIGHT);
+
+                // Draw orbs and snake
+                this.orbs.forEach(orb => orb.draw(this.ctx));
+                this.snake.draw(this.ctx);
+
+                this.camera.restoreContext(this.ctx);
+            }
+
+            gameLoop() {
+                this.update();
+                this.draw();
+                requestAnimationFrame(() => this.gameLoop());
+            }
+        }
+
+        // Start the game when the page loads
+        window.onload = () => {
+            new Game();
+        };
+    </script>
+</body>
+</html>

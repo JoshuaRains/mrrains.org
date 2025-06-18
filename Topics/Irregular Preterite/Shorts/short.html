@@ -1,0 +1,704 @@
+<!DOCTYPE html>
+<html lang="en" translate="no">
+<head>
+  <meta charset="UTF-8" />
+  <title>Shorts</title>
+  <!-- Google Material Icons (for arrow_back, arrow_forward) -->
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+  <style>
+    /* Gradient background */
+    html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+    }
+
+    body {
+      background: linear-gradient(135deg, #e96443, #904e95);
+      font-family: Arial, sans-serif;
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh; /* Ensure it covers the full viewport height */
+    }
+
+
+    .container {
+      max-width: 900px;
+      margin: 40px auto;
+      background-color: rgba(255,255,255,0.1);
+      padding: 20px;
+      border-radius: 8px;
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    /* Arrow & Slides layout (center the arrows vertically) */
+    .slidesRow {
+      display: flex;
+      align-items: center; /* center arrows and slide vertically */
+      position: relative;
+      min-height: 560px; /* matches video height (optional) */
+    }
+
+    /* Arrows on the left and right */
+    .arrow {
+      cursor: pointer;
+      user-select: none;
+      transition: background-color 0.3s ease;
+      background-color: rgba(0, 0, 0, 0.3);
+      border-radius: 50%;
+      padding: 8px;
+      margin: 0 10px;
+    }
+    .arrow:hover {
+      background-color: rgba(0, 0, 0, 0.6);
+    }
+    .material-icons {
+      color: #fff;
+      font-size: 36px;
+      line-height: 36px;
+    }
+
+    /* The “viewport” for our slides */
+    #slidesContainer {
+      flex: 1; /* take remaining horizontal space between arrows */
+      overflow: hidden; /* hide slides that move off the left/right edges */
+    }
+
+    /* The horizontal “track” that holds all slides side by side */
+    #slides {
+      display: flex;
+      transition: transform 0.5s ease;
+      will-change: transform; /* performance optimization */
+    }
+
+    /* Each slide is a full “view width” in the carousel */
+    .slide {
+      min-width: 100%;
+      box-sizing: border-box;
+      display: flex;
+      justify-content: space-around; /* video & questions side by side */
+      align-items: flex-start;
+      padding: 20px;
+    }
+
+    /* Video container (for 9:16 ratio) */
+    .videoWrapper {
+      width: 415px;  /* typical Shorts ratio: 9:16 => 315×560 */
+      height: 560px;
+      background: #000;
+      border-radius: 8px;
+      overflow: hidden;
+      position: relative;
+    }
+    /* The iframe itself (YouTube video) */
+    .videoWrapper iframe {
+      width: 315px;
+      height: 560px;
+      border: none;
+    }
+
+    /* Questions container */
+    .questionsContainer {
+      width: 500px;  /* adjust as needed */
+      margin-left: 20px;
+    }
+
+    .question-block {
+      margin-bottom: 20px;
+      padding: 15px;
+      background-color: rgba(255, 255, 255, 0.2);
+      border-radius: 8px;
+    }
+    .question-block h3 {
+      margin-top: 0;
+      margin-bottom: 10px;
+      font-size: 1.1rem;
+    }
+
+    /* Timestamps link style */
+    .timestamp {
+      color: #ffd700;
+      cursor: pointer;
+      font-weight: bold;
+      margin-left: 8px;
+    }
+    .timestamp:hover {
+      text-decoration: underline;
+    }
+
+    .answers {
+      list-style: none;
+      margin: 8px 0 0 0;
+      padding: 0;
+    }
+    .answers li {
+      margin: 6px 0;
+      cursor: pointer;
+      padding: 6px 10px;
+      border-radius: 5px;
+    }
+    .answers li.selected {
+      background-color: #ffd700; 
+      color: #444;
+      font-weight: bold;
+    }
+    /* Modal styles */
+/* Modal styles */
+.modal {
+  display: none; /* Hidden by default */
+  position: fixed;
+  z-index: 1000;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent background */
+  justify-content: center;
+  align-items: center;
+  color:black
+}
+
+.modal-content {
+  background-color: white;
+  padding: 20px;
+  border-radius: 20px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+  width: 400px;
+  max-width: 90%;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.modal-content h3 {
+  margin: 0 0 10px 0;
+  font-size: 1.5rem;
+  text-align: center;
+}
+
+.modal-content label {
+  font-size: 1rem;
+  margin-bottom: 5px;
+}
+
+.modal-content .form-input {
+  width: 90%;
+  align-self: center;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 20px;
+  font-size: 16px;
+}
+
+.modal-content .form-input:focus {
+  outline: none;
+  border-color: #007bff;
+  box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+}
+
+.modal-content button {
+  padding: 10px 8px;
+  font-size: 16px;
+  border: none;
+  border-radius: 10px;
+  background-color: #007bff;
+  color: white;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  justify-content: center;
+}
+
+.modal-content button:hover {
+  background-color: #0056b3;
+}
+
+.modal-content .material-icons {
+  font-size: 20px;
+  vertical-align: middle;
+}
+
+
+
+
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <h1>Shorts</h1>
+
+  <div class="slidesRow">
+    <!-- Left arrow -->
+    <div class="arrow" onclick="prevSlide()">
+      <span class="material-icons">arrow_back</span>
+    </div>
+
+    <!-- The slides "viewport" -->
+    <div id="slidesContainer">
+      <div id="slides"><!-- Slides are built in JS --></div>
+      
+     
+      
+    </div>
+
+
+
+
+    <!-- Right arrow -->
+    <div class="arrow" onclick="nextSlide()">
+      <span class="material-icons">arrow_forward</span>
+    </div>
+  </div>
+
+
+  <!-- Modal for Submitting Answers -->
+<!-- Modal for Submitting Answers -->
+<div id="submitModal" class="modal">
+  <div class="modal-content">
+    <h3>Submit Your Answers</h3>
+    <label for="studentNameInput">Name:</label>
+    <input id="studentNameInput" type="text" class="form-input" placeholder="Enter your name" />
+
+    <label for="classPeriodInput">Class Period:</label>
+    <input id="classPeriodInput" type="text" class="form-input" placeholder="Enter your class period" />
+
+    <div style="display: flex; justify-content: space-between; margin-top: 20px;">
+      <button id="downloadButton" class="accent-button" disabled>
+        <span class="material-icons">download</span> Download Answers
+      </button>
+      <p>then</p>
+      <button id="dropboxButton" class="accent-button" disabled>
+        <span class="material-icons">cloud_upload</span> Submit to Dropbox
+      </button>
+    </div>
+
+    <!-- Back button -->
+    <button id="backButton" class="accent-button" style="margin-top: 20px;">
+      <span class="material-icons">arrow_back</span> Review Answers
+    </button>
+  </div>
+</div>
+
+
+</div>
+
+<!-- 1. Load the YouTube IFrame Player API so we can seek times on the same player -->
+<script src="https://www.youtube.com/iframe_api"></script>
+
+<script>
+  /*
+    Each slide has:
+      - videoId
+      - questions: array of { 
+          text:        string question,
+          answers:     string[] possible answers,
+          correctIndex number   which answer is correct,
+          selectedIndex number|null  user’s choice,
+          timeStart:   number   (seconds) start time
+          timeEnd:     number   (seconds) end time
+        }
+  */
+  const slidesData = [
+  {
+    videoId: "MlPFAnNBkjc",  // Example short (~37s)
+    questions: [
+      {
+        text: "What word from our body part list can we see at the following clip?",
+        answers: ["dedo", "brazo", "diente", "cabeza"],
+        correctIndex: 0,
+        selectedIndex: null,
+        timeStart: 50,
+        timeEnd: 57
+      },
+      {
+        text: "What might dentisa mean based on what you see in the video when he says it?",
+        answers: ["doctor", "dentist", "ear", "head"],
+        correctIndex: 0,
+        selectedIndex: null,
+        timeStart: 50,
+        timeEnd: 57
+      }
+    ]
+  },
+  
+  
+  
+  
+
+  
+  
+];
+
+
+  // We'll store a YT.Player instance for each slide
+  let players = [];
+
+  // We want to know the “active end time” for each slide’s current question
+  // so we can pause at that time automatically, but then let them continue.
+  let activeEndTimes = new Array(slidesData.length).fill(null);
+
+  // Current index of the displayed slide
+  let currentSlide = 0;
+    buildSlides(); // build the slides (once)
+
+  // Called by the YT API once it's ready
+  function onYouTubeIframeAPIReady() {
+  if (typeof YT === "undefined" || typeof YT.Player === "undefined") {
+    // Poll for the API to be ready before initializing players
+    let apiReadyCheck = setInterval(() => {
+      if (typeof YT !== "undefined" && typeof YT.Player !== "undefined") {
+        clearInterval(apiReadyCheck);
+        initPlayers();
+        setInterval(checkPauseConditions, 200);
+      }
+    }, 100);
+  } else {
+    initPlayers();
+    setInterval(checkPauseConditions, 200);
+  }
+}
+
+let currentVolume = 50; // Default volume (50%)
+
+// Function to set the volume for all players
+function setCurrentVolume(volume) {
+  currentVolume = Math.max(0, Math.min(100, parseInt(volume))); // Ensure volume is within 0-100
+
+  // Apply volume to all initialized YouTube players
+  players.forEach(player => {
+    if (player && typeof player.setVolume === "function") {
+      player.setVolume(currentVolume);
+    }
+  });
+}
+
+
+
+  // 1) Build all slides (DOM) exactly once
+  function buildSlides() {
+  const slidesEl = document.getElementById("slides");
+  slidesEl.innerHTML = ""; // Clear existing slides
+
+  slidesData.forEach((slide, slideIdx) => {
+    // Slide container
+    const slideDiv = document.createElement("div");
+    slideDiv.className = "slide";
+    slideDiv.id = `slide-${slideIdx}`;
+
+    // Build the video area (placeholder div for the API)
+    const videoDiv = document.createElement("div");
+    videoDiv.className = "videoWrapper";
+    videoDiv.innerHTML = `<div id="player${slideIdx}"></div>`;
+
+    // Build the questions container
+    const questionsContainer = document.createElement("div");
+    questionsContainer.className = "questionsContainer";
+    questionsContainer.innerHTML = renderSlideQuestionsHTML(slideIdx);
+
+    // Add both to the slide
+    slideDiv.appendChild(videoDiv);
+    slideDiv.appendChild(questionsContainer);
+
+    // Append the slide to the track
+    slidesEl.appendChild(slideDiv);
+  });
+
+  // Position the slides in a row
+  updateSlidesPosition();
+
+  // Initialize players after slides are built
+  initPlayers();
+}
+
+
+// Ensure volume is set when a new video loads
+function initPlayers() {
+  slidesData.forEach((slide, i) => {
+    players[i] = new YT.Player(`player${i}`, {
+      videoId: slide.videoId,
+      playerVars: {
+        playsinline: 1
+      },
+      events: {
+        onReady: function (event) {
+          event.target.setVolume(currentVolume); // Set volume when video is ready
+        }
+      }
+    });
+  });
+}
+
+  // Helper function: Return the HTML for the questions portion of a slide
+  function renderSlideQuestionsHTML(slideIdx) {
+    const slide = slidesData[slideIdx];
+    let html = "";
+
+    slide.questions.forEach((q, qIdx) => {
+      const tStart = formatTime(q.timeStart);
+      const tEnd   = formatTime(q.timeEnd);
+      html += `
+        <div class="question-block">
+          <h3>
+            ${q.text}
+            <span 
+              class="timestamp"
+              onclick="seekToTime(${slideIdx}, ${qIdx})"
+            >
+              (${tStart} - ${tEnd})
+            </span>
+          </h3>
+          <ul class="answers">
+            ${q.answers.map((answer, aIdx) => {
+              const isSelected = (q.selectedIndex === aIdx) ? "selected" : "";
+              return `
+                <li 
+                  class="${isSelected}"
+                  onclick="selectAnswer(${slideIdx}, ${qIdx}, ${aIdx})"
+                >
+                  ${answer}
+                </li>
+              `;
+            }).join("")}
+          </ul>
+        </div>
+      `;
+    });
+    return html;
+  }
+
+  // Called whenever user selects an answer
+  // => update data, then re-render the questions portion only
+  function selectAnswer(slideIdx, qIdx, answerIdx) {
+    slidesData[slideIdx].questions[qIdx].selectedIndex = answerIdx;
+
+    // Re-render *only* that slide’s questions container
+    const slideEl = document.getElementById(`slide-${slideIdx}`);
+    const questionsContainer = slideEl.querySelector(".questionsContainer");
+    questionsContainer.innerHTML = renderSlideQuestionsHTML(slideIdx);
+  }
+
+  // Seek to a certain time in the current slide’s video
+  // Also record the “timeEnd” so we can pause automatically
+  function seekToTime(slideIdx, questionIdx) {
+    const question = slidesData[slideIdx].questions[questionIdx];
+    if (players[slideIdx]) {
+      players[slideIdx].seekTo(question.timeStart, true);
+      players[slideIdx].playVideo();
+
+      // We'll pause the video automatically once it reaches question.timeEnd
+      activeEndTimes[slideIdx] = question.timeEnd;
+    }
+  }
+
+  // Periodically check if any currently playing video has reached its activeEndTime
+  function checkPauseConditions() {
+    players.forEach((player, i) => {
+      if (!player) return;
+
+      // If the player is currently playing, compare currentTime to activeEndTimes[i]
+      if (player.getPlayerState() === YT.PlayerState.PLAYING) {
+        const currentTime = player.getCurrentTime();
+        const limit = activeEndTimes[i];
+
+        // If we have a limit set, and we've passed that limit, pause the video
+        // and clear the limit so they can continue playing if they wish
+        if (typeof limit === "number" && currentTime >= limit) {
+          player.pauseVideo();
+          activeEndTimes[i] = null;  // clear so user can unpause and watch further
+        }
+      }
+    });
+  }
+
+  // Move the slides track based on currentSlide
+  function updateSlidesPosition() {
+    const slidesEl = document.getElementById("slides");
+    slidesEl.style.transform = `translateX(-${currentSlide * 100}%)`;
+  }
+
+  // Navigation
+// Ensure volume is set when changing slides
+function prevSlide() {
+  if (currentSlide > 0) {
+    if (players[currentSlide]) {
+      players[currentSlide].pauseVideo();
+    }
+    currentSlide--;
+    updateSlidesPosition();
+    applyVolumeToCurrentPlayer();
+  }
+}
+
+function nextSlide() {
+  if (currentSlide < slidesData.length) {
+    if (players[currentSlide]) {
+      players[currentSlide].pauseVideo();
+    }
+    currentSlide++;
+    updateSlidesPosition();
+    applyVolumeToCurrentPlayer();
+  }
+}
+
+// Apply volume to the currently active player
+function applyVolumeToCurrentPlayer() {
+  if (players[currentSlide] && typeof players[currentSlide].setVolume === "function") {
+    players[currentSlide].setVolume(currentVolume);
+  }
+}
+
+
+
+  // Utility: format seconds as M:SS
+  function formatTime(seconds) {
+    const m = Math.floor(seconds / 60);
+    const s = seconds % 60;
+    return `${m}:${s.toString().padStart(2, "0")}`;
+  }
+
+  function showModal() {
+  const modal = document.getElementById("submitModal");
+  const nameInput = document.getElementById("studentNameInput");
+  const periodInput = document.getElementById("classPeriodInput");
+  const downloadButton = document.getElementById("downloadButton");
+  const dropboxButton = document.getElementById("dropboxButton");
+  const backButton = document.getElementById("backButton");
+
+  modal.style.display = "flex"; // Show the modal
+
+  // Enable buttons when both fields are filled
+  function checkInputs() {
+    const isNameFilled = nameInput.value.trim().length > 0;
+    const isPeriodFilled = periodInput.value.trim().length > 0;
+    const enable = isNameFilled && isPeriodFilled;
+
+    downloadButton.disabled = !enable;
+    dropboxButton.disabled = !enable;
+  }
+
+  nameInput.addEventListener("input", checkInputs);
+  periodInput.addEventListener("input", checkInputs);
+
+  // Event listener for the download button
+  downloadButton.addEventListener("click", () => {
+  const studentName = nameInput.value.trim();
+  const classPeriod = periodInput.value.trim();
+  const submissionTime = new Date();
+  const dateString = submissionTime.toLocaleDateString().replace(/\//g, "-");
+
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF();
+  doc.setFont("helvetica", "normal");
+
+  let totalPages = 1; // Start with one page
+  let currentPage = 1;
+  let yOffset = 40;
+
+  // Function to add the header on each page
+  function addHeader(pageNumber, totalPages) {
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(20);
+    doc.text("Slides Answers", 75, 15);
+    doc.setFontSize(12);
+    doc.text(`Name: ${studentName}`, 10, 20);
+    doc.text(`Date: ${dateString}`, 10, 25);
+    doc.text(`Class Period: ${classPeriod}`, 10, 30);
+    doc.text(`Page: ${pageNumber}/${totalPages}`, 175, 30);
+    doc.line(10, 32, 200, 32); // Line separator
+  }
+
+  // Add header to the first page
+  addHeader(currentPage, totalPages);
+
+  slidesData.forEach((slide, slideIdx) => {
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(14);
+    doc.text(`Slide ${slideIdx + 1}`, 10, yOffset);
+    yOffset += 10;
+
+    slide.questions.forEach((q, qIdx) => {
+  // Add the question text in black
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(12);
+  doc.setTextColor(0, 0, 0); // Ensure question text is always black
+  doc.text(`${qIdx + 1}. ${q.text}`, 10, yOffset);
+  yOffset += 6;
+
+  q.answers.forEach((answer, aIdx) => {
+    const isSelected = q.selectedIndex === aIdx;
+
+    if (isSelected) {
+      // Set fill color to light green and draw a rectangle behind the text
+      doc.setFillColor(204, 255, 204); // RGB for light green
+      const textWidth = doc.getTextWidth(`- ${answer}`); // Get width of the text
+      doc.rect(15, yOffset - 4, textWidth + 2, 6, "F"); // Rectangle fits the text width
+
+      // Highlight selected answer text in green
+      doc.setTextColor(0, 128, 0); // Green text for the selected answer
+    } else {
+      // Non-selected answers in black
+      doc.setTextColor(0, 0, 0);
+    }
+
+    // Add the answer text
+    doc.text(`- ${answer}`, 15, yOffset);
+    yOffset += 6;
+  });
+
+  // Add spacing after each question
+  yOffset += 4;
+
+  // Check if we need to add a new page
+  if (yOffset > 270) {
+    doc.addPage();
+    currentPage++;
+    totalPages++;
+    yOffset = 40;
+    addHeader(currentPage, totalPages);
+  }
+});
+
+// Reset fill and text colors after processing all answers
+doc.setFillColor(255, 255, 255); // Reset fill color to white
+doc.setTextColor(0, 0, 0); // Reset text color to black
+
+
+  });
+
+  // Update headers with correct total page count
+  for (let i = 1; i <= totalPages; i++) {
+    doc.setPage(i);
+    addHeader(i, totalPages);
+  }
+
+  const filename = `${dateString}_${studentName.replace(/\s+/g, "_")}_Shorts.pdf`;
+  doc.save(filename);
+});
+
+
+  // Event listener for the Dropbox button
+  dropboxButton.addEventListener("click", () => {
+    window.open('https://docs.google.com/forms/d/e/1FAIpQLSd93KBw1PWfN_5VdvvNGluo4dOofDvIZHo3qTE8JlUB-fYCZA/viewform?usp=header', '_blank')
+  });
+
+  // Event listener for the Back button
+  backButton.addEventListener("click", () => {
+    modal.style.display = "none"; // Hide the modal
+    currentSlide = 0; // Go back to the previous slide
+    updateSlidesPosition(); // Update the slide position
+  });
+}
+
+
+</script>
+</body>
+</html>

@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Stop Motion Video Creator</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f0f0f0;
+      color: #333;
+      margin: 20px;
+    }
+    h1 {
+      text-align: center;
+    }
+    .controls {
+      margin-bottom: 20px;
+    }
+    .controls label {
+      display: block;
+      margin-bottom: 5px;
+    }
+    .slider-container {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    #framerate {
+      flex: 1;
+    }
+    #preview {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 20px;
+    }
+    #preview img {
+      width: 100px;
+      height: auto;
+      border: 1px solid #ccc;
+    }
+    #progress {
+      margin-top: 10px;
+      font-style: italic;
+    }
+    canvas {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <h1>Stop Motion Video Creator</h1>
+
+  <div class="controls">
+    <label for="images">Select Images:</label>
+    <input type="file" id="images" accept="image/*" multiple />
+  </div>
+
+  <div class="controls slider-container">
+    <input type="range" id="framerate" min="0.1" max="60" step="0.1" value="12" />
+    <span id="fps">12 fps</span>
+  </div>
+
+  <button id="create">Create Video</button>
+  <div id="progress"></div>
+
+  <div id="preview"></div>
+  <canvas id="canvas"></canvas>
+
+  <script>
+    const imageInput = document.getElementById('images');
+    const preview = document.getElementById('preview');
+    const framerateInput = document.getElementById('framerate');
+    const fpsLabel = document.getElementById('fps');
+    const createBtn = document.getElementById('create');
+    const progress = document.getElementById('progress');
+    const canvas = document.getElementById('canvas');
+    let files = [];
+
+    // Preview selected images
+    imageInput.addEventListener('change', () => {
+      files = Array.from(imageInput.files);
+      preview.innerHTML = '';
+      files.forEach(file => {
+        const img = document.createElement('img');
+        img.src = URL.createObjectURL(file);
+        preview.appendChild(img);
+      });
+    });
+
+    // Slider snapping logic & label update
+    framerateInput.addEventListener('input', () => {
+      let v = parseFloat(framerateInput.value);
+      if (v >= 1) {
+        v = Math.round(v);
+      } else {
+        v = Math.round(v * 10) / 10;
+      }
+      framerateInput.value = v;
+      fpsLabel.textContent = `${v} fps`;
+    });
+
+    // Utility: wait ms
+    function wait(ms) {
+      return new Promise(resolve => setTimeout(resolve, ms));
+    }
+
+    async function createVideo() {
+      if (!files.length) {
+        alert('Please select images first.');
+        return;
+      }
+      createBtn.disabled = true;
+      progress.textContent = 'Loading images…';
+
+      // Load all images
+      const images = await Promise.all(files.map(file => {
+        return new Promise(res => {
+          const img = new Image();
+          img.onload = () => res(img);
+          img.src = URL.createObjectURL(file);
+        });
+      }));
+
+      // Set canvas size to first image
+      canvas.width = images[0].naturalWidth;
+      canvas.height = images[0].naturalHeight;
+      const ctx = canvas.getContext('2d');
+
+      // Prepare MediaRecorder
+      const fps = parseFloat(framerateInput.value);
+      const stream = canvas.captureStream();
+      let options = { mimeType: 'video/webm; codecs=vp8' };
+      let recorder;
+      try {
+        recorder = new MediaRecorder(stream, options);
+      } catch (e) {
+        options = { mimeType: 'video/webm' };
+        recorder = new MediaRecorder(stream, options);
+      }
+      const chunks = [];
+      recorder.ondataavailable = e => chunks.push(e.data);
+      recorder.start();
+
+      progress.textContent = 'Recording…';
+
+      const frameDuration = 1000 / fps;
+      for (let img of images) {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+        await wait(frameDuration);
+      }
+
+      recorder.stop();
+      progress.textContent = 'Finalizing…';
+
+      recorder.onstop = () => {
+        const blob = new Blob(chunks, { type: options.mimeType });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        // Note: browsers will output WebM; you can rename .webm → .mp4 if needed
+        a.download = 'stop_motion.webm';
+        a.click();
+        progress.textContent = 'Done!';
+        createBtn.disabled = false;
+      };
+    }
+
+    createBtn.addEventListener('click', createVideo);
+  </script>
+</body>
+</html>

@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Song Timestamp Marker</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+    }
+    button {
+      margin: 5px;
+      padding: 10px 15px;
+    }
+    #codeOutput {
+      width: 100%;
+      height: 200px;
+      margin-top: 10px;
+      font-family: monospace;
+    }
+  </style>
+</head>
+<body>
+  <h1>Song Timestamp Marker</h1>
+
+  <!-- Select your audio file -->
+  <input type="file" id="audioFile" accept="audio/*"><br><br>
+  
+  <!-- Audio player -->
+  <audio id="audioPlayer" controls></audio><br><br>
+  
+  <!-- Control buttons -->
+  <button id="markBtn">Mark Timestamp</button>
+  <button id="pauseBtn">Pause</button>
+  <button id="unpauseBtn">Unpause</button>
+  <button id="copyBtn">Copy Code</button>
+  
+  <h2>Generated Code</h2>
+  <textarea id="codeOutput" readonly></textarea>
+  
+  <script>
+    let lineTimestamps = {};
+    let currentLine = 0;
+    let lastTimestamp = 0;
+
+    const audioPlayer = document.getElementById('audioPlayer');
+    const audioFileInput = document.getElementById('audioFile');
+    const markBtn = document.getElementById('markBtn');
+    const pauseBtn = document.getElementById('pauseBtn');
+    const unpauseBtn = document.getElementById('unpauseBtn');
+    const copyBtn = document.getElementById('copyBtn');
+    const codeOutput = document.getElementById('codeOutput');
+
+    // Load selected audio file
+    audioFileInput.addEventListener('change', function() {
+      const file = this.files[0];
+      if (file) {
+        audioPlayer.src = URL.createObjectURL(file);
+      }
+    });
+
+    // Update the textarea with the current timestamp code
+    function updateCodeDisplay() {
+      let codeString = 'var lineTimestamps = {\n';
+      for (const [key, value] of Object.entries(lineTimestamps)) {
+        codeString += '  ' + key + ': { start: ' + value.start.toFixed(2) + ', end: ' + value.end.toFixed(2) + ' },\n';
+      }
+      codeString += '};';
+      codeOutput.value = codeString;
+    }
+
+    // Mark the timestamp for the current line
+    function markTimestamp() {
+      const currentTime = audioPlayer.currentTime;
+      lineTimestamps[currentLine] = { start: lastTimestamp, end: currentTime };
+      lastTimestamp = currentTime;
+      currentLine++;
+      updateCodeDisplay();
+    }
+
+    markBtn.addEventListener('click', markTimestamp);
+
+    // Pause the audio
+    pauseBtn.addEventListener('click', function() {
+      audioPlayer.pause();
+    });
+
+    // Unpause/play the audio
+    unpauseBtn.addEventListener('click', function() {
+      audioPlayer.play();
+    });
+
+    // Use the down arrow key to mark the timestamp
+    document.addEventListener('keydown', function(e) {
+      if (e.code === 'ArrowDown') {
+        e.preventDefault();
+        markTimestamp();
+      }
+    });
+
+    // Copy the generated code to clipboard
+    copyBtn.addEventListener('click', function() {
+      codeOutput.select();
+      document.execCommand('copy');
+      alert('Code copied to clipboard!');
+    });
+  </script>
+</body>
+</html>

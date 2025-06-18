@@ -1,0 +1,192 @@
+<html lang="en" class="doc" translate="no"></html>
+<!DOCTYPE html>
+<html lang="en" translate="no">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pre-Columbian Civilizations</title>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: Arial, sans-serif;
+            background: linear-gradient(to bottom, #5ffaff, #7ba9fe);
+        }
+
+        .content-container {
+            width: 80%;
+            height: 100%;
+            background-color: #ffffff;
+            padding: 20px;
+            overflow-y: auto;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .definitions {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #f9f9f9;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            font-size: 15px;
+            line-height: 1.6;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .definitions p {
+            margin: 0;
+            padding: 5px 10px;
+            border-radius: 5px;
+        }
+
+        .content-container img {
+            display: block;
+            margin: 20px auto;
+            width: 80%;
+            height: auto;
+        }
+
+        sup {
+            font-size: 12px;
+        }
+        .game-container {
+      
+      padding: 50px;
+    }
+    .story {
+      font-size: 1.2em;
+      line-height: 1.6;
+      text-align: left;
+      color: #333;
+    }
+    /* Make clickable words more distinguishable */
+    .clickable-word {
+      cursor: pointer;
+      color: #222121; 
+      transition: color 0.2s;
+      font-weight: 600;
+    }
+    .clickable-word:hover {
+      color: #007BFF;
+    }
+    .definition-box {
+      position: absolute;
+      background-color: #fff;
+      border: 1px solid #ccc;
+      padding: 10px;
+      border-radius: 5px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      display: none;
+      z-index: 10;
+      font-size: 0.9em;
+      color: #333;
+    }
+    </style>
+</head>
+<body>
+    <div class="content-container">
+        <div class="game-container">
+            <h2>Chinampas</h2>
+        
+            <div class="story">
+                <p>
+                    Los 
+                    <span class="clickable-word" data-definition="floating farm plots used by the Aztecs">
+                      chinampas
+                    </span> 
+                    <span class="clickable-word" data-definition="(imperfect) they were / used to be">
+                      eran
+                    </span> 
+                    un sistema de 
+                    <span class="clickable-word" data-definition="floating agriculture">
+                      agricultura flotante
+                    </span> 
+                    utilizado por los aztecas en los 
+                    <span class="clickable-word" data-definition="lakes">
+                      lagos
+                    </span> 
+                    <span class="clickable-word" data-definition="around / surrounding">
+                      alrededor
+                    </span> 
+                    de Tenochtitlán. 
+                    Los aztecas 
+                    <span class="clickable-word" data-definition="(imperfect) they built / used to build">
+                      construían
+                    </span> 
+                    estas "islas" usando 
+                    <span class="clickable-word" data-definition="layers">
+                      capas
+                    </span> 
+                    de tierra, 
+                    <span class="clickable-word" data-definition="branches">
+                      ramas
+                    </span> 
+                    y 
+                    <span class="clickable-word" data-definition="mud / clay">
+                      barro
+                    </span> 
+                    sobre el agua, creando 
+                    <span class="clickable-word" data-definition="fertile plots of land">
+                      parcelas fértiles
+                    </span> 
+                    donde 
+                    <span class="clickable-word" data-definition="(imperfect) they could / used to be able">
+                      podían
+                    </span> 
+                    <span class="clickable-word" data-definition="to sow / to plant">
+                      sembrar
+                    </span> 
+                    cultivos como maíz, frijol y tomates. 
+                    Los 
+                    <span class="clickable-word" data-definition="floating farm plots used by the Aztecs">
+                      chinampas
+                    </span> 
+                    <span class="clickable-word" data-definition="(imperfect) they increased / used to increase">
+                      aumentaban
+                    </span> 
+                    la cantidad de tierra disponible para la agricultura.
+                  </p>
+                  
+              
+            </div>
+        
+            <!-- Definition Box (appears when a clickable word is clicked) -->
+            <div id="definitionBox" class="definition-box"></div>
+          </div>
+    </div>
+</body>
+</html>
+<script>
+    // Get the definition box element
+    const definitionBox = document.getElementById('definitionBox');
+
+    // Add click event listeners to all clickable words
+    document.querySelectorAll('.clickable-word').forEach(word => {
+      word.addEventListener('click', (e) => {
+        // Get the clicked word's position
+        const rect = word.getBoundingClientRect();
+        const scrollTop = window.scrollY || document.documentElement.scrollTop;
+
+        // Position the definition box above the clicked word
+        definitionBox.style.display = 'block';
+        definitionBox.style.top = `${rect.top + scrollTop - 50}px`; // 50px above the word
+        definitionBox.style.left = `${rect.left}px`;
+
+        // Display the definition from the data-definition attribute
+        definitionBox.textContent = word.getAttribute('data-definition');
+      });
+    });
+
+    // Hide the definition box when clicking outside
+    document.addEventListener('click', (e) => {
+      if (!e.target.classList.contains('clickable-word')) {
+        definitionBox.style.display = 'none';
+      }
+    });
+  </script>

@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<title>Grading Math Tool</title>
+	<style>
+		body {
+			font-family: sans-serif;
+			margin: 2em;
+		}
+		input[type="number"] {
+			padding: 0.5em;
+			margin-bottom: 1em;
+			font-size: 1em;
+			width: 100px;
+		}
+		#scoreList {
+			max-height: 500px;
+			overflow-y: auto;
+			border: 1px solid #ccc;
+			padding: 1em;
+		}
+		.score-item {
+			margin-bottom: 0.5em;
+		}
+	</style>
+</head>
+<body>
+	<h1>Grading Math Tool</h1>
+	<label for="totalPoints">Total Possible Points:</label>
+	<input type="number" id="totalPoints" value="37" min="1" />
+
+	<div id="scoreList"></div>
+
+	<script>
+		const totalPointsInput = document.getElementById("totalPoints");
+		const scoreList = document.getElementById("scoreList");
+
+		function updateScores() {
+			const total = parseFloat(totalPointsInput.value);
+			if (isNaN(total) || total <= 0) return;
+
+			scoreList.innerHTML = "";
+
+			for (let score = 0; score <= total; score++) {
+				const originalPercent = (score / total * 100).toFixed(2);
+				const correctedScore = score + (total - score) / 2;
+				const correctedPercent = (correctedScore / total * 100).toFixed(2);
+
+				const div = document.createElement("div");
+				div.className = "score-item";
+				div.textContent = `Score: ${score}/${total} → ${originalPercent}% | After Half Back: ${correctedScore.toFixed(2)}/${total} → ${correctedPercent}%`;
+				scoreList.appendChild(div);
+			}
+		}
+
+		totalPointsInput.addEventListener("input", updateScores);
+		updateScores(); // initial load
+	</script>
+</body>
+</html>

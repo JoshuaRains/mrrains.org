@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Integrated Spanish Vocabulary Round</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      font-family: Arial, sans-serif;
+    }
+    body {
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      background: #f2f2f2;
+    }
+    /* Progress Bar */
+    #progress-container {
+      width: 90%;
+      max-width: 800px;
+      height: 20px;
+      background: #ddd;
+      border-radius: 10px;
+      margin: 20px auto;
+      overflow: hidden;
+    }
+    #progress-bar {
+      height: 100%;
+      width: 0%;
+      background: green;
+      border-radius: 10px;
+      transition: width 0.5s ease;
+    }
+    /* Directions */
+    #directions {
+      width: 90%;
+      max-width: 800px;
+      margin: 10px auto;
+      text-align: center;
+      font-weight: bold;
+    }
+    /* Round Selector */
+    #round-selector {
+      width: 90%;
+      max-width: 800px;
+      margin: 20px auto;
+      text-align: center;
+    }
+    #round-selector button {
+      margin: 0 10px;
+      padding: 10px 20px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    .container {
+      flex: 1;
+      padding: 20px;
+    }
+    /* Matching Round Styles */
+    #matching-container {
+      display: none;
+    }
+    #matching-container .grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      grid-gap: 10px;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+    .card {
+      background: #fff;
+      border: 2px solid #ccc;
+      border-radius: 8px;
+      height: 120px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 16px;
+      cursor: pointer;
+      position: relative;
+      transition: transform 0.3s;
+      user-select: none;
+      perspective: 600px;
+    }
+    .card.selected {
+      transform: scale(1.05);
+    }
+    .card .inner {
+      width: 100%;
+      height: 100%;
+      transition: transform 0.5s;
+      transform-style: preserve-3d;
+      position: relative;
+    }
+    .card.flip .inner {
+      transform: rotateY(180deg);
+    }
+    .card .front, .card .back {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      backface-visibility: hidden;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      border-radius: 8px;
+      padding: 5px;
+      text-align: center;
+    }
+    .card .front {
+      background: #777;
+      color: #fff;
+    }
+    .card .back {
+      background: #007BFF;
+      color: #fff;
+      transform: rotateY(180deg);
+    }
+    .card.shake {
+      animation: shake 1s;
+    }
+    @keyframes shake {
+      0% { transform: translate(1px, 1px) rotate(0deg); }
+      10% { transform: translate(-1px, -2px) rotate(-1deg); }
+      20% { transform: translate(-3px, 0px) rotate(1deg); }
+      30% { transform: translate(3px, 2px) rotate(0deg); }
+      40% { transform: translate(1px, -1px) rotate(1deg); }
+      50% { transform: translate(-1px, 2px) rotate(-1deg); }
+      60% { transform: translate(-3px, 1px) rotate(0deg); }
+      70% { transform: translate(3px, 1px) rotate(-1deg); }
+      80% { transform: translate(-1px, -1px) rotate(1deg); }
+      90% { transform: translate(1px, 2px) rotate(0deg); }
+      100% { transform: translate(1px, -2px) rotate(-1deg); }
+    }
+    /* Sliding Round Styles */
+    #sliding-container-wrapper {
+      display: none;
+      overflow: hidden;
+      width: 90%;
+      max-width: 800px;
+      margin: 0 auto;
+      position: relative;
+      height: 250px;
+    }
+    #sliding-container {
+      display: flex;
+      transition: transform 0.5s ease;
+    }
+    .slide-card {
+      flex: 0 0 250px;
+      margin: 0 10px;
+      background: #fff;
+      border: 2px solid #ccc;
+      border-radius: 8px;
+      padding: 10px;
+      text-align: center;
+      position: relative;
+    }
+    .slide-card.current {
+      transform: scale(1.2);
+    }
+    .slide-prompt {
+      font-weight: bold;
+      margin-bottom: 10px;
+    }
+    .slide-input {
+      width: 90%;
+      padding: 5px;
+      font-size: 14px;
+    }
+    .hint-text {
+      margin-top: 5px;
+      font-size: 14px;
+      color: #333;
+    }
+    /* End Screen */
+    #end-screen {
+      text-align: center;
+      padding: 20px;
+      display: none;
+    }
+    button {
+      padding: 10px 20px;
+      font-size: 16px;
+      margin-top: 20px;
+      cursor: pointer;
+    }
+    @media (max-width: 600px) {
+      .card {
+        height: 80px;
+        font-size: 14px;
+      }
+      .slide-card {
+        flex: 0 0 200px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Progress Bar -->
+  <div id="progress-container">
+    <div id="progress-bar"></div>
+  </div>
+  <!-- Directions -->
+  <div id="directions"></div>
+  <!-- Round Selector -->
+  <div id="round-selector">
+    <button id="start-round">Start Round</button>
+  </div>
+  <div class="container">
+    <!-- Matching Round Container -->
+    <div id="matching-container">
+      <div class="grid" id="card-grid"></div>
+    </div>
+    <!-- Sliding Round Container -->
+    <div id="sliding-container-wrapper">
+      <div id="sliding-container"></div>
+    </div>
+    <!-- End Screen -->
+    <div id="end-screen">
+      <h2>Round Complete!</h2>
+      <p id="final-time"></p>
+      <button id="restart-round">Restart Round</button>
+    </div>
+  </div>
+
+  <script>
+    /* ---------------- Vocabulary Update ---------------- */
+    // Each item now has an array of acceptable definitions.
+    // For matching flashcards, only the first definition is shown.
+    const vocabulary = [
+      // Body Parts
+      { term: "Cabeza", definition: ["Head"] },
+      { term: "Brazo", definition: ["Arm"] },
+      { term: "Pierna", definition: ["Leg"] },
+      { term: "Ojo", definition: ["Eye"] },
+      { term: "Mano", definition: ["Hand"] },
+      { term: "Pie", definition: ["Foot"] },
+      { term: "Oreja", definition: ["Ear"] },
+      // Daily Routines
+      { term: "Despertarse", definition: ["Wake up", "to wake up"] },
+      { term: "Cepillarse", definition: ["Brush", "to brush"] },
+      { term: "Ducharse", definition: ["Shower", "to shower"] },
+      { term: "Vestirse", definition: ["Get dressed", "to get dressed"] },
+      { term: "Desayunar", definition: ["Have breakfast", "to have breakfast", "to eat breakfast", "eat breakfast"] },
+      // Clothing Items
+      { term: "Camisa", definition: ["Shirt"] },
+      { term: "Pantalones", definition: ["Pants"] },
+      { term: "Zapatos", definition: ["Shoes"] },
+      { term: "Vestido", definition: ["Dress"] },
+      { term: "Falda", definition: ["Skirt"] },
+      { term: "Chaqueta", definition: ["Jacket"] }
+    ];
+
+    /* ---------------- Global Round Variables ---------------- */
+    const totalRoundQuestions = 5; // 3 matching then 2 sliding
+    let currentQuestion = 0; // 1-indexed
+    let roundStartTime;
+
+    /* ---------------- Matching Variables ---------------- */
+    const totalMatchingQuestions = 3; // questions 1–3
+    let selectedCards = [];
+    const cardGrid = document.getElementById("card-grid");
+    const matchingContainer = document.getElementById("matching-container");
+
+    /* ---------------- Sliding Variables ---------------- */
+    const totalSlidingCards = 5; // each sliding question uses 5 slides
+    let currentSlideIndex = 0;
+    let slidingPairs = [];
+    const slidingContainer = document.getElementById("sliding-container");
+    const slidingWrapper = document.getElementById("sliding-container-wrapper");
+
+    /* ---------------- UI Elements ---------------- */
+    const progressBar = document.getElementById("progress-bar");
+    const directions = document.getElementById("directions");
+    const roundSelector = document.getElementById("round-selector");
+    const endScreen = document.getElementById("end-screen");
+    const finalTimeText = document.getElementById("final-time");
+    const startRoundBtn = document.getElementById("start-round");
+    const restartRoundBtn = document.getElementById("restart-round");
+
+    /* ---------------- Hint Countdown Variables for Sliding ---------------- */
+    let currentHintInterval = null;
+    let currentHintCountdown = 5;
+    let currentHintRevealed = false;
+
+    /* ---------------- Utility Functions ---------------- */
+    function shuffle(array) {
+      for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+      }
+    }
+    function getRandomPairs(num) {
+      const copy = [...vocabulary];
+      shuffle(copy);
+      return copy.slice(0, num);
+    }
+    function updateProgress() {
+      // Overall round progress (out of 5 questions)
+      const percent = ((currentQuestion - 1) / totalRoundQuestions) * 100;
+      progressBar.style.width = percent + "%";
+    }
+    function endRound() {
+      const totalTime = ((new Date() - roundStartTime) / 1000).toFixed(2);
+      matchingContainer.style.display = "none";
+      slidingWrapper.style.display = "none";
+      endScreen.style.display = "block";
+      finalTimeText.textContent = `You took ${totalTime} seconds to complete the round.`;
+      progressBar.style.width = "100%";
+    }
+
+    /* ---------------- Matching Round Functions ---------------- */
+    function loadMatchingQuestion() {
+      directions.textContent = "Matching: Select a pair (term and definition). Correct pairs will flip over.";
+      matchingContainer.style.display = "block";
+      slidingWrapper.style.display = "none";
+      cardGrid.innerHTML = "";
+      selectedCards = [];
+      // Use 6 pairs for matching; for definitions, only show the first answer.
+      const pairs = getRandomPairs(6);
+      const cards = [];
+      pairs.forEach((pair, index) => {
+        cards.push({ id: index, content: pair.term, type: "term" });
+        cards.push({ id: index, content: pair.definition[0], type: "definition" });
+      });
+      shuffle(cards);
+      cards.forEach(card => {
+        const cardElem = createMatchingCard(card);
+        cardGrid.appendChild(cardElem);
+      });
+    }
+    function createMatchingCard(card) {
+      const cardDiv = document.createElement("div");
+      cardDiv.classList.add("card", "flip");
+      cardDiv.dataset.pairId = card.id;
+      cardDiv.dataset.cardType = card.type;
+      cardDiv.dataset.matched = "false";
+
+      const innerDiv = document.createElement("div");
+      innerDiv.classList.add("inner");
+
+      const frontDiv = document.createElement("div");
+      frontDiv.classList.add("front");
+      frontDiv.textContent = "";
+
+      const backDiv = document.createElement("div");
+      backDiv.classList.add("back");
+      backDiv.textContent = card.content;
+
+      innerDiv.appendChild(frontDiv);
+      innerDiv.appendChild(backDiv);
+      cardDiv.appendChild(innerDiv);
+
+      cardDiv.addEventListener("click", function() {
+        if (
+          cardDiv.dataset.matched === "true" ||
+          cardDiv.classList.contains("shake") ||
+          selectedCards.length === 2 ||
+          selectedCards.includes(cardDiv)
+        ) {
+          return;
+        }
+        cardDiv.classList.add("selected");
+        selectedCards.push(cardDiv);
+        if (selectedCards.length === 2) {
+          checkMatchingPair();
+        }
+      });
+      return cardDiv;
+    }
+    function checkMatchingPair() {
+      const [cardA, cardB] = selectedCards;
+      const isMatch =
+        cardA.dataset.pairId === cardB.dataset.pairId &&
+        cardA.dataset.cardType !== cardB.dataset.cardType;
+      if (isMatch) {
+        cardA.classList.remove("flip");
+        cardB.classList.remove("flip");
+        cardA.dataset.matched = "true";
+        cardB.dataset.matched = "true";
+        cardA.classList.remove("selected");
+        cardB.classList.remove("selected");
+        selectedCards = [];
+        if (document.querySelectorAll('.card[data-matched="true"]').length === 12) {
+          setTimeout(nextQuestion, 1000);
+        }
+      } else {
+        cardA.classList.add("shake");
+        cardB.classList.add("shake");
+        setTimeout(() => {
+          cardA.classList.remove("shake");
+          cardB.classList.remove("shake");
+          cardA.classList.remove("selected");
+          cardB.classList.remove("selected");
+          selectedCards = [];
+        }, 1000);
+      }
+    }
+
+    /* ---------------- Sliding Round Functions ---------------- */
+    function loadSlidingQuestion() {
+      directions.textContent = "Sliding: Type the correct definition for the given term and press Enter. Cards will slide left.";
+      slidingWrapper.style.display = "block";
+      matchingContainer.style.display = "none";
+      // Reset hint variables
+      clearHintTimer();
+      currentSlideIndex = 0;
+      slidingContainer.innerHTML = "";
+      slidingPairs = getRandomPairs(totalSlidingCards);
+      slidingPairs.forEach((pair, index) => {
+        const slideCard = document.createElement("div");
+        slideCard.classList.add("slide-card");
+        slideCard.dataset.index = index;
+        if (index === currentSlideIndex) {
+          slideCard.classList.add("current");
+        }
+        // Prompt using the Spanish term
+        const promptDiv = document.createElement("div");
+        promptDiv.classList.add("slide-prompt");
+        promptDiv.textContent = `What is the definition of "${pair.term}"?`;
+        // Input field
+        const inputField = document.createElement("input");
+        inputField.type = "text";
+        inputField.classList.add("slide-input");
+        inputField.placeholder = "Type answer...";
+        // Hint text element
+        const hintDiv = document.createElement("div");
+        hintDiv.classList.add("hint-text");
+        hintDiv.textContent = "";
+        // Keyup event: if Enter is pressed, check answer or reveal hint
+        inputField.addEventListener("keyup", function(e) {
+          if (e.key === "Enter") {
+            // If countdown finished and hint not revealed, reveal hint
+            if (currentHintCountdown <= 0 && !currentHintRevealed) {
+              revealHint(slideCard, pair.definition[0]);
+              return;
+            }
+            checkSlidingAnswer(inputField.value.trim(), index);
+          }
+        });
+        slideCard.appendChild(promptDiv);
+        slideCard.appendChild(inputField);
+        slideCard.appendChild(hintDiv);
+        slidingContainer.appendChild(slideCard);
+      });
+      updateSlidingPosition();
+      focusCurrentSlideInput();
+    }
+    function checkSlidingAnswer(answer, index) {
+      // Check answer against all acceptable definitions (case-insensitive)
+      const correctAnswers = slidingPairs[index].definition.map(a => a.toLowerCase());
+      if (correctAnswers.includes(answer.toLowerCase())) {
+        clearHintTimer();
+        const currentCard = slidingContainer.querySelector(`.slide-card[data-index="${index}"]`);
+        const inputField = currentCard.querySelector(".slide-input");
+        inputField.value = "";
+        currentSlideIndex++;
+        updateProgress();
+        if (currentSlideIndex >= totalSlidingCards) {
+          setTimeout(nextQuestion, 500);
+        } else {
+          slidingContainer.querySelectorAll(".slide-card").forEach(card => card.classList.remove("current"));
+          slidingContainer.querySelector(`.slide-card[data-index="${currentSlideIndex}"]`).classList.add("current");
+          updateSlidingPosition();
+          focusCurrentSlideInput();
+        }
+      }
+    }
+    function updateSlidingPosition() {
+      // Each slide card's effective width: 250px + 20px margin = 270px.
+      const containerWidth = slidingWrapper.offsetWidth;
+      const offset = (containerWidth / 2) - (currentSlideIndex * 270 + 135);
+      slidingContainer.style.transform = `translateX(${offset}px)`;
+    }
+    function focusCurrentSlideInput() {
+      clearHintTimer();
+      currentHintRevealed = false;
+      currentHintCountdown = 5;
+      const currentCard = slidingContainer.querySelector(".slide-card.current");
+      if (currentCard) {
+        const input = currentCard.querySelector(".slide-input");
+        if (input) input.focus();
+        startHintCountdown(currentCard);
+      }
+    }
+    function startHintCountdown(slideCard) {
+      const hintDiv = slideCard.querySelector(".hint-text");
+      hintDiv.textContent = "hint in 5 seconds...";
+      currentHintInterval = setInterval(() => {
+        currentHintCountdown--;
+        if (currentHintCountdown > 0) {
+          hintDiv.textContent = `hint in ${currentHintCountdown} seconds...`;
+        } else {
+          hintDiv.textContent = "press enter for hint.";
+          clearHintTimer();
+        }
+      }, 1000);
+    }
+    function clearHintTimer() {
+      if (currentHintInterval !== null) {
+        clearInterval(currentHintInterval);
+        currentHintInterval = null;
+      }
+    }
+    function revealHint(slideCard, answerText) {
+      const hintDiv = slideCard.querySelector(".hint-text");
+      hintDiv.style.color = "red";
+      hintDiv.textContent = answerText;
+      currentHintRevealed = true;
+    }
+
+    /* ---------------- Round Control Functions ---------------- */
+    function nextQuestion() {
+      currentQuestion++;
+      updateProgress();
+      if (currentQuestion > totalRoundQuestions) {
+        endRound();
+        return;
+      }
+      // Questions 1–3: matching; Questions 4–5: sliding
+      if (currentQuestion <= totalMatchingQuestions) {
+        loadMatchingQuestion();
+      } else {
+        loadSlidingQuestion();
+      }
+    }
+    function startRound() {
+      currentQuestion = 1;
+      roundStartTime = new Date();
+      updateProgress();
+      roundSelector.style.display = "none";
+      endScreen.style.display = "none";
+      loadMatchingQuestion();
+    }
+    function restartRound() {
+      roundSelector.style.display = "block";
+      matchingContainer.style.display = "none";
+      slidingWrapper.style.display = "none";
+      endScreen.style.display = "none";
+      progressBar.style.width = "0%";
+      directions.textContent = "";
+    }
+
+    /* ---------------- Event Listeners ---------------- */
+    startRoundBtn.addEventListener("click", startRound);
+    restartRoundBtn.addEventListener("click", restartRound);
+  </script>
+</body>
+</html>

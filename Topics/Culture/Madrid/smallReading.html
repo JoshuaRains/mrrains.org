@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en" translate="no">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Madrid: Lectura en Español con Definiciones</title>
+  <style>
+    body, html {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100%;
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: linear-gradient(to bottom, #5ffaff, #7ba9fe);
+    }
+    .game-container {
+      text-align: center;
+      width: 100%;
+      max-width: 800px;
+      padding: 50px;
+      border: 2px solid #d3d3d3;
+      background-color: #f7f4f4;
+      border-radius: 10px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+    .story {
+      font-size: 1.2em;
+      line-height: 1.6;
+      text-align: left;
+      color: #333; /* Default text color */
+    }
+    /* Make clickable words more distinguishable */
+    .clickable-word {
+      cursor: pointer;
+      color: #222121; /* Blue text */
+      
+      transition: color 0.2s;
+      font-weight: 600;
+    }
+    .clickable-word:hover {
+        color: #007BFF;
+    }
+    .definition-box {
+      position: absolute;
+      background-color: #fff;
+      border: 1px solid #ccc;
+      padding: 10px;
+      border-radius: 5px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      display: none;
+      z-index: 10;
+      font-size: 0.9em;
+      color: #333;
+    }
+    .questions {
+      margin-top: 30px;
+      text-align: left;
+      font-size: 1.1em;
+    }
+    .questions h3 {
+      margin-bottom: 10px;
+      color: #007BFF;
+    }
+    .questions ol {
+      padding-left: 20px;
+    }
+    .questions li {
+      margin-bottom: 10px;
+    }
+    .answer-instruction {
+      margin-top: 10px;
+      font-style: italic;
+      color: #444;
+    }
+  </style>
+</head>
+<body>
+  <div class="game-container">
+    <h2>Madrid: Lectura en Español con Definiciones</h2>
+    <div class="story">
+      <!-- Spanish Reading with Clickable Words -->
+      <p>
+        Madrid, capital de España, es la 
+        <span class="clickable-word" data-definition="city">ciudad</span> 
+        más grande de 
+        <span class="clickable-word" data-definition="that">ese</span> 
+        <span class="clickable-word" data-definition="country">país</span>. 
+        <span class="clickable-word" data-definition="Likewise / Also">Asimismo</span>, 
+        es el centro principal del 
+        <span class="clickable-word" data-definition="development">desarrollo</span> 
+        económico, cultural y turístico de la Península Ibérica. 
+        Los <span class="clickable-word" data-definition="inhabitants / people living in">habitantes</span> 
+        de Madrid 
+        <span class="clickable-word" data-definition="enjoy">disfrutan</span> 
+        de una vibrante vida en las 
+        <span class="clickable-word" data-definition="streets">calles</span>, 
+        <span class="clickable-word" data-definition="walking around / strolling">paseando por</span> 
+         las calles  
+         <span class="clickable-word" data-definition="until">hasta</span> 
+
+        <span class="clickable-word" data-definition="late hours">altas horas</span> 
+        y <span class="clickable-word" data-definition="spending time">pasando el tiempo</span> 
+        en las 
+        <span class="clickable-word" data-definition="terraces (outdoor seating areas)">terrazas</span> 
+        de los cafés. 
+        Los <span class="clickable-word" data-definition="theaters">teatros</span> 
+        y <span class="clickable-word" data-definition="cinema / movie theater">cines</span> 
+        <span class="clickable-word" data-definition="begin / start">comienzan</span> 
+         <span class="clickable-word" data-definition="their">sus</span> 
+         <span class="clickable-word" data-definition="shows / performances">funciones</span> 
+        tarde <span class="clickable-word" data-definition="according to">de acuerdo a</span> 
+        los <span class="clickable-word" data-definition="schedules / timetables">horarios</span> 
+        americanos. Madrid es una ciudad moderna, con muchos museos, parques y 
+        <span class="clickable-word" data-definition="gardens">jardines</span> 
+        públicos. 
+        <span class="clickable-word" data-definition="there exists">Existe</span> 
+        una plaza de 
+        <span class="clickable-word" data-definition="bulls (bullfighting ring)">toros</span> 
+        con 23,000 
+        <span class="clickable-word" data-definition="seats">asientos</span>
+        y un <span class="clickable-word" data-definition="football stadium">estadio de fútbol</span>  con una capacidad de 125,000 
+        <span class="clickable-word" data-definition="approximately">aproximadamente</span>. 
+        La <span class="clickable-word" data-definition="people">gente</span> 
+        de Madrid expresa 
+        <span class="clickable-word" data-definition="their / his or her">su</span> 
+        amor <span class="clickable-word" data-definition="for / by / through">por</span> 
+        <span class="clickable-word" data-definition="this">esta</span> ciudad 
+        con un <span class="clickable-word" data-definition="saying / proverb">dicho</span> 
+        popular: 
+        <span class="clickable-word" data-definition="From Madrid to heaven, and in heaven a little window from which to see it.">
+          “De Madrid al cielo, y en el cielo una ventanita desde donde verlo.”
+        </span>
+      </p>
+    </div>
+
+    <!-- Definition Box (appears when a clickable word is clicked) -->
+    <div id="definitionBox" class="definition-box"></div>
+
+    <!-- Comprehension Questions -->
+    <div class="questions">
+      <h3>Comprensión</h3> 
+      <strong>Instructions:</strong> Answer the questions in Spanish using complete sentences.
+      <ol>
+        <li>
+          <span class="clickable-word" data-definition="What">¿Qué</span> es la capital de España?
+        </li>
+        <li>¿Es Madrid una ciudad moderna?</li>
+        <li>
+          <span class="clickable-word" data-definition="What">¿Qué</span> 
+          es la 
+          <span class="clickable-word" data-definition="capacity">capacidad</span> 
+          del gran 
+          <span class="clickable-word" data-definition="football stadium">estadio de fútbol</span> en Madrid?
+        </li>
+        <li>
+          <span class="clickable-word" data-definition="What">¿Qué</span> 
+          es la 
+          <span class="clickable-word" data-definition="capacity">capacidad</span> 
+          de la plaza de toros en Madrid?
+        </li>
+      </ol>
+      <p class="answer-instruction">
+        
+       
+      </p>
+    </div>
+  </div>
+
+  <script>
+    // Get the definition box element
+    const definitionBox = document.getElementById('definitionBox');
+
+    // Add click event listeners to all clickable words
+    document.querySelectorAll('.clickable-word').forEach(word => {
+      word.addEventListener('click', (e) => {
+        // Get the clicked word's position
+        const rect = word.getBoundingClientRect();
+        const scrollTop = window.scrollY || document.documentElement.scrollTop;
+
+        // Position the definition box above the clicked word
+        definitionBox.style.display = 'block';
+        definitionBox.style.top = `${rect.top + scrollTop - 50}px`;
+        definitionBox.style.left = `${rect.left}px`;
+
+        // Display the definition from the data-definition attribute
+        definitionBox.textContent = word.getAttribute('data-definition');
+      });
+    });
+
+    // Hide the definition box when clicking outside of a clickable word
+    document.addEventListener('click', (e) => {
+      if (!e.target.classList.contains('clickable-word')) {
+        definitionBox.style.display = 'none';
+      }
+    });
+  </script>
+</body>
+</html>

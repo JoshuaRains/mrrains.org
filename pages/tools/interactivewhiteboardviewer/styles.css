@@ -1,0 +1,273 @@
+html, body {
+	margin: 0;
+	padding: 0;
+	width: 100%;
+	height: 100%;
+	overflow: hidden;
+	background: #ccc;
+	font-family: sans-serif;
+}
+
+.top-bar {
+	position: absolute;
+	top: 0; left: 0;
+	width: 100%;
+	height: 8vh;
+	background: #fff;
+	display: flex;
+	align-items: center;
+	padding: 0 10px;
+	box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+	z-index: 10;
+}
+
+.dropdown {
+	position: absolute;
+	top: 8vh; left: 10px;
+	width: 200px;
+	max-height: 60vh;
+	overflow-y: auto;
+	background: #fff;
+	border: 1px solid #ddd;
+	border-radius: 4px;
+	box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+}
+
+.hidden { display: none; }
+
+.new-board-btn {
+	width: 100%;
+	padding: 8px;
+	border: none;
+	background: #f0f0f0;
+	cursor: pointer;
+}
+
+
+.board-item {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	padding: 8px;
+	cursor: pointer;
+}
+
+.board-item:hover { background: #eee; }
+
+#canvas-container {
+	position: absolute;
+	top: 8vh; bottom: 8vh;
+	left: 0; right: 0;
+	background: #eee;
+	overflow: hidden;
+    
+}
+#canvas-container > div {
+  pointer-events: none;
+}
+
+#whiteboard-canvas {
+	background: #fff;
+	display: block;
+	margin: auto;
+}
+
+.bottom-bar {
+	position: absolute;
+	bottom: 0; left: 0;
+	width: 100%;
+	height: 8vh;
+	background: #fff;
+	display: flex;
+	align-items: center;
+	padding: 0 10px;
+	box-shadow: 0 -2px 4px rgba(0,0,0,0.1);
+	z-index: 10;
+}
+
+.icon-btn, .tool-btn {
+	background: #fff;
+	border: none;
+	border-radius: 50%;
+	padding: 8px;
+	margin-right: 8px;
+	cursor: pointer;
+	box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.tool-btn.selected {
+  background-color: #b6becc;           /* light blue on hover */
+  transform: scale(1.05);         /* stronger outer shadow */
+  transform: scale(1.15);              /* slightly larger */
+  transition: transform 0.1s ease;     /* quick feedback */
+}
+
+/* Add hover effect to all tool buttons */
+.tool-btn:hover {
+  background-color: #b6becc;           /* light blue on hover */
+  transform: scale(1.05);
+}
+
+.tool-group {
+	display: flex;
+	align-items: center;
+	margin-right: 16px;
+}
+
+.pen-slider {
+	position: absolute;
+	bottom: 8vh;
+	left: 50%;
+	transform: translateX(-50%);
+	background: #fff;
+	border: 1px solid #ddd;
+	padding: 4px;
+	border-radius: 4px;
+	box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+}
+.scale-slider {
+  position: absolute;
+  bottom: 8vh;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #fff;
+  border: 1px solid #ddd;
+  padding: 4px;
+  border-radius: 4px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+}
+
+
+.console-output {
+	position: absolute;
+	bottom: 8vh;
+	left: 0;
+	width: 100%;
+	padding: 0 10px;
+	pointer-events: none;
+}
+
+.console-message {
+	margin-top: 4px;
+	font-size: 0.9em;
+}
+
+.modal {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: rgba(0,0,0,0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;    /* ← add this */
+}
+
+
+.modal-content {
+	background: #fff;
+	padding: 20px;
+	border-radius: 4px;
+	width: 300px;
+	box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+	display: flex;
+	flex-direction: column;
+}
+
+.modal-content input,
+.modal-content select {
+	margin-bottom: 10px;
+	padding: 8px;
+	font-size: 1em;
+}
+
+.modal-buttons {
+	display: flex;
+	justify-content: flex-end;
+	gap: 10px;
+}
+
+#element-modal .modal-content {
+  width: 320px;
+}
+#element-modal textarea {
+  font-family: monospace;
+  font-size: 0.9em;
+}
+
+/* FLASHCARD STYLES */
+.flashcard {
+  perspective: 1000px;
+  width: 100%; height: 100%;
+}
+.flashcard-inner {
+  position: relative;
+  width: 100%; height: 100%;
+  transform-style: preserve-3d;
+  transition: transform 0.6s;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+.flashcard.is-flipped .flashcard-inner {
+  transform: rotateY(180deg);
+}
+.flashcard-front,
+.flashcard-back {
+  position: absolute;
+  width: 100%; height: 100%;
+  backface-visibility: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  box-sizing: border-box;
+  border-radius: 8px;
+  background: white;
+}
+.flashcard-back {
+  transform: rotateY(180deg);
+}
+
+/* ANIMATED TEXT STYLES */
+.animated-text-container {
+  width: 100%; height: 100%;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+  overflow: hidden;
+  padding: 12px;
+  box-sizing: border-box;
+}
+.animated-text-container p {
+  opacity: 0;
+  transform: translateX(-100%);
+  transition: transform 1s ease-out, opacity 1s ease-out;
+}
+.animated-text-container.visible p {
+  opacity: 1;
+  transform: translateX(0);
+}
+/* images shouldn’t block clicks */
+.image-overlay {
+  pointer-events: none;
+}
+
+
+/* interactive‐elements layer that parallels the canvas transform */
+#interactive-container {
+  position: absolute;
+  top: 0; left: 0;
+  width: 2000px;      /* = CANVAS_WIDTH */
+  height: 2000px;     /* = CANVAS_HEIGHT */
+  transform-origin: 0 0;
+  pointer-events: none; /* default: let clicks fall through except on children */
+}
+
+/* each element itself */
+.interactive-element {
+  position: absolute;
+  pointer-events: auto; /* clickable again */
+  z-index: 2;           /* above canvas grid but below UI bars */
+}

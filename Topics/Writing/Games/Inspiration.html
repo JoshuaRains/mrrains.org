@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Random Image Reorder</title>
+  <style>
+    body, html {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      font-family: Arial, sans-serif;
+      /* Same green background as other games */
+      background: linear-gradient(to bottom, #517860, #5c8a6d);
+    }
+    .game-container {
+      background-color: white;
+      border: 2px solid #d3d3d3;
+      border-radius: 10px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      padding: 30px;
+      text-align: center;
+    }
+    #imageContainer {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+    .image-item {
+      width: 150px;
+      height: 150px;
+      border: 1px solid #ccc;
+      cursor: move;
+      user-select: none;
+      background: #f7f7f7;
+      border-radius: 5px;
+      overflow: hidden;
+    }
+    .image-item img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      pointer-events: none;
+    }
+    #rerollButton {
+      padding: 10px 20px;
+      font-size: 1em;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      background-color: #007BFF;
+      color: white;
+    }
+    /* Optional visual cues for drag and drop */
+    .dragging {
+      opacity: 0.5;
+    }
+    .over {
+      border: 2px dashed #007BFF;
+    }
+  </style>
+</head>
+<body>
+  <div class="game-container">
+    <div id="imageContainer"></div>
+    <button id="rerollButton">Reroll Images</button>
+  </div>
+
+  <script>
+    // Provided image list
+    const imageList = [
+      "https://images.theconversation.com/files/375198/original/file-20201215-21-pqymwr.jpg?ixlib=rb-4.1.0&q=45&auto=format&w=1000&fit=clip",
+      "https://c8.alamy.com/comp/MFAWY5/full-length-profile-shot-of-a-young-man-walking-isolated-on-white-background-MFAWY5.jpg",
+      "https://blog.bonsecours.com/wp-content/uploads/2023/02/Ben-Risks-of-Running-1200x610.jpg",
+      "https://cdn.atriumhealth.org/dailydose/-/media/daily-dose-blog/dd-social-images/dogeating_social.jpg?rev=ea91b71572044cc6bf4bc411915970d6&hash=C5D16CBE16712380DF3C8E96C065F422",
+      "https://ccnow.sdsu.edu/wp-content/uploads/sites/34/2022/02/CCNOW-Images-copy-3.png",
+      "https://imageio.forbes.com/specials-images/imageserve/669d59db309ed6266077c936/Rear-view-of-male-holding-umbrella-in-rainy-city/960x0.jpg?format=jpg&width=960",
+      "https://ecobud.imgix.net/getattachment/7ac4179c-7350-426b-8b68-6c01ca24029e?auto=format",
+      "https://www.sltrib.com/resizer/COf2BSjajW8LKnB8wkyb7qnzWFA=/arc-anglerfish-arc2-prod-sltrib/public/W4MIEOALEZFIFMY6Y5K2CLSEUA.JPG"
+    ];
+
+    // Number of images to display
+    const numImages = 5;
+    const imageContainer = document.getElementById("imageContainer");
+    const rerollButton = document.getElementById("rerollButton");
+
+    // Shuffle an array in place
+    function shuffleArray(array) {
+      for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+      }
+    }
+
+    // Load images: randomly select numImages from the imageList
+    function loadImages() {
+      imageContainer.innerHTML = "";
+      const images = [...imageList];
+      shuffleArray(images);
+      const selectedImages = images.slice(0, numImages);
+      selectedImages.forEach(url => {
+        const item = document.createElement("div");
+        item.className = "image-item";
+        item.draggable = true;
+        const img = document.createElement("img");
+        img.src = url;
+        item.appendChild(img);
+        imageContainer.appendChild(item);
+        addDnDHandlers(item);
+      });
+    }
+
+    // Variables and functions for drag and drop
+    let dragSrcEl = null;
+
+    function handleDragStart(e) {
+      dragSrcEl = this;
+      e.dataTransfer.effectAllowed = 'move';
+      this.classList.add("dragging");
+    }
+
+    function handleDragOver(e) {
+      if (e.preventDefault) {
+        e.preventDefault(); // Allow drop by preventing default
+      }
+      e.dataTransfer.dropEffect = 'move';
+      return false;
+    }
+
+    function handleDragEnter(e) {
+      this.classList.add('over');
+    }
+
+    function handleDragLeave(e) {
+      this.classList.remove('over');
+    }
+
+    function handleDrop(e) {
+      if (e.stopPropagation) {
+        e.stopPropagation();
+      }
+      if (dragSrcEl !== this) {
+        const container = imageContainer;
+        const items = Array.from(container.children);
+        const srcIndex = items.indexOf(dragSrcEl);
+        const targetIndex = items.indexOf(this);
+        // Insert dragSrcEl at the correct position
+        if (srcIndex < targetIndex) {
+          container.insertBefore(dragSrcEl, this.nextSibling);
+        } else {
+          container.insertBefore(dragSrcEl, this);
+        }
+      }
+      return false;
+    }
+
+    function handleDragEnd(e) {
+      this.classList.remove("dragging");
+      const items = document.querySelectorAll('.image-item');
+      items.forEach(item => {
+        item.classList.remove('over');
+      });
+    }
+
+    function addDnDHandlers(item) {
+      item.addEventListener('dragstart', handleDragStart, false);
+      item.addEventListener('dragenter', handleDragEnter, false);
+      item.addEventListener('dragover', handleDragOver, false);
+      item.addEventListener('dragleave', handleDragLeave, false);
+      item.addEventListener('drop', handleDrop, false);
+      item.addEventListener('dragend', handleDragEnd, false);
+    }
+
+    // Attach reroll button event listener
+    rerollButton.addEventListener("click", loadImages);
+
+    // Initial image load
+    loadImages();
+  </script>
+</body>
+</html>

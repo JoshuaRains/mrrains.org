@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html lang="en" translate="no">
+<head>
+  <meta charset="UTF-8" />
+  <title>MrRains.org</title>
+  <link rel="icon" type="image/svg+xml" href="./assets/favicon.svg">
+  <!-- Google Fonts and Icons -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Chewy&family=Doto:wght@100..900&family=Edu+AU+VIC+WA+NT+Guides:wght@400..700&family=Silkscreen:wght@400;700&family=Noto+Serif&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons" />
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Noto Sans', sans-serif;
+      background: linear-gradient(to bottom, #517860, #5c8a6d);
+      color: #ecefec;
+      min-height: 100vh;
+    }
+    .container { width: 90%; margin: 0 auto; padding: 20px; }
+
+    .welcome {
+      font-size: 60px;
+      font-family: 'Noto Serif', serif;
+      text-align: center;
+      margin-top: 10px; /* Reduce the top margin of the header */
+    }
+    .greeting {
+      margin: 5px 0px 50px 300px; /* Reduce the bottom margin of the greeting */
+      font-size: 20px;
+      animation: pulse 3s ease-in-out infinite;
+      text-align: center;
+    }
+    @keyframes pulse { 0%,100% { transform: scale(1) rotate(5deg); } 50% { transform: scale(1.1) rotate(5deg); } }
+
+    /* Juegos Carousel */
+    .juegos-header {
+      position: relative;
+      background-color: #79b791;
+      border-top-left-radius: 10px;
+      border-top-right-radius: 10px;
+      padding: 10px 50px;
+      text-align: center;
+      font-family: "Silkscreen", serif;
+      font-size: 30px;
+      min-width: 400px;
+      max-width: 1200px;
+      margin: 0 auto; /* Center the game area horizontally */
+
+    }
+    .juegos-header .arrow {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      font-size: 24px;
+      color: #ecefec;
+      cursor: pointer;
+      z-index: 1;
+    }
+    .juegos-header .prev { z-index: 15; left: 10px; }
+    .juegos-header .next { z-index: 15;right: 10px; }
+
+    .preview-text {
+      font-size: 12px;
+      color: #ecefec;
+      text-align: center;
+      margin-top: 5px;
+    }
+
+    .games-container {
+      background-color: #abd1b5;
+      border-bottom-left-radius: 10px;
+      border-bottom-right-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+      min-width: 400px;
+      z-index: 1; /* Ensure the game area is on a lower layer */
+      position: relative; /* Ensure stacking context */
+      max-width: 1200px;
+      margin: 0 auto; /* Center the game area horizontally */
+    }
+    .games-slider { display: flex; }
+    .games-slide {
+      min-width: 100%;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .game-item {
+      background-color: #abd1b5;
+      width: 150px;
+      height: 150px;
+      border-radius: 10px;
+      border-color: #5c8a6d00;
+      text-align: center;
+      padding: 10px;
+      transition: transform 0.3s ease, filter 0.3s ease;
+      cursor: pointer;
+    }
+    .game-item img { width: 100%; height: auto; border-radius: 10px; }
+    .game-item p { font-weight: bold; margin-top: 10px; color: #000; }
+    .game-item:hover { filter: brightness(0.9); transform: scale(1.05); }
+
+    /* Announcement Slide */
+    .announcement-box {
+  position: relative;
+  overflow: hidden;           
+  background-image: url('assets/cork.jpg');
+  background-repeat: repeat;
+  background-size: 1000px 500px;
+  border-radius: 10px;
+  width: calc(100% - 10px);
+  height: 300px;
+  margin: 5px auto;
+  box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.8);
+}
+
+
+.slip {
+  position: absolute;
+  background: #fff;
+  border-radius: 8px;
+  padding: 8px 12px;
+  width: 200px;            /* default width; override inline if you like */
+  box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+  font-family: 'Noto Sans', sans-serif;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+}
+
+/* the push-pin graphic */
+.slip .pin {
+  position: absolute;
+  top: -12px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 24px;
+  height: 24px;
+  background: url('assets/pin.png') no-repeat center;
+  background-size: contain;
+}
+
+
+    /* Activities Section */
+    .activities {
+      margin-top: 20px;
+    }
+
+    /* Tabs */
+    .activities-tabs {
+      display: flex;
+      justify-content: space-around;
+      border-bottom: none;
+    }
+    .activities-tab {
+      background: none;
+      border: none;
+      padding: 8px 16px;
+      font-size: 18px;
+      color: #c4c4c4;
+      border-bottom: 2px solid #c4c4c4;
+      cursor: pointer;
+      transition: color 0.3s, border-color 0.3s;
+    }
+    .activities-tab.active {
+      color: #fff;
+      border-bottom-color: #fff;
+    }
+
+    /* Content Panes */
+    .activities-contents {
+      position: relative;
+    }
+    .activities-content {
+      display: none;
+      opacity: 0;
+      transition: opacity 0.5s ease;
+      flex-direction: column;
+      gap: 15px;
+    }
+    .activities-content.active {
+      display: flex;
+      opacity: 1;
+    }
+
+    /* Reuse your existing activity styles inside each pane */
+    .activity-topic { font-size: 16px; color: #ecefec; font-family: 'Noto Sans', sans-serif; margin-bottom: 5px; }
+    .activity-button {
+      background: none; border: none; padding: 0; width: 100%; outline: none; min-width: 400px; cursor: pointer;
+    }
+    .activity-item {
+      display: flex; width: 100%;
+    }
+    .activity-icon {
+      padding: 10px; display: flex; align-items: center; justify-content: center;
+      background: linear-gradient(to right, #42E695, #3BB2B8);
+      border-top-left-radius: 10px; border-bottom-left-radius: 10px;
+    }
+    .activity-text {
+      padding: 10px; background-color: #abd1b5;
+      border-top-right-radius: 10px; border-bottom-right-radius: 10px;
+      display: flex; align-items: center; flex: 1;
+    }
+    .activity-item:hover .activity-icon,
+    .activity-item:hover .activity-text {
+      filter: brightness(0.9);
+    }
+
+    .activity-icon.package_2 {
+      background: linear-gradient(to right, #00C6FF, #0072FF); /* Bright blue gradient for "notifications" */
+    }
+
+    .activity-icon.notifications {
+        background: linear-gradient(to right, #00C6FF, #0072FF); /* Bright blue gradient for "notifications" */
+    }
+
+    .activity-icon.sports_esports {
+        background: linear-gradient(to right, #FF7EB3, #FF758C); /* Pink to soft red for "esports" */
+    }
+
+    .activity-icon.description {
+    background: linear-gradient(to right, #42E695, #3BB2B8); /* Vibrant teal gradient for "training" */
+
+    }
+
+    .activity-icon.model_training {
+    background: linear-gradient(to right, #FFD700, #FFA500); /* Golden to orange for "package" */
+
+    }
+
+    .activity-icon.smart_display {
+        background: linear-gradient(to right, #FF512F, #DD2476); /* Warm sunset gradient for "display" */
+    }
+    .activity-icon.dictionary {
+        background: linear-gradient(to right, #00C6FF, #0072FF); /* Bright blue gradient for "notifications" */
+    }
+
+    .flower-container {
+      position: relative; /* Ensure it is positioned absolutely */
+      width: 100%; /* Match the width of the game area */
+      max-width: 100%; /* Optional: Limit the maximum width */
+      min-width: 400px;
+      bottom: -30px;
+      max-width: 1200px;
+      height: 70px;
+      z-index: 10;
+      margin: 0 auto; /* Center the game area horizontally */
+
+      overflow: hidden; /* Ensure the grass texture gets cut off at the end of the container */
+    }
+
+    .flower-gif {
+      position: absolute;
+      bottom: 10px;
+      width: auto; /* Revert to original size for pixel art */
+      min-width: 400px;
+      height: 80px;
+      display: inline-block;
+      image-rendering: -moz-crisp-edges;
+image-rendering: -moz-crisp-edges;
+image-rendering: -o-crisp-edges;
+image-rendering: -webkit-optimize-contrast;
+-ms-interpolation-mode: nearest-neighbor;
+      image-rendering: pixelated; /* Ensure the grass texture is not blurry */
+    }
+
+    img[src="assets/no_cookies.svg"],
+    img[src="assets/flower.svg"],
+    img[src="assets/no_data_refresh.svg"] {
+      filter: brightness(0) invert(0);
+    }
+
+    #info-popup img {
+      filter: invert(0%);
+    }
+
+    .special-symbols {
+      position: fixed;
+      top: 10%;
+      left: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .special-symbols button {
+      padding: 10px;
+      background-color: #517860;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 16px;
+    }
+
+    .special-symbols button:hover {
+      background-color: #3a5744;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div style="position: absolute; top: 10px; left: 10px;">
+      <button id="infoButton" style="background: none; border: none; cursor: pointer;">
+        <img src="assets/info.svg" alt="Info" style="width: 40px; height: 40px; filter: invert(100%);">
+      </button>
+    </div>
+
+    <p class="welcome">¡Bienvenidos!</p>
+    <p class="greeting">¿Qué estudiamos hoy?</p>
+    
+    <div class="flower-container">
+      <img id="flowerGif" class="flower-gif" src="assets/grass.gif" alt="Growing Flowers">
+    </div>
+
+    <script>
+      // List of possible greetings with equal weights
+      const greetings = [
+        { text: "¿Qué estudiamos hoy?", weight: 1 },
+        
+        { text: "¡Bienvenidos a clase!", weight: 1 }
+      ];
+
+      // Function to get deterministic random index based on date
+      function getDailyIndex(dateStr, max) {
+        let total = 0;
+        for (let i = 0; i < dateStr.length; i++) {
+          total += dateStr.charCodeAt(i);
+        }
+        return total % max;
+      }
+
+      // Set the greeting when the page loads
+      document.addEventListener("DOMContentLoaded", () => {
+        const today = new Date();
+        const dateString = today.toISOString().split('T')[0]; // YYYY-MM-DD format
+        
+        // Calculate total weight
+        const totalWeight = greetings.reduce((sum, g) => sum + g.weight, 0);
+        
+        // Use the date to get a deterministic index
+        const dailyIndex = getDailyIndex(dateString, totalWeight);
+        
+        // Find the greeting based on the weighted index
+        let runningTotal = 0;
+        let selectedGreeting = greetings[0].text; // default
+        for (const greeting of greetings) {
+          runningTotal += greeting.weight;
+          if (dailyIndex < runningTotal) {
+            selectedGreeting = greeting.text;
+            break;
+          }
+        }
+        
+        // Update the greeting text
+        const greetingElement = document.querySelector(".greeting");
+        greetingElement.textContent = selectedGreeting;
+      });
+
+      function copyToClipboard(symbol) {
+        navigator.clipboard.writeText(symbol).catch(err => {
+          console.error('Failed to copy: ', err);
+        });
+      }
+    </script>
+
+    <div id="info-popup" style="
+      display: none;
+      position: fixed;
+      top: 20%;
+      left: 50%;
+      transform: translate(-50%, -20%);
+      width: 40%;
+      background-color: #fff;
+      color: #000;
+      border-radius: 10px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+      padding: 20px;
+      z-index: 1000;
+      text-align: center;
+    ">
+      <h2>About this site</h2>
+      
+      <div style="margin-top: 20px;">
+        <img src="assets/no_cookies.svg" alt="No Cookies" style="width: 30px; height: 30px; vertical-align: middle;">
+        <h3 style="display: inline-block; margin-left: 10px; vertical-align: middle;">No Cookies</h3>
+        <p style="margin-top: 5px;">This website doesn't use any cookies or tracking technologies.</p>
+      </div>
+
+      <div style="margin-top: 20px;">
+        <img src="assets/flower.svg" alt="No Student Data" style="width: 30px; height: 30px; vertical-align: middle;">
+        <h3 style="display: inline-block; margin-left: 10px; vertical-align: middle;">No Student Data</h3>
+        <p style="margin-top: 5px;">We don't store any personal information from students.</p>
+
+      </div>
+
+      <div style="margin-top: 20px;">
+        <img src="assets/no_data_refresh.svg" alt="No Student Data" style="width: 30px; height: 30px; vertical-align: middle;">
+        <h3 style="display: inline-block; margin-left: 10px; vertical-align: middle;">Download to turn in</h3>
+        <p style="margin-top: 5px;">All data will disappear when the page is refreshed.</p>
+
+        <p style="margin-top: 5px;">All data that you want to save has to be downloaded to your computer.</p>
+      </div>
+
+      <button onclick="event.stopPropagation(); document.getElementById('info-popup').style.display='none'; document.getElementById('overlay').style.display='none';" style="
+        margin-top: 20px;
+        padding: 10px 20px;
+        background-color: #517860;
+        color: #fff;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+      ">Close</button>
+    </div>
+
+    <div id="overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 999;"></div>
+    
+    <script>
+      const infoButton = document.getElementById('infoButton');
+      const popup = document.getElementById('info-popup');
+      const overlay = document.getElementById('overlay');
+      
+      infoButton.addEventListener('click', (e) => {
+        popup.style.display = 'block';
+        overlay.style.display = 'block';
+      });
+      
+      overlay.addEventListener('click', () => {
+        popup.style.display = 'none';
+        overlay.style.display = 'none';
+      });
+    </script>
+
+    <!-- Juegos Carousel Header -->
+    <div class="juegos-header">
+      <button class="arrow prev" id="prevBtn">
+        &#x25C0;
+        <div class="preview-text" id="prevPreview">Previous Slide</div>
+      </button>
+      
+      <span id="juegosTitle">Announcements</span>
+      <button class="arrow next" id="nextBtn">
+        &#x25B6;
+        <div class="preview-text" id="nextPreview">Next Slide</div>
+      </button>
+    </div>
+
+    <!-- Juegos Carousel Slides -->
+    <div class="games-container">
+      <div class="games-slider" id="slider">
+        <!-- Announcements Slide -->
+        <div class="games-slide" data-title="Announcements">
+            <div class="announcement-box">
+                <!-- Slip #1: header + body -->
+                <div class="slip" style="top: 20px; left: 30px;">
+                  <div class="pin"></div>
+                  <h3 style="margin: 0 0 6px; font-size: 16px; color: #333;">Welcome to class!</h3>
+                  <p style="margin: 0; font-size: 14px; color: #555;">
+                    I hope you are all excited to learn Spanish this year!<br>
+                  </p>
+                </div>
+              
+                <!-- Slip #2: flag of Colombia -->
+                <div class="slip" style="top: 50px; left: 400px; width: 150px; padding: 0px">
+                  <div class="pin"></div>
+                  <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/21/Flag_of_Colombia.svg/1280px-Flag_of_Colombia.svg.png" alt="Colombia flag"
+                       style="display: block; width: 100%; border-radius: 4px;" />
+                </div>
+
+                <div class="slip" style="top: 146px; left: 10px; width: 150px; padding: 0px;">
+                  <div class="pin"></div>
+                  <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/d/df/Flag_of_Peru_%28state%29.svg/1280px-Flag_of_Peru_%28state%29.svg.png" alt="Colombia flag"
+                       style="display: block; width: 100%; border-radius: 4px;" />
+                </div>
+              </div>
+              
+        </div>
+        
+        
+        <!-- Diversos Slide -->
+        <div class="games-slide" data-title="Tools">
+          <button class="game-item" onclick="window.open('https://corpus.rae.es/frec/1000_formas.TXT','_blank')"><img src="assets/vector_icons/TopVocab.svg" alt="Vocab Común"><p>Vocab Común</p></button>
+          <button class="game-item" onclick="location.href='./pages/tools/gradecalculator/index.html'"><img src="assets/vector_icons/GradeCalc.svg" alt="Grade Calculator"><p>Grade Calculator</p></button>
+          <button class="game-item" onclick="location.href='./pages/tools/bathroompass/index.html'"><img src="assets/vector_icons/BathroomTimer.svg" alt="Bathroom Timer"><p>Bathroom Timer</p></button>
+          <button class="game-item" onclick="location.href='./pages/tools/bubblescanner/index.html'"><img src="assets/vector_icons/BubbleScanner.svg" alt="Bubble Scanner"><p>Bubble Sheet Scanner</p></button>
+        </div>
+
+        <div class="games-slide" data-title="Maps">
+          <button class="game-item" onclick="location.href='./pages/maps/mapgame/index.html'"><img src="assets/vector_icons/MapGame.svg" alt="0-30"><p>Map Game</p></button>
+          <!-- <button class="game-item" onclick="location.href='pages/Countries'"><img src="assets/Countries.png" alt="30-100"><p>Countries Culture</p></button> -->
+          <button class="game-item" onclick="location.href='./pages/maps/countriesweather/index.html'"><img src="assets/vector_icons/MapWeather.svg" alt="30-100"><p>Countries Weather</p></button>
+          <button class="game-item" onclick="location.href='./pages/maps/countries/index.html'"><img src="assets/vector_icons/Countries.svg" alt="30-100"><p>Countries Info</p></button>
+
+        </div>
+
+        <div class="games-slide" data-title="Games">
+          <button class="game-item" onclick="location.href='./pages/games/castles2/index.html'"><img src="assets/vector_icons/TilesGame.svg" alt="Tiles Game"><p>Castles</p></button>
+        </div>
+
+
+      </div>
+    </div>
+
+    <!-- Activities List -->
+    <div class="activities">
+        <!-- Tab Headers -->
+        <div class="activities-tabs">
+          <button class="activities-tab active" data-tab="spanish1">Spanish I</button>
+          <button class="activities-tab" data-tab="spanish2">Spanish II</button>
+          <button class="activities-tab" data-tab="library">Biblioteca</button>
+          <button class="activities-tab" data-tab="vocab">Vocabulario</button>
+        </div>
+  
+        <!-- Tab Contents -->
+        <div class="activities-contents">
+          <!-- Spanish I pane (default) -->
+          <div id="spanish1" class="activities-content active">
+            <br>
+            <br>
+            <p class="activity-topic">4/20</p>
+            <button class="activity-button" onclick="location.href='./Topics/Verb_Review/VerbLists/TopVerbs.html'">
+              <div class="activity-item">
+                <div class="activity-icon description">
+                  <span class="material-icons">description</span>
+                </div>
+                <div class="activity-text">Verb Vocabulary List</div>
+              </div>
+            </button>
+          </div>
+          <!-- Spanish II pane -->
+          <div id="spanish2" class="activities-content">
+            <br>
+            <br>
+            <p class="activity-topic">4/20</p>
+            <button class="activity-button" onclick="location.href='./Topics/Verb_Review/VerbLists/TopVerbs.html'">
+              <div class="activity-item">
+                <div class="activity-icon description">
+                  <span class="material-icons">description</span>
+                </div>
+                <div class="activity-text">Verb Vocabulary List</div>
+              </div>
+            </button>
+      
+
+  </div>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const slider = document.getElementById('slider');
+      const slides = Array.from(slider.children);
+      const prevBtn = document.getElementById('prevBtn');
+      const nextBtn = document.getElementById('nextBtn');
+      const title = document.getElementById('juegosTitle');
+      let isTransitioning = false;
+      let currentIndex = 1;
+      const slideCount = slides.length;
+
+      const firstClone = slides[0].cloneNode(true);
+      const lastClone = slides[slideCount - 1].cloneNode(true);
+      slider.appendChild(firstClone);
+      slider.insertBefore(lastClone, slider.firstChild);
+
+      const allSlides = Array.from(slider.children);
+      slider.style.transform = `translateX(-${currentIndex * 100}%)`;
+      title.textContent = allSlides[currentIndex].dataset.title;
+
+      prevBtn.addEventListener('click', () => moveSlide(-1));
+      nextBtn.addEventListener('click', () => moveSlide(1));
+
+      function moveSlide(dir) {
+        if (isTransitioning) return;
+        isTransitioning = true;
+        currentIndex += dir;
+        slider.style.transition = 'transform 0.5s ease';
+        slider.style.transform = `translateX(-${currentIndex * 100}%)`;
+      }
+
+      slider.addEventListener('transitionend', () => {
+        if (currentIndex === 0) {
+          slider.style.transition = 'none';
+          currentIndex = slideCount;
+        } else if (currentIndex === slideCount + 1) {
+          slider.style.transition = 'none';
+          currentIndex = 1;
+        }
+        slider.style.transform = `translateX(-${currentIndex * 100}%)`;
+        title.textContent = allSlides[currentIndex].dataset.title;
+       	isTransitioning = false;
+      });
+    });
+
+    document.addEventListener("DOMContentLoaded", () => {
+      // Set the start date (e.g., January 1, 2025)
+      const startDate = new Date("2025-05-04");
+      const today = new Date();
+
+      // Calculate the number of days since the start date
+      const daysSinceStart = Math.floor((today - startDate) / (1000 * 60 * 60 * 24));
+
+      // Determine the frame (1 frame per 3 days)
+      const frame = Math.floor(daysSinceStart / 3) + 1; // Adjusted to start from frame 1
+
+      // Update the grass GIF to the correct frame
+      const flowerGif = document.getElementById("flowerGif");
+      flowerGif.src = `assets/GrassFrames/grass${frame}.png`;
+      
+    });
+
+    document.addEventListener("DOMContentLoaded", () => {
+      // … your Juegos carousel code …
+
+      // Tab‐switching for Activities
+      const tabs = document.querySelectorAll('.activities-tab');
+      const panes = document.querySelectorAll('.activities-content');
+      tabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+          if (tab.classList.contains('active')) return;
+          // deactivate all
+          tabs.forEach(t => t.classList.remove('active'));
+          panes.forEach(p => p.classList.remove('active'));
+          // activate this one
+          tab.classList.add('active');
+          document.getElementById(tab.dataset.tab).classList.add('active');
+        });
+      });
+    });
+   
+  </script>
+</body>
+</html>

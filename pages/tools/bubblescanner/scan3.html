@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Bubble Sheet OMR with Batch & Camera Capture (Responsive Layout)</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+      text-align: center;
+    }
+    /* Global controls at the top */
+    #globalControls {
+      margin-bottom: 20px;
+    }
+    .input-group {
+      margin: 10px auto;
+      max-width: 300px;
+    }
+    /* Flex container for images */
+    #imagesContainer {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 20px;
+    }
+    /* Each image container */
+    .image-container {
+      border: 1px solid #ccc;
+      padding: 10px;
+      max-width: 300px;
+      flex: 1 1 auto;
+    }
+    .image-container h3 {
+      margin-bottom: 10px;
+    }
+    /* Responsive canvases */
+    canvas {
+      width: 100%;
+      height: auto;
+      border: 1px solid #999;
+    }
+    /* Sliders under each image */
+    .sliders {
+      margin-top: 10px;
+    }
+    .sliders .input-group {
+      text-align: center;
+    }
+    /* Output transcription */
+    #output {
+      background: #f0f0f0;
+      padding: 10px;
+      display: inline-block;
+      text-align: left;
+      margin-top: 20px;
+      max-width: 600px;
+    }
+    /* Camera Capture Area styling */
+    #cameraArea {
+      margin-top: 40px;
+      border: 2px solid #666;
+      padding: 10px;
+      display: inline-block;
+      text-align: center;
+    }
+    #cameraArea video {
+      width: 100%;
+      max-width: 300px;
+      height: auto;
+      border: 1px solid #999;
+    }
+    #cameraArea select, #cameraArea button {
+      margin: 5px;
+    }
+  </style>
+  <!-- Load OpenCV.js (v3.4.0) -->
+  <script async src="https://docs.opencv.org/3.4.0/opencv.js" 
+          onload="onOpenCvReady();" type="text/javascript"></script>
+  <!-- (Optional: Include jsPDF if you want PDF export later) -->
+</head>
+<body>
+  <h1>Bubble Sheet OMR with Batch & Camera Capture</h1>
+  
+  <!-- Batch Upload Controls -->
+  <div id="globalControls">
+    <div class="input-group">
+      <input type="file" id="fileInput" accept="image/*" multiple>
+      <button id="processAllButton">Process All Sheets</button>
+    </div>
+    <div class="input-group">
+      <label for="numQuestions">Rows per Column: <span id="numQuestionsValue">10</span></label>
+      <input type="range" id="numQuestions" min="5" max="30" value="10">
+    </div>
+  </div>
+  
+  <!-- Images Container (for batch mode preview) -->
+  <div id="imagesContainer">
+    <!-- Original Image -->
+    <div class="image-container">
+      <h3>Original</h3>
+      <canvas id="originalCanvas" width="600" height="800"></canvas>
+    </div>
+    <!-- Warped Image -->
+    <div class="image-container">
+      <h3>Warped</h3>
+      <canvas id="warpedCanvas" width="600" height="800"></canvas>
+    </div>
+    <!-- Threshold Image -->
+    <div class="image-container">
+      <h3>Threshold</h3>
+      <canvas id="threshCanvas" width="600" height="800"></canvas>
+      <div class="sliders">
+        <div class="input-group">
+          <input type="checkbox" id="manualThresholdCheckbox">
+          <label for="manualThresholdCheckbox">Manual Threshold</label>
+        </div>
+        <div class="input-group" id="manualThresholdGroup" style="display: none;">
+          <label for="thresholdValue">Threshold: <span id="thresholdValueDisplay">128</span></label>
+          <input type="range" id="thresholdValue" min="0" max="255" value="128">
+        </div>
+      </div>
+    </div>
+    <!-- Detection Image -->
+    <div class="image-container">
+      <h3>Detection</h3>
+      <canvas id="detectionCanvas" width="600" height="800"></canvas>
+      <div class="sliders">
+        <div class="input-group">
+          <label for="minBubbleSize">Min Bubble Size: <span id="minBubbleSizeValue">10</span></label>
+          <input type="range" id="minBubbleSize" min="5" max="50" value="10" step="1">
+        </div>
+        <div class="input-group">
+          <label for="minCircularityDet">Min Circularity: <span id="minCircularityDetValue">0.60</span></label>
+          <input type="range" id="minCircularityDet" min="0.5" max="1.0" value="0.60" step="0.01">
+        </div>
+        <div class="input-group">
+          <label for="fillThreshold">Fill Threshold: <span id="fillThresholdValue">150</span></label>
+          <input type="range" id="fillThreshold" min="0" max="300" value="150" step="1">
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <h2>Batch Transcription Results</h2>
+  <pre id="output">No data yet.</pre>
+  
+  <!-- Hidden canvas for processing (batch or camera) -->
+  <canvas id="captureCanvas" width="600" height="800" style="display: none;"></canvas>
+  
+  <!-- Camera Capture Mode -->
+  <div id="cameraArea">
+    <h2>Camera Capture Mode</h2>
+    <div class="input-group">
+      <label for="cameraSelectCam">Select Camera:</label>
+      <select id="cameraSelectCam"></select>
+    </div>
+    <video id="video" autoplay playsinline></video>
+    <div class="input-group">
+      <button id="captureButton">Capture Image</button>
+      <button id="analyzeButton">Analyze Image</button>
+    </div>
+  </div>
+  
+  <script>
+    // Global flags and results array.
+    let cvReady = false;
+    let allResults = []; // Stores batch transcription results.
+    
+    function onOpenCvReady() {
+      cvReady = true;
+      console.log("OpenCV.js is ready");
+      initCameraDevices();
+    }
+    
+    // --- Utility Functions ---
+    function orderPoints(pts) {
+      let rect = [null, null, null, null];
+      let sum = pts.map(p => p.x + p.y);
+      let diff = pts.map(p => p.y - p.x);
+      rect[0] = pts[sum.indexOf(Math.min(...sum))];
+      rect[2] = pts[sum.indexOf(Math.max(...sum))];
+      rect[1] = pts[diff.indexOf(Math.min(...diff))];
+      rect[3] = pts[diff.indexOf(Math.max(...diff))];
+      return rect;
+    }
+    
+    function distance(ptA, ptB) {
+      return Math.sqrt((ptA.x - ptB.x) ** 2 + (ptA.y - ptB.y) ** 2);
+    }
+    
+    function fourPointTransform(src, pts) {
+      let rect = orderPoints(pts);
+      let tl = rect[0], tr = rect[1], br = rect[2], bl = rect[3];
+      let widthA = distance(br, bl);
+      let widthB = distance(tr, tl);
+      let maxWidth = Math.max(widthA, widthB);
+      let heightA = distance(tr, br);
+      let heightB = distance(tl, bl);
+      let maxHeight = Math.max(heightA, heightB);
+      let dst = cv.matFromArray(4, 1, cv.CV_32FC2, [
+        0, 0,
+        maxWidth - 1, 0,
+        maxWidth - 1, maxHeight - 1,
+        0, maxHeight - 1
+      ]);
+      let srcPts = cv.matFromArray(4, 1, cv.CV_32FC2, [
+        tl.x, tl.y,
+        tr.x, tr.y,
+        br.x, br.y,
+        bl.x, bl.y
+      ]);
+      let M = cv.getPerspectiveTransform(srcPts, dst);
+      let warped = new cv.Mat();
+      let dsize = new cv.Size(maxWidth, maxHeight);
+      cv.warpPerspective(src, warped, M, dsize, cv.INTER_LINEAR, cv.BORDER_CONSTANT, new cv.Scalar());
+      srcPts.delete(); dst.delete(); M.delete();
+      return warped;
+    }
+    
+    // --- Batch Processing Functions ---
+    // Process a single image file and return a result via callback.
+    function processSingleImage(file, callback) {
+      let img = new Image();
+      let reader = new FileReader();
+      reader.onload = function(e) {
+        img.onload = function() {
+          let captureCanvas = document.getElementById("captureCanvas");
+          let ctxCap = captureCanvas.getContext("2d");
+          ctxCap.clearRect(0, 0, captureCanvas.width, captureCanvas.height);
+          ctxCap.drawImage(img, 0, 0, captureCanvas.width, captureCanvas.height);
+          processImageFromCanvas(captureCanvas, function(transcription) {
+            callback({ filename: file.name, transcription: transcription });
+          });
+        };
+        img.src = e.target.result;
+      };
+      reader.readAsDataURL(file);
+    }
+    
+    // Process all selected files in batch mode.
+    function processAllImages() {
+      if (!cvReady) {
+        alert("OpenCV.js is not ready yet.");
+        return;
+      }
+      let fileInput = document.getElementById("fileInput");
+      if (fileInput.files.length === 0) {
+        alert("Please choose at least one image file.");
+        return;
+      }
+      allResults = [];
+      let files = fileInput.files;
+      let processedCount = 0;
+      for (let i = 0; i < files.length; i++) {
+        processSingleImage(files[i], function(result) {
+          allResults.push(result);
+          processedCount++;
+          document.getElementById("output").textContent = "Processed " + processedCount + " of " + files.length + " sheets.";
+          if (processedCount === files.length) {
+            let allText = "";
+            allResults.forEach(res => {
+              allText += "=== " + res.filename + " ===\n" + res.transcription + "\n";
+            });
+            document.getElementById("output").textContent = allText;
+          }
+        });
+      }
+    }
+    
+    // --- Image Processing Pipeline (Used by Batch and Camera Modes) ---
+    function processImageFromCanvas(sourceCanvas, callback) {
+      if (!cvReady) {
+        alert("OpenCV.js is not ready yet.");
+        return;
+      }
+      // Draw source onto the visible Original canvas.
+      let originalCanvas = document.getElementById("originalCanvas");
+      let ctxOrig = originalCanvas.getContext("2d");
+      ctxOrig.clearRect(0, 0, originalCanvas.width, originalCanvas.height);
+      ctxOrig.drawImage(sourceCanvas, 0, 0, originalCanvas.width, originalCanvas.height);
+      let src = cv.imread(originalCanvas);
+      
+      // Preprocess: grayscale, blur, Canny.
+      let gray = new cv.Mat();
+      cv.cvtColor(src, gray, cv.COLOR_RGBA2GRAY);
+      let blurred = new cv.Mat();
+      cv.GaussianBlur(gray, blurred, new cv.Size(5, 5), 0);
+      let edged = new cv.Mat();
+      cv.Canny(blurred, edged, 75, 200);
+      
+      // Find the largest 4-point contour (assumed to be the sheet).
+      let contours = new cv.MatVector();
+      let hierarchy = new cv.Mat();
+      cv.findContours(edged, contours, hierarchy, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE);
+      let contourArray = [];
+      for (let i = 0; i < contours.size(); i++) {
+        contourArray.push(contours.get(i));
+      }
+      contourArray.sort((a, b) => cv.contourArea(b) - cv.contourArea(a));
+      let sheetContour = null;
+      for (let i = 0; i < contourArray.length; i++) {
+        let peri = cv.arcLength(contourArray[i], true);
+        let approx = new cv.Mat();
+        cv.approxPolyDP(contourArray[i], approx, 0.04 * peri, true);
+        if (approx.rows === 4) {
+          sheetContour = approx;
+          break;
+        }
+        approx.delete();
+      }
+      if (sheetContour === null) {
+        callback("Sheet not detected");
+        src.delete(); gray.delete(); blurred.delete(); edged.delete();
+        contours.delete(); hierarchy.delete();
+        contourArray.forEach(c => c.delete());
+        return;
+      }
+      let pts = [];
+      for (let i = 0; i < 4; i++) {
+        pts.push({ x: sheetContour.intAt(i, 0), y: sheetContour.intAt(i, 1) });
+      }
+      sheetContour.delete();
+      contours.delete(); hierarchy.delete();
+      gray.delete(); blurred.delete(); edged.delete();
+      contourArray.forEach(c => c.delete());
+      
+      // Perspective transform.
+      let warped = fourPointTransform(src, pts);
+      src.delete();
+      cv.imshow("warpedCanvas", warped);
+      
+      // Threshold.
+      let warpedGray = new cv.Mat();
+      cv.cvtColor(warped, warpedGray, cv.COLOR_RGBA2GRAY);
+      let thresh = new cv.Mat();
+      let useManual = document.getElementById("manualThresholdCheckbox").checked;
+      if (useManual) {
+        let threshVal = parseInt(document.getElementById("thresholdValue").value);
+        cv.threshold(warpedGray, thresh, threshVal, 255, cv.THRESH_BINARY_INV);
+      } else {
+        cv.threshold(warpedGray, thresh, 0, 255, cv.THRESH_BINARY_INV | cv.THRESH_OTSU);
+      }
+      cv.imshow("threshCanvas", thresh);
+      
+      // Bubble Detection.
+      let minBubbleSize = parseInt(document.getElementById("minBubbleSize").value);
+      let minCircularity = parseFloat(document.getElementById("minCircularityDet").value);
+      let numRows = parseInt(document.getElementById("numQuestions").value);
+      let bubblesPerQuestion = 5; // Assuming A-E.
+      let fillThreshold = parseInt(document.getElementById("fillThreshold").value);
+      
+      let bubbleContours = new cv.MatVector();
+      let bubbleHierarchy = new cv.Mat();
+      cv.findContours(thresh, bubbleContours, bubbleHierarchy, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE);
+      let bubbleList = [];
+      for (let i = 0; i < bubbleContours.size(); i++) {
+        let cnt = bubbleContours.get(i);
+        let rect = cv.boundingRect(cnt);
+        if (rect.width >= minBubbleSize && rect.height >= minBubbleSize) {
+          let area = cv.contourArea(cnt);
+          let perimeter = cv.arcLength(cnt, true);
+          let circularity = perimeter === 0 ? 0 : (4 * Math.PI * area) / (perimeter * perimeter);
+          if (circularity >= minCircularity) {
+            bubbleList.push({ cnt: cnt, rect: rect });
+          } else {
+            cnt.delete();
+          }
+        } else {
+          cnt.delete();
+        }
+      }
+      bubbleHierarchy.delete();
+      bubbleContours.delete();
+      
+      // Separate into two columns (based on warped image width).
+      let leftBubbles = [];
+      let rightBubbles = [];
+      let halfWidth = warped.cols / 2;
+      bubbleList.forEach(obj => {
+        let centerX = obj.rect.x + obj.rect.width / 2;
+        if (centerX < halfWidth) {
+          leftBubbles.push(obj);
+        } else {
+          rightBubbles.push(obj);
+        }
+      });
+      leftBubbles.sort((a, b) => a.rect.y - b.rect.y);
+      rightBubbles.sort((a, b) => a.rect.y - b.rect.y);
+      
+      // For visualization: draw detected bubbles.
+      let detectionMat = new cv.Mat();
+      cv.cvtColor(thresh, detectionMat, cv.COLOR_GRAY2RGBA);
+      bubbleList.forEach(obj => {
+        let r = Math.round(Math.min(obj.rect.width, obj.rect.height) / 2);
+        let centerX = obj.rect.x + obj.rect.width / 2;
+        let centerY = obj.rect.y + obj.rect.height / 2;
+        cv.circle(detectionMat, new cv.Point(centerX, centerY), r, new cv.Scalar(0, 255, 0, 255), 2);
+      });
+      cv.imshow("detectionCanvas", detectionMat);
+      
+      // Group bubbles and transcribe.
+      let expectedCountPerColumn = numRows * bubblesPerQuestion;
+      let transcription = "";
+      if (leftBubbles.length === expectedCountPerColumn && rightBubbles.length === expectedCountPerColumn) {
+        for (let r = 0; r < numRows; r++) {
+          let row = leftBubbles.slice(r * bubblesPerQuestion, (r + 1) * bubblesPerQuestion);
+          row.sort((a, b) => a.rect.x - b.rect.x);
+          let bubbled = -1;
+          let maxNonZero = 0;
+          for (let i = 0; i < row.length; i++) {
+            let mask = new cv.Mat.zeros(thresh.rows, thresh.cols, cv.CV_8UC1);
+            let contourVec = new cv.MatVector();
+            contourVec.push_back(row[i].cnt);
+            cv.drawContours(mask, contourVec, 0, new cv.Scalar(255), -1);
+            contourVec.delete();
+            let masked = new cv.Mat();
+            cv.bitwise_and(thresh, thresh, masked, mask);
+            let total = cv.countNonZero(masked);
+            if (total > maxNonZero) {
+              maxNonZero = total;
+              bubbled = i;
+            }
+            mask.delete(); masked.delete();
+          }
+          let answer = (bubbled !== -1 && maxNonZero >= fillThreshold) ? String.fromCharCode(65 + bubbled) : "No Response";
+          transcription += (r + 1) + ": " + answer + "\n";
+        }
+        for (let r = 0; r < numRows; r++) {
+          let row = rightBubbles.slice(r * bubblesPerQuestion, (r + 1) * bubblesPerQuestion);
+          row.sort((a, b) => a.rect.x - b.rect.x);
+          let bubbled = -1;
+          let maxNonZero = 0;
+          for (let i = 0; i < row.length; i++) {
+            let mask = new cv.Mat.zeros(thresh.rows, thresh.cols, cv.CV_8UC1);
+            let contourVec = new cv.MatVector();
+            contourVec.push_back(row[i].cnt);
+            cv.drawContours(mask, contourVec, 0, new cv.Scalar(255), -1);
+            contourVec.delete();
+            let masked = new cv.Mat();
+            cv.bitwise_and(thresh, thresh, masked, mask);
+            let total = cv.countNonZero(masked);
+            if (total > maxNonZero) {
+              maxNonZero = total;
+              bubbled = i;
+            }
+            mask.delete(); masked.delete();
+          }
+          let answer = (bubbled !== -1 && maxNonZero >= fillThreshold) ? String.fromCharCode(65 + bubbled) : "No Response";
+          transcription += (numRows + r + 1) + ": " + answer + "\n";
+        }
+      } else {
+        transcription = "Error: Detected bubbles do not match expected counts.\nLeft: " + leftBubbles.length + " Right: " + rightBubbles.length;
+      }
+      
+      // Cleanup bubble contours.
+      bubbleList.forEach(obj => { obj.cnt.delete(); });
+      detectionMat.delete(); warped.delete(); warpedGray.delete(); thresh.delete();
+      
+      callback(transcription);
+    }
+    
+    // --- Camera Mode Functions ---
+    async function initCameraDevices() {
+      try {
+        const devices = await navigator.mediaDevices.enumerateDevices();
+        const videoDevices = devices.filter(device => device.kind === 'videoinput');
+        let select = document.getElementById("cameraSelectCam");
+        select.innerHTML = "";
+        videoDevices.forEach((device, index) => {
+          let option = document.createElement("option");
+          option.value = device.deviceId;
+          option.text = device.label || `Camera ${index + 1}`;
+          select.appendChild(option);
+        });
+        startCameraStream(select.value);
+      } catch (err) {
+        console.error("Error enumerating cameras:", err);
+      }
+    }
+    
+    let currentStream = null;
+    async function startCameraStream(deviceId) {
+      const videoElem = document.getElementById("video");
+      if (currentStream) {
+        currentStream.getTracks().forEach(track => track.stop());
+      }
+      try {
+        const constraints = { video: { deviceId: { exact: deviceId } } };
+        currentStream = await navigator.mediaDevices.getUserMedia(constraints);
+        videoElem.srcObject = currentStream;
+      } catch (err) {
+        console.error("Error accessing camera:", err);
+      }
+    }
+    
+    document.getElementById("cameraSelectCam").addEventListener("change", function() {
+      startCameraStream(this.value);
+    });
+    
+    function captureImageFromCamera() {
+      const videoElem = document.getElementById("video");
+      const captureCanvas = document.getElementById("captureCanvas");
+      const ctx = captureCanvas.getContext("2d");
+      ctx.drawImage(videoElem, 0, 0, captureCanvas.width, captureCanvas.height);
+      console.log("Image captured from camera.");
+    }
+    
+    function processCameraImage() {
+      const captureCanvas = document.getElementById("captureCanvas");
+      let imgData = captureCanvas.getContext("2d").getImageData(0, 0, 1, 1).data;
+      if (imgData[3] === 0) {
+        alert("Please capture an image first.");
+        return;
+      }
+      processImageFromCanvas(captureCanvas, function(transcription) {
+        document.getElementById("output").textContent = "Camera Capture Result (" + new Date().toLocaleTimeString() + "):\n" + transcription;
+      });
+    }
+    
+    // --- Batch Mode Event Listener ---
+    document.getElementById("processAllButton").addEventListener("click", processAllImages);
+    
+    // --- Camera Mode Event Listeners ---
+    document.getElementById("captureButton").addEventListener("click", captureImageFromCamera);
+    document.getElementById("analyzeButton").addEventListener("click", processCameraImage);
+    
+    // --- Control Event Listeners (for batch mode preview updates) ---
+    document.getElementById("numQuestions").addEventListener("input", function() {
+      document.getElementById("numQuestionsValue").textContent = this.value;
+    });
+    document.getElementById("manualThresholdCheckbox").addEventListener("change", function() {
+      let group = document.getElementById("manualThresholdGroup");
+      group.style.display = this.checked ? "block" : "none";
+    });
+    document.getElementById("thresholdValue").addEventListener("input", function() {
+      document.getElementById("thresholdValueDisplay").textContent = this.value;
+    });
+    document.getElementById("minBubbleSize").addEventListener("input", function() {
+      document.getElementById("minBubbleSizeValue").textContent = this.value;
+    });
+    document.getElementById("minCircularityDet").addEventListener("input", function() {
+      document.getElementById("minCircularityDetValue").textContent = parseFloat(this.value).toFixed(2);
+    });
+    document.getElementById("fillThreshold").addEventListener("input", function() {
+      document.getElementById("fillThresholdValue").textContent = this.value;
+    });
+    
+    // --- Batch Mode Processing Function ---
+    function processAllImages() {
+      if (!cvReady) {
+        alert("OpenCV.js is not ready yet.");
+        return;
+      }
+      let fileInput = document.getElementById("fileInput");
+      if (fileInput.files.length === 0) {
+        alert("Please choose at least one image file.");
+        return;
+      }
+      allResults = [];
+      let files = fileInput.files;
+      let processedCount = 0;
+      for (let i = 0; i < files.length; i++) {
+        processSingleImage(files[i], function(result) {
+          allResults.push(result);
+          processedCount++;
+          document.getElementById("output").textContent = "Processed " + processedCount + " of " + files.length + " sheets.";
+          if (processedCount === files.length) {
+            let allText = "";
+            allResults.forEach(res => {
+              allText += "=== " + res.filename + " ===\n" + res.transcription + "\n";
+            });
+            document.getElementById("output").textContent = allText;
+          }
+        });
+      }
+    }
+    
+  </script>
+</body>
+</html>

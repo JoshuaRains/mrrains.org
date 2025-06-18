@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Printable Spanish Conjugation Cards</title>
+    <style>
+        :root {
+            --card-width: 200px; /* Adjust the width of the cards here */
+            --card-height: 100px; /* Adjust the height of the cards here */
+        }
+
+        body {
+            margin: 0;
+            padding: 20px;
+            background-color: #f0f0f0;
+            font-family: Arial, sans-serif;
+        }
+
+        .container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .card {
+            width: var(--card-width);
+            height: var(--card-height);
+            border: 2px solid black;
+            background-color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-sizing: border-box;
+            page-break-inside: avoid; /* Prevent splitting cards across pages */
+            text-align: center;
+            padding: 10px;
+            font-size: 16px;
+        }
+
+        /* Ensure cards don't break between pages when printing */
+        @media print {
+            .card {
+                page-break-inside: avoid;
+            }
+        }
+
+        /* Optional: Add headers for different sections */
+        .section-header {
+            width: 100%;
+            font-size: 20px;
+            font-weight: bold;
+            margin-top: 20px;
+            margin-bottom: 10px;
+            text-align: left;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Llamar Conjugations -->
+        <div class="card">el pie</div>
+        <div class="card">las botas</div>
+        <div class="card">las chanclas</div>
+        <div class="card">los zapatos</div>
+        <div class="card">los tacones</div>
+        <div class="card">el calcetín</div>
+        
+        <div class="card">la muñeca</div>
+        <div class="card">las pulseras</div>
+        <div class="card">el reloj</div>
+        
+        <div class="card">el cuello</div>
+        <div class="card">el collar</div>
+        <div class="card">la corbata</div>
+        
+        <div class="card">las piernas</div>
+        <div class="card">los pantalones</div>
+        <div class="card">los jeans</div>
+        
+        <div class="card">el dedo</div>
+        <div class="card">el anillo</div>
+        
+        <div class="card">el pecho</div>
+        <div class="card">la camiseta</div>
+        <div class="card">la camisa</div>
+        <div class="card">el suéter</div>
+        
+        <div class="card">la cinta</div>
+        <div class="card">la falda</div>
+        <div class="card">el cinturón</div>
+        
+        
+    </div>
+</body>
+</html>

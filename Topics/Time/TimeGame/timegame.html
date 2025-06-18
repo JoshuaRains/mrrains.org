@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spanish Time Review Game</title>
+    <style>
+        /* Center content and style input */
+        body, html {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100%;
+            margin: 0;
+            font-family: Arial, sans-serif;
+        }
+        body {
+      font-family: Arial, sans-serif;
+      background: linear-gradient(135deg, #4b976a, #a8d5ba);
+      min-height: 100vh;
+    }
+        .game-container {
+            text-align: center;
+            width: 100%;
+            max-width: 800px;
+            padding: 50px;
+            border: 2px solid #d3d3d3;
+            background-color: #f7f4f4;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        .input-box {
+            font-size: 1.2em;
+            padding: 10px;
+            width: 90%;
+            border: 2px solid lightgrey;
+            border-radius: 8px;
+            transition: color 0.3s;
+        }
+        .input-box.correct {
+            color: green;
+        }
+        .button {
+            margin-top: 20px;
+            padding: 10px 20px;
+            font-size: 1em;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            background-color: #007BFF;
+            color: white;
+        }
+        .button:hover {
+            background-color: #0056b3;
+        }
+        .hint {
+            margin-top: 10px;
+            font-size: 1em;
+            color: #555;
+        }
+        .answer-display {
+            margin-top: 10px;
+            font-size: 1.1em;
+            color: #d9534f;
+        }
+        .accent-buttons {
+            margin-top: 10px;
+        }
+        .accent-button {
+            font-size: 1.2em;
+            padding: 5px 10px;
+            margin: 2px;
+            border: 1px solid #d3d3d3;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .accent-button:hover {
+            background-color: #e0e0e0;
+        }
+    </style>
+</head>
+<body>
+
+<div class="game-container">
+    <h2>Spanish Time Review</h2>
+    <p id="prompt"></p>
+    <p id="hint" class="hint">Hint: (in 5 seconds)</p>
+    <p id="answerDisplay" class="answer-display"></p>
+    <input type="text" id="answerInput" class="input-box" autocomplete="off" spellcheck="false" />
+    <div class="accent-buttons">
+        <button class="accent-button" onclick="insertAccent('á')">á</button>
+        <button class="accent-button" onclick="insertAccent('é')">é</button>
+        <button class="accent-button" onclick="insertAccent('í')">í</button>
+        <button class="accent-button" onclick="insertAccent('ó')">ó</button>
+        <button class="accent-button" onclick="insertAccent('ú')">ú</button>
+        <button class="accent-button" onclick="insertAccent('ñ')">ñ</button>
+    </div>
+    <button id="restartButton" class="button" style="display: none;">Restart</button>
+    <p id="timerDisplay"></p>
+</div>
+
+<script>
+    // Game settings
+    const roundLength = 5; // Customize number of questions per round
+    const answerTime = 1000; // Delay before next question (in milliseconds)
+
+    // State variables
+    let roundCount = 0;
+    let correctAnswer = "";
+    let startTime, endTime;
+    let hintTimer;
+    let hintCounter = 5;
+
+    // Helper function to convert numbers to written-out Spanish, including irregular numbers in the 20s
+    function numberToSpanish(num) {
+        const units = ["", "uno", "dos", "tres", "cuatro", "cinco", "seis", "siete", "ocho", "nueve"];
+        const teens = ["diez", "once", "doce", "trece", "catorce", "quince", "dieciséis", "diecisiete", "dieciocho", "diecinueve"];
+        const tens = ["", "", "veinte", "treinta", "cuarenta", "cincuenta"];
+
+        if (num < 10) return units[num];
+        if (num >= 10 && num < 20) return teens[num - 10];
+        if (num >= 20 && num < 30) return num === 20 ? "veinte" : "veinti" + units[num % 10];
+        if (num >= 30 && num < 60) {
+            const tensPart = tens[Math.floor(num / 10)];
+            const unitPart = units[num % 10];
+            return unitPart ? `${tensPart} y ${unitPart}` : tensPart;
+        }
+        return num.toString(); // Default fallback for other numbers
+    }
+
+    // Function to generate a random time and its Spanish equivalent with written-out numbers
+    function generateRandomTime() {
+        const hours = Math.floor(Math.random() * 12) + 1; // 1 to 12
+        const minutes = Math.floor(Math.random() * 60); // 0 to 59
+
+        let timeString = `${hours}:${minutes.toString().padStart(2, '0')}`;
+        let spanishTime = formatTimeToSpanish(hours, minutes);
+        return { timeString, spanishTime };
+    }
+
+    // Function to format time in Spanish with numbers as written-out words
+    function formatTimeToSpanish(hours, minutes) {
+        const hourNames = ["", "una", "dos", "tres", "cuatro", "cinco", "seis", "siete", "ocho", "nueve", "diez", "once", "doce"];
+        let hourInSpanish = hourNames[hours];
+        let minuteInSpanish = "";
+
+        if (minutes === 0) {
+            minuteInSpanish = "en punto";
+        } else if (minutes === 15) {
+            minuteInSpanish = "y cuarto";
+        } else if (minutes === 30) {
+            minuteInSpanish = "y media";
+        } else if (minutes === 45) {
+            hourInSpanish = hourNames[(hours % 12) + 1]; // Adjust to next hour for "menos cuarto"
+            minuteInSpanish = "menos cuarto";
+        } else if (minutes < 30) {
+            minuteInSpanish = `y ${numberToSpanish(minutes)}`;
+        } else {
+            hourInSpanish = hourNames[(hours % 12) + 1]; // Adjust to next hour for "menos" logic
+            minuteInSpanish = `menos ${numberToSpanish(60 - minutes)}`;
+        }
+
+        return `Son las ${hourInSpanish} ${minuteInSpanish}`.replace("Son las una", "Es la una");
+    }
+
+    // Function to insert accents into the input field
+    function insertAccent(char) {
+        const input = document.getElementById("answerInput");
+        const startPos = input.selectionStart;
+        const endPos = input.selectionEnd;
+        input.value = input.value.substring(0, startPos) + char + input.value.substring(endPos);
+        input.focus();
+        input.setSelectionRange(startPos + char.length, startPos + char.length);
+    }
+
+    const promptElement = document.getElementById("prompt");
+    const answerInput = document.getElementById("answerInput");
+    const hintElement = document.getElementById("hint");
+    const answerDisplay = document.getElementById("answerDisplay");
+    const restartButton = document.getElementById("restartButton");
+    const timerDisplay = document.getElementById("timerDisplay");
+
+    // Function to start the game
+    function startGame() {
+        roundCount = 0;
+        timerDisplay.textContent = "";
+        restartButton.style.display = "none";
+        answerDisplay.textContent = "";
+        startTime = new Date();
+        answerInput.value = "";
+        answerInput.disabled = false;
+        answerInput.classList.remove("correct");
+        answerInput.focus();
+        nextQuestion();
+    }
+
+    // Function to show the next question
+    function nextQuestion() {
+        if (roundCount >= roundLength) {
+            endRound();
+            return;
+        }
+
+        const { timeString, spanishTime } = generateRandomTime();
+        correctAnswer = spanishTime;
+        promptElement.textContent = `Write out the time: ${timeString}`;
+        answerInput.value = "";
+        answerInput.classList.remove("correct");
+        answerInput.disabled = false;
+        answerInput.focus();
+        startHintCountdown();
+        roundCount++;
+    }
+
+    // Function to start the hint countdown
+    function startHintCountdown() {
+        answerDisplay.textContent = "";
+        hintCounter = 5;
+        hintElement.textContent = `Hint: (in ${hintCounter} seconds)`;
+        clearInterval(hintTimer);
+        hintTimer = setInterval(() => {
+            hintCounter--;
+            if (hintCounter > 0) {
+                hintElement.textContent = `Hint: (in ${hintCounter} seconds)`;
+            } else {
+                hintElement.textContent = `Hint: (press enter)`;
+                clearInterval(hintTimer);
+            }
+        }, 1000);
+    }
+
+    // Function to handle input and check answer
+    answerInput.addEventListener("input", () => {
+        if (answerInput.value.trim().toLowerCase() === correctAnswer.toLowerCase()) {
+            answerInput.classList.add("correct");
+            answerInput.disabled = true;
+            clearInterval(hintTimer);
+            setTimeout(nextQuestion, answerTime);
+        }
+    });
+
+    // Show the answer when the student presses enter
+    answerInput.addEventListener("keydown", (event) => {
+        if (event.key === "Enter" && hintCounter <= 0) {
+            answerDisplay.textContent = `Correct answer: ${correctAnswer}`;
+        }
+    });
+
+    // Function to end the round and show total time
+    function endRound() {
+        endTime = new Date();
+        const totalTime = ((endTime - startTime) / 1000).toFixed(2);
+        timerDisplay.textContent = `Round completed in ${totalTime} seconds!`;
+        restartButton.style.display = "block";
+    }
+
+    // Event listener for restart button
+    restartButton.addEventListener("click", startGame);
+
+    // Start game on page load
+    startGame();
+</script>
+
+</body>
+</html>

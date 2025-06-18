@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Weather Info Panel</title>
+  <style>
+    /* full-height dark background */
+    html, body {
+      margin: 0; padding: 0; height: 100%;
+      background-color: #121212; color: #e0e0e0;
+      position: relative; overflow: hidden;
+      font-family: sans-serif;
+    }
+    /* sliding info panel (hidden initially) */
+    #info-panel {
+      position: absolute;
+      top: 20px; bottom: 20px; left: 20px;
+      width: 0; opacity: 0; pointer-events: none;
+      background: #272727; border-radius: 8px;
+      padding: 20px; box-shadow: 2px 0 8px rgba(0,0,0,0.5);
+      overflow: auto;
+      transition: width 0.6s ease, opacity 0.6s ease;
+    }
+    #info-panel > * {
+      opacity: 0;
+      transition: opacity 0.4s ease;
+    }
+    /* map container centered */
+    #map-container {
+      position: absolute;
+      top: 20px; bottom: 20px;
+      left: 50%; transform: translateX(-50%);
+      transition: left 0.6s ease, transform 0.6s ease;
+    }
+    #map-container svg {
+      height: 100%; width: auto; display: block;
+      transition: width 0.6s ease, height 0.6s ease;
+    }
+    /* open state */
+    body.detail-open #info-panel {
+      width: 60%; opacity: 1; pointer-events: auto;
+    }
+    body.detail-open #map-container {
+      left: 60%; transform: translateX(0);
+    }
+    body.detail-open #map-container svg {
+      width: 100%; height: 100%;
+    }
+    /* country styling */
+    #map-container path[id] {
+      stroke: #fff; stroke-width: 1; transition: fill 0.2s;
+    }
+    #map-container path[id]:hover {
+      fill: #F0C040 !important; cursor: pointer;
+    }
+    #weather {
+      font-size: 1.5em;
+      line-height: 1.5;
+      color: #e0e0e0;
+      background-color: #333;
+      padding: 10px;
+      border-radius: 8px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+      margin-top: 20px;
+      text-align: center;
+    }
+
+    #weather .header {
+      font-size: 1.5em;
+      font-weight: bold;
+      margin-bottom: 5px;
+    }
+
+    #weather .data {
+      font-size: 1.2em;
+      margin-bottom: 15px;
+    }
+
+    #info-panel h2 {
+      text-align: center;
+      font-size: 38px;
+      margin-bottom: 10px;
+    }
+
+    #flag {
+      display: block;
+      margin: 0 auto;
+      text-align: center;
+      height: 100px;
+    }
+  </style>
+</head>
+<body>
+  <div id="info-panel"></div>
+  <div id="map-container"></div>
+
+  <script>
+  document.addEventListener('DOMContentLoaded', async () => {
+    const infoPanel = document.getElementById('info-panel');
+    const container = document.getElementById('map-container');
+    // 1) load your SVG map
+    const svgText = await fetch('map_with_ids.svg').then(r => r.text());
+    container.innerHTML = svgText;
+
+    // 2) pastel palette & country id → name
+    const pastel = ['#E9999A','#E9D9A0','#E9E9A0','#A0E9B4','#A0C6E9','#C1D9A8','#D9A8D9','#C1D1D1','#B5C3E9','#E9B5B5'];
+    const countryById = {
+      path17:'México', path12:'Guatemala', path4:'Belice',path24:'El Salvador',path14:'Honduras',path18:'Nicaragua',
+      path7:'Costa Rica',path19:'Panamá',path8:'Cuba',path15:'Haití',path9:'República Dominicana',path16:'Jamaica',
+      path21:'Puerto Rico',path6:'Colombia',path26:'Venezuela',path13:'Guyana',path23:'Surinam',path11:'Guayana Francesa',
+      path29:'Brasil',path22:'Paraguay',path25:'Uruguay',path27:'Argentina',path5:'Chile',path20:'Perú',path28:'Bolivia',path10:'Ecuador'
+    };
+
+    // 3) Spanish name → capital
+    const capitalByCountry = {
+      'México':'Ciudad de México','Guatemala':'Ciudad de Guatemala','Belice':'Belmopán',
+      'El Salvador':'San Salvador','Honduras':'Tegucigalpa','Nicaragua':'Managua',
+      'Costa Rica':'San José','Panamá':'Ciudad de Panamá','Cuba':'La Habana',
+      'Haití':'Puerto Príncipe','República Dominicana':'Santo Domingo','Jamaica':'Kingston',
+      'Puerto Rico':'San Juan','Colombia':'Bogotá','Venezuela':'Caracas',
+      'Guyana':'Georgetown','Surinam':'Paramaribo','Guayana Francesa':'Cayena',
+      'Brasil':'Brasilia','Paraguay':'Asunción','Uruguay':'Montevideo',
+      'Argentina':'Buenos Aires','Chile':'Santiago','Perú':'Lima','Bolivia':'La Paz',
+      'Ecuador':'Quito'
+    };
+
+    // 4) capital → coords for Open-Meteo
+    const capitalCoords = {
+      'Ciudad de México':{lat:19.4326, lon:-99.1332}, 'Ciudad de Guatemala':{lat:14.6349, lon:-90.5069},
+      'Belmopán':{lat:17.2510, lon:-88.7590}, 'San Salvador':{lat:13.6929, lon:-89.2182},
+      'Tegucigalpa':{lat:14.0723, lon:-87.1921}, 'Managua':{lat:12.1364, lon:-86.2514},
+      'San José':{lat:9.9281, lon:-84.0907}, 'Ciudad de Panamá':{lat:8.9824, lon:-79.5199},
+      'La Habana':{lat:23.1136, lon:-82.3666}, 'Puerto Príncipe':{lat:18.5944, lon:-72.3074},
+      'Santo Domingo':{lat:18.4861, lon:-69.9312}, 'Kingston':{lat:17.9714, lon:-76.7936},
+      'San Juan':{lat:18.4655, lon:-66.1057}, 'Bogotá':{lat:4.7110, lon:-74.0721},
+      'Caracas':{lat:10.4806, lon:-66.9036}, 'Georgetown':{lat:6.8013, lon:-58.1551},
+      'Paramaribo':{lat:5.8520, lon:-55.2038}, 'Cayena':{lat:4.9224, lon:-52.3135},
+      'Brasilia':{lat:-15.8267, lon:-47.9218}, 'Asunción':{lat:-25.2637, lon:-57.5759},
+      'Montevideo':{lat:-34.9011, lon:-56.1645}, 'Buenos Aires':{lat:-34.6037, lon:-58.3816},
+      'Santiago':{lat:-33.4489, lon:-70.6693}, 'Lima':{lat:-12.0464, lon:-77.0428},
+      'La Paz':{lat:-16.4897, lon:-68.1193}, 'Quito':{lat:-0.1807, lon:-78.4678}
+    };
+
+    // 5) Spanish name → ISO 2-letter code for flags
+    const isoByCountry = {
+      'México':'mx','Guatemala':'gt','Belice':'bz','El Salvador':'sv','Honduras':'hn',
+      'Nicaragua':'ni','Costa Rica':'cr','Panamá':'pa','Cuba':'cu','Haití':'ht',
+      'República Dominicana':'do','Jamaica':'jm','Puerto Rico':'pr','Colombia':'co',
+      'Venezuela':'ve','Guyana':'gy','Surinam':'sr','Guayana Francesa':'gf',
+      'Brasil':'br','Paraguay':'py','Uruguay':'uy','Argentina':'ar','Chile':'cl',
+      'Perú':'pe','Bolivia':'bo','Ecuador':'ec'
+    };
+
+    // fade helpers
+    function fadeIn() {
+      Array.from(infoPanel.children).forEach((c,i)=>
+        setTimeout(()=>c.style.opacity='1', i*200)
+      );
+    }
+    function reset() {
+      Array.from(infoPanel.children).forEach(c=>c.style.opacity='0');
+    }
+
+    const svg = container.querySelector('svg');
+    svg.querySelectorAll('path[id]').forEach((path,i)=>{
+      path.style.fill = pastel[i % pastel.length];
+      path.addEventListener('click', async e=>{
+        e.stopPropagation();
+        const country = countryById[path.id] || path.id;
+        const capital = capitalByCountry[country];
+        const coords  = capitalCoords[capital];
+
+        // build panel HTML
+        infoPanel.innerHTML = `
+          <h2>${country} <span style="font-size: 0.6em; font-weight: normal;">(${capital})</span></h2>
+          <img id="flag" 
+               src="https://flagcdn.com/h240/${isoByCountry[country]}.png"
+               alt="Flag of ${country}" />
+          <div id="weather"></div>
+        `;
+
+        // fetch weather & convert to °F
+        if (coords) {
+          try {
+            const url = `https://api.open-meteo.com/v1/forecast?`+
+                        `latitude=${coords.lat}&longitude=${coords.lon}`+
+                        `&current_weather=true`;
+            const { current_weather } = await fetch(url).then(r=>r.json());
+            const c = current_weather.temperature;
+            const f = Math.round(c * 9/5 + 32);
+            const windSpeed = current_weather.windspeed;
+            const windDirection = current_weather.winddirection;
+
+            const directions = ['Norte', 'Noreste', 'Este', 'Sureste', 'Sur', 'Suroeste', 'Oeste', 'Noroeste'];
+            const cardinalDirection = directions[Math.round(windDirection / 45) % 8];
+
+            document.getElementById('weather').innerHTML = `
+              <div class="header">Temperatura</div>
+              <div class="data">${c} °C / ${f} °F</div>
+              <div class="header">Velocidad del viento</div>
+              <div class="data">${windSpeed} km/h</div>
+              <div class="header">Dirección del viento</div>
+              <div class="data">${cardinalDirection}</div>
+            `;
+          } catch {
+            document.getElementById('weather').innerHTML = `
+              <img src="../../assets/errorImage.svg" alt="Error Image" style="display: block; margin: 0 auto; width: 100px; height: auto;">
+              <p>Error al obtener temperatura.</p>
+            `;
+          }
+        } else {
+          document.getElementById('weather').textContent =
+            'Sin coordenadas de la capital.';
+        }
+
+        document.body.classList.add('detail-open');
+        setTimeout(fadeIn, 600);
+      });
+    });
+
+    // click outside to close
+    svg.addEventListener('click', e=>{
+      if (document.body.classList.contains('detail-open') && e.target===svg) {
+        document.body.classList.remove('detail-open');
+        reset();
+      }
+    });
+  });
+  </script>
+</body>
+</html>

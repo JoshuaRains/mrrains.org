@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="en" translate="no">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Spanish Subject Pronouns Review Game</title>
+  <style>
+    body, html {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100%;
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: linear-gradient(to bottom, #5ffaff, #7ba9fe);
+    }
+    .game-container {
+      text-align: center;
+      width: 100%;
+      max-width: 800px;
+      padding: 50px;
+      border: 2px solid #d3d3d3;
+      background-color: #f7f4f4;
+      border-radius: 10px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+    .progress-bar-container {
+      width: 100%;
+      height: 20px;
+      background-color: #d3d3d3;
+      border-radius: 10px;
+      overflow: hidden;
+      margin-bottom: 20px;
+    }
+    .progress-bar {
+      height: 100%;
+      width: 0;
+      background: linear-gradient(to right, #28a745, #5cd85c);
+      border-radius: 10px;
+      transition: width 0.3s;
+    }
+    h2 {
+      margin-top: 0;
+    }
+    #prompt {
+      font-size: 1.2em;
+      margin: 20px 0;
+    }
+
+    /* The main table for pronouns */
+    #articleChart {
+      margin: 0 auto 20px auto;
+      border-collapse: collapse;
+    }
+    #articleChart td {
+      width: 140px;
+      min-height: 80px;
+      border: 2px solid #999;
+      text-align: center;
+      vertical-align: middle;
+      background-color: #eee;
+      user-select: none;
+      padding: 8px;
+    }
+
+    /* Each subBox styled like a button */
+    .subBox {
+      display: block;
+      margin: 6px 0;
+      cursor: pointer;
+      font-size: 1.1em;
+      background-color: #ccc;
+      color: #000;
+      padding: 6px 10px;
+      border-radius: 5px;
+      border: 1px solid #999;
+      transition: background-color 0.2s, color 0.2s, transform 0.1s;
+    }
+    .subBox:hover {
+      background-color: #bbb;
+    }
+    .subBox:active {
+      transform: scale(0.95);
+    }
+
+    /* Highlighting correct/incorrect choices */
+    .subBox.correct {
+      background-color: #d4edda !important; /* light green */
+      color: #155724 !important;           /* dark green text */
+      border-color: #c3e6cb !important;
+    }
+    .subBox.incorrect {
+      background-color: #f8d7da !important; /* light red */
+      color: #721c24 !important;           /* dark red text */
+      border-color: #f5c6cb !important;
+    }
+
+    .hint {
+      font-size: 0.9em;
+      color: #555;
+      margin-top: 10px;
+      min-height: 1.2em;
+    }
+    .answer-display {
+      font-size: 1.1em;
+      color: #d9534f;
+      margin-top: 10px;
+      min-height: 1.2em;
+    }
+
+    .button {
+      margin-top: 20px;
+      padding: 10px 20px;
+      font-size: 1em;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      background-color: #007BFF;
+      color: white;
+    }
+    .button:hover {
+      background-color: #0056b3;
+    }
+    #timerDisplay {
+      margin-top: 10px;
+      font-size: 1em;
+    }
+
+    /* Input in fill-in mode */
+    .fillInInput {
+      font-size: 1.1em;
+      text-align: center;
+      border: 2px solid #999;
+      border-radius: 5px;
+    }
+
+    /* Accent buttons */
+    .accent-buttons {
+      margin-top: 20px;
+    }
+    .accent-button {
+      font-size: 1.2em;
+      padding: 5px 10px;
+      margin: 2px;
+      border: 1px solid #d3d3d3;
+      border-radius: 5px;
+      cursor: pointer;
+      background-color: #ddd;
+      transition: background-color 0.2s, color 0.2s, transform 0.1s;
+    }
+    .accent-button:hover {
+      background-color: #ccc;
+    }
+    .accent-button:active {
+      transform: scale(0.95);
+    }
+  </style>
+</head>
+<body>
+  <div class="game-container">
+    <div class="progress-bar-container">
+      <div id="progressBar" class="progress-bar"></div>
+    </div>
+    <h2>Spanish Subject Pronouns Review</h2>
+    <p id="prompt"></p>
+
+    <!-- 3×2 Chart with sub-boxes for each pronoun -->
+    <table id="articleChart">
+      <tr>
+        <td>
+          <!-- data-phrase distinguishes "nosotros" vs "nosotras" etc. -->
+          <div class="subBox" data-slot="yo" data-phrase="yo">yo</div>
+        </td>
+        <td>
+          <div class="subBox" data-slot="nosotros" data-phrase="nosotros">nosotros</div>
+          <div class="subBox" data-slot="nosotros" data-phrase="nosotras">nosotras</div>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <div class="subBox" data-slot="tú" data-phrase="tú">tú</div>
+        </td>
+        <td>
+          <div class="subBox" data-slot="vosotros" data-phrase="vosotros">vosotros</div>
+          <div class="subBox" data-slot="vosotros" data-phrase="vosotras">vosotras</div>
+          <div class="subBox" data-slot="ustedes" data-phrase="ustedes">ustedes</div>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <div class="subBox" data-slot="él"    data-phrase="él">él</div>
+          <div class="subBox" data-slot="ella"  data-phrase="ella">ella</div>
+          <div class="subBox" data-slot="usted" data-phrase="usted">usted</div>
+        </td>
+        <td>
+          <div class="subBox" data-slot="ellos" data-phrase="ellos">ellos</div>
+          <div class="subBox" data-slot="ellas" data-phrase="ellas">ellas</div>
+        </td>
+      </tr>
+    </table>
+
+    <!-- HINT text only shown in fill-in mode -->
+    <p id="hint" class="hint" style="display:none;">Hint: (in 5 seconds)</p>
+
+    <p id="answerDisplay" class="answer-display"></p>
+    <button id="restartButton" class="button" style="display: none;">Restart</button>
+    <p id="timerDisplay"></p>
+
+    <!-- Accent Buttons -->
+    <div class="accent-buttons">
+      <button class="accent-button" onclick="insertAccent('á')">á</button>
+      <button class="accent-button" onclick="insertAccent('é')">é</button>
+      <button class="accent-button" onclick="insertAccent('í')">í</button>
+      <button class="accent-button" onclick="insertAccent('ó')">ó</button>
+      <button class="accent-button" onclick="insertAccent('ú')">ú</button>
+      <button class="accent-button" onclick="insertAccent('ñ')">ñ</button>
+    </div>
+  </div>
+
+  <script>
+    // Game settings
+    const CorrectTimesRequired = 3; // Times each item must be answered correctly
+    const fillInBlankThreshold = 6; // After this many total correct, switch to fill-in mode
+    const answerTime = 1000;        // Delay before next question (ms)
+
+    // Track whether we are in fill-in-the-blank mode
+    let isFillInBlankMode = false;
+
+    // Vocabulary list for subject pronouns
+    const vocabularyList = [
+      { english: "I",                       spanish: "yo",       slot: "yo",       times_seen: 0, times_correct: 0 },
+      { english: "you (informal)",          spanish: "tú",       slot: "tú",       times_seen: 0, times_correct: 0 },
+      { english: "he",                      spanish: "él",       slot: "él",       times_seen: 0, times_correct: 0 },
+      { english: "she",                     spanish: "ella",     slot: "ella",     times_seen: 0, times_correct: 0 },
+      { english: "you (formal)",            spanish: "usted",    slot: "usted",    times_seen: 0, times_correct: 0 },
+      { english: "we (masculine/mixed)",    spanish: "nosotros", slot: "nosotros", times_seen: 0, times_correct: 0 },
+      { english: "we (feminine)",           spanish: "nosotras", slot: "nosotros", times_seen: 0, times_correct: 0 },
+      { english: "you all (informal, m/m)", spanish: "vosotros", slot: "vosotros", times_seen: 0, times_correct: 0 },
+      { english: "you all (informal, f)",   spanish: "vosotras", slot: "vosotros", times_seen: 0, times_correct: 0 },
+      { english: "they (masculine/mixed)",  spanish: "ellos",    slot: "ellos",    times_seen: 0, times_correct: 0 },
+      { english: "they (feminine)",         spanish: "ellas",    slot: "ellas",    times_seen: 0, times_correct: 0 },
+      { english: "you all (formal)",        spanish: "ustedes",  slot: "ustedes",  times_seen: 0, times_correct: 0 }
+    ];
+
+    // DOM elements
+    const promptElement   = document.getElementById("prompt");
+    const hintElement     = document.getElementById("hint");
+    const answerDisplay   = document.getElementById("answerDisplay");
+    const restartButton   = document.getElementById("restartButton");
+    const progressBar     = document.getElementById("progressBar");
+    const timerDisplay    = document.getElementById("timerDisplay");
+    const articleChart    = document.getElementById("articleChart");
+
+    // State variables
+    let currentWord       = null;
+    let totalCorrect      = 0;
+    let startTime, endTime;
+    let hintTimer;
+    let hintCounter       = 5;
+    let hintUsed          = false;
+
+    // For fill-in mode
+    let fillInBoxElement  = null;      // The subBox being replaced with <input>
+    let originalSubBoxText= "";
+    let currentInputEl    = null;      // The <input> itself
+
+    // For click mode multiple attempts
+    let questionAnswered  = false;     // Once correct box is clicked, question is "answered"
+    let wrongClickedBoxes = [];        // Keep track of any red boxes
+
+    //-----------------------------------------------------
+    // Insert chosen accent into the active text box
+    //-----------------------------------------------------
+    function insertAccent(char) {
+      if (currentInputEl) {
+        const startPos = currentInputEl.selectionStart;
+        const endPos   = currentInputEl.selectionEnd;
+        const oldValue = currentInputEl.value;
+        currentInputEl.value =
+          oldValue.slice(0, startPos) + char + oldValue.slice(endPos);
+        // Move the cursor just after the inserted char
+        const newPos = startPos + char.length;
+        currentInputEl.setSelectionRange(newPos, newPos);
+        currentInputEl.focus();
+      }
+    }
+
+    //-----------------------------------------------------
+    // Utility
+    //-----------------------------------------------------
+    function randomItem(arr) {
+      return arr[Math.floor(Math.random() * arr.length)];
+    }
+    function getRemainingWords() {
+      return vocabularyList.filter(item => item.times_correct < CorrectTimesRequired);
+    }
+    function clearAllHighlights() {
+      const subBoxes = document.querySelectorAll('.subBox');
+      subBoxes.forEach(sb => {
+        sb.classList.remove('correct', 'incorrect');
+      });
+    }
+    function enableAllSubBoxes(enable) {
+      const subBoxes = document.querySelectorAll('.subBox');
+      subBoxes.forEach(sb => {
+        sb.style.pointerEvents = enable ? 'auto' : 'none';
+      });
+    }
+
+    //-----------------------------------------------------
+    // Start Game
+    //-----------------------------------------------------
+    function startGame() {
+      // Reset
+      for (let v of vocabularyList) {
+        v.times_seen    = 0;
+        v.times_correct = 0;
+      }
+      totalCorrect       = 0;
+      isFillInBlankMode  = false;
+      hintUsed           = false;
+      currentWord        = null;
+
+      restartButton.style.display = "none";
+      answerDisplay.textContent    = "";
+      timerDisplay.textContent     = "";
+      progressBar.style.width      = "0%";
+      promptElement.textContent    = "";
+      hintElement.style.display    = "none";
+
+      // Clear any highlight classes
+      clearAllHighlights();
+
+      // Restore any sub-box if replaced with an input
+      if (fillInBoxElement) {
+        fillInBoxElement.innerHTML = originalSubBoxText;
+        fillInBoxElement = null;
+      }
+      currentInputEl = null;
+
+      startTime = new Date();
+      nextQuestion();
+    }
+
+    //-----------------------------------------------------
+    // Next Question
+    //-----------------------------------------------------
+    function nextQuestion() {
+      const remaining = getRemainingWords();
+      if (remaining.length === 0) {
+        endRound();
+        return;
+      }
+      if (totalCorrect >= fillInBlankThreshold && !isFillInBlankMode) {
+        isFillInBlankMode = true;
+      }
+
+      currentWord = randomItem(remaining);
+      currentWord.times_seen++;
+
+      answerDisplay.textContent = "";
+      hintUsed          = false;
+      questionAnswered  = false;
+      wrongClickedBoxes = [];
+
+      // Clear previous highlights
+      clearAllHighlights();
+
+      // If we replaced a sub-box with input, revert it
+      if (fillInBoxElement) {
+        fillInBoxElement.innerHTML = originalSubBoxText;
+        fillInBoxElement = null;
+      }
+      currentInputEl = null;
+
+      // Normal click mode
+      if (!isFillInBlankMode) {
+        promptElement.textContent = `Which pronoun is "${currentWord.english}"?`;
+        hintElement.style.display = "none"; // no hint in click mode
+        enableAllSubBoxes(true);
+      }
+      // Fill-in mode
+      else {
+        promptElement.textContent = `Type the correct pronoun for "${currentWord.english}":`;
+        hintElement.style.display = "block"; // show hint
+        enableAllSubBoxes(false);
+
+        // Convert the target sub-box into an input
+        const targetSubBox = document.querySelector(
+          `.subBox[data-slot="${currentWord.slot}"][data-phrase="${currentWord.spanish}"]`
+        );
+        if (targetSubBox) {
+          originalSubBoxText = targetSubBox.textContent;
+          targetSubBox.innerHTML = `<input type="text" class="fillInInput" style="width:80px;" />`;
+          fillInBoxElement = targetSubBox;
+          const inputEl = targetSubBox.querySelector('input.fillInInput');
+          inputEl.focus();
+          currentInputEl = inputEl;
+
+          // Remove red highlight when user changes text
+          inputEl.addEventListener('input', () => {
+            targetSubBox.classList.remove('incorrect');
+          });
+
+          // Listen for Enter: check correctness OR show hint answer if hint timed out
+          inputEl.addEventListener('keydown', (e) => {
+            if (e.key === "Enter") {
+              const userInput    = inputEl.value.trim().toLowerCase();
+              const correctLower = currentWord.spanish.toLowerCase();
+
+              // If correct
+              if (userInput === correctLower) {
+                targetSubBox.classList.remove('incorrect');
+                targetSubBox.classList.add('correct');
+                markCorrect();
+              }
+              // If incorrect
+              else {
+                // If the hint has timed out, pressing Enter shows the correct answer
+                if (hintCounter <= 0) {
+                  showCorrectAnswer();
+                  // Mark as used
+                  hintUsed = true;
+                  // Also highlight the subBox in red
+                  targetSubBox.classList.add('incorrect');
+                } else {
+                  // Just highlight red, let them try again
+                  targetSubBox.classList.add('incorrect');
+                }
+              }
+            }
+          });
+        }
+        startHintCountdown();
+      }
+    }
+
+    //-----------------------------------------------------
+    // Chart clicks (only in normal mode)
+    //-----------------------------------------------------
+    articleChart.addEventListener('click', (e) => {
+      if (!currentWord || isFillInBlankMode || questionAnswered) return;
+      const subBox       = e.target.closest('.subBox');
+      if (!subBox) return;
+
+      const chosenSlot   = subBox.getAttribute('data-slot');
+      const chosenPhrase = subBox.getAttribute('data-phrase');
+      const correctSlot  = currentWord.slot;
+      const correctPhrase= currentWord.spanish;
+
+      // The correct sub-box
+      const correctBox = document.querySelector(
+        `.subBox[data-slot="${correctSlot}"][data-phrase="${correctPhrase}"]`
+      );
+
+      if (chosenSlot === correctSlot && chosenPhrase === correctPhrase) {
+        // Correct
+        subBox.classList.add('correct');
+        // Revert all wrong boxes to normal color
+        wrongClickedBoxes.forEach(box => box.classList.remove('incorrect'));
+        markCorrect();
+        questionAnswered = true;
+      } else {
+        // Incorrect
+        subBox.classList.add('incorrect');
+        wrongClickedBoxes.push(subBox);
+        // Show correct answer right away
+        showCorrectAnswer();
+      }
+    });
+
+    //-----------------------------------------------------
+    // Mark Correct
+    //-----------------------------------------------------
+    function markCorrect() {
+      if (!hintUsed) {
+        currentWord.times_correct++;
+        totalCorrect++;
+        updateProgressBar();
+      }
+      clearInterval(hintTimer);
+
+      enableAllSubBoxes(false);
+      setTimeout(nextQuestion, answerTime);
+    }
+
+    //-----------------------------------------------------
+    // Show Correct Answer
+    //-----------------------------------------------------
+    // Called in click mode on an incorrect attempt,
+    // or in fill-in mode if user hits Enter after hint timer is done.
+    function showCorrectAnswer() {
+      answerDisplay.textContent = `Correct answer: ${currentWord.spanish}`;
+      hintUsed = true;
+    }
+
+    //-----------------------------------------------------
+    // Hint Countdown (fill-in mode only)
+    //-----------------------------------------------------
+    function startHintCountdown() {
+      hintCounter = 5;
+      hintElement.textContent = `Hint: (in ${hintCounter} seconds)`;
+      clearInterval(hintTimer);
+      hintTimer = setInterval(() => {
+        hintCounter--;
+        if (hintCounter > 0) {
+          hintElement.textContent = `Hint: (in ${hintCounter} seconds)`;
+        } else {
+          hintElement.textContent = `Hint: Press Enter to see answer`;
+          clearInterval(hintTimer);
+        }
+      }, 1000);
+    }
+
+    //-----------------------------------------------------
+    // End Round
+    //-----------------------------------------------------
+    function endRound() {
+      endTime = new Date();
+      const totalTime = ((endTime - startTime) / 1000).toFixed(2);
+      promptElement.textContent = "All done!";
+      timerDisplay.textContent  = `Completed in ${totalTime} seconds!`;
+      enableAllSubBoxes(false);
+      restartButton.style.display = "inline-block";
+    }
+
+    //-----------------------------------------------------
+    // Progress Bar
+    //-----------------------------------------------------
+    function updateProgressBar() {
+      const totalNeeded = vocabularyList.length * CorrectTimesRequired;
+      const percent     = (totalCorrect / totalNeeded) * 100;
+      progressBar.style.width = percent + "%";
+    }
+
+    //-----------------------------------------------------
+    // Restart
+    //-----------------------------------------------------
+    restartButton.addEventListener("click", startGame);
+
+    // Start!
+    startGame();
+  </script>
+</body>
+</html>

@@ -1,0 +1,902 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Quick Grade OMR Scanner</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script async src="https://docs.opencv.org/4.8.0/opencv.js" onload="onOpenCvReady();"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <link href="https://fonts.googleapis.com/css?family=Noto+Sans:400,700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <style>
+    html, body {
+      margin: 0; padding: 0; width: 100%; height: 100%;
+      font-family: 'Noto Sans', Arial, sans-serif;
+      background: linear-gradient(to bottom, #517860, #5c8a6d);
+      color: #fff;
+      min-height: 100vh;
+      -webkit-tap-highlight-color: transparent;
+    }
+    #app {
+      max-width: 500px;
+      margin: 0 auto;
+      padding: 12px 0 40px 0;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+    h1 {
+      margin: 0 0 8px 0;
+      font-size: 2.1rem;
+      text-align: center;
+      letter-spacing: 0.01em;
+      color: #a2ebad;
+    }
+    .button-row {
+      width: 100%;
+      display: flex;
+      gap: 7px;
+      margin-bottom: 8px;
+    }
+    .top-btn {
+      width: 100%;
+      padding: 17px 0;
+      font-size: 1.13rem;
+      border-radius: 14px;
+      border: none;
+      background: #58b76d;
+      color: #fff;
+      font-weight: bold;
+      box-shadow: 0 1px 7px 0 rgba(70,160,100,0.13);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      cursor: pointer;
+      transition: background 0.13s;
+      text-transform: uppercase;
+      letter-spacing: 0.01em;
+      min-width: 0;
+    }
+    .top-btn:active { background: #3f5f4d; }
+    .material-icons {
+      font-size: 1.44em;
+      vertical-align: -4px;
+      color: #fff;
+    }
+    .big-preview {
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      border-radius: 20px;
+      background: #f6fff83d;
+      box-shadow: 0 4px 24px 0 rgba(80,140,110,0.11);
+      margin-bottom: 8px;
+    }
+    #finalCanvas {
+      width: 100%;
+      max-width: 430px;
+      height: auto;
+      aspect-ratio: 400/290;
+      border-radius: 18px;
+      background: #f6fff8;
+      border: 3px solid #7af1a4;
+      box-shadow: 0 2px 10px 0 rgba(60,160,110,0.09);
+      display: block;
+    }
+    .score-row {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 13px;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .score-label {
+      font-size: 1.35rem;
+      font-weight: bold;
+      text-align: center;
+      color: #fff;
+      letter-spacing: 0.03em;
+      text-shadow: 0 2px 12px #5178608c;
+    }
+    .mark-answer-btn {
+      background: #58b76d;
+      color: #fff;
+      border: none;
+      font-size: 1.06rem;
+      font-weight: 600;
+      border-radius: 12px;
+      padding: 10px 18px;
+      display: flex; align-items: center; gap: 6px;
+      cursor: pointer;
+      transition: background 0.12s;
+      box-shadow: 0 1px 7px 0 rgba(70,160,100,0.13);
+    }
+    .mark-answer-btn:active { background: #3f5f4d; }
+    .marked-sheet-indicator {
+      display: flex; align-items: center; gap: 3px;
+      font-size: 1.13rem;
+      color: #81faad;
+      margin-left: 8px;
+      font-weight: bold;
+      opacity: 1;
+      animation: fadeMark 1s linear;
+    }
+    @keyframes fadeMark {
+      0% { opacity: 0;}
+      15% {opacity: 1;}
+      80% {opacity: 1;}
+      100% { opacity: 0;}
+    }
+    .side-previews {
+      display: flex;
+      gap: 2vw;
+      justify-content: center;
+      margin-bottom: 8px;
+    }
+    .side-preview {
+      flex: 1;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      background: #e4faee15;
+      border-radius: 12px;
+      padding: 6px 0 3px 0;
+    }
+    .side-preview canvas {
+      width: 100%;
+      max-width: 160px;
+      height: auto;
+      border-radius: 10px;
+      background: #f6fff8;
+      border: 2px solid #a2ebad;
+      margin-bottom: 2px;
+      display: block;
+    }
+    .side-preview span {
+      font-size: 0.93rem;
+      color: #d8ffe2;
+      margin-top: 2px;
+      letter-spacing: 0.01em;
+    }
+    .inputs-section {
+      background: #e7ffef0d;
+      border-radius: 14px;
+      padding: 16px 8px 8px 8px;
+      margin: 8px 0 0 0;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .input-row {
+      display: flex;
+      flex-direction: column;
+      margin-bottom: 8px;
+    }
+    .input-row label {
+      font-size: 1.13rem;
+      font-weight: 600;
+      margin-bottom: 2px;
+      color: #a2ebad;
+    }
+    .input-row input[type="text"], .input-row input[type="number"] {
+      border: 2px solid #a2ebad;
+      border-radius: 8px;
+      padding: 11px 14px;
+      font-size: 1.07rem;
+      width: 100%;
+      background: #f6fff8;
+      color: #2a4231;
+      outline: none;
+      margin-bottom: 2px;
+      box-sizing: border-box;
+    }
+    .input-row input[type="range"] {
+      width: 99%;
+      margin: 2px 0 2px 0;
+      accent-color: #58b76d;
+      height: 22px;
+    }
+    .input-row .slider-value {
+      font-size: 1rem;
+      color: #d3ffdc;
+      margin-left: 2px;
+    }
+    @media (max-width: 700px) {
+      .big-preview, #finalCanvas { width: 99vw; max-width: none; }
+      .side-preview canvas { width: 99vw; max-width: 140px; }
+    }
+    @media (max-width: 550px) {
+      .side-preview canvas { width: 98vw; max-width: 120px; }
+      .inputs-section { padding: 10px 2vw 5px 2vw;}
+    }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <h1>
+      <span class="material-icons" style="font-size:1.4em;vertical-align:-7px;color:#a2ebad;">fact_check</span>
+      Quick Grade
+    </h1>
+    <div class="button-row">
+      <button class="top-btn" id="cameraBtn"><span class="material-icons">photo_camera</span> Scan</button>
+      <button class="top-btn" id="retryBtn"><span class="material-icons">autorenew</span> Retry</button>
+      <button class="top-btn" id="pdfBtn"><span class="material-icons">download</span> PDF</button>
+    </div>
+    <input type="file" accept="image/*" capture="environment" id="fileInput" style="display:none">
+
+    <!-- Final graded preview -->
+    <div class="big-preview">
+      <canvas id="finalCanvas" width="400" height="290"></canvas>
+    </div>
+    <div class="score-row">
+      <span class="score-label" id="scoreLabel"></span>
+      <button class="mark-answer-btn" id="markAnswerBtn" title="Set this as the answer sheet"><span class="material-icons" style="font-size:1.2em;">verified</span> Mark as Answer Sheet</button>
+      <span class="marked-sheet-indicator" id="markedIndicator" style="display:none;"><span class="material-icons" style="font-size:1.1em;">done</span>Set!</span>
+    </div>
+
+    <!-- Side-by-side previews -->
+    <div class="side-previews">
+      <div class="side-preview">
+        <canvas id="warpCanvas" width="400" height="290"></canvas>
+        <span>Warped</span>
+      </div>
+      <div class="side-preview">
+        <canvas id="threshCanvas" width="400" height="290"></canvas>
+        <span>Threshold</span>
+      </div>
+    </div>
+
+    <div class="inputs-section">
+      <div class="input-row">
+        <label for="answerKey"><span class="material-icons" style="font-size:1em;vertical-align:-2px;">key</span> Answer Key</label>
+        <input type="text" id="answerKey" placeholder="A,B,C,D,A,..." autocomplete="off">
+      </div>
+      <div class="input-row">
+        <label for="numQuestions">Rows per column</label>
+        <input type="number" id="numQuestions" min="5" max="50" value="15">
+      </div>
+      <div class="input-row">
+        <label>Threshold <span id="thresholdDisplay" class="slider-value"></span></label>
+        <input type="range" id="thresholdVal" min="-30" max="30" value="7">
+      </div>
+      <div class="input-row">
+        <label>Min Size <span id="minSizeDisplay" class="slider-value"></span></label>
+        <input type="range" id="minSize" min="5" max="50" value="10">
+      </div>
+      <div class="input-row">
+        <label>Circularity <span id="circDisplay" class="slider-value"></span></label>
+        <input type="range" id="circ" min="0.3" max="1" step="0.01" value="0.55">
+      </div>
+      <div class="input-row">
+        <label>Fill Threshold <span id="fillThreshDisplay" class="slider-value"></span></label>
+        <input type="range" id="fillThresh" min="0" max="300" value="200">
+      </div>
+    </div>
+  </div>
+  <script>
+    const CANVAS_WIDTH = 400, CANVAS_HEIGHT = 290;
+    let cvReady = false, warpedMat = null, currentImage = null, latestResults = null, latestFinalDataURL = null, latestOriginalDataURL = null;
+    let allResults = [];
+    let isAnswerSheet = false;
+
+    function onOpenCvReady() { cvReady = true; }
+
+    // UI controls
+    const fileInput = document.getElementById('fileInput');
+    const cameraBtn = document.getElementById('cameraBtn');
+    const retryBtn = document.getElementById('retryBtn');
+    const pdfBtn = document.getElementById('pdfBtn');
+    const answerKeyInput = document.getElementById('answerKey');
+    const numQuestionsInput = document.getElementById('numQuestions');
+    const thresholdVal = document.getElementById('thresholdVal');
+    const minSize = document.getElementById('minSize');
+    const circ = document.getElementById('circ');
+    const fillThresh = document.getElementById('fillThresh');
+    const markAnswerBtn = document.getElementById('markAnswerBtn');
+    const markedIndicator = document.getElementById('markedIndicator');
+
+    function updateSliderDisplays() {
+      document.getElementById('thresholdDisplay').textContent = thresholdVal.value;
+      document.getElementById('minSizeDisplay').textContent = minSize.value;
+      document.getElementById('circDisplay').textContent = circ.value;
+      document.getElementById('fillThreshDisplay').textContent = fillThresh.value;
+    }
+    cameraBtn.onclick = () => fileInput.click();
+    retryBtn.onclick = () => {
+      // Just re-open file picker; do NOT save current scan
+      isAnswerSheet = false;
+      markedIndicator.style.display = "none";
+      latestResults = null;
+      latestFinalDataURL = null;
+      latestOriginalDataURL = null;
+      currentImage = null;
+      warpedMat = null;
+      // Clear score/preview
+      document.getElementById('scoreLabel').textContent = "";
+      // Clear preview canvases
+      ["finalCanvas","warpCanvas","threshCanvas"].forEach(id=>{
+        const c = document.getElementById(id);
+        const ctx = c.getContext('2d');
+        ctx.clearRect(0,0,c.width,c.height);
+      });
+      fileInput.value = "";
+      setTimeout(()=>fileInput.click(),100);
+    };
+    fileInput.onchange = function(e) {
+      if (!fileInput.files.length) return;
+      // Save current before loading new (if not answer sheet, not retry)
+      if (!isAnswerSheet && latestResults) saveCurrentSheetResult();
+      isAnswerSheet = false;
+      markedIndicator.style.display = "none";
+      currentImage = fileInput.files[0];
+      loadAndProcessImage();
+    };
+    pdfBtn.onclick = () => {
+      if (!isAnswerSheet) saveCurrentSheetResult();
+      if (!allResults.length) return alert("No scans yet!");
+      exportPDF();
+    };
+    [answerKeyInput, numQuestionsInput, thresholdVal, minSize, circ, fillThresh].forEach(input =>
+      input.oninput = () => {
+        updateSliderDisplays();
+        if (warpedMat) {
+          drawWarped(); processThresh(); processFinal();
+        }
+      }
+    );
+    updateSliderDisplays();
+
+    // --- Mark as Answer Sheet logic ---
+    markAnswerBtn.onclick = function() {
+      if (!latestResults || !latestResults.answers) return;
+      // Copy answers to answer key
+      const detected = latestResults.answers
+        .map(a => (a.given && a.given !== "ø" ? a.given : ""))
+        .join(",");
+      answerKeyInput.value = detected;
+      updateSliderDisplays();
+      if (warpedMat) {
+        drawWarped(); processThresh(); processFinal();
+      }
+      // Remove from allResults if already added
+      allResults = allResults.filter(r => r.gradedDataURL !== latestFinalDataURL);
+      isAnswerSheet = true;
+      markedIndicator.style.display = "";
+      setTimeout(() => markedIndicator.style.display = "none", 1300);
+    };
+
+    function drawWarped() {
+      if (!warpedMat) return;
+      cv.imshow("warpCanvas", warpedMat);
+    }
+
+    function loadAndProcessImage() {
+      if (!cvReady) return alert("OpenCV not loaded yet.");
+      const reader = new FileReader();
+      reader.onload = e => {
+        const img = new Image();
+        img.onload = () => {
+          // --- Save original image dataURL for PDF (full resolution) ---
+          const origCanvas = document.createElement("canvas");
+          origCanvas.width = img.naturalWidth;
+          origCanvas.height = img.naturalHeight;
+          const octx = origCanvas.getContext("2d");
+          octx.drawImage(img, 0, 0);
+          latestOriginalDataURL = origCanvas.toDataURL("image/jpeg", 0.88);
+          latestOriginalWidth = img.naturalWidth;
+          latestOriginalHeight = img.naturalHeight;
+          // --- Usual OpenCV logic for processing, as before ---
+          const tempCanvas = document.createElement("canvas");
+          tempCanvas.width = img.naturalWidth;
+          tempCanvas.height = img.naturalHeight;
+          const ctx = tempCanvas.getContext("2d");
+          ctx.drawImage(img, 0, 0);
+          const src = cv.imread(tempCanvas);
+
+          // Detect border in native resolution
+          const gray = new cv.Mat();
+          cv.cvtColor(src, gray, cv.COLOR_RGBA2GRAY);
+          const blur = new cv.Mat();
+          cv.GaussianBlur(gray, blur, new cv.Size(5,5), 0);
+          const border = new cv.Mat();
+          cv.adaptiveThreshold(blur, border, 255, cv.ADAPTIVE_THRESH_MEAN_C, cv.THRESH_BINARY_INV, 31, 15);
+
+          const ctrs = new cv.MatVector(), hier = new cv.Mat();
+          cv.findContours(border, ctrs, hier, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE);
+
+          let sheet = null, maxArea = 0;
+          for (let i = 0; i < ctrs.size(); i++) {
+            const cnt = ctrs.get(i);
+            const peri = cv.arcLength(cnt, true);
+            const approx = new cv.Mat();
+            cv.approxPolyDP(cnt, approx, 0.04 * peri, true);
+            if (approx.rows === 4) {
+              const area = cv.contourArea(cnt);
+              if (area > maxArea) {
+                maxArea = area;
+                if (sheet) sheet.delete();
+                sheet = approx;
+              } else {
+                approx.delete();
+              }
+            } else {
+              approx.delete();
+            }
+          }
+          if (!sheet) {
+            alert("No sheet detected. Try a clearer photo with a visible border.");
+            src.delete(); gray.delete(); blur.delete(); border.delete();
+            ctrs.delete(); hier.delete();
+            return;
+          }
+          const pts = [];
+          for (let i = 0; i < 4; i++) pts.push({ x: sheet.intAt(i,0), y: sheet.intAt(i,1) });
+          let warped = fourPointTransform(src, pts);
+
+          let scaled = new cv.Mat();
+          cv.resize(warped, scaled, new cv.Size(CANVAS_WIDTH, CANVAS_HEIGHT));
+          if (warpedMat) warpedMat.delete();
+          warpedMat = scaled;
+
+          drawWarped();
+          processThresh();
+          processFinal();
+
+          src.delete(); gray.delete(); blur.delete(); border.delete();
+          ctrs.delete(); hier.delete(); sheet.delete(); warped.delete();
+        };
+        img.src = e.target.result;
+      };
+      reader.readAsDataURL(currentImage);
+    }
+
+    function processThresh() {
+      if (!warpedMat) return;
+      const warpedGray = new cv.Mat();
+      cv.cvtColor(warpedMat, warpedGray, cv.COLOR_RGBA2GRAY);
+      const cVal = +thresholdVal.value;
+      const thresh = new cv.Mat();
+      cv.adaptiveThreshold(
+        warpedGray, thresh,
+        255,
+        cv.ADAPTIVE_THRESH_GAUSSIAN_C,
+        cv.THRESH_BINARY_INV,
+        17, cVal
+      );
+      const minSz = +minSize.value || 10;
+      const minCircVal = +circ.value || 0.5;
+      const ctrs = new cv.MatVector(), hier = new cv.Mat();
+      cv.findContours(thresh, ctrs, hier, cv.RETR_TREE, cv.CHAIN_APPROX_SIMPLE);
+      const out = warpedGray.clone();
+      cv.cvtColor(out, out, cv.COLOR_GRAY2RGB);
+      let centers = [], minDistance = 10;
+      for (let i = 0; i < ctrs.size(); i++) {
+        const cnt = ctrs.get(i);
+        const rect = cv.boundingRect(cnt);
+        const area = cv.contourArea(cnt);
+        const peri = cv.arcLength(cnt, true);
+        const circVal = (peri > 0) ? (4 * Math.PI * area) / (peri * peri) : 0;
+        if (
+          rect.width >= minSz && rect.height >= minSz &&
+          circVal > minCircVal && area > 50 && rect.width <= 60 && rect.height <= 60
+        ) {
+          const cx = rect.x + rect.width / 2;
+          const cy = rect.y + rect.height / 2;
+          let duplicate = false;
+          for (let j = 0; j < centers.length; j++) {
+            const dx = cx - centers[j].x;
+            const dy = cy - centers[j].y;
+            if (Math.sqrt(dx * dx + dy * dy) < minDistance) {
+              duplicate = true; break;
+            }
+          }
+          if (!duplicate) {
+            centers.push({ x: cx, y: cy });
+            const v = new cv.MatVector(); v.push_back(cnt);
+            cv.drawContours(out, v, 0, new cv.Scalar(44,255,44,255), 2);
+            v.delete();
+          }
+        }
+      }
+      cv.imshow("threshCanvas", out);
+      out.delete(); warpedGray.delete(); thresh.delete(); ctrs.delete(); hier.delete();
+    }
+
+    function processFinal() {
+      if (!warpedMat) return;
+      const warpedGray = new cv.Mat();
+      cv.cvtColor(warpedMat, warpedGray, cv.COLOR_RGBA2GRAY);
+      const cVal = +thresholdVal.value;
+      const thresh = new cv.Mat();
+      cv.adaptiveThreshold(
+        warpedGray, thresh,
+        255,
+        cv.ADAPTIVE_THRESH_GAUSSIAN_C,
+        cv.THRESH_BINARY_INV,
+        17, cVal
+      );
+      const minSz = +minSize.value || 10;
+      const minCircVal = +circ.value || 0.5;
+      const fillThreshVal = +fillThresh.value;
+      const numRows = +numQuestionsInput.value;
+      const key = answerKeyInput.value.split(",").map(s=>s.trim().toUpperCase());
+      const ctrs = new cv.MatVector(), hier = new cv.Mat();
+      cv.findContours(thresh, ctrs, hier, cv.RETR_TREE, cv.CHAIN_APPROX_SIMPLE);
+      let bubbles = [], centers = [], minDistance = 10;
+      for (let i = 0; i < ctrs.size(); i++) {
+        const cnt = ctrs.get(i);
+        const rect = cv.boundingRect(cnt);
+        const area = cv.contourArea(cnt);
+        const peri = cv.arcLength(cnt, true);
+        const circVal = (peri > 0) ? (4 * Math.PI * area) / (peri * peri) : 0;
+        if (
+          rect.width >= minSz && rect.height >= minSz &&
+          circVal > minCircVal && area > 50 && rect.width <= 60 && rect.height <= 60
+        ) {
+          const cx = rect.x + rect.width / 2;
+          const cy = rect.y + rect.height / 2;
+          let duplicate = false;
+          for (let j = 0; j < centers.length; j++) {
+            const dx = cx - centers[j].x;
+            const dy = cy - centers[j].y;
+            if (Math.sqrt(dx * dx + dy * dy) < minDistance) {
+              duplicate = true; break;
+            }
+          }
+          if (!duplicate) {
+            centers.push({ x: cx, y: cy });
+            bubbles.push({ cnt, rect, cx, cy });
+          }
+        }
+      }
+      ctrs.delete(); hier.delete();
+
+      const left = [], right = [];
+      const halfW = CANVAS_WIDTH / 2;
+      bubbles.forEach(b => {
+        if (b.cx < halfW) left.push(b); else right.push(b);
+      });
+      left.sort((a,b)=>a.cy - b.cy);
+      right.sort((a,b)=>a.cy - b.cy);
+      const finalMat = warpedMat.clone();
+      let results = [];
+      function gradeSide(bubbles, offset) {
+        for (let r = 0; r < numRows; r++) {
+          const row = bubbles.slice(r*5, (r+1)*5).sort((a,b)=>a.cx - b.cx);
+          let bubbled = -1, maxVal = 0;
+          row.forEach((b, i) => {
+            const mask = cv.Mat.zeros(thresh.rows, thresh.cols, cv.CV_8UC1);
+            const mv = new cv.MatVector(); mv.push_back(b.cnt);
+            cv.drawContours(mask, mv, 0, new cv.Scalar(255), -1);
+            const masked = new cv.Mat();
+            cv.bitwise_and(thresh, thresh, masked, mask);
+            const total = cv.countNonZero(masked);
+            if (total > maxVal) { maxVal = total; bubbled = i; }
+            mask.delete(); mv.delete(); masked.delete();
+          });
+          let given = "";
+          if (bubbled !== -1 && maxVal >= fillThreshVal) {
+            given = String.fromCharCode(65 + bubbled);
+            const correct = key[r + offset] || "";
+            const color = (given === correct)
+                  ? new cv.Scalar(48, 232, 81, 255)  // green
+                  : new cv.Scalar(253, 69, 69, 255); // red
+            const b = row[bubbled];
+            const rad = Math.min(b.rect.width, b.rect.height)/2;
+            cv.circle(finalMat, new cv.Point(b.cx, b.cy), rad, color, 3);
+            results.push({
+              number: r+1+offset,
+              correct: correct,
+              given: given,
+              isCorrect: given === correct
+            });
+          } else {
+            results.push({
+              number: r+1+offset,
+              correct: key[r+offset] || "",
+              given: "ø",
+              isCorrect: false
+            });
+          }
+        }
+      }
+      gradeSide(left, 0);
+      gradeSide(right, numRows);
+      let correctCt = results.filter(r=>r.isCorrect).length;
+      document.getElementById('scoreLabel').textContent = `Score: ${correctCt} / ${results.length}`;
+      cv.imshow("finalCanvas", finalMat);
+
+      // --- Save final image preview for PDF ---
+      const pdfCanvas = document.createElement('canvas');
+      pdfCanvas.width = CANVAS_WIDTH;
+      pdfCanvas.height = CANVAS_HEIGHT;
+      const pdfCtx = pdfCanvas.getContext('2d');
+      pdfCtx.drawImage(document.getElementById('finalCanvas'), 0, 0);
+      latestFinalDataURL = pdfCanvas.toDataURL("image/png");
+
+      // --- Cache result for PDF export ---
+      latestResults = {
+        filename: currentImage?.name || `Sheet ${allResults.length+1}`,
+        originalDataURL: latestOriginalDataURL,
+        originalWidth: latestOriginalWidth,
+        originalHeight: latestOriginalHeight,
+        gradedDataURL: latestFinalDataURL,
+        answers: results,
+        score: correctCt,
+        possible: results.length
+      };
+      finalMat.delete(); warpedGray.delete(); thresh.delete();
+    }
+
+    function saveCurrentSheetResult() {
+      // Only save if a current result exists and it’s new
+      if (latestResults && latestFinalDataURL && latestOriginalDataURL) {
+        // Only save if not already in results (avoid duplicates on repeated clicks)
+        const exists = allResults.find(r => r.gradedDataURL === latestFinalDataURL);
+        if (!exists) allResults.push({...latestResults});
+      }
+    }
+
+    function exportPDF() {
+  const { jsPDF } = window.jspdf;
+  let doc = new jsPDF({ font: "helvetica" });
+  doc.setFont("helvetica", "normal");
+  const pageWidth = doc.internal.pageSize.getWidth();
+  const usableWidth = pageWidth - 20; // 10mm left/right margin
+
+  // === SUMMARY PAGE ===
+  doc.setFontSize(16);
+  doc.text("Bubble Sheet OMR Summary", pageWidth/2, 15, { align: "center" });
+  doc.setFontSize(10);
+  let numSheets = allResults.length;
+  let numQuestions = allResults[0]?.possible || 0;
+  let avgScore = numSheets ? (allResults.reduce((sum, r) => sum + r.score, 0) / numSheets).toFixed(2) : "0.00";
+  doc.text(`Sheets graded: ${numSheets}`, 14, 22);
+  doc.text(`Questions per sheet: ${numQuestions}`, 14, 27);
+  doc.text(`Average score: ${avgScore} / ${numQuestions}`, 14, 32);
+
+  // Table layout
+  let yStart = 40, rowH = 5, colW = 15, headerH = 5, tableX = 14;
+  doc.setFontSize(8.5);
+  doc.setFillColor(60, 120, 240);
+  doc.setTextColor(255,255,255);
+  doc.rect(tableX, yStart, colW*4, headerH, 'F');
+  doc.text("Q#", tableX + 2, yStart + 3.5);
+  doc.text("C %", tableX + colW + 2, yStart + 3.5);
+  doc.text("I %", tableX + colW*2 + 2, yStart + 3.5);
+  doc.text("ø %", tableX + colW*3 + 2, yStart + 3.5);
+
+  let correct = Array(numQuestions).fill(0);
+  let incorrect = Array(numQuestions).fill(0);
+  let blank = Array(numQuestions).fill(0);
+  allResults.forEach(res => {
+    res.answers.forEach((ans, i) => {
+      if (ans.given === "ø") blank[i]++;
+      else if (ans.isCorrect) correct[i]++;
+      else incorrect[i]++;
+    });
+  });
+
+  // Draw each row
+  doc.setFontSize(8.2);
+  doc.setTextColor(0,0,0);
+  let y = yStart + headerH;
+  for (let i = 0; i < numQuestions; i++) {
+    if (y > 285 - rowH) {
+      doc.addPage();
+      y = 15;
+      doc.setFontSize(8.5);
+      doc.setFillColor(60, 120, 240);
+      doc.setTextColor(255,255,255);
+      doc.rect(tableX, y, colW*4, headerH, 'F');
+      doc.text("Q#", tableX + 2, y + 3.5);
+      doc.text("C %", tableX + colW + 2, y + 3.5);
+      doc.text("I %", tableX + colW*2 + 2, y + 3.5);
+      doc.text("ø %", tableX + colW*3 + 2, y + 3.5);
+      doc.setFontSize(8.2);
+      doc.setTextColor(0,0,0);
+      y += headerH;
+    }
+    let pctC = numSheets ? ((correct[i]/numSheets)*100).toFixed(1) : "0.0";
+    let pctI = numSheets ? ((incorrect[i]/numSheets)*100).toFixed(1) : "0.0";
+    let pctB = numSheets ? ((blank[i]/numSheets)*100).toFixed(1) : "0.0";
+    doc.rect(tableX, y, colW*4, rowH);
+    doc.text(`${i+1}`, tableX + 2, y + 3.7);
+    doc.text(`${pctC}`, tableX + colW + 2, y + 3.7);
+    doc.text(`${pctI}`, tableX + colW*2 + 2, y + 3.7);
+    doc.text(`${pctB}`, tableX + colW*3 + 2, y + 3.7);
+    y += rowH;
+  }
+
+  // === STUDENT PAGES ===
+  // Need a helper to get true dimensions from the DataURL
+  function getImageSize(dataURL, callback) {
+    const img = new window.Image();
+    img.onload = function() {
+      callback(img.naturalWidth, img.naturalHeight);
+    };
+    img.src = dataURL;
+  }
+
+  // To do this synchronously, we must "wait" for images (so, pre-calc all sizes first)
+  let sheetImageData = [];
+  let loaded = 0;
+
+  allResults.forEach((res, idx) => {
+    if (res.originalDataURL) {
+      getImageSize(res.originalDataURL, (w, h) => {
+        sheetImageData[idx] = { width: w, height: h };
+        loaded++;
+        if (loaded === allResults.length) finishPDF();
+      });
+    } else {
+      sheetImageData[idx] = { width: 400, height: 290 }; // Fallback
+      loaded++;
+      if (loaded === allResults.length) finishPDF();
+    }
+  });
+
+function finishPDF() {
+  allResults.forEach((res, idx) => {
+    doc.addPage();
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(12);
+    doc.text(`Student: ${res.filename}`, 14, 16);
+    doc.setFont("helvetica", "normal");
+
+    // --- Layout math ---
+    let xMargin = 10;
+    let colGap = 3;
+    let usableWidth = pageWidth - 20;
+    let imageAreaWidth = (usableWidth - colGap) * 2 / 3;
+    let tableWidth = (usableWidth - colGap) / 3;
+    let yTop = 20;
+    let maxImageAreaHeight = 120 + 120; // Both images together: up to 240 points height
+
+    // --- Get original image true aspect ratio ---
+    let origW = res.originalWidth || 400, origH = res.originalHeight || 290;
+    let gradedW = 400, gradedH = 290; // Always 400x290 px
+
+    // -- Compute natural display sizes for both images at full width --
+    let displayOrigW = imageAreaWidth;
+    let displayOrigH = origH * (imageAreaWidth / origW);
+    let displayGradedW = imageAreaWidth;
+    let displayGradedH = gradedH * (imageAreaWidth / gradedW);
+
+    // -- If sum of both heights is too big, scale both down together --
+    let combinedHeight = displayOrigH + displayGradedH;
+    let maxCombinedHeight = 240; // fits comfortably on the page, adjust if you want more/less space for table
+    if (combinedHeight > maxCombinedHeight) {
+      let scale = maxCombinedHeight / combinedHeight;
+      displayOrigW *= scale;
+      displayOrigH *= scale;
+      displayGradedW *= scale;
+      displayGradedH *= scale;
+    }
+
+    // -- Place both images, stacked, on the left 2/3 --
+    let imageX = xMargin;
+    let imageY = yTop;
+    if (res.originalDataURL) {
+      doc.addImage(res.originalDataURL, "JPEG", imageX, imageY, displayOrigW, displayOrigH);
+    }
+    if (res.gradedDataURL) {
+      doc.addImage(res.gradedDataURL, "PNG", imageX, imageY + displayOrigH + 2, displayGradedW, displayGradedH);
+    }
+
+    // -- Score label --
+    let scoreY = imageY + displayOrigH + displayGradedH + 9;
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(11.5);
+    doc.setTextColor(0,0,0);
+    doc.text(`Score: ${res.score} / ${res.possible}`, imageX, scoreY);
+    doc.setFont("helvetica", "normal");
+
+    // --- Answer table ---
+    let tableX2 = imageX + imageAreaWidth + colGap;
+    let tableY2 = yTop;
+    let rowH = 6.5, colW = tableWidth/4, headerH = 7;
+
+    doc.setFontSize(9.5);
+    doc.setFillColor(60, 120, 240);
+    doc.setTextColor(255,255,255);
+    doc.rect(tableX2, tableY2, colW*4, headerH, 'F');
+    doc.text("Q#", tableX2 + 1, tableY2 + 5);
+    doc.text("Your", tableX2 + colW + 1, tableY2 + 4.3);
+    doc.text("Key", tableX2 + colW*2 + 1, tableY2 + 4.3);
+    doc.text("Mark", tableX2 + colW*3 + 1, tableY2 + 4.3);
+
+    doc.setFontSize(8.8);
+    let y2 = tableY2 + headerH;
+    for (let i = 0; i < res.answers.length; i++) {
+      let a = res.answers[i];
+      let given = a.given === "No Response" ? "ø" : a.given;
+      let correct = a.correct || "ø";
+      let mark, color;
+      if (given === "ø") {
+        mark = "ø";
+        color = [0,0,0];
+      } else if (a.isCorrect) {
+        mark = "C";
+        color = [0, 150, 0];
+      } else {
+        mark = "I";
+        color = [220, 0, 0];
+      }
+      doc.setDrawColor(160,160,160);
+      doc.rect(tableX2, y2, colW*4, rowH);
+      doc.setTextColor(0,0,0);
+      doc.text(`${a.number}`, tableX2 + 1, y2 + 4.5);
+      doc.text(`${given}`, tableX2 + colW + 1, y2 + 4.5);
+      doc.text(`${correct}`, tableX2 + colW*2 + 1, y2 + 4.5);
+      doc.setTextColor(...color);
+      doc.text(`${mark}`, tableX2 + colW*3 + 1, y2 + 4.5);
+      y2 += rowH;
+      if (y2 + rowH > 280 && i < res.answers.length-1) {
+        doc.addPage();
+        y2 = 20;
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(12);
+        doc.text(`Student: ${res.filename} (cont.)`, xMargin, 16);
+        doc.setFont("helvetica", "normal");
+        doc.setFontSize(9.5);
+        doc.setFillColor(60, 120, 240);
+        doc.setTextColor(255,255,255);
+        doc.rect(tableX2, y2, colW*4, headerH, 'F');
+        doc.text("Q#", tableX2 + 1, y2 + 5);
+        doc.text("Your", tableX2 + colW + 1, y2 + 4.3);
+        doc.text("Key", tableX2 + colW*2 + 1, y2 + 4.3);
+        doc.text("Mark", tableX2 + colW*3 + 1, y2 + 4.3);
+        doc.setFontSize(8.8);
+        y2 += headerH;
+      }
+    }
+  });
+
+  doc.save("OMR_Results.pdf");
+}
+
+}
+    function orderPoints(pts) {
+      let rect = [null, null, null, null];
+      let sum = pts.map(p => p.x + p.y);
+      let diff = pts.map(p => p.y - p.x);
+      rect[0] = pts[sum.indexOf(Math.min(...sum))];
+      rect[2] = pts[sum.indexOf(Math.max(...sum))];
+      rect[1] = pts[diff.indexOf(Math.min(...diff))];
+      rect[3] = pts[diff.indexOf(Math.max(...diff))];
+      return rect;
+    }
+    function distance(ptA, ptB) {
+      return Math.sqrt((ptA.x - ptB.x) ** 2 + (ptA.y - ptB.y) ** 2);
+    }
+    function fourPointTransform(src, pts) {
+      let rect = orderPoints(pts);
+      let tl = rect[0], tr = rect[1], br = rect[2], bl = rect[3];
+      let widthA = distance(br, bl);
+      let widthB = distance(tr, tl);
+      let maxWidth = Math.max(widthA, widthB);
+      let heightA = distance(tr, br);
+      let heightB = distance(tl, bl);
+      let maxHeight = Math.max(heightA, heightB);
+
+      let dst = cv.matFromArray(4, 1, cv.CV_32FC2, [
+        0, 0, maxWidth - 1, 0, maxWidth - 1, maxHeight - 1, 0, maxHeight - 1
+      ]);
+      let srcPts = cv.matFromArray(4, 1, cv.CV_32FC2, [
+        tl.x, tl.y, tr.x, tr.y, br.x, br.y, bl.x, bl.y
+      ]);
+      let M = cv.getPerspectiveTransform(srcPts, dst);
+      let warped = new cv.Mat();
+      let dsize = new cv.Size(maxWidth, maxHeight);
+      cv.warpPerspective(src, warped, M, dsize, cv.INTER_LINEAR, cv.BORDER_CONSTANT, new cv.Scalar());
+      srcPts.delete(); dst.delete(); M.delete();
+      return warped;
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en" translate="no">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pre-Columbian Civilizations</title>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: Arial, sans-serif;
+            background: linear-gradient(to bottom, #5ffaff, #7ba9fe);
+        }
+
+        .content-container {
+            width: 80%;
+            height: 100%;
+            background-color: #ffffff;
+            padding: 20px;
+            overflow-y: auto;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .definitions {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #f9f9f9;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            font-size: 15px;
+            line-height: 1.6;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .definitions p {
+            margin: 0;
+            padding: 5px 10px;
+            border-radius: 5px;
+        }
+
+        .content-container img {
+            display: block;
+            margin: 20px auto;
+            width: 80%;
+            height: auto;
+        }
+
+        sup {
+            font-size: 12px;
+        }
+        .game-container {
+      
+      padding: 50px;
+    }
+    .story {
+      font-size: 1.2em;
+      line-height: 1.6;
+      text-align: left;
+      color: #333;
+    }
+    /* Make clickable words more distinguishable */
+    .clickable-word {
+      cursor: pointer;
+      color: #222121; 
+      transition: color 0.2s;
+      font-weight: 600;
+    }
+    .clickable-word:hover {
+      color: #007BFF;
+    }
+    .definition-box {
+      position: absolute;
+      background-color: #fff;
+      border: 1px solid #ccc;
+      padding: 10px;
+      border-radius: 5px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      display: none;
+      z-index: 10;
+      font-size: 0.9em;
+      color: #333;
+    }
+    </style>
+</head>
+<body>
+    <div class="content-container">
+        
+            <div class="story">
+              <h2>Codices: Aztec Writing System</h2>
+
+              <p>
+                <span class="clickable-word" data-definition="Every day / daily">
+                  Todos los días
+                </span>, 
+                los 
+                <span class="clickable-word" data-definition="Ancient Mesoamerican civilization in central Mexico">
+                  aztecas
+                </span> 
+                <span class="clickable-word" data-definition="(imperfect) they used / they would use">
+                  usaban
+                </span> 
+                un 
+                <span class="clickable-word" data-definition="system of writing / method of notation">
+                  sistema de escritura
+                </span> 
+                basado en 
+                <span class="clickable-word" data-definition="pictograms / picture-based symbols">
+                  pictogramas
+                </span>,
+                <span class="clickable-word" data-definition="symbols or images">
+                  símbolos
+                </span> 
+                o 
+                <span class="clickable-word" data-definition="drawings">
+                  dibujos
+                </span> 
+                que 
+                <span class="clickable-word" data-definition="(imperfect) they represented / used to represent">
+                  representaban
+                </span> 
+                <span class="clickable-word" data-definition="objects">
+                  objetos
+                </span>, 
+                <span class="clickable-word" data-definition="ideas / concepts">
+                  ideas
+                </span> 
+                o 
+                <span class="clickable-word" data-definition="sounds / noises">
+                  sonidos
+                </span>. 
+                <span class="clickable-word" data-definition="instead of / in place of">
+                  En lugar de
+                </span> 
+                <span class="clickable-word" data-definition="to write">
+                  escribir
+                </span> 
+                <span class="clickable-word" data-definition="words">
+                  palabras
+                </span> 
+                como en los 
+                <span class="clickable-word" data-definition="modern alphabets, like Latin or Cyrillic systems used worldwide">
+                  alfabetos modernos
+                </span>, 
+                los aztecas 
+                <span class="clickable-word" data-definition="(imperfect) they drew / used to draw">
+                  dibujaban
+                </span> 
+                imágenes para 
+                <span class="clickable-word" data-definition="to tell stories / to narrate tales">
+                  contar historias
+                </span> 
+                o 
+                <span class="clickable-word" data-definition="to record / document events">
+                  registrar eventos
+                </span> 
+                importantes. Por ejemplo, un 
+                <span class="clickable-word" data-definition="sign or mark denoting something">
+                  símbolo
+                </span> 
+                de un pie 
+                <span class="clickable-word" data-definition="(imperfect) it could mean / might signify">
+                  podía significar
+                </span> 
+                "caminar" o "viaje". También usaban 
+                <span class="clickable-word" data-definition="glyphs / specific symbolic characters">
+                  glifos
+                </span>, 
+                que 
+                <span class="clickable-word" data-definition="(imperfect) they were / used to be">
+                  eran
+                </span> 
+                combinaciones de símbolos para 
+                <span class="clickable-word" data-definition="to represent / to stand for">
+                  representar
+                </span> 
+                <span class="clickable-word" data-definition="names or personal designations">
+                  nombres
+                </span>,
+                <span class="clickable-word" data-definition="dates / specific calendar notations">
+                  fechas
+                </span> 
+                o 
+                <span class="clickable-word" data-definition="ideas or notions that are more complicated">
+                  conceptos más complejos
+                </span>.
+              </p>
+            
+              <p>
+                La 
+                <span class="clickable-word" data-definition="Aztec writing / script used by Aztecs">
+                  escritura azteca
+                </span> 
+                <span class="clickable-word" data-definition="(imperfect passive) it was used / utilized">
+                  se utilizaba
+                </span> 
+                en varios 
+                <span class="clickable-word" data-definition="documents / written records">
+                  documentos
+                </span> 
+                llamados 
+                <span class="clickable-word" data-definition="codices, painted manuscripts from Mesoamerica">
+                  "códices"
+                </span>, 
+                que 
+                <span class="clickable-word" data-definition="(imperfect) they were / used to be">
+                  eran
+                </span> 
+                libros hechos de 
+                <span class="clickable-word" data-definition="animal skin, used as writing material">
+                  piel de animales
+                </span> 
+                o 
+                <span class="clickable-word" data-definition="plant fibers used to create paper-like sheets">
+                  fibras vegetales
+                </span>. 
+                Los códices 
+                <span class="clickable-word" data-definition="(imperfect) they told / narrated">
+                  contaban
+                </span> 
+                la 
+                <span class="clickable-word" data-definition="history / chronology of events">
+                  historia
+                </span> 
+                del 
+                <span class="clickable-word" data-definition="Aztec people / community">
+                  pueblo azteca
+                </span>, 
+                <span class="clickable-word" data-definition="(imperfect) they described / explained">
+                  describían
+                </span> 
+                rituales 
+                <span class="clickable-word" data-definition="related to religion or worship">
+                  religiosos
+                </span> 
+                y 
+                <span class="clickable-word" data-definition="(imperfect) they recorded the payment of taxes / tribute">
+                  registraban el pago de tributos
+                </span>. 
+                Aunque muchos de estos códices 
+                <span class="clickable-word" data-definition="(preterite) they were destroyed after the arrival of the Spaniards">
+                  fueron destruidos tras la llegada de los españoles
+                </span>, 
+                algunos 
+                <span class="clickable-word" data-definition="(present perfect) they have survived / endured">
+                  han sobrevivido
+                </span> 
+                y 
+                <span class="clickable-word" data-definition="(present passive) they are studied / analyzed">
+                  son estudiados
+                </span> 
+                <span class="clickable-word" data-definition="nowadays / in modern times">
+                  hoy en día
+                </span> 
+                para 
+                <span class="clickable-word" data-definition="to learn / acquire knowledge">
+                  aprender
+                </span> 
+                más sobre la 
+                <span class="clickable-word" data-definition="culture / way of life">
+                  cultura
+                </span> 
+                y la 
+                <span class="clickable-word" data-definition="way of living / daily existence">
+                  vida
+                </span> 
+                de los aztecas.
+              </p>
+                  
+                  <div style="text-align: center;">
+                    <img src ="https://static.independent.co.uk/2021/04/07/12/newFile-11.jpg?quality=75&width=1368&auto=webp" style = "width: 80%; ">
+                    </div>
+              
+            </div>
+        
+            <!-- Definition Box (appears when a clickable word is clicked) -->
+            <div id="definitionBox" class="definition-box"></div>
+          </div>
+    <script>
+        // Get the definition box element
+        const definitionBox = document.getElementById('definitionBox');
+    
+        // Add click event listeners to all clickable words
+        document.querySelectorAll('.clickable-word').forEach(word => {
+          word.addEventListener('click', (e) => {
+            // Get the clicked word's position
+            const rect = word.getBoundingClientRect();
+            const scrollTop = window.scrollY || document.documentElement.scrollTop;
+    
+            // Position the definition box above the clicked word
+            definitionBox.style.display = 'block';
+            definitionBox.style.top = `${rect.top + scrollTop - 50}px`; // 50px above the word
+            definitionBox.style.left = `${rect.left}px`;
+    
+            // Display the definition from the data-definition attribute
+            definitionBox.textContent = word.getAttribute('data-definition');
+          });
+        });
+    
+        // Hide the definition box when clicking outside
+        document.addEventListener('click', (e) => {
+          if (!e.target.classList.contains('clickable-word')) {
+            definitionBox.style.display = 'none';
+          }
+        });
+      </script>
+</body>
+</html>

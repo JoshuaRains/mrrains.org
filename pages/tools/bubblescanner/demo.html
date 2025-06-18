@@ -1,0 +1,1402 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Bubble Sheet Scanner</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- Google Fonts and Icons -->
+  <link href="https://fonts.googleapis.com/css?family=Noto+Sans:400,700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <!-- Opencv -->
+  <script async src="https://docs.opencv.org/4.5.2/opencv.js"></script>
+   <style>
+    :root {
+      --green1: #517860;
+      --green2: #5c8a6d;
+      --green3: #79b791;
+      --green4: #abd1b5;
+      --textColor: #ecefec;
+      --accent: #4be38d;
+      --buttonHover: #74b086;
+    }
+    html, body {
+      min-height: 100vh;
+      margin: 0;
+      padding: 0;
+      font-family: 'Noto Sans', sans-serif;
+      background: linear-gradient(to bottom, var(--green1), var(--green2));
+      color: var(--textColor);
+      width: 100vw;
+      overflow-x: hidden;
+    }
+    .app-outer {
+      min-height: 100vh;
+      width: 100vw;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    .scanner-card {
+      background: var(--green3);
+      box-shadow: 0 8px 32px 0 rgba(35,49,35,0.30);
+      border-radius: 24px;
+      padding: 36px 28px 28px 28px;
+      width: 98vw;
+      max-width: 90%;
+      min-height: 440px;
+      margin: 32px auto;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      position: relative;
+      box-sizing: border-box;
+    }
+    .stepper {
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: flex-end;
+      gap: 30px;
+      margin-bottom: 30px;
+      font-size: 1.1em;
+      user-select: none;
+    }
+    .stepper-step {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      font-weight: 600;
+      color: var(--green1);
+      opacity: 0.45;
+      transition: color 0.3s, opacity 0.3s;
+      position: relative;
+    }
+    .stepper-step.active {
+      color: var(--accent);
+      opacity: 1;
+      font-size: 1.12em;
+      text-shadow: 0 0 8px #ffffff66;
+    }
+    .stepper-step .material-icons {
+      font-size: 2.2em;
+      margin-bottom: 0px;
+    }
+    .stepper-line {
+      width: 44px;
+      height: 3px;
+      background: linear-gradient(to right, var(--green2), var(--accent));
+      border-radius: 2px;
+      margin-bottom: 14px;
+    }
+    .steps-container {
+      width: 100%;
+      overflow: hidden;
+      position: relative;
+      min-height: 360px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .steps-inner {
+      display: flex;
+      transition: transform 0.7s cubic-bezier(.86,0,.07,1);
+      width: 400%;
+      min-height: 320px;
+      height: 100%;
+    }
+    .step-pane {
+      width: 100%;
+      min-width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      box-sizing: border-box;
+      min-height: 360px;
+    }
+    /* Center all direct children of step-pane except .visualizations-row and .download-row and forms */
+    .step-pane > *:not(.visualizations-row):not(.download-row):not(form) {
+      width: 100%;
+      max-width: 500px;
+      text-align: center;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    /* Drop Area and File List */
+    .drop-area {
+      border: 3px dashed var(--accent);
+      border-radius: 20px;
+      padding: 38px 18px;
+      background: var(--green4);
+      color: var(--green1);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 120px;
+      margin: 22px 0 0 0;
+      width: 100%;
+      max-width: 400px;
+      cursor: pointer;
+      transition: background 0.3s, border-color 0.3s;
+    }
+    .drop-area.dragover {
+      background: var(--accent);
+      border-color: var(--green1);
+      color: var(--green1);
+    }
+    .drop-area .material-icons {
+      font-size: 2.8em;
+      color: var(--green1);
+      margin-bottom: 10px;
+    }
+    .file-list {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-top: 12px;
+      width: 100%;
+    }
+    .file-list-item {
+      display: flex;
+      align-items: center;
+      font-size: 1.08em;
+      margin-bottom: 6px;
+      background: #fff8;
+      color: var(--green1);
+      border-radius: 6px;
+      padding: 5px 16px;
+    }
+    .file-list-item .material-icons { font-size: 1.08em; margin-right: 6px; color: var(--green1);}
+    .action-btn {
+      margin-top: 24px;
+      background: var(--accent);
+      color: var(--green1);
+      font-size: 1.18em;
+      padding: 14px 46px;
+      border: none;
+      border-radius: 12px;
+      font-weight: 600;
+      box-shadow: 0 2px 8px #3d584c4a;
+      cursor: pointer;
+      transition: background 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 13px;
+      outline: none;
+    }
+    .action-btn:disabled { filter: grayscale(0.6) brightness(0.98); opacity: 0.67; cursor: not-allowed; }
+    .action-btn:hover:enabled { background: var(--buttonHover); }
+    .centered-text {
+      text-align: center;
+      font-size: 1.24em;
+      color: var(--green1);
+      font-weight: 600;
+      width: 100%;
+      line-height: 1.32;
+      margin: 0 0 6px 0;
+    }
+    /* Input fields and groups */
+    .input-group {
+      margin: 18px 0 0 0;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 18px;
+      max-width: 380px;
+    }
+    .input-block {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-bottom: 12px;
+      width: 100%;
+      max-width: 320px;
+    }
+    .input-block label {
+      font-size: 1.13em;
+      color: var(--green1);
+      font-weight: 600;
+      margin-bottom: 6px;
+      text-align: center;
+      width: 100%;
+    }
+    .input-block input[type="number"],
+    .input-block textarea {
+      width: 100%;
+      min-width: 0;
+      font-size: 1.05em;
+      padding: 8px 12px;
+      border-radius: 8px;
+      border: 1.5px solid var(--green1);
+      background: #ecefec;
+      color: var(--green1);
+      box-sizing: border-box;
+      margin-bottom: 0;
+    }
+    .input-block textarea {
+      min-height: 60px;
+      resize: vertical;
+      font-family: inherit;
+    }
+    /* Visualizations */
+    .visualizations-row {
+      display: flex;
+      flex-direction: row;
+      gap: 18px;
+      margin-top: 20px;
+      width: 100%;
+      justify-content: center;
+    }
+    .viz-card {
+      background: #ecefec;
+      border-radius: 14px;
+      padding: 8px 12px 12px 12px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-width: 140px;
+      box-shadow: 0 2px 8px #354a3545;
+      width: 160px;
+    }
+    .viz-title {
+      color: var(--green1);
+      font-size: 1em;
+      margin-bottom: 4px;
+      margin-top: 5px;
+      font-weight: bold;
+      letter-spacing: 0.5px;
+      text-align: center;
+      width: 100%;
+    }
+    .viz-img {
+      width: 128px;
+      height: 128px;
+      background: #d6e5dc;
+      border-radius: 8px;
+      object-fit: contain;
+      display: block;
+      margin-bottom: 7px;
+      border: 2px solid var(--green3);
+      box-shadow: 0 1px 6px #51786030;
+    }
+    .viz-controls {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      align-items: center;
+    }
+    .viz-slider-group {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      gap: 9px;
+      width: 100%;
+      margin-bottom: 2px;
+    }
+    .viz-slider-group label {
+      font-size: 1em;
+      color: var(--green1);
+      min-width: 65px;
+      font-weight: 500;
+    }
+    .viz-slider-group input[type="range"] {
+      flex: 1 1 0;
+      accent-color: var(--accent);
+    }
+    /* Download section */
+    .download-row {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-top: 18px;
+      width: 100%;
+    }
+    .download-hint {
+      color: var(--green1);
+      font-size: 1.07em;
+      margin-bottom: 7px;
+      margin-top: 11px;
+      text-align: center;
+      width: 100%;
+    }
+    @media (max-width: 700px) {
+      .scanner-card { width: 100vw; max-width: none; padding: 6vw 0vw 5vw 0vw; min-height: 100vw;}
+      .visualizations-row { flex-direction: column; align-items: center;}
+      .viz-card { min-width: 70vw; width: 78vw;}
+      .drop-area { padding: 28px 7vw; min-height: 70px;}
+      .input-block textarea { width: 70vw;}
+      .input-group { max-width: 95vw; }
+    }
+  </style>
+</head>
+<body>
+<div class="app-outer">
+  <div class="scanner-card">
+    <!-- Stepper at Top -->
+    <div class="stepper" id="stepper">
+      <div class="stepper-step" id="step-label-0">
+        <span class="material-icons">photo_library</span>
+        <div>Attach Images</div>
+      </div>
+      <div class="stepper-line"></div>
+      <div class="stepper-step" id="step-label-1">
+        <span class="material-icons">edit_note</span>
+        <div>Configure</div>
+      </div>
+      <div class="stepper-line"></div>
+      <div class="stepper-step" id="step-label-2">
+        <span class="material-icons">tune</span>
+        <div>Adjust</div>
+      </div>
+      <div class="stepper-line"></div>
+      <div class="stepper-step" id="step-label-3">
+        <span class="material-icons">download</span>
+        <div>Download</div>
+      </div>
+    </div>
+    <!-- Animated Sliding Steps -->
+    <div class="steps-container">
+      <div class="steps-inner" id="steps-inner" style="width:400%;">
+        <!-- STEP 1: IMAGE INPUT -->
+        <div class="step-pane" id="step-0">
+          <div class="centered-text" style="font-size:2em; margin-top: 5px;">
+            Scan Bubble Sheets
+          </div>
+          <div class="centered-text" style="font-size:1.09em; font-weight: 500; margin-bottom: 12px;">
+            Start by uploading or dragging in all your bubble sheet photos.
+          </div>
+          <div class="drop-area" id="drop-area">
+            <span class="material-icons" style="font-size:3em;">add_photo_alternate</span>
+            <div>Drag your images here or click to select.</div>
+            <input type="file" id="file-input" style="display: none;" accept="image/*" multiple>
+          </div>
+          <div class="centered-text" style="margin: 14px 0 4px 0; font-size:1.17em;">
+            <span class="material-icons" style="font-size:1.1em; vertical-align: middle;">collections</span>
+            <span id="num-files-text">No images attached yet.</span>
+          </div>
+          <div class="file-list" id="file-list"></div>
+          <button class="action-btn" id="to-step-1" disabled>
+            <span class="material-icons">arrow_forward</span>
+            Next Step
+          </button>
+        </div>
+        <!-- STEP 2: SETTINGS -->
+        <div class="step-pane" id="step-1">
+          <div class="centered-text" style="font-size:2em;">
+            Step 2: Sheet Settings
+          </div>
+          <div class="centered-text" style="font-size:1.09em; font-weight: 500;">
+            Set the number of rows per column and paste the answer key.
+          </div>
+          <form class="input-group" id="settings-form" autocomplete="off">
+            <div class="input-block">
+              <label for="rowsPerCol">Rows per Column</label>
+              <input type="number" id="rowsPerCol" min="1" max="100" value="15" required>
+            </div>
+            <div class="input-block">
+              <label for="answerKey">Answer Key</label>
+              <textarea id="answerKey" placeholder="Paste or type your answer key here..." required></textarea>
+            </div>
+            <button type="submit" class="action-btn" id="to-step-2">
+              <span class="material-icons">arrow_forward</span>
+              Next Step
+            </button>
+          </form>
+        </div>
+        <!-- STEP 3: ADJUST -->
+        <div class="step-pane" id="step-2">
+          <div class="centered-text" style="font-size:2em;">
+            Step 3: Adjust Detection
+          </div>
+          <div class="centered-text" style="font-size:1.09em;">
+            See a sample and adjust detection if needed. All changes update in real time!
+          </div>
+          <div class="visualizations-row" id="viz-row">
+            <div class="viz-card">
+              <div class="viz-title">Warped</div>
+              <canvas id="viz-warped" class="viz-img"></canvas>
+              <div class="viz-controls" id="controls-warped"></div>
+            </div>
+            <div class="viz-card">
+              <div class="viz-title">Threshold</div>
+              <canvas id="viz-thresh" class="viz-img"></canvas>
+              <div class="viz-controls" id="controls-thresh"><label style="display:flex;align-items:center;gap:7px;">
+  Manual Threshold
+</label>
+</div>
+            </div>
+            <div class="viz-card">
+              <div class="viz-title">Detection</div>
+              <canvas id="viz-detect" class="viz-img"></canvas>
+              <div class="viz-controls" id="controls-detect"></div>
+            </div>
+            <div class="viz-card">
+              <div class="viz-title">Final</div>
+              <canvas id="viz-final" class="viz-img"></canvas>
+              <div class="viz-controls" id="controls-final"></div>
+            </div>
+          </div>
+          <div class="download-row">
+            <button class="action-btn" id="to-step-3">
+              <span class="material-icons">arrow_forward</span>
+              Next: Download PDF
+            </button>
+          </div>
+        </div>
+        <!-- STEP 4: DOWNLOAD -->
+        <div class="step-pane" id="step-3">
+          <div class="centered-text" style="font-size:2em; margin-bottom:6px;">
+            All Done!
+          </div>
+          <div class="centered-text" style="font-size:1.12em;">
+            Click below to download your results PDF.
+          </div>
+          <div class="download-row">
+            <button class="action-btn" id="download-btn">
+              <span class="material-icons">download</span>
+              Download PDF
+            </button>
+            <div class="download-hint">
+              You can start over or scan more at any time!
+            </div>
+            <button class="action-btn" id="restart-btn" style="margin-top:14px; background: var(--green1); color: #fff;">
+              <span class="material-icons">replay</span>
+              Start Over
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+/**
+ * =================== PASTE THE BODIES OF YOUR FUNCTIONS WHERE INDICATED ===================
+ * 1. onOpenCvReady
+ * 2. orderPoints
+ * 3. distance
+ * 4. fourPointTransform
+ * 5. processSingleImage
+ * 6. processAllImages
+ * 7. generatePDF
+ */
+// ---- 1. OpenCV Ready ----
+    function onOpenCvReady() {
+      cvReady = true;
+      console.log("OpenCV.js is ready");
+    }
+
+
+    
+// ---- 2. Order Points ----
+    function orderPoints(pts) {
+      let rect = [null, null, null, null];
+      let sum = pts.map(p => p.x + p.y);
+      let diff = pts.map(p => p.y - p.x);
+      rect[0] = pts[sum.indexOf(Math.min(...sum))];
+      rect[2] = pts[sum.indexOf(Math.max(...sum))];
+      rect[1] = pts[diff.indexOf(Math.min(...diff))];
+      rect[3] = pts[diff.indexOf(Math.max(...diff))];
+      return rect;
+    }
+    
+// ---- 3. Distance ----
+    function distance(ptA, ptB) {
+      return Math.sqrt((ptA.x - ptB.x) ** 2 + (ptA.y - ptB.y) ** 2);
+    }
+    
+// ---- 4. Four Point Transform ----
+function fourPointTransform(src, pts) {
+      let rect = orderPoints(pts);
+      let tl = rect[0], tr = rect[1], br = rect[2], bl = rect[3];
+      let widthA = distance(br, bl);
+      let widthB = distance(tr, tl);
+      let maxWidth = Math.max(widthA, widthB);
+      let heightA = distance(tr, br);
+      let heightB = distance(tl, bl);
+      let maxHeight = Math.max(heightA, heightB);
+      
+      let dst = cv.matFromArray(4, 1, cv.CV_32FC2, [
+        0, 0,
+        maxWidth - 1, 0,
+        maxWidth - 1, maxHeight - 1,
+        0, maxHeight - 1
+      ]);
+      let srcPts = cv.matFromArray(4, 1, cv.CV_32FC2, [
+        tl.x, tl.y,
+        tr.x, tr.y,
+        br.x, br.y,
+        bl.x, bl.y
+      ]);
+      
+      let M = cv.getPerspectiveTransform(srcPts, dst);
+      let warped = new cv.Mat();
+      let dsize = new cv.Size(maxWidth, maxHeight);
+      cv.warpPerspective(src, warped, M, dsize, cv.INTER_LINEAR, cv.BORDER_CONSTANT, new cv.Scalar());
+      
+      srcPts.delete(); dst.delete(); M.delete();
+      return warped;
+    }
+    
+// ---- 5. Process Single Image ----
+function processSingleImage(file, callback) {
+  let img = new Image();
+  let reader = new FileReader();
+  reader.onload = function(e) {
+    img.onload = function() {
+      // Draw image on hidden canvas
+      let captureCanvas = document.getElementById("captureCanvas");
+      let ctxCap = captureCanvas.getContext("2d");
+      ctxCap.clearRect(0, 0, captureCanvas.width, captureCanvas.height);
+      ctxCap.drawImage(img, 0, 0, captureCanvas.width, captureCanvas.height);
+      let src = cv.imread(captureCanvas);
+
+      // Preprocess: grayscale, blur, Canny
+      let gray = new cv.Mat();
+      cv.cvtColor(src, gray, cv.COLOR_RGBA2GRAY);
+      let blurred = new cv.Mat();
+      cv.GaussianBlur(gray, blurred, new cv.Size(5, 5), 0);
+      let edged = new cv.Mat();
+      cv.Canny(blurred, edged, 75, 200);
+
+      // Find sheet contour
+      let contours = new cv.MatVector();
+      let hierarchy = new cv.Mat();
+      cv.findContours(edged, contours, hierarchy, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE);
+      let contourArray = [];
+      for (let i = 0; i < contours.size(); i++) {
+        contourArray.push(contours.get(i));
+      }
+      contourArray.sort((a, b) => cv.contourArea(b) - cv.contourArea(a));
+      let sheetContour = null;
+      for (let i = 0; i < contourArray.length; i++) {
+        let peri = cv.arcLength(contourArray[i], true);
+        let approx = new cv.Mat();
+        cv.approxPolyDP(contourArray[i], approx, 0.04 * peri, true);
+        if (approx.rows === 4) {
+          sheetContour = approx;
+          break;
+        }
+        approx.delete();
+      }
+      if (sheetContour === null) {
+        callback({ filename: file.name, transcription: "Sheet not detected" });
+        src.delete(); gray.delete(); blurred.delete(); edged.delete();
+        contours.delete(); hierarchy.delete();
+        contourArray.forEach(c => c.delete());
+        return;
+      }
+
+      // Get 4 points.
+      let pts = [];
+      for (let i = 0; i < 4; i++) {
+        pts.push({ x: sheetContour.intAt(i, 0), y: sheetContour.intAt(i, 1) });
+      }
+      sheetContour.delete();
+      contours.delete(); hierarchy.delete();
+      gray.delete(); blurred.delete(); edged.delete();
+      contourArray.forEach(c => c.delete());
+
+      // Perspective transform.
+      let warped = fourPointTransform(src, pts);
+      src.delete();
+
+      // Save warped image for PDF export (still available if needed)
+      let warpedCanvas = document.createElement("canvas");
+      warpedCanvas.width = warped.cols;
+      warpedCanvas.height = warped.rows;
+      cv.imshow(warpedCanvas, warped);
+      let warpedDataURL = warpedCanvas.toDataURL("image/png");
+
+      // Threshold warped image.
+      let warpedGray = new cv.Mat();
+      cv.cvtColor(warped, warpedGray, cv.COLOR_RGBA2GRAY);
+      let thresh = new cv.Mat();
+      let useManual = true;
+      if (useManual) {
+        let threshVal = adjustParams.thresh;
+        cv.threshold(warpedGray, thresh, threshVal, 255, cv.THRESH_BINARY_INV);
+      } else {
+        cv.threshold(warpedGray, thresh, 0, 255, cv.THRESH_BINARY_INV | cv.THRESH_OTSU);
+      }
+      cv.imshow("threshCanvas", thresh);
+
+      // Bubble detection
+      let minBubbleSize = adjustParams.circleMin;
+      let minCircularity = adjustParams.circleMax;
+      let numRows = adjustParams.rows;
+      let bubblesPerQuestion = 5; // answers A-E
+      let fillThreshold = adjustParams.fillThreshold;
+
+      let bubbleContours = new cv.MatVector();
+      let bubbleHierarchy = new cv.Mat();
+      cv.findContours(thresh, bubbleContours, bubbleHierarchy, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE);
+      let bubbleList = [];
+      for (let i = 0; i < bubbleContours.size(); i++) {
+        let cnt = bubbleContours.get(i);
+        let rect = cv.boundingRect(cnt);
+        if (rect.width >= minBubbleSize && rect.height >= minBubbleSize) {
+          let area = cv.contourArea(cnt);
+          let perimeter = cv.arcLength(cnt, true);
+          let circularity = perimeter === 0 ? 0 : (4 * Math.PI * area) / (perimeter * perimeter);
+          if (circularity >= minCircularity) {
+            bubbleList.push({ cnt: cnt, rect: rect });
+          } else {
+            cnt.delete();
+          }
+        } else {
+          cnt.delete();
+        }
+      }
+      bubbleHierarchy.delete();
+      bubbleContours.delete();
+
+      // Separate bubbles into left and right columns.
+      let leftBubbles = [];
+      let rightBubbles = [];
+      let halfWidth = warped.cols / 2;
+      bubbleList.forEach(obj => {
+        let centerX = obj.rect.x + obj.rect.width / 2;
+        if (centerX < halfWidth) {
+          leftBubbles.push(obj);
+        } else {
+          rightBubbles.push(obj);
+        }
+      });
+      leftBubbles.sort((a, b) => a.rect.y - b.rect.y);
+      rightBubbles.sort((a, b) => a.rect.y - b.rect.y);
+
+      // === Group bubbles and transcribe answers ===
+      let expectedCountPerColumn = numRows * bubblesPerQuestion;
+      let transcription = "";
+      let answerDetails = [];
+      let score = 0;
+
+      if (leftBubbles.length === expectedCountPerColumn && rightBubbles.length === expectedCountPerColumn) {
+        // Left column: questions 1 to numRows.
+        for (let r = 0; r < numRows; r++) {
+          let row = leftBubbles.slice(r * bubblesPerQuestion, (r + 1) * bubblesPerQuestion);
+          row.sort((a, b) => a.rect.x - b.rect.x);
+          let bubbled = -1;
+          let maxNonZero = 0;
+          for (let i = 0; i < row.length; i++) {
+            let mask = new cv.Mat.zeros(thresh.rows, thresh.cols, cv.CV_8UC1);
+            let contourVec = new cv.MatVector();
+            contourVec.push_back(row[i].cnt);
+            cv.drawContours(mask, contourVec, 0, new cv.Scalar(255), -1);
+            contourVec.delete();
+            let masked = new cv.Mat();
+            cv.bitwise_and(thresh, thresh, masked, mask);
+            let total = cv.countNonZero(masked);
+            if (total > maxNonZero) {
+              maxNonZero = total;
+              bubbled = i;
+            }
+            mask.delete();
+            masked.delete();
+          }
+          let answer = (bubbled !== -1 && maxNonZero >= fillThreshold) ? String.fromCharCode(65 + bubbled) : "ø";
+          transcription += (r+1) + ": " + answer + "\n";
+        }
+        // Right column: questions numRows+1 to 2*numRows.
+        for (let r = 0; r < numRows; r++) {
+          let row = rightBubbles.slice(r * bubblesPerQuestion, (r + 1) * bubblesPerQuestion);
+          row.sort((a, b) => a.rect.x - b.rect.x);
+          let bubbled = -1;
+          let maxNonZero = 0;
+          for (let i = 0; i < row.length; i++) {
+            let mask = new cv.Mat.zeros(thresh.rows, thresh.cols, cv.CV_8UC1);
+            let contourVec = new cv.MatVector();
+            contourVec.push_back(row[i].cnt);
+            cv.drawContours(mask, contourVec, 0, new cv.Scalar(255), -1);
+            contourVec.delete();
+            let masked = new cv.Mat();
+            cv.bitwise_and(thresh, thresh, masked, mask);
+            let total = cv.countNonZero(masked);
+            if (total > maxNonZero) {
+              maxNonZero = total;
+              bubbled = i;
+            }
+            mask.delete();
+            masked.delete();
+          }
+          let answer = (bubbled !== -1 && maxNonZero >= fillThreshold) ? String.fromCharCode(65 + bubbled) : "ø";
+          transcription += (numRows + r + 1) + ": " + answer + "\n";
+        }
+      } else {
+        transcription = "Error: Detected bubbles do not match expected counts.\nLeft: " + leftBubbles.length + " Right: " + rightBubbles.length;
+      }
+
+      // === Grade against answer key ===
+      let answerKeyRaw = document.getElementById("answerKey").value;
+      let answerKeyArr = answerKeyRaw.split(",").map(v => v.trim());
+      let responses = transcription.split('\n').filter(line => line.includes(':'));
+      responses.forEach((line, idx) => {
+        let parts = line.split(':');
+        if (parts.length < 2) return;
+        let qNum = parseInt(parts[0]);
+        let given = parts[1].trim();
+        let correct = answerKeyArr[idx] || "ø";
+        let isCorrect = (given === correct) && (given !== "ø");
+        answerDetails.push({
+          number: qNum,
+          given: given,
+          correct: correct,
+          isCorrect: isCorrect
+        });
+        if (isCorrect) score++;
+      });
+
+      // === Detection visualization (on thresholded image) ===
+      let detectionMat = new cv.Mat();
+      cv.cvtColor(thresh, detectionMat, cv.COLOR_GRAY2RGBA);
+
+      // Prepare map of all bubble centers
+      let bubbleCenters = bubbleList.map(obj => ({
+        obj,
+        centerX: obj.rect.x + obj.rect.width / 2,
+        centerY: obj.rect.y + obj.rect.height / 2,
+        r: Math.round(Math.min(obj.rect.width, obj.rect.height) / 2),
+        used: false
+      }));
+
+      function getBubbleByRect(rect) {
+        return bubbleCenters.find(b =>
+          b.obj.rect.x === rect.x &&
+          b.obj.rect.y === rect.y &&
+          b.obj.rect.width === rect.width &&
+          b.obj.rect.height === rect.height
+        );
+      }
+
+      // Draw all as blue
+      bubbleCenters.forEach(b => {
+        cv.circle(detectionMat, new cv.Point(b.centerX, b.centerY), b.r, new cv.Scalar(50, 120, 255, 255), 2); // Blue
+      });
+
+      function highlightBubble(rBubbles, bubbled, isCorrect, isBlank) {
+        if (bubbled === -1) return;
+        let centerObj = getBubbleByRect(rBubbles[bubbled].rect);
+        if (centerObj) {
+          centerObj.used = true;
+          let color = isBlank ? new cv.Scalar(0, 0, 0, 255)
+            : isCorrect ? new cv.Scalar(0, 200, 0, 255)    // Green
+            : new cv.Scalar(220, 0, 0, 255);               // Red
+          cv.circle(detectionMat, new cv.Point(centerObj.centerX, centerObj.centerY), centerObj.r, color, 2);
+        }
+      }
+
+      // For each question, highlight the selected response bubble (for detection view)
+      for (let r = 0; r < numRows; r++) {
+        // Left
+        let idx = r;
+        let aDetail = answerDetails[idx];
+        let userAns = aDetail ? aDetail.given : "ø";
+        let isCorrect = aDetail ? aDetail.isCorrect : false;
+        let isBlank = userAns === "ø";
+        let rBubbles = leftBubbles.slice(r * bubblesPerQuestion, (r + 1) * bubblesPerQuestion)
+          .sort((a, b) => a.rect.x - b.rect.x);
+        let maxNonZero = 0, bubbled = -1;
+        for (let i = 0; i < rBubbles.length; i++) {
+          let mask = new cv.Mat.zeros(thresh.rows, thresh.cols, cv.CV_8UC1);
+          let contourVec = new cv.MatVector();
+          contourVec.push_back(rBubbles[i].cnt);
+          cv.drawContours(mask, contourVec, 0, new cv.Scalar(255), -1);
+          contourVec.delete();
+          let masked = new cv.Mat();
+          cv.bitwise_and(thresh, thresh, masked, mask);
+          let total = cv.countNonZero(masked);
+          if (total > maxNonZero) {
+            maxNonZero = total;
+            bubbled = i;
+          }
+          mask.delete();
+          masked.delete();
+        }
+        if (!isBlank) highlightBubble(rBubbles, bubbled, isCorrect, isBlank);
+      }
+      for (let r = 0; r < numRows; r++) {
+        // Right
+        let idx = numRows + r;
+        let aDetail = answerDetails[idx];
+        let userAns = aDetail ? aDetail.given : "ø";
+        let isCorrect = aDetail ? aDetail.isCorrect : false;
+        let isBlank = userAns === "ø";
+        let rBubbles = rightBubbles.slice(r * bubblesPerQuestion, (r + 1) * bubblesPerQuestion)
+          .sort((a, b) => a.rect.x - b.rect.x);
+        let maxNonZero = 0, bubbled = -1;
+        for (let i = 0; i < rBubbles.length; i++) {
+          let mask = new cv.Mat.zeros(thresh.rows, thresh.cols, cv.CV_8UC1);
+          let contourVec = new cv.MatVector();
+          contourVec.push_back(rBubbles[i].cnt);
+          cv.drawContours(mask, contourVec, 0, new cv.Scalar(255), -1);
+          contourVec.delete();
+          let masked = new cv.Mat();
+          cv.bitwise_and(thresh, thresh, masked, mask);
+          let total = cv.countNonZero(masked);
+          if (total > maxNonZero) {
+            maxNonZero = total;
+            bubbled = i;
+          }
+          mask.delete();
+          masked.delete();
+        }
+        if (!isBlank) highlightBubble(rBubbles, bubbled, isCorrect, isBlank);
+      }
+
+      cv.imshow("detectionCanvas", detectionMat);
+
+      // === Warped + Detection Overlay visualization ===
+      let warpedDetectionMat = warped.clone();
+      // Draw all as blue
+      bubbleCenters.forEach(b => {
+        cv.circle(warpedDetectionMat, new cv.Point(b.centerX, b.centerY), b.r, new cv.Scalar(50, 120, 255, 255), 2);
+      });
+      function highlightWarpedBubble(rBubbles, bubbled, isCorrect, isBlank) {
+        if (bubbled === -1) return;
+        let centerObj = getBubbleByRect(rBubbles[bubbled].rect);
+        if (centerObj) {
+          let color = isBlank ? new cv.Scalar(0, 0, 0, 255)
+            : isCorrect ? new cv.Scalar(0, 200, 0, 255)
+            : new cv.Scalar(220, 0, 0, 255);
+          cv.circle(warpedDetectionMat, new cv.Point(centerObj.centerX, centerObj.centerY), centerObj.r, color, 2);
+        }
+      }
+      for (let r = 0; r < numRows; r++) {
+        // Left
+        let idx = r;
+        let aDetail = answerDetails[idx];
+        let userAns = aDetail ? aDetail.given : "ø";
+        let isCorrect = aDetail ? aDetail.isCorrect : false;
+        let isBlank = userAns === "ø";
+        let rBubbles = leftBubbles.slice(r * bubblesPerQuestion, (r + 1) * bubblesPerQuestion)
+          .sort((a, b) => a.rect.x - b.rect.x);
+        let maxNonZero = 0, bubbled = -1;
+        for (let i = 0; i < rBubbles.length; i++) {
+          let mask = new cv.Mat.zeros(thresh.rows, thresh.cols, cv.CV_8UC1);
+          let contourVec = new cv.MatVector();
+          contourVec.push_back(rBubbles[i].cnt);
+          cv.drawContours(mask, contourVec, 0, new cv.Scalar(255), -1);
+          contourVec.delete();
+          let masked = new cv.Mat();
+          cv.bitwise_and(thresh, thresh, masked, mask);
+          let total = cv.countNonZero(masked);
+          if (total > maxNonZero) {
+            maxNonZero = total;
+            bubbled = i;
+          }
+          mask.delete();
+          masked.delete();
+        }
+        if (!isBlank) highlightWarpedBubble(rBubbles, bubbled, isCorrect, isBlank);
+      }
+      for (let r = 0; r < numRows; r++) {
+        // Right
+        let idx = numRows + r;
+        let aDetail = answerDetails[idx];
+        let userAns = aDetail ? aDetail.given : "ø";
+        let isCorrect = aDetail ? aDetail.isCorrect : false;
+        let isBlank = userAns === "ø";
+        let rBubbles = rightBubbles.slice(r * bubblesPerQuestion, (r + 1) * bubblesPerQuestion)
+          .sort((a, b) => a.rect.x - b.rect.x);
+        let maxNonZero = 0, bubbled = -1;
+        for (let i = 0; i < rBubbles.length; i++) {
+          let mask = new cv.Mat.zeros(thresh.rows, thresh.cols, cv.CV_8UC1);
+          let contourVec = new cv.MatVector();
+          contourVec.push_back(rBubbles[i].cnt);
+          cv.drawContours(mask, contourVec, 0, new cv.Scalar(255), -1);
+          contourVec.delete();
+          let masked = new cv.Mat();
+          cv.bitwise_and(thresh, thresh, masked, mask);
+          let total = cv.countNonZero(masked);
+          if (total > maxNonZero) {
+            maxNonZero = total;
+            bubbled = i;
+          }
+          mask.delete();
+          masked.delete();
+        }
+        if (!isBlank) highlightWarpedBubble(rBubbles, bubbled, isCorrect, isBlank);
+      }
+      cv.imshow("warpedDetectionCanvas", warpedDetectionMat);
+
+      // Save the warped + overlay image as PNG data URL for PDF export
+      let overlayCanvas = document.createElement("canvas");
+      overlayCanvas.width = warpedDetectionMat.cols;
+      overlayCanvas.height = warpedDetectionMat.rows;
+      cv.imshow(overlayCanvas, warpedDetectionMat);
+      let warpedDetectionDataURL = overlayCanvas.toDataURL("image/png");
+
+      // Clean up
+      detectionMat.delete();
+      warpedDetectionMat.delete();
+      warped.delete();
+      warpedGray.delete();
+      thresh.delete();
+      bubbleList.forEach(obj => { obj.cnt.delete(); });
+
+      // === Output result ===
+      let result = {
+        filename: file.name,
+        transcription: transcription,
+        warpedDataURL: warpedDataURL,
+        warpedDetectionDataURL: warpedDetectionDataURL,
+        answers: answerDetails,
+        score: score,
+        possible: answerDetails.length
+      };
+      // Create images for each visualization step
+let warpedImg = new window.Image();
+warpedImg.src = warpedDataURL;
+
+let threshImg = new window.Image();
+threshImg.src = threshCanvas.toDataURL("image/png"); // assuming you have a canvas named threshCanvas
+
+let detectImg = new window.Image();
+detectImg.src = detectionCanvas.toDataURL("image/png"); // if you use this
+
+let finalImg = new window.Image();
+finalImg.src = warpedDetectionDataURL;
+
+// Assign to result for visualization UI
+result.warped = warpedImg;
+result.thresh = threshImg;
+result.detect = detectImg;
+result.final = finalImg;
+
+callback(result);
+
+    };
+    img.src = e.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+// ---- 6. Process All Images ----
+function processAllImages() {
+      if (!cvReady) {
+        alert("OpenCV.js is not ready yet.");
+        return;
+      }
+      let fileInput = document.getElementById("fileInput");
+      if (fileInput.files.length === 0) {
+        alert("Please choose at least one image file.");
+        return;
+      }
+      allResults = [];
+      let files = fileInput.files;
+      let processedCount = 0;
+      for (let i = 0; i < files.length; i++) {
+        processSingleImage(files[i], function(result) {
+          allResults.push(result);
+          processedCount++;
+          // Optionally, update a global output area for progress.
+          document.getElementById("output").textContent = "Processed " + processedCount + " of " + files.length + " sheets.";
+          if (processedCount === files.length) {
+            // When done, display all results.
+            let allText = "";
+            allResults.forEach(res => {
+              allText += "=== " + res.filename + " ===\n" + res.transcription + "\n";
+            });
+            document.getElementById("output").textContent = allText;
+            document.getElementById("pdfButton").style.display = "inline-block";
+          }
+        });
+      }
+    }
+    
+// ---- 7. Generate PDF ----
+async function generatePDF() {
+  const { jsPDF } = window.jspdf;
+  let doc = new jsPDF({ font: "helvetica" });
+  doc.setFont("helvetica", "normal");
+  const pageWidth = doc.internal.pageSize.getWidth();
+  const usableWidth = pageWidth - 20; // 10mm left/right margin
+
+  // === SUMMARY PAGE ===
+  doc.setFontSize(16);
+  doc.text("Bubble Sheet OMR Summary", pageWidth/2, 15, { align: "center" });
+  doc.setFontSize(10);
+  let numSheets = allResults.length;
+  let numQuestions = allResults[0]?.possible || 0;
+  let avgScore = numSheets ? (allResults.reduce((sum, r) => sum + r.score, 0) / numSheets).toFixed(2) : "0.00";
+  doc.text(`Sheets graded: ${numSheets}`, 14, 22);
+  doc.text(`Questions per sheet: ${numQuestions}`, 14, 27);
+  doc.text(`Average score: ${avgScore} / ${numQuestions}`, 14, 32);
+
+  // Table layout settings (compact)
+  let yStart = 40;
+  let rowH = 5;
+  let colW = 15;
+  let headerH = 5;
+  let tableX = 14;
+
+  // Table headers
+  doc.setFontSize(8.5);
+  doc.setFillColor(60, 120, 240);
+  doc.setTextColor(255,255,255);
+  doc.rect(tableX, yStart, colW*4, headerH, 'F');
+  doc.text("Q#", tableX + 2, yStart + 3.5);
+  doc.text("C %", tableX + colW + 2, yStart + 3.5);
+  doc.text("I %", tableX + colW*2 + 2, yStart + 3.5);
+  doc.text("ø %", tableX + colW*3 + 2, yStart + 3.5);
+
+  // Data prep
+  let correct = Array(numQuestions).fill(0);
+  let incorrect = Array(numQuestions).fill(0);
+  let blank = Array(numQuestions).fill(0);
+  allResults.forEach(res => {
+    res.answers.forEach((ans, i) => {
+      if (ans.given === "ø") blank[i]++;
+      else if (ans.isCorrect) correct[i]++;
+      else incorrect[i]++;
+    });
+  });
+
+  // Draw each row
+  doc.setFontSize(8.2);
+  doc.setTextColor(0,0,0);
+  let y = yStart + headerH;
+  for (let i = 0; i < numQuestions; i++) {
+    if (y > 285 - rowH) {
+      doc.addPage();
+      y = 15;
+      doc.setFontSize(8.5);
+      doc.setFillColor(60, 120, 240);
+      doc.setTextColor(255,255,255);
+      doc.rect(tableX, y, colW*4, headerH, 'F');
+      doc.text("Q#", tableX + 2, y + 3.5);
+      doc.text("C %", tableX + colW + 2, y + 3.5);
+      doc.text("I %", tableX + colW*2 + 2, y + 3.5);
+      doc.text("ø %", tableX + colW*3 + 2, y + 3.5);
+      doc.setFontSize(8.2);
+      doc.setTextColor(0,0,0);
+      y += headerH;
+    }
+    let pctC = numSheets ? ((correct[i]/numSheets)*100).toFixed(1) : "0.0";
+    let pctI = numSheets ? ((incorrect[i]/numSheets)*100).toFixed(1) : "0.0";
+    let pctB = numSheets ? ((blank[i]/numSheets)*100).toFixed(1) : "0.0";
+    doc.rect(tableX, y, colW*4, rowH);
+    doc.text(`${i+1}`, tableX + 2, y + 3.7);
+    doc.text(`${pctC}`, tableX + colW + 2, y + 3.7);
+    doc.text(`${pctI}`, tableX + colW*2 + 2, y + 3.7);
+    doc.text(`${pctB}`, tableX + colW*3 + 2, y + 3.7);
+    y += rowH;
+  }
+
+  // === STUDENT PAGES ===
+  allResults.forEach((res, idx) => {
+    doc.addPage();
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(12);
+    doc.text(`Student: ${res.filename}`, 14, 16);
+    doc.setFont("helvetica", "normal");
+
+    // --- Layout math ---
+    // Usable width: pageWidth-20mm (e.g., 190 for A4/letter)
+    // 2/3 for image, 1/3 for chart (w/ 2mm padding)
+    let xMargin = 10;
+    let colGap = 3;
+    let imageWidth = ((usableWidth - colGap) * 2) / 3; // ~126mm on letter
+    let tableWidth = ((usableWidth - colGap) / 3);    // ~63mm on letter
+    let yTop = 20;
+    let imageHeight = imageWidth * 4/3; // maintain 4:3 aspect (most scan sheets)
+    if (imageHeight > 180) { // Prevent overflow
+      imageHeight = 180;
+      imageWidth = imageHeight * 3/4;
+    }
+
+    // --- Scanned image (2/3 width, left) ---
+    if (res.warpedDetectionDataURL) {
+  doc.addImage(res.warpedDetectionDataURL, "PNG", xMargin, yTop, imageWidth, imageHeight);
+}
+
+
+    // --- Score under image ---
+    let scoreY = yTop + imageHeight + 8;
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(11.5);
+    doc.setTextColor(0,0,0);
+    doc.text(`Score: ${res.score} / ${res.possible}`, xMargin, scoreY);
+    doc.setFont("helvetica", "normal");
+
+    // --- Answer table (1/3 width, right) ---
+    let tableX2 = xMargin + imageWidth + colGap;
+    let tableY2 = yTop;
+    let rowH = 6.5, colW = tableWidth/4, headerH = 7;
+
+    // Table headers
+    doc.setFontSize(9.5);
+    doc.setFillColor(60, 120, 240);
+    doc.setTextColor(255,255,255);
+    doc.rect(tableX2, tableY2, colW*4, headerH, 'F');
+    doc.text("Q#", tableX2 + 1, tableY2 + 5);
+    doc.text("Your", tableX2 + colW + 1, tableY2 + 4.3);
+    doc.text("Key", tableX2 + colW*2 + 1, tableY2 + 4.3);
+    doc.text("Mark", tableX2 + colW*3 + 1, tableY2 + 4.3);
+
+    // Table data
+    doc.setFontSize(8.8);
+    let y2 = tableY2 + headerH;
+    for (let i = 0; i < res.answers.length; i++) {
+      let a = res.answers[i];
+      let given = a.given === "No Response" ? "ø" : a.given;
+      let correct = a.correct || "ø";
+      let mark, color;
+      if (given === "ø") {
+        mark = "ø";
+        color = [0,0,0];
+      } else if (a.isCorrect) {
+        mark = "C";
+        color = [0, 150, 0]; // Green
+      } else {
+        mark = "I";
+        color = [220, 0, 0]; // Red
+      }
+      doc.setDrawColor(160,160,160);
+      doc.rect(tableX2, y2, colW*4, rowH);
+      doc.setTextColor(0,0,0);
+      doc.text(`${a.number}`, tableX2 + 1, y2 + 4.5);
+      doc.text(`${given}`, tableX2 + colW + 1, y2 + 4.5);
+      doc.text(`${correct}`, tableX2 + colW*2 + 1, y2 + 4.5);
+      doc.setTextColor(...color);
+      doc.text(`${mark}`, tableX2 + colW*3 + 1, y2 + 4.5);
+      y2 += rowH;
+      // Paginate if necessary (not likely unless >30-35 Qs)
+      if (y2 + rowH > 280 && i < res.answers.length-1) {
+        doc.addPage();
+        y2 = 20;
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(12);
+        doc.text(`Student: ${res.filename} (cont.)`, xMargin, 16);
+        doc.setFont("helvetica", "normal");
+        // Table headers again
+        doc.setFontSize(9.5);
+        doc.setFillColor(60, 120, 240);
+        doc.setTextColor(255,255,255);
+        doc.rect(tableX2, y2, colW*4, headerH, 'F');
+        doc.text("Q#", tableX2 + 1, y2 + 5);
+        doc.text("Your", tableX2 + colW + 1, y2 + 4.3);
+        doc.text("Key", tableX2 + colW*2 + 1, y2 + 4.3);
+        doc.text("Mark", tableX2 + colW*3 + 1, y2 + 4.3);
+        doc.setFontSize(8.8);
+        y2 += headerH;
+      }
+    }
+  });
+
+  doc.save("OMR_Results.pdf");
+}
+
+
+/* ========== END OF PASTE SECTION ========== */
+
+/** ========== UI STATE ========== **/
+let step = 0;
+let files = [];
+let rowsPerCol = 15;
+let answerKey = '';
+let adjustParams = {
+  thresh: 120,         // Example: threshold value
+  circleMin: 10,       // Example: min circle size
+  circleMax: 60,       // Example: max circle size
+  // Add other adjustables as in your current code
+};
+let vizImages = {
+  warped: null, thresh: null, detect: null, final: null
+};
+let sampleFileIndex = 0; // Index of sample image for adjustment
+
+/** ========== STEP CONTROL ========== **/
+function goToStep(newStep) {
+  const stepsInner = document.getElementById('steps-inner');
+  step = newStep;
+  stepsInner.style.transform = `translateX(-${100 * step}%)`;
+  // Stepper UI
+  for (let i = 0; i <= 3; ++i) {
+    document.getElementById(`step-label-${i}`).classList.toggle('active', i === step);
+  }
+}
+function resetApp() {
+  files = [];
+  rowsPerCol = 15;
+  answerKey = '';
+  adjustParams = { thresh: 120, circleMin: 10, circleMax: 60 };
+  vizImages = { warped: null, thresh: null, detect: null, final: null };
+  sampleFileIndex = 0;
+  renderFileList();
+  document.getElementById('num-files-text').textContent = 'No images attached yet.';
+  document.getElementById('rowsPerCol').value = 15;
+  document.getElementById('answerKey').value = '';
+  goToStep(0);
+}
+
+/** ========== STEP 1: IMAGE INPUT ========== **/
+const dropArea = document.getElementById('drop-area');
+const fileInput = document.getElementById('file-input');
+const fileListDiv = document.getElementById('file-list');
+const toStep1Btn = document.getElementById('to-step-1');
+dropArea.addEventListener('click', () => fileInput.click());
+fileInput.addEventListener('change', handleFileInput);
+dropArea.addEventListener('dragover', e => {
+  e.preventDefault(); dropArea.classList.add('dragover');
+});
+dropArea.addEventListener('dragleave', () => dropArea.classList.remove('dragover'));
+dropArea.addEventListener('drop', e => {
+  e.preventDefault(); dropArea.classList.remove('dragover');
+  handleFileInput({ target: { files: e.dataTransfer.files } });
+});
+function handleFileInput(e) {
+  let inputFiles = Array.from(e.target.files).filter(f => f.type.startsWith('image/'));
+  files = files.concat(inputFiles);
+  renderFileList();
+}
+function renderFileList() {
+  fileListDiv.innerHTML = '';
+  files.forEach((file, idx) => {
+    let el = document.createElement('div');
+    el.className = 'file-list-item';
+    el.innerHTML = `<span class="material-icons">image</span>${file.name} 
+      <span class="material-icons" title="Remove" style="cursor:pointer;margin-left:13px;" onclick="removeFile(${idx})">close</span>`;
+    fileListDiv.appendChild(el);
+  });
+  if (files.length === 0) {
+    document.getElementById('num-files-text').textContent = 'No images attached yet.';
+    toStep1Btn.disabled = true;
+  } else {
+    document.getElementById('num-files-text').textContent = `${files.length} image${files.length>1?'s':''} attached.`;
+    toStep1Btn.disabled = false;
+  }
+}
+window.removeFile = function(idx) {
+  files.splice(idx, 1);
+  renderFileList();
+};
+toStep1Btn.addEventListener('click', () => goToStep(1));
+
+/** ========== STEP 2: SETTINGS ========== **/
+document.getElementById('settings-form').addEventListener('submit', (e) => {
+  e.preventDefault();
+  rowsPerCol = parseInt(document.getElementById('rowsPerCol').value, 10);
+  answerKey = document.getElementById('answerKey').value.trim();
+  goToStep(2);
+  // After a short timeout, update all visualizations
+  setTimeout(() => { updateVisualizations(); }, 250);
+});
+/** ========== STEP 3: ADJUST ========== **/
+function updateVisualizations() {
+  if (!files[sampleFileIndex]) return;
+
+  processSingleImage(files[sampleFileIndex], (result) => {
+    // Map your Data URLs to the correct Image objects for each viz
+    const urlMap = {
+      warped: result.warpedDataURL,
+      thresh: result.warpedDataURL, // Replace with threshDataURL if you have it!
+      detect: result.warpedDetectionDataURL, // Or whatever you have for "Detection"
+      final: result.warpedDetectionDataURL,  // Or whatever you have for "Final"
+    };
+
+    vizImages = {};
+
+    // For each visualization, create an image and assign onload draw
+    Object.keys(urlMap).forEach(key => {
+      const url = urlMap[key];
+      const canvas = document.getElementById(`viz-${key}`);
+      if (!canvas) return;
+
+      const img = new window.Image();
+      img.onload = function() {
+        // Clear and draw when loaded
+        const ctx = canvas.getContext('2d');
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+      };
+      img.src = url;
+      vizImages[key] = img;
+    });
+  }, adjustParams, rowsPerCol, answerKey);
+}
+
+function drawVizCanvases() {
+  ['warped', 'thresh', 'detect', 'final'].forEach(key => {
+    let canvas = document.getElementById(`viz-${key}`);
+    if (!canvas) return; // <-- prevents null errors!
+    let img = vizImages[key];
+    let ctx = canvas.getContext('2d');
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    if (img instanceof HTMLCanvasElement || img instanceof Image) {
+      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+    }
+  });
+}
+
+function createSliderControl(containerId, label, value, min, max, step, onChange) {
+  const group = document.createElement('div');
+  group.className = 'viz-slider-group';
+  group.innerHTML = `
+    <label>${label}</label>
+    <input type="range" min="${min}" max="${max}" step="${step}" value="${value}">
+    <span>${value}</span>
+  `;
+  group.querySelector('input').addEventListener('input', e => {
+    group.querySelector('span').textContent = e.target.value;
+    onChange(Number(e.target.value));
+  });
+  document.getElementById(containerId).appendChild(group);
+}
+function renderVizControls() {
+  // Clear controls
+  ['controls-warped','controls-thresh','controls-detect','controls-final'].forEach(id=>{
+    document.getElementById(id).innerHTML = '';
+  });
+  // Sliders for adjustParams, each under an appropriate visualization
+  createSliderControl('controls-thresh', 'Threshold', adjustParams.thresh, 0, 255, 1, val=>{
+    adjustParams.thresh=val; updateVisualizations();
+  });
+  createSliderControl('controls-detect', 'Min Circle', adjustParams.circleMin, 5, 40, 1, val=>{
+    adjustParams.circleMin=val; updateVisualizations();
+  });
+  createSliderControl('controls-detect', 'Max Circle', adjustParams.circleMax, 40, 80, 1, val=>{
+    adjustParams.circleMax=val; updateVisualizations();
+  });
+  // Add more controls as needed under appropriate viz panels
+}
+document.getElementById('to-step-2').addEventListener('click', (e)=>{
+  e.preventDefault();
+  goToStep(2);
+  setTimeout(()=>{
+    renderVizControls();
+    updateVisualizations();
+  },180);
+});
+document.getElementById('to-step-3').addEventListener('click',()=>{
+  goToStep(3);
+});
+/** ========== STEP 4: DOWNLOAD ========== **/
+document.getElementById('download-btn').addEventListener('click', async ()=>{
+  document.getElementById('download-btn').disabled = true;
+  document.getElementById('download-btn').innerHTML = '<span class="material-icons">downloading</span> Generating...';
+  await generatePDF(); // your PDF logic here
+  document.getElementById('download-btn').disabled = false;
+  document.getElementById('download-btn').innerHTML = '<span class="material-icons">download</span> Download PDF';
+});
+document.getElementById('restart-btn').addEventListener('click', resetApp);
+
+/* ====== STEP SLIDE ANIMATION INIT ====== */
+goToStep(0); // Start at step 0
+for (let i = 0; i <= 3; ++i) document.getElementById(`step-label-${i}`).classList.toggle('active', i === 0);
+renderFileList();
+
+window.onload = () => {
+  if (typeof onOpenCvReady === 'function') onOpenCvReady();
+};
+</script>
+<canvas id="captureCanvas" style="display:none"></canvas>
+<canvas id="threshCanvas" style="display:none"></canvas>
+<canvas id="detectionCanvas" style="display:none"></canvas>
+<canvas id="warpedDetectionCanvas" style="display:none"></canvas>
+
+</body>
+</html>

@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Interactive Card Activity: Body Parts & Adjective Endings</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background: #eef2f3;
+      font-family: sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      height: 100vh;
+      overflow: hidden;
+    }
+    /* Enlarged container for card manipulation with vertical scrolling enabled */
+    #question-container {
+      position: relative;
+      width: 95%;
+      max-width: 1000px;
+      height: 70vh; /* increased from 50vh */
+      margin-top: 20px;
+      border: 1px solid #ccc;
+      background: #fff;
+      overflow-y: auto;  /* enables vertical scrolling */
+      padding: 10px;
+    }
+    /* SVG layer for connection lines behind the cards */
+    #connection-svg {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 1;
+      pointer-events: none;
+    }
+    /* Style for draggable card elements */
+    .card {
+      position: absolute;
+      width: 100px;
+      height: 50px;
+      border: 1px solid #333;
+      background: #f9f9f9;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: move;
+      user-select: none;
+      box-shadow: 2px 2px 5px rgba(0,0,0,0.2);
+      transition: left 0.1s, top 0.1s;
+      font-size: 16px;
+      z-index: 10;
+    }
+    /* Sticky footer for navigation and answer checking */
+    #sticky-footer {
+      position: fixed;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 95%;
+      max-width: 1000px;
+      background: #f4f4f4;
+      border-top: 1px solid #ddd;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 10px;
+      z-index: 1000;
+    }
+    /* Navigation buttons */
+    .nav-button {
+      background: #007bff;
+      color: #fff;
+      border: none;
+      padding: 10px 15px;
+      margin: 0 10px;
+      cursor: pointer;
+      font-size: 18px;
+    }
+    .nav-button.disabled {
+      background: grey;
+      cursor: not-allowed;
+    }
+    /* Check Answers button */
+    #submit-button {
+      background: #28a745;
+      color: #fff;
+      border: none;
+      padding: 10px 20px;
+      cursor: pointer;
+      font-size: 16px;
+    }
+    /* Feedback text styling */
+    #feedback {
+      color: red;
+      font-size: 14px;
+      margin-right: 20px;
+    }
+    /* Prompt (title) styling – always at the top and centered */
+    #prompt {
+      font-weight: bold;
+      margin-bottom: 10px;
+      text-align: center;
+      font-size: 28px;
+    }
+  </style>
+</head>
+<body>
+  <div id="question-container">
+    <!-- SVG for connection lines (stays behind the cards) -->
+    <svg id="connection-svg"></svg>
+    <!-- The prompt and draggable cards will be dynamically rendered here -->
+  </div>
+  
+  <div id="sticky-footer">
+    <button id="prev-button" class="nav-button" onclick="prevQuestion()">&larr;</button>
+    <span id="feedback"></span>
+    <button id="submit-button" onclick="checkAnswers()">Check Answers</button>
+    <button id="next-button" class="nav-button" onclick="nextQuestion()">&rarr;</button>
+  </div>
+  
+  <script>
+    /**********************
+     * QUESTIONS ARRAY
+     * 
+     * For match-pair questions, cards sharing the same correctGroup should connect.
+     * For group-sentences questions, correctGroup is "correct" or "incorrect" (focusing on simple adjective endings).
+     **********************/
+    const questions = [
+      // Q1: Big matching pair – Spanish body parts & English definitions (Set 1)
+      {
+        questionType: "match-pair",
+        prompt: "Match each Spanish body part with its English definition",
+        connections: [],
+        cards: [
+          // Group A: el cuerpo ↔ body
+          { id: 1, content: "el cuerpo", correctGroup: "A", x: 60,  y: 150 },
+          { id: 2, content: "body",      correctGroup: "A", x: 380, y: 210 },
+          // Group B: el cabello ↔ hair
+          { id: 3, content: "el cabello", correctGroup: "B", x: 300, y: 180 },
+          { id: 4, content: "hair",       correctGroup: "B", x: 80,  y: 300 },
+          // Group E: el ojo ↔ eye
+          { id: 5, content: "el ojo",    correctGroup: "E", x: 220, y: 260 },
+          { id: 6, content: "eye",       correctGroup: "E", x: 420, y: 140 },
+          // Group G: la nariz ↔ nose
+          { id: 7, content: "la nariz",  correctGroup: "G", x: 140, y: 320 },
+          { id: 8, content: "nose",      correctGroup: "G", x: 360, y: 100 },
+          // Group H: la boca ↔ mouth
+          { id: 9, content: "la boca",   correctGroup: "H", x: 200, y: 400 },
+          { id: 10, content: "mouth",    correctGroup: "H", x: 400, y: 360 },
+          // Group I: el diente ↔ tooth
+          { id: 11, content: "el diente", correctGroup: "I", x: 320, y: 120 },
+          { id: 12, content: "tooth",     correctGroup: "I", x: 500, y: 180 },
+          // Group J: la lengua ↔ tongue
+          { id: 13, content: "la lengua", correctGroup: "J", x: 260, y: 200 },
+          { id: 14, content: "tongue",    correctGroup: "J", x: 100, y: 420 }
+        ]
+      },
+      // Q2: Big matching pair – Spanish body parts & English definitions (Set 2)
+      {
+        questionType: "match-pair",
+        prompt: "Match each Spanish body part with its English definition",
+        connections: [],
+        cards: [
+    // Existing groups from original Q2:
+    // Group D: el brazo ↔ arm
+    { id: 15, content: "el brazo", correctGroup: "D", x: 130, y: 250 },
+    { id: 16, content: "arm",      correctGroup: "D", x: 380, y: 300 },
+    // Group G: la mano ↔ hand
+    { id: 17, content: "la mano", correctGroup: "G", x: 150, y: 320 },
+    { id: 18, content: "hand",    correctGroup: "G", x: 150, y: 430 },
+    // Group F: la muñeca ↔ wrist
+    { id: 19, content: "la muñeca", correctGroup: "F", x: 170, y: 360 },
+    { id: 20, content: "wrist",     correctGroup: "F", x: 420, y: 200 },
+    
+    // New groups added to expand Q2:
+    // Group A: el codo ↔ elbow
+    { id: 21, content: "el codo",  correctGroup: "A", x: 250, y: 100 },
+    { id: 22, content: "elbow",    correctGroup: "A", x: 450, y: 160 },
+    // Group B: la oreja ↔ ear
+    { id: 23, content: "la oreja", correctGroup: "B", x: 100, y: 300 },
+    { id: 24, content: "ear",      correctGroup: "B", x: 350, y: 270 },
+    // Group C: el hombro ↔ shoulder
+    { id: 25, content: "el hombro", correctGroup: "C", x: 200, y: 350 },
+    { id: 26, content: "shoulder",  correctGroup: "C", x: 400, y: 320 },
+    // Group E: la frente ↔ forehead
+    { id: 27, content: "la frente", correctGroup: "E", x: 150, y: 220 },
+    { id: 28, content: "forehead",  correctGroup: "E", x: 370, y: 180 }
+  ]
+      },
+      // Q3: Grouping sentences – Correct vs. Incorrect adjective endings (simple adjectives)
+      {
+  questionType: "group-sentences",
+  prompt: "Group these sentences by whether the adjective ending is correct. You should have 2 groups: correct sentences and incorrect sentences.",
+  connections: [],
+  cards: [
+    { id: 101, content: "El brazo rojo", correctGroup: "correct", x: 100, y: 150 },
+    { id: 102, content: "La mano bonita", correctGroup: "correct", x: 300, y: 180 },
+    { id: 103, content: "El diente blanco", correctGroup: "correct", x: 200, y: 240 },
+    { id: 104, content: "La oreja pequeña", correctGroup: "correct", x: 400, y: 210 },
+    { id: 105, content: "El cuello corto", correctGroup: "correct", x: 150, y: 300 },
+    { id: 106, content: "La frente ancha", correctGroup: "correct", x: 350, y: 260 },
+    { id: 107, content: "La nariz pequeña", correctGroup: "correct", x: 250, y: 330 },
+    { id: 108, content: "El brazo roja", correctGroup: "incorrect", x: 120, y: 400 },
+    { id: 109, content: "La mano bonito", correctGroup: "incorrect", x: 320, y: 380 },
+    { id: 110, content: "El diente blanca", correctGroup: "incorrect", x: 220, y: 420 },
+    { id: 111, content: "La oreja pequeño", correctGroup: "incorrect", x: 420, y: 360 },
+    { id: 112, content: "El cuello corta", correctGroup: "incorrect", x: 180, y: 450 },
+    { id: 113, content: "La frente ancho", correctGroup: "incorrect", x: 380, y: 440 },
+    { id: 114, content: "La nariz pequeño", correctGroup: "incorrect", x: 280, y: 480 }
+  ]
+}
+
+
+    
+    ];
+    
+    let currentQuestionIndex = 0;
+    // Set connection threshold (cards connect if centers are within this distance)
+    const connectionThreshold = 125;
+    
+    // Variables for dragging cards
+    let draggingCard = null;
+    let offsetX = 0, offsetY = 0;
+    
+    /**********************
+     * RENDERING FUNCTIONS
+     **********************/
+    function renderQuestion() {
+      const container = document.getElementById("question-container");
+      // Clear all children except the SVG layer
+      Array.from(container.children).forEach(child => {
+        if (child.id !== "connection-svg") container.removeChild(child);
+      });
+      document.getElementById("feedback").innerText = "";
+      
+      const currentQuestion = questions[currentQuestionIndex];
+      
+      // Render the prompt at the top so it remains visible
+      const promptEl = document.createElement("div");
+      promptEl.id = "prompt";
+      promptEl.innerText = currentQuestion.prompt;
+      container.appendChild(promptEl);
+      
+      // Render each card based on its x/y positions
+      currentQuestion.cards.forEach(card => {
+        const cardEl = document.createElement("div");
+        cardEl.className = "card";
+        cardEl.style.left = card.x + "px";
+        cardEl.style.top = card.y + "px";
+        cardEl.setAttribute("data-id", card.id);
+        // Display image if available, otherwise display text
+        if (card.image) {
+          cardEl.innerHTML = `<img src="${card.image}" style="max-width:100%; max-height:100%;">`;
+        } else {
+          cardEl.innerText = card.content;
+        }
+        cardEl.addEventListener("mousedown", startDrag);
+        container.appendChild(cardEl);
+      });
+      
+      updateConnections();
+      updateNavButtons();
+    }
+    
+    /**********************
+     * DRAG & DROP FUNCTIONS
+     **********************/
+    function startDrag(e) {
+      draggingCard = e.target;
+      if (draggingCard.tagName === "IMG") {
+        draggingCard = draggingCard.parentNode;
+      }
+      offsetX = e.clientX - draggingCard.offsetLeft;
+      offsetY = e.clientY - draggingCard.offsetTop;
+      document.addEventListener("mousemove", drag);
+      document.addEventListener("mouseup", endDrag);
+    }
+    
+    function drag(e) {
+      if (!draggingCard) return;
+      let newX = e.clientX - offsetX;
+      let newY = e.clientY - offsetY;
+      draggingCard.style.left = newX + "px";
+      draggingCard.style.top = newY + "px";
+      updateConnections();
+    }
+    
+    function endDrag(e) {
+      if (!draggingCard) return;
+      const cardId = parseInt(draggingCard.getAttribute("data-id"));
+      const currentQuestion = questions[currentQuestionIndex];
+      const cardObj = currentQuestion.cards.find(c => c.id === cardId);
+      cardObj.x = parseInt(draggingCard.style.left);
+      cardObj.y = parseInt(draggingCard.style.top);
+      draggingCard = null;
+      document.removeEventListener("mousemove", drag);
+      document.removeEventListener("mouseup", endDrag);
+      updateConnections();
+    }
+    
+    /**********************
+     * CONNECTION FUNCTIONS
+     **********************/
+    function updateConnections() {
+      const container = document.getElementById("question-container");
+      const svg = document.getElementById("connection-svg");
+      const cardEls = container.getElementsByClassName("card");
+      const currentQuestion = questions[currentQuestionIndex];
+      
+      // Clear previous connection lines
+      while (svg.firstChild) {
+        svg.removeChild(svg.firstChild);
+      }
+      
+      currentQuestion.connections = [];
+      
+      // Draw connection lines between card centers if within threshold
+      for (let i = 0; i < cardEls.length; i++) {
+        let card1 = cardEls[i];
+        let id1 = parseInt(card1.getAttribute("data-id"));
+        let x1 = parseInt(card1.style.left) + card1.offsetWidth / 2;
+        let y1 = parseInt(card1.style.top) + card1.offsetHeight / 2;
+        for (let j = i + 1; j < cardEls.length; j++) {
+          let card2 = cardEls[j];
+          let id2 = parseInt(card2.getAttribute("data-id"));
+          let x2 = parseInt(card2.style.left) + card2.offsetWidth / 2;
+          let y2 = parseInt(card2.style.top) + card2.offsetHeight / 2;
+          let dx = x1 - x2;
+          let dy = y1 - y2;
+          let distance = Math.sqrt(dx * dx + dy * dy);
+          if (distance < connectionThreshold) {
+            let line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+            line.setAttribute("x1", x1);
+            line.setAttribute("y1", y1);
+            line.setAttribute("x2", x2);
+            line.setAttribute("y2", y2);
+            line.setAttribute("stroke", "#555");
+            line.setAttribute("stroke-width", "2");
+            svg.appendChild(line);
+            currentQuestion.connections.push({ card1Id: id1, card2Id: id2 });
+          }
+        }
+      }
+    }
+    
+    /**********************
+     * ANSWER CHECKING FUNCTIONS
+     **********************/
+    // Compute connected groups (components) from the connection graph
+    function computeGroups() {
+      const currentQuestion = questions[currentQuestionIndex];
+      const cards = currentQuestion.cards;
+      let graph = {};
+      cards.forEach(card => { graph[card.id] = []; });
+      currentQuestion.connections.forEach(conn => {
+        graph[conn.card1Id].push(conn.card2Id);
+        graph[conn.card2Id].push(conn.card1Id);
+      });
+      let visited = {};
+      let groups = [];
+      function dfs(node, group) {
+        visited[node] = true;
+        group.push(node);
+        graph[node].forEach(neighbor => {
+          if (!visited[neighbor]) dfs(neighbor, group);
+        });
+      }
+      for (let id in graph) {
+        if (!visited[id]) {
+          let group = [];
+          dfs(id, group);
+          groups.push(group);
+        }
+      }
+      return groups;
+    }
+    
+    function checkAnswers() {
+      const currentQuestion = questions[currentQuestionIndex];
+      // Build expected counts from correctGroup property
+      let expectedCounts = {};
+      currentQuestion.cards.forEach(card => {
+        expectedCounts[card.correctGroup] = (expectedCounts[card.correctGroup] || 0) + 1;
+      });
+      const expectedGroupLabels = Object.keys(expectedCounts);
+      
+      let groups = computeGroups();
+      let correctCount = 0;
+      groups.forEach(group => {
+        if (group.length < 2) return;
+        let groupLabel = currentQuestion.cards.find(c => c.id === parseInt(group[0])).correctGroup;
+        let allMatch = group.every(id => {
+          let card = currentQuestion.cards.find(c => c.id === parseInt(id));
+          return card.correctGroup === groupLabel;
+        });
+        if (allMatch && group.length === expectedCounts[groupLabel]) {
+          correctCount++;
+        }
+      });
+      
+      document.getElementById("feedback").innerText = correctCount + " / " + expectedGroupLabels.length + " correct";
+    }
+    
+    /**********************
+     * NAVIGATION FUNCTIONS
+     **********************/
+    function prevQuestion() {
+      saveCurrentPositions();
+      if (currentQuestionIndex > 0) {
+        currentQuestionIndex--;
+        renderQuestion();
+      }
+    }
+    
+    function nextQuestion() {
+      saveCurrentPositions();
+      if (currentQuestionIndex < questions.length - 1) {
+        currentQuestionIndex++;
+        renderQuestion();
+      }
+    }
+    
+    function saveCurrentPositions() {
+      const container = document.getElementById("question-container");
+      const cardEls = container.getElementsByClassName("card");
+      const currentQuestion = questions[currentQuestionIndex];
+      Array.from(cardEls).forEach(cardEl => {
+        const id = parseInt(cardEl.getAttribute("data-id"));
+        const card = currentQuestion.cards.find(c => c.id === id);
+        card.x = parseInt(cardEl.style.left);
+        card.y = parseInt(cardEl.style.top);
+      });
+    }
+    
+    function updateNavButtons() {
+      const prevButton = document.getElementById("prev-button");
+      const nextButton = document.getElementById("next-button");
+      if (currentQuestionIndex === 0) {
+        prevButton.classList.add("disabled");
+      } else {
+        prevButton.classList.remove("disabled");
+      }
+      if (currentQuestionIndex === questions.length - 1) {
+        nextButton.classList.add("disabled");
+      } else {
+        nextButton.classList.remove("disabled");
+      }
+    }
+    
+    // Initialize the first question on page load.
+    window.onload = renderQuestion;
+  </script>
+</body>
+</html>

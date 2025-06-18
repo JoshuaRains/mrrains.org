@@ -1,0 +1,762 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Batch Bubble Sheet OMR & PDF Export</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+      text-align: center;
+    }
+    /* Global controls at the top */
+    #globalControls {
+      margin-bottom: 20px;
+    }
+    .input-group {
+      margin: 10px auto;
+      max-width: 300px;
+    }
+    /* Flex container for image displays */
+    #imagesContainer {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 20px;
+    }
+    .image-container {
+      border: 1px solid #ccc;
+      padding: 10px;
+      max-width: 300px;
+      flex: 1 1 auto;
+    }
+    .image-container h3 {
+      margin-bottom: 10px;
+    }
+    canvas {
+      width: 100%;
+      height: auto;
+      border: 1px solid #999;
+    }
+    .sliders {
+      margin-top: 10px;
+    }
+    .sliders .input-group {
+      text-align: center;
+    }
+    #output {
+      background: #f0f0f0;
+      padding: 10px;
+      display: inline-block;
+      text-align: left;
+      margin-top: 20px;
+      max-width: 600px;
+    }
+    /* PDF button styling */
+    #pdfButton {
+      margin-top: 20px;
+      padding: 10px 20px;
+      font-size: 16px;
+    }
+    #answerKeyInput {
+      margin-top: 20px;
+    }
+  </style>
+  <!-- Load OpenCV.js -->
+  <script async src="https://docs.opencv.org/3.4.0/opencv.js" onload="onOpenCvReady();" type="text/javascript"></script>
+  <!-- Load jsPDF (for PDF generation) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <!-- Load Chart.js (for graph generation) -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+  <h1>Batch Bubble Sheet OMR & PDF Export</h1>
+  
+  <!-- Global controls -->
+  <div id="globalControls">
+    <div class="input-group">
+      <input type="file" id="fileInput" accept="image/*" multiple>
+      <button id="processAllButton">Process All Sheets</button>
+    </div>
+    <div class="input-group">
+      <label for="numQuestions">Rows per Column: <span id="numQuestionsValue">10</span></label>
+      <input type="range" id="numQuestions" min="5" max="30" value="10">
+    </div>
+    <div class="input-group" id="answerKeyInput">
+      <label for="answerKey">Answer Key (comma separated):</label>
+      <input type="text" id="answerKey" placeholder="e.g., A,B,C,D,E,A,B,C,D,E">
+    </div>
+  </div>
+  
+  <!-- Images container (for the currently processed image) -->
+  <div id="imagesContainer">
+    <div class="image-container">
+      <h3>Original</h3>
+      <canvas id="originalCanvas" width="600" height="800"></canvas>
+    </div>
+    <div class="image-container">
+      <h3>Warped</h3>
+      <canvas id="warpedCanvas" width="600" height="800"></canvas>
+    </div>
+    <div class="image-container">
+      <h3>Threshold</h3>
+      <canvas id="threshCanvas" width="600" height="800"></canvas>
+      <div class="sliders">
+        <div class="input-group">
+          <input type="checkbox" id="manualThresholdCheckbox">
+          <label for="manualThresholdCheckbox">Manual Threshold</label>
+        </div>
+        <div class="input-group" id="manualThresholdGroup" style="display: none;">
+          <label for="thresholdValue">Threshold: <span id="thresholdValueDisplay">128</span></label>
+          <input type="range" id="thresholdValue" min="0" max="255" value="128">
+        </div>
+      </div>
+    </div>
+    <div class="image-container">
+      <h3>Detection</h3>
+      <canvas id="detectionCanvas" width="600" height="800"></canvas>
+      <div class="sliders">
+        <div class="input-group">
+          <label for="minBubbleSize">Min Bubble Size: <span id="minBubbleSizeValue">10</span></label>
+          <input type="range" id="minBubbleSize" min="5" max="50" value="10" step="1">
+        </div>
+        <div class="input-group">
+          <label for="minCircularityDet">Min Circularity: <span id="minCircularityDetValue">0.60</span></label>
+          <input type="range" id="minCircularityDet" min="0" max="1.0" value="0.60" step="0.01">
+        </div>
+        <div class="input-group">
+          <label for="fillThreshold">Fill Threshold: <span id="fillThresholdValue">200</span></label>
+          <input type="range" id="fillThreshold" min="0" max="300" value="200" step="1">
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <h2>Batch Transcription Results</h2>
+  <pre id="output">No data yet.</pre>
+  
+  <button id="pdfButton" style="display:none;">Download PDF</button>
+  
+  <!-- Hidden canvas for processing each image -->
+  <canvas id="captureCanvas" width="600" height="800" style="display: none;"></canvas>
+  
+  <script>
+    let cvReady = false;
+    let allResults = []; // Array to store transcription results for each sheet
+    function onOpenCvReady() {
+      cvReady = true;
+      console.log("OpenCV.js is ready");
+    }
+    
+    // Utility: Order 4 points as [top-left, top-right, bottom-right, bottom-left]
+    function orderPoints(pts) {
+      let rect = [null, null, null, null];
+      let sum = pts.map(p => p.x + p.y);
+      let diff = pts.map(p => p.y - p.x);
+      rect[0] = pts[sum.indexOf(Math.min(...sum))];
+      rect[2] = pts[sum.indexOf(Math.max(...sum))];
+      rect[1] = pts[diff.indexOf(Math.min(...diff))];
+      rect[3] = pts[diff.indexOf(Math.max(...diff))];
+      return rect;
+    }
+    
+    function distance(ptA, ptB) {
+      return Math.sqrt((ptA.x - ptB.x) ** 2 + (ptA.y - ptB.y) ** 2);
+    }
+    
+    // Perspective transform.
+    function fourPointTransform(src, pts) {
+      let rect = orderPoints(pts);
+      let tl = rect[0], tr = rect[1], br = rect[2], bl = rect[3];
+      let widthA = distance(br, bl);
+      let widthB = distance(tr, tl);
+      let maxWidth = Math.max(widthA, widthB);
+      let heightA = distance(tr, br);
+      let heightB = distance(tl, bl);
+      let maxHeight = Math.max(heightA, heightB);
+      
+      let dst = cv.matFromArray(4, 1, cv.CV_32FC2, [
+        0, 0,
+        maxWidth - 1, 0,
+        maxWidth - 1, maxHeight - 1,
+        0, maxHeight - 1
+      ]);
+      let srcPts = cv.matFromArray(4, 1, cv.CV_32FC2, [
+        tl.x, tl.y,
+        tr.x, tr.y,
+        br.x, br.y,
+        bl.x, bl.y
+      ]);
+      
+      let M = cv.getPerspectiveTransform(srcPts, dst);
+      let warped = new cv.Mat();
+      let dsize = new cv.Size(maxWidth, maxHeight);
+      cv.warpPerspective(src, warped, M, dsize, cv.INTER_LINEAR, cv.BORDER_CONSTANT, new cv.Scalar());
+      
+      srcPts.delete(); dst.delete(); M.delete();
+      return warped;
+    }
+    
+    // Process a single image file.
+    function processSingleImage(file, callback) {
+  let img = new Image();
+  let reader = new FileReader();
+  reader.onload = function(e) {
+    img.onload = function() {
+      // Draw image on hidden canvas
+      let captureCanvas = document.getElementById("captureCanvas");
+      let ctxCap = captureCanvas.getContext("2d");
+      ctxCap.clearRect(0, 0, captureCanvas.width, captureCanvas.height);
+      ctxCap.drawImage(img, 0, 0, captureCanvas.width, captureCanvas.height);
+      let src = cv.imread(captureCanvas);
+
+      // Preprocess: grayscale, blur, Canny
+      let gray = new cv.Mat();
+      cv.cvtColor(src, gray, cv.COLOR_RGBA2GRAY);
+      let blurred = new cv.Mat();
+      cv.GaussianBlur(gray, blurred, new cv.Size(5, 5), 0);
+      let edged = new cv.Mat();
+      cv.Canny(blurred, edged, 75, 200);
+
+      // Find sheet contour
+      let contours = new cv.MatVector();
+      let hierarchy = new cv.Mat();
+      cv.findContours(edged, contours, hierarchy, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE);
+      let contourArray = [];
+      for (let i = 0; i < contours.size(); i++) {
+        contourArray.push(contours.get(i));
+      }
+      contourArray.sort((a, b) => cv.contourArea(b) - cv.contourArea(a));
+      let sheetContour = null;
+      for (let i = 0; i < contourArray.length; i++) {
+        let peri = cv.arcLength(contourArray[i], true);
+        let approx = new cv.Mat();
+        cv.approxPolyDP(contourArray[i], approx, 0.04 * peri, true);
+        if (approx.rows === 4) {
+          sheetContour = approx;
+          break;
+        }
+        approx.delete();
+      }
+      if (sheetContour === null) {
+        callback({ filename: file.name, transcription: "Sheet not detected" });
+        src.delete(); gray.delete(); blurred.delete(); edged.delete();
+        contours.delete(); hierarchy.delete();
+        contourArray.forEach(c => c.delete());
+        return;
+      }
+
+      // Get 4 points.
+      let pts = [];
+      for (let i = 0; i < 4; i++) {
+        pts.push({ x: sheetContour.intAt(i, 0), y: sheetContour.intAt(i, 1) });
+      }
+      sheetContour.delete();
+      contours.delete(); hierarchy.delete();
+      gray.delete(); blurred.delete(); edged.delete();
+      contourArray.forEach(c => c.delete());
+
+      // Perspective transform.
+      let warped = fourPointTransform(src, pts);
+      src.delete();
+
+      // Save warped image for PDF export (still available if needed)
+      let warpedCanvas = document.createElement("canvas");
+      warpedCanvas.width = warped.cols;
+      warpedCanvas.height = warped.rows;
+      cv.imshow(warpedCanvas, warped);
+      let warpedDataURL = warpedCanvas.toDataURL("image/png");
+
+      // Threshold warped image.
+      let warpedGray = new cv.Mat();
+      cv.cvtColor(warped, warpedGray, cv.COLOR_RGBA2GRAY);
+      let thresh = new cv.Mat();
+      let useManual = document.getElementById("manualThresholdCheckbox").checked;
+      if (useManual) {
+        let threshVal = parseInt(document.getElementById("thresholdValue").value);
+        cv.threshold(warpedGray, thresh, threshVal, 255, cv.THRESH_BINARY_INV);
+      } else {
+        cv.threshold(warpedGray, thresh, 0, 255, cv.THRESH_BINARY_INV | cv.THRESH_OTSU);
+      }
+      cv.imshow("threshCanvas", thresh);
+
+      // Bubble detection
+      let minBubbleSize = parseInt(document.getElementById("minBubbleSize").value);
+      let minCircularity = parseFloat(document.getElementById("minCircularityDet").value);
+      let numRows = parseInt(document.getElementById("numQuestions").value);
+      let bubblesPerQuestion = 5; // answers A-E
+      let fillThreshold = parseInt(document.getElementById("fillThreshold").value);
+
+      let bubbleContours = new cv.MatVector();
+      let bubbleHierarchy = new cv.Mat();
+      cv.findContours(thresh, bubbleContours, bubbleHierarchy, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE);
+      let bubbleList = [];
+      for (let i = 0; i < bubbleContours.size(); i++) {
+        let cnt = bubbleContours.get(i);
+        let rect = cv.boundingRect(cnt);
+        if (rect.width >= minBubbleSize && rect.height >= minBubbleSize) {
+          let area = cv.contourArea(cnt);
+          let perimeter = cv.arcLength(cnt, true);
+          let circularity = perimeter === 0 ? 0 : (4 * Math.PI * area) / (perimeter * perimeter);
+          if (circularity >= minCircularity) {
+            bubbleList.push({ cnt: cnt, rect: rect });
+          } else {
+            cnt.delete();
+          }
+        } else {
+          cnt.delete();
+        }
+      }
+      bubbleHierarchy.delete();
+      bubbleContours.delete();
+
+      // Separate bubbles into left and right columns.
+      let leftBubbles = [];
+      let rightBubbles = [];
+      let halfWidth = warped.cols / 2;
+      bubbleList.forEach(obj => {
+        let centerX = obj.rect.x + obj.rect.width / 2;
+        if (centerX < halfWidth) {
+          leftBubbles.push(obj);
+        } else {
+          rightBubbles.push(obj);
+        }
+      });
+      leftBubbles.sort((a, b) => a.rect.y - b.rect.y);
+      rightBubbles.sort((a, b) => a.rect.y - b.rect.y);
+
+      // === Group bubbles and transcribe answers ===
+      let expectedCountPerColumn = numRows * bubblesPerQuestion;
+      let transcription = "";
+      let answerDetails = [];
+      let score = 0;
+
+      if (leftBubbles.length === expectedCountPerColumn && rightBubbles.length === expectedCountPerColumn) {
+        // Left column: questions 1 to numRows.
+        for (let r = 0; r < numRows; r++) {
+          let row = leftBubbles.slice(r * bubblesPerQuestion, (r + 1) * bubblesPerQuestion);
+          row.sort((a, b) => a.rect.x - b.rect.x);
+          let bubbled = -1;
+          let maxNonZero = 0;
+          for (let i = 0; i < row.length; i++) {
+            let mask = new cv.Mat.zeros(thresh.rows, thresh.cols, cv.CV_8UC1);
+            let contourVec = new cv.MatVector();
+            contourVec.push_back(row[i].cnt);
+            cv.drawContours(mask, contourVec, 0, new cv.Scalar(255), -1);
+            contourVec.delete();
+            let masked = new cv.Mat();
+            cv.bitwise_and(thresh, thresh, masked, mask);
+            let total = cv.countNonZero(masked);
+            if (total > maxNonZero) {
+              maxNonZero = total;
+              bubbled = i;
+            }
+            mask.delete();
+            masked.delete();
+          }
+          let answer = (bubbled !== -1 && maxNonZero >= fillThreshold) ? String.fromCharCode(65 + bubbled) : "ø";
+          transcription += (r+1) + ": " + answer + "\n";
+        }
+        // Right column: questions numRows+1 to 2*numRows.
+        for (let r = 0; r < numRows; r++) {
+          let row = rightBubbles.slice(r * bubblesPerQuestion, (r + 1) * bubblesPerQuestion);
+          row.sort((a, b) => a.rect.x - b.rect.x);
+          let bubbled = -1;
+          let maxNonZero = 0;
+          for (let i = 0; i < row.length; i++) {
+            let mask = new cv.Mat.zeros(thresh.rows, thresh.cols, cv.CV_8UC1);
+            let contourVec = new cv.MatVector();
+            contourVec.push_back(row[i].cnt);
+            cv.drawContours(mask, contourVec, 0, new cv.Scalar(255), -1);
+            contourVec.delete();
+            let masked = new cv.Mat();
+            cv.bitwise_and(thresh, thresh, masked, mask);
+            let total = cv.countNonZero(masked);
+            if (total > maxNonZero) {
+              maxNonZero = total;
+              bubbled = i;
+            }
+            mask.delete();
+            masked.delete();
+          }
+          let answer = (bubbled !== -1 && maxNonZero >= fillThreshold) ? String.fromCharCode(65 + bubbled) : "ø";
+          transcription += (numRows + r + 1) + ": " + answer + "\n";
+        }
+      } else {
+        transcription = "Error: Detected bubbles do not match expected counts.\nLeft: " + leftBubbles.length + " Right: " + rightBubbles.length;
+      }
+
+      // === Grade against answer key ===
+      let answerKeyRaw = document.getElementById("answerKey").value;
+      let answerKeyArr = answerKeyRaw.split(",").map(v => v.trim());
+      let responses = transcription.split('\n').filter(line => line.includes(':'));
+      responses.forEach((line, idx) => {
+        let parts = line.split(':');
+        if (parts.length < 2) return;
+        let qNum = parseInt(parts[0]);
+        let given = parts[1].trim();
+        let correct = answerKeyArr[idx] || "ø";
+        let isCorrect = (given === correct) && (given !== "ø");
+        answerDetails.push({
+          number: qNum,
+          given: given,
+          correct: correct,
+          isCorrect: isCorrect
+        });
+        if (isCorrect) score++;
+      });
+
+      // === Detection visualization (on thresholded image) ===
+      let detectionMat = new cv.Mat();
+      cv.cvtColor(thresh, detectionMat, cv.COLOR_GRAY2RGBA);
+
+      // Prepare map of all bubble centers
+      let bubbleCenters = bubbleList.map(obj => ({
+        obj,
+        centerX: obj.rect.x + obj.rect.width / 2,
+        centerY: obj.rect.y + obj.rect.height / 2,
+        r: Math.round(Math.min(obj.rect.width, obj.rect.height) / 2),
+        used: false
+      }));
+
+      function getBubbleByRect(rect) {
+        return bubbleCenters.find(b =>
+          b.obj.rect.x === rect.x &&
+          b.obj.rect.y === rect.y &&
+          b.obj.rect.width === rect.width &&
+          b.obj.rect.height === rect.height
+        );
+      }
+
+      // Draw all as blue
+      bubbleCenters.forEach(b => {
+        cv.circle(detectionMat, new cv.Point(b.centerX, b.centerY), b.r, new cv.Scalar(50, 120, 255, 255), 2); // Blue
+      });
+
+      function highlightBubble(rBubbles, bubbled, isCorrect, isBlank) {
+        if (bubbled === -1) return;
+        let centerObj = getBubbleByRect(rBubbles[bubbled].rect);
+        if (centerObj) {
+          centerObj.used = true;
+          let color = isBlank ? new cv.Scalar(0, 0, 0, 255)
+            : isCorrect ? new cv.Scalar(0, 200, 0, 255)    // Green
+            : new cv.Scalar(220, 0, 0, 255);               // Red
+          cv.circle(detectionMat, new cv.Point(centerObj.centerX, centerObj.centerY), centerObj.r, color, 2);
+        }
+      }
+
+      // For each question, highlight the selected response bubble (for detection view)
+      for (let r = 0; r < numRows; r++) {
+        // Left
+        let idx = r;
+        let aDetail = answerDetails[idx];
+        let userAns = aDetail ? aDetail.given : "ø";
+        let isCorrect = aDetail ? aDetail.isCorrect : false;
+        let isBlank = userAns === "ø";
+        let rBubbles = leftBubbles.slice(r * bubblesPerQuestion, (r + 1) * bubblesPerQuestion)
+          .sort((a, b) => a.rect.x - b.rect.x);
+        let maxNonZero = 0, bubbled = -1;
+        for (let i = 0; i < rBubbles.length; i++) {
+          let mask = new cv.Mat.zeros(thresh.rows, thresh.cols, cv.CV_8UC1);
+          let contourVec = new cv.MatVector();
+          contourVec.push_back(rBubbles[i].cnt);
+          cv.drawContours(mask, contourVec, 0, new cv.Scalar(255), -1);
+          contourVec.delete();
+          let masked = new cv.Mat();
+          cv.bitwise_and(thresh, thresh, masked, mask);
+          let total = cv.countNonZero(masked);
+          if (total > maxNonZero) {
+            maxNonZero = total;
+            bubbled = i;
+          }
+          mask.delete();
+          masked.delete();
+        }
+        if (!isBlank) highlightBubble(rBubbles, bubbled, isCorrect, isBlank);
+      }
+      for (let r = 0; r < numRows; r++) {
+        // Right
+        let idx = numRows + r;
+        let aDetail = answerDetails[idx];
+        let userAns = aDetail ? aDetail.given : "ø";
+        let isCorrect = aDetail ? aDetail.isCorrect : false;
+        let isBlank = userAns === "ø";
+        let rBubbles = rightBubbles.slice(r * bubblesPerQuestion, (r + 1) * bubblesPerQuestion)
+          .sort((a, b) => a.rect.x - b.rect.x);
+        let maxNonZero = 0, bubbled = -1;
+        for (let i = 0; i < rBubbles.length; i++) {
+          let mask = new cv.Mat.zeros(thresh.rows, thresh.cols, cv.CV_8UC1);
+          let contourVec = new cv.MatVector();
+          contourVec.push_back(rBubbles[i].cnt);
+          cv.drawContours(mask, contourVec, 0, new cv.Scalar(255), -1);
+          contourVec.delete();
+          let masked = new cv.Mat();
+          cv.bitwise_and(thresh, thresh, masked, mask);
+          let total = cv.countNonZero(masked);
+          if (total > maxNonZero) {
+            maxNonZero = total;
+            bubbled = i;
+          }
+          mask.delete();
+          masked.delete();
+        }
+        if (!isBlank) highlightBubble(rBubbles, bubbled, isCorrect, isBlank);
+      }
+
+      cv.imshow("detectionCanvas", detectionMat);
+
+      // === Warped + Detection Overlay visualization ===
+      let warpedDetectionMat = warped.clone();
+      // Draw all as blue
+      bubbleCenters.forEach(b => {
+        cv.circle(warpedDetectionMat, new cv.Point(b.centerX, b.centerY), b.r, new cv.Scalar(50, 120, 255, 255), 2);
+      });
+      function highlightWarpedBubble(rBubbles, bubbled, isCorrect, isBlank) {
+        if (bubbled === -1) return;
+        let centerObj = getBubbleByRect(rBubbles[bubbled].rect);
+        if (centerObj) {
+          let color = isBlank ? new cv.Scalar(0, 0, 0, 255)
+            : isCorrect ? new cv.Scalar(0, 200, 0, 255)
+            : new cv.Scalar(220, 0, 0, 255);
+          cv.circle(warpedDetectionMat, new cv.Point(centerObj.centerX, centerObj.centerY), centerObj.r, color, 2);
+        }
+      }
+      for (let r = 0; r < numRows; r++) {
+        // Left
+        let idx = r;
+        let aDetail = answerDetails[idx];
+        let userAns = aDetail ? aDetail.given : "ø";
+        let isCorrect = aDetail ? aDetail.isCorrect : false;
+        let isBlank = userAns === "ø";
+        let rBubbles = leftBubbles.slice(r * bubblesPerQuestion, (r + 1) * bubblesPerQuestion)
+          .sort((a, b) => a.rect.x - b.rect.x);
+        let maxNonZero = 0, bubbled = -1;
+        for (let i = 0; i < rBubbles.length; i++) {
+          let mask = new cv.Mat.zeros(thresh.rows, thresh.cols, cv.CV_8UC1);
+          let contourVec = new cv.MatVector();
+          contourVec.push_back(rBubbles[i].cnt);
+          cv.drawContours(mask, contourVec, 0, new cv.Scalar(255), -1);
+          contourVec.delete();
+          let masked = new cv.Mat();
+          cv.bitwise_and(thresh, thresh, masked, mask);
+          let total = cv.countNonZero(masked);
+          if (total > maxNonZero) {
+            maxNonZero = total;
+            bubbled = i;
+          }
+          mask.delete();
+          masked.delete();
+        }
+        if (!isBlank) highlightWarpedBubble(rBubbles, bubbled, isCorrect, isBlank);
+      }
+      for (let r = 0; r < numRows; r++) {
+        // Right
+        let idx = numRows + r;
+        let aDetail = answerDetails[idx];
+        let userAns = aDetail ? aDetail.given : "ø";
+        let isCorrect = aDetail ? aDetail.isCorrect : false;
+        let isBlank = userAns === "ø";
+        let rBubbles = rightBubbles.slice(r * bubblesPerQuestion, (r + 1) * bubblesPerQuestion)
+          .sort((a, b) => a.rect.x - b.rect.x);
+        let maxNonZero = 0, bubbled = -1;
+        for (let i = 0; i < rBubbles.length; i++) {
+          let mask = new cv.Mat.zeros(thresh.rows, thresh.cols, cv.CV_8UC1);
+          let contourVec = new cv.MatVector();
+          contourVec.push_back(rBubbles[i].cnt);
+          cv.drawContours(mask, contourVec, 0, new cv.Scalar(255), -1);
+          contourVec.delete();
+          let masked = new cv.Mat();
+          cv.bitwise_and(thresh, thresh, masked, mask);
+          let total = cv.countNonZero(masked);
+          if (total > maxNonZero) {
+            maxNonZero = total;
+            bubbled = i;
+          }
+          mask.delete();
+          masked.delete();
+        }
+        if (!isBlank) highlightWarpedBubble(rBubbles, bubbled, isCorrect, isBlank);
+      }
+      cv.imshow("warpedDetectionCanvas", warpedDetectionMat);
+
+      // Save the warped + overlay image as PNG data URL for PDF export
+      let overlayCanvas = document.createElement("canvas");
+      overlayCanvas.width = warpedDetectionMat.cols;
+      overlayCanvas.height = warpedDetectionMat.rows;
+      cv.imshow(overlayCanvas, warpedDetectionMat);
+      let warpedDetectionDataURL = overlayCanvas.toDataURL("image/png");
+
+      // Clean up
+      detectionMat.delete();
+      warpedDetectionMat.delete();
+      warped.delete();
+      warpedGray.delete();
+      thresh.delete();
+      bubbleList.forEach(obj => { obj.cnt.delete(); });
+
+      // === Output result ===
+      let result = {
+        filename: file.name,
+        transcription: transcription,
+        warpedDataURL: warpedDataURL,
+        warpedDetectionDataURL: warpedDetectionDataURL,
+        answers: answerDetails,
+        score: score,
+        possible: answerDetails.length
+      };
+      callback(result);
+    };
+    img.src = e.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+
+    // Process all selected images.
+    function processAllImages() {
+      if (!cvReady) {
+        alert("OpenCV.js is not ready yet.");
+        return;
+      }
+      let fileInput = document.getElementById("fileInput");
+      if (fileInput.files.length === 0) {
+        alert("Please choose at least one image file.");
+        return;
+      }
+      allResults = [];
+      let files = fileInput.files;
+      let processedCount = 0;
+      for (let i = 0; i < files.length; i++) {
+        processSingleImage(files[i], function(result) {
+          allResults.push(result);
+          processedCount++;
+          // Optionally, update a global output area for progress.
+          document.getElementById("output").textContent = "Processed " + processedCount + " of " + files.length + " sheets.";
+          if (processedCount === files.length) {
+            // When done, display all results.
+            let allText = "";
+            allResults.forEach(res => {
+              allText += "=== " + res.filename + " ===\n" + res.transcription + "\n";
+            });
+            document.getElementById("output").textContent = allText;
+            document.getElementById("pdfButton").style.display = "inline-block";
+          }
+        });
+      }
+    }
+    
+    // Generate a PDF with the results.
+    async function generatePDF() {
+      const { jsPDF } = window.jspdf;
+      let doc = new jsPDF();
+      let y = 10;
+      doc.setFontSize(14);
+      doc.text("Bubble Sheet OMR Results", 10, y);
+      y += 10;
+      doc.setFontSize(10);
+
+      let answerKey = document.getElementById("answerKey").value.split(',');
+      let numQuestions = parseInt(document.getElementById("numQuestions").value);
+      let missedCounts = new Array(numQuestions * 2).fill(0);
+
+      allResults.forEach(res => {
+        let lines = doc.splitTextToSize("File: " + res.filename, 180);
+        doc.text(lines, 10, y);
+        y += lines.length * 5;
+        let transLines = doc.splitTextToSize(res.transcription, 180);
+        doc.text(transLines, 10, y);
+        y += transLines.length * 5 + 5;
+
+        let responses = res.transcription.split('\n').filter(line => line.includes(':'));
+        responses.forEach((response, index) => {
+          let answer = response.split(': ')[1].trim();
+          if (answer !== answerKey[index].trim()) {
+            missedCounts[index]++;
+          }
+        });
+
+        if (y > 280) {
+          doc.addPage();
+          y = 10;
+        }
+      });
+
+      // Add graph
+      let totalSheets = allResults.length;
+      let missedPercentages = missedCounts.map(count => (count / totalSheets) * 100);
+
+      // Create a canvas element for Chart.js
+      let canvas = document.createElement('canvas');
+      canvas.width = 800;
+      canvas.height = 400;
+      document.body.appendChild(canvas);
+
+      // Generate the bar chart
+      let ctx = canvas.getContext('2d');
+      new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: missedPercentages.map((_, index) => `Q${index + 1}`),
+          datasets: [{
+            label: 'Percent Missed',
+            data: missedPercentages,
+            backgroundColor: 'rgba(255, 99, 132, 0.2)',
+            borderColor: 'rgba(255, 99, 132, 1)',
+            borderWidth: 1
+          }]
+        },
+        options: {
+          scales: {
+            y: {
+              beginAtZero: true,
+              max: 100
+            }
+          }
+        }
+      });
+
+      // Convert the chart to an image and add it to the PDF
+      setTimeout(() => {
+        let dataUrl = canvas.toDataURL('image/png');
+        doc.addPage();
+        doc.setFontSize(14);
+        doc.text("Percent Missed Per Question", 10, 10);
+        doc.addImage(dataUrl, 'PNG', 10, 20, 180, 90);
+        doc.save("OMR_Results.pdf");
+        document.body.removeChild(canvas); // Clean up the canvas element
+      }, 1000);
+    }
+    
+    // Event listeners.
+    document.getElementById("processAllButton").addEventListener("click", processAllImages);
+    document.getElementById("pdfButton").addEventListener("click", generatePDF);
+    
+    // Update displays and re-run processing for controls (for single image preview).
+    document.getElementById("numQuestions").addEventListener("input", function() {
+      document.getElementById("numQuestionsValue").textContent = this.value;
+      if (cvReady) { processAllImages(); }
+    });
+    document.getElementById("manualThresholdCheckbox").addEventListener("change", function() {
+      let group = document.getElementById("manualThresholdGroup");
+      group.style.display = this.checked ? "block" : "none";
+      if (cvReady) { processAllImages(); }
+    });
+    document.getElementById("thresholdValue").addEventListener("input", function() {
+      document.getElementById("thresholdValueDisplay").textContent = this.value;
+      if (cvReady) { processAllImages(); }
+    });
+    document.getElementById("minBubbleSize").addEventListener("input", function() {
+      document.getElementById("minBubbleSizeValue").textContent = this.value;
+      if (cvReady) { processAllImages(); }
+    });
+    document.getElementById("minCircularityDet").addEventListener("input", function() {
+      document.getElementById("minCircularityDetValue").textContent = parseFloat(this.value).toFixed(2);
+      if (cvReady) { processAllImages(); }
+    });
+    document.getElementById("fillThreshold").addEventListener("input", function() {
+      document.getElementById("fillThresholdValue").textContent = this.value;
+      if (cvReady) { processAllImages(); }
+    });
+    
+  </script>
+</body>
+</html>

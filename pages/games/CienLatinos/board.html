@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Family Feud Board</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #222;
+      color: #fff;
+      margin: 0;
+      position: relative;
+    }
+    @keyframes pulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.2);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+
+
+
+    /* Placeholder screen container */
+    #placeholderScreen {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: #222;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+    }
+    #placeholderScreen img {
+      max-width: 80%;
+      max-height: 80%;
+      animation: pulse 4s ease-in-out infinite;
+
+    }
+    /* Game content container */
+    #gameContent {
+      display: none;
+      width: 100%;
+      padding: 20px;
+    }
+    .auto-score {
+      font-size: 48px;
+      font-weight: bold;
+      margin-bottom: 10px;
+      text-align: center;
+      width: 100%;
+    }
+    .question-container {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    .answers-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+      width: 100%;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+    .answer-box {
+      background: #444;
+      padding: 15px;
+      border: 2px solid #fff;
+      border-radius: 10px;
+      min-height: 80px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0.3;
+      transition: opacity 0.3s ease, transform 0.3s ease;
+    }
+    .answer-box.revealed {
+      opacity: 1;
+    }
+    .answer-box.animate {
+      animation: revealAnimation 0.5s ease;
+    }
+    @keyframes revealAnimation {
+      from { transform: scale(0.8); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+    /* Score display row */
+    .score-display {
+      margin: 20px auto 0 auto;
+      width: 100%;
+      max-width: 600px;
+      display: flex;
+      justify-content: space-around;
+      padding: 10px;
+      border-top: 2px solid #fff;
+    }
+    .score-display > div {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      font-size: 20px;
+      font-weight: bold;
+    }
+    /* Buzz screen container */
+    #buzzScreen {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: #222;
+      display: flex;
+      flex-direction: row;
+      align-items: center;   /* centers vertically */
+      justify-content: center; /* centers horizontally */
+      gap: 100px;
+      z-index: 2000;
+    }
+    /* Buzz-in circles */
+    .buzzer {
+      width: 100px;
+      height: 100px;
+      border: 3px solid black;
+      border-radius: 50%;
+      background: transparent;
+    }
+    /* Overlay container for X images */
+    #imageOverlay {
+      position: fixed;
+      top: 20px;
+      left: 0;
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      z-index: 3000;
+    }
+    #imageOverlay img {
+      max-width: 100px;
+      max-height: 100px;
+    }
+  </style>
+</head>
+<body>
+  <!-- Placeholder screen -->
+  <div id="placeholderScreen">
+    <img src="../assets/Cien Latinos Dijeron.png" alt="Placeholder">
+  </div>
+
+  <!-- Game content screen -->
+  <div id="gameContent">
+    <div class="auto-score" id="autoScore">0</div>
+    <div class="question-container">
+      <h1 id="questionText">Waiting for question...</h1>
+    </div>
+    <div class="answers-grid" id="answersGrid">
+      <!-- Answer boxes inserted here -->
+    </div>
+    <div class="score-display" id="scoreDisplay">
+      <div id="teamA"></div>
+      <div id="teamB"></div>
+    </div>
+  </div>
+  
+  <!-- Buzz screen: only displays the buzzer circles -->
+  <div id="buzzScreen">
+    <div id="buzzerA" class="buzzer"></div>
+    <div id="buzzerB" class="buzzer"></div>
+  </div>
+
+  <script>
+    let currentQuestionIndex = null;
+    let questionData = null;
+
+    window.addEventListener("message", function(event) {
+      const data = event.data;
+      if (data.type === "update") {
+        currentQuestionIndex = data.questionIndex;
+        questionData = data.questionData;
+        // Update board content but DO NOT switch screen
+        updateBoard();
+      } else if (data.type === "reveal") {
+        currentQuestionIndex = data.questionIndex;
+        questionData = data.questionData;
+        // Update board content but do not force a screen change
+        updateBoard(data.revealedIndex);
+      } else if (data.type === "score") {
+        updateScoreDisplay(data);
+      } else if (data.type === "displayImages") {
+        displayOverlayImages(data.count);
+      } else if (data.type === "resetBuzz") {
+        resetBuzzers();
+      } else if (data.type === "switchScreen") {
+        // data.screen should be one of "game", "buzz", or "placeholder"
+        showScreen(data.screen);
+      } else if (data.type === "buzz") {
+        // data.team is "A" or "B"
+        if (data.team === "A") {
+          document.getElementById("buzzerA").style.background = "red";
+        } else if (data.team === "B") {
+          document.getElementById("buzzerB").style.background = "red";
+        }
+      } else if (data.type === "fullscreen") {
+        if (document.documentElement.requestFullscreen) {
+          document.documentElement.requestFullscreen().catch(err => {
+            console.error("Fullscreen request failed:", err);
+          });
+        }
+      }
+    });
+
+    function showScreen(screen) {
+      // Hide all screens first.
+      document.getElementById("gameContent").style.display = "none";
+      document.getElementById("buzzScreen").style.display = "none";
+      document.getElementById("placeholderScreen").style.display = "none";
+
+      if (screen === "game") {
+        document.getElementById("gameContent").style.display = "block";
+      } else if (screen === "buzz") {
+        document.getElementById("buzzScreen").style.display = "flex";
+      } else if (screen === "placeholder") {
+        document.getElementById("placeholderScreen").style.display = "flex";
+      }
+    }
+
+    function updateBoard(newlyRevealedIndex) {
+      const grid = document.getElementById("answersGrid");
+      document.getElementById("questionText").textContent = questionData.question;
+      let autoScore = 0;
+      if (questionData.displayAnswers) {
+        questionData.displayAnswers.forEach(ans => { if (ans.revealed) { autoScore += ans.points; } });
+      }
+      document.getElementById("autoScore").textContent = autoScore;
+      if (newlyRevealedIndex === undefined) {
+        grid.innerHTML = "";
+        questionData.displayAnswers.forEach((ans, index) => {
+          const box = document.createElement("div");
+          box.className = "answer-box";
+          box.id = "answerBox" + index;
+          if (ans.revealed) {
+            box.classList.add("revealed");
+            box.innerHTML = `<strong>${ans.text}</strong><br>${ans.points}`;
+          } else {
+            box.textContent = "-----";
+          }
+          grid.appendChild(box);
+        });
+      } else {
+        const box = document.getElementById("answerBox" + newlyRevealedIndex);
+        if (box) {
+          box.classList.add("revealed");
+          box.innerHTML = `<strong>${questionData.displayAnswers[newlyRevealedIndex].text}</strong><br>${questionData.displayAnswers[newlyRevealedIndex].points}`;
+          box.classList.add("animate");
+          setTimeout(() => {
+            box.classList.remove("animate");
+          }, 500);
+        }
+      }
+    }
+
+    function updateScoreDisplay(data) {
+      const teamA = data.teamA;
+      const teamB = data.teamB;
+      document.getElementById("teamA").innerHTML = `<div>${teamA.name}</div><div>${teamA.score}</div>`;
+      document.getElementById("teamB").innerHTML = `<div>${teamB.name}</div><div>${teamB.score}</div>`;
+    }
+
+    function displayOverlayImages(count) {
+      let overlay = document.getElementById("imageOverlay");
+      if (overlay) { overlay.remove(); }
+      overlay = document.createElement("div");
+      overlay.id = "imageOverlay";
+      for (let i = 0; i < count; i++) {
+        const img = document.createElement("img");
+        img.src = "../assets/x.png";
+        overlay.appendChild(img);
+      }
+      document.body.appendChild(overlay);
+      setTimeout(() => { overlay.remove(); }, 2000);
+    }
+
+    // Reset buzzers to transparent state.
+    function resetBuzzers() {
+      document.getElementById("buzzerA").style.background = "transparent";
+      document.getElementById("buzzerB").style.background = "transparent";
+    }
+  </script>
+</body>
+</html>

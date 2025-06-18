@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Custom Info Panel from Separate HTML Files</title>
+  <style>
+    /* full-height dark background */
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      background-color: #121212;
+      color: #e0e0e0;
+      position: relative;
+      overflow: hidden;
+      font-family: sans-serif;
+    }
+
+    /* sliding info panel (initially hidden) */
+    #info-panel {
+      position: absolute;
+      top: 20px;
+      bottom: 20px;
+      left: 20px;
+      width: 0;
+      opacity: 0;
+      pointer-events: none;
+      background: #272727;
+      color: #f0f0f0;
+      border-radius: 8px;
+      padding: 20px;
+      box-shadow: 2px 0 8px rgba(0,0,0,0.5);
+      overflow: auto;
+      transition: width 0.6s ease, opacity 0.6s ease;
+    }
+    /* hide children until fade-in */
+    #info-panel > * {
+      opacity: 0;
+      transition: opacity 0.4s ease;
+    }
+
+    /* map container, centered by default */
+    #map-container {
+      position: absolute;
+      top: 20px;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      transition: left 0.6s ease, transform 0.6s ease;
+    }
+    #map-container svg {
+      height: 100%;
+      width: auto;
+      display: block;
+      transition: width 0.6s ease, height 0.6s ease;
+    }
+
+    /* open state */
+    body.detail-open #info-panel {
+      width: 60%;
+      opacity: 1;
+      pointer-events: auto;
+    }
+    body.detail-open #map-container {
+      left: 60%;
+      transform: translateX(0);
+    }
+    body.detail-open #map-container svg {
+      width: 100%;
+      height: 100%;
+    }
+
+    /* country styling */
+    #map-container path[id] {
+      stroke: #fff;
+      stroke-width: 1;
+      transition: fill 0.2s;
+    }
+    #map-container path[id]:hover {
+      fill: #F0C040 !important;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <div id="info-panel"></div>
+  <div id="map-container"></div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+      const infoPanel = document.getElementById('info-panel');
+      const container = document.getElementById('map-container');
+
+      // 1. Load the SVG
+      const resp = await fetch('map_with_ids.svg');
+      const svgText = await resp.text();
+      container.innerHTML = svgText;
+
+      // 2. Medium-darker pastel palette
+      const pastelColors = [
+        '#E9999A','#E9D9A0','#E9E9A0',
+        '#A0E9B4','#A0C6E9','#C1D9A8',
+        '#D9A8D9','#C1D1D1','#B5C3E9',
+        '#E9B5B5'
+      ];
+
+      // 3. ID → Country mapping (Spanish names)
+      const countryById = {
+        path17:'México',   path12:'Guatemala',
+        path4:'Belice',    path24:'El Salvador',
+        path14:'Honduras', path18:'Nicaragua',
+        path7:'Costa Rica',path19:'Panamá',
+        path8:'Cuba',      path15:'Haití',
+        path9:'República Dominicana', path16:'Jamaica',
+        path21:'Puerto Rico', path6:'Colombia',
+        path26:'Venezuela', path13:'Guyana',
+        path23:'Surinam',   path11:'Guayana Francesa',
+        path29:'Brasil',    path22:'Paraguay',
+        path25:'Uruguay',   path27:'Argentina',
+        path5:'Chile',      path20:'Perú',
+        path28:'Bolivia',   path10:'Ecuador'
+      };
+
+      // helper: fade children in sequence
+      function fadeInContent() {
+        const children = Array.from(infoPanel.children);
+        children.forEach((child, i) => {
+          setTimeout(() => child.style.opacity = '1', i * 200);
+        });
+      }
+
+      // helper: reset opacity on close
+      function resetContent() {
+        Array.from(infoPanel.children).forEach(c => c.style.opacity = '0');
+      }
+
+      const svg = container.querySelector('svg');
+
+      // 4. Color & bind clicks
+      svg.querySelectorAll('path[id]').forEach((path, i) => {
+        path.style.fill = pastelColors[i % pastelColors.length];
+        path.addEventListener('click', async e => {
+          e.stopPropagation();
+          const id = path.id;
+          const country = countryById[id] || id;
+          // create slug: remove spaces & accents
+          const slug = country
+            .normalize('NFD')
+            .replace(/[\u0300-\u036f]/g, '')
+            .replace(/\s+/g, '');
+          const filename = `InfoPages/${slug}.html`;
+
+          // load the country file from InfoPages/
+          try {
+            const r = await fetch(filename);
+            if (!r.ok) throw new Error();
+            const html = await r.text();
+            infoPanel.innerHTML = html;
+          } catch {
+            infoPanel.innerHTML = `<h2>${country}</h2>
+                                   <p>No se encontró información para este país.</p>`;
+          }
+
+          document.body.classList.add('detail-open');
+          // fade in panel content after it expands
+          setTimeout(fadeInContent, 600);
+        });
+      });
+
+      // 5. Click blank area to close
+      svg.addEventListener('click', e => {
+        if (document.body.classList.contains('detail-open') && e.target === svg) {
+          document.body.classList.remove('detail-open');
+          resetContent();
+        }
+      });
+    });
+  </script>
+</body>
+</html>

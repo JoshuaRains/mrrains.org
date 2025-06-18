@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Spanish Time Clock</title>
+  <style>
+    :root {
+      /* Customize these to adjust the clock's appearance */
+      --clock-size: 350px;
+      --clock-bg: #ffffff;
+      --clock-tick-color: #000000;
+      --clock-font-color: #000000;
+
+      /* Distance from center for tick marks */
+      --tick-distance: 125px;
+    }
+
+    body, html {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      font-family: Arial, sans-serif;
+      background: linear-gradient(to bottom, #5ffaff, #7ba9fe);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .container {
+      text-align: center;
+      background-color: #f7f4f4;
+      max-width: 600px;
+      width: 90%;
+      padding: 20px;
+      border: 2px solid #d3d3d3;
+      border-radius: 10px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      margin: 20px;
+    }
+
+    h2 {
+      margin-top: 0;
+    }
+
+    /* Clock styling */
+    .clock-container {
+      position: relative;
+      width: var(--clock-size);
+      height: var(--clock-size);
+      margin: 1em auto;
+      border-radius: 50%;
+      background: var(--clock-bg);
+      box-shadow: inset 0 0 10px rgba(0,0,0,0.1), 0 0 8px rgba(0,0,0,0.2);
+      --radius: calc(var(--clock-size) / 2);
+    }
+
+    /* Hour Ticks (multiples of 5) */
+    .tick {
+      position: absolute;
+      width: 2px;
+      height: 15px; /* Hour ticks are longer */
+      background-color: var(--clock-tick-color);
+      left: 50%;
+      top: 50%;
+      transform-origin: center center; 
+      z-index: 1; /* behind numbers/hands */
+    }
+
+    /* Minute Ticks (added via JS for all other minutes) */
+    .minute-tick {
+      position: absolute;
+      width: 2px;
+      height: 8px; /* Shorter than hour ticks */
+      background-color: var(--clock-tick-color);
+      left: 50%;
+      top: 50%;
+      transform-origin: center center;
+      z-index: 0; /* behind hour ticks */
+    }
+
+    /* Numbers on the clock face */
+    .number {
+      position: absolute;
+      color: var(--clock-font-color);
+      font-weight: bold;
+      left: 50%;
+      top: 50%;
+      transform-origin: center center;
+      z-index: 2; /* above ticks */
+    }
+
+    /* Hands */
+    .hand {
+      position: absolute;
+      background-color: var(--clock-font-color);
+      left: 50%;
+      transform-origin: bottom center;
+      border-radius: 2px;
+      z-index: 3;
+    }
+
+    .hour-hand {
+      width: 4px;
+      height: calc(var(--radius) * 0.5);
+      top: calc(50% - (var(--radius) * 0.5));
+    }
+
+    .minute-hand {
+      width: 2px;
+      height: calc(var(--radius) * 0.7);
+      top: calc(50% - (var(--radius) * 0.7));
+    }
+
+    /* Slider styling */
+    #timeSlider {
+      width: 80%;
+      margin: 20px 0;
+    }
+
+    /* Time displays below the clock */
+    .time-display {
+      font-size: 1.2em;
+      margin: 10px 0;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Learn to Tell Time in Spanish</h2>
+
+    <!-- Clock Container -->
+    <div id="clockContainer" class="clock-container">
+      <!-- Hour ticks (12 total) -->
+      <div class="tick" style="transform: translate(-50%, -50%) rotate(0deg)   translateY(calc(-1 * var(--tick-distance)))"></div>
+      <div class="tick" style="transform: translate(-50%, -50%) rotate(30deg)  translateY(calc(-1 * var(--tick-distance)))"></div>
+      <div class="tick" style="transform: translate(-50%, -50%) rotate(60deg)  translateY(calc(-1 * var(--tick-distance)))"></div>
+      <div class="tick" style="transform: translate(-50%, -50%) rotate(90deg)  translateY(calc(-1 * var(--tick-distance)))"></div>
+      <div class="tick" style="transform: translate(-50%, -50%) rotate(120deg) translateY(calc(-1 * var(--tick-distance)))"></div>
+      <div class="tick" style="transform: translate(-50%, -50%) rotate(150deg) translateY(calc(-1 * var(--tick-distance)))"></div>
+      <div class="tick" style="transform: translate(-50%, -50%) rotate(180deg) translateY(calc(-1 * var(--tick-distance)))"></div>
+      <div class="tick" style="transform: translate(-50%, -50%) rotate(210deg) translateY(calc(-1 * var(--tick-distance)))"></div>
+      <div class="tick" style="transform: translate(-50%, -50%) rotate(240deg) translateY(calc(-1 * var(--tick-distance)))"></div>
+      <div class="tick" style="transform: translate(-50%, -50%) rotate(270deg) translateY(calc(-1 * var(--tick-distance)))"></div>
+      <div class="tick" style="transform: translate(-50%, -50%) rotate(300deg) translateY(calc(-1 * var(--tick-distance)))"></div>
+      <div class="tick" style="transform: translate(-50%, -50%) rotate(330deg) translateY(calc(-1 * var(--tick-distance)))"></div>
+
+      <!-- Numbers (1-12) -->
+      <div class="number" style="transform: translate(-50%, -50%) rotate(0deg)   translateY(calc(-1 * var(--radius) + 20px)) rotate(-0deg);">
+        12
+      </div>
+      <div class="number" style="transform: translate(-50%, -50%) rotate(30deg)  translateY(calc(-1 * var(--radius) + 20px)) rotate(-30deg);">
+        1
+      </div>
+      <div class="number" style="transform: translate(-50%, -50%) rotate(60deg)  translateY(calc(-1 * var(--radius) + 20px)) rotate(-60deg);">
+        2
+      </div>
+      <div class="number" style="transform: translate(-50%, -50%) rotate(90deg)  translateY(calc(-1 * var(--radius) + 20px)) rotate(-90deg);">
+        3
+      </div>
+      <div class="number" style="transform: translate(-50%, -50%) rotate(120deg) translateY(calc(-1 * var(--radius) + 20px)) rotate(-120deg);">
+        4
+      </div>
+      <div class="number" style="transform: translate(-50%, -50%) rotate(150deg) translateY(calc(-1 * var(--radius) + 20px)) rotate(-150deg);">
+        5
+      </div>
+      <div class="number" style="transform: translate(-50%, -50%) rotate(180deg) translateY(calc(-1 * var(--radius) + 20px)) rotate(-180deg);">
+        6
+      </div>
+      <div class="number" style="transform: translate(-50%, -50%) rotate(210deg) translateY(calc(-1 * var(--radius) + 20px)) rotate(-210deg);">
+        7
+      </div>
+      <div class="number" style="transform: translate(-50%, -50%) rotate(240deg) translateY(calc(-1 * var(--radius) + 20px)) rotate(-240deg);">
+        8
+      </div>
+      <div class="number" style="transform: translate(-50%, -50%) rotate(270deg) translateY(calc(-1 * var(--radius) + 20px)) rotate(-270deg);">
+        9
+      </div>
+      <div class="number" style="transform: translate(-50%, -50%) rotate(300deg) translateY(calc(-1 * var(--radius) + 20px)) rotate(-300deg);">
+        10
+      </div>
+      <div class="number" style="transform: translate(-50%, -50%) rotate(330deg) translateY(calc(-1 * var(--radius) + 20px)) rotate(-330deg);">
+        11
+      </div>
+
+      <!-- Clock Hands -->
+      <div id="hourHand" class="hand hour-hand"></div>
+      <div id="minuteHand" class="hand minute-hand"></div>
+    </div>
+
+    <!-- Slider to move the clock from 0 to 720 minutes (12 hours) -->
+    <input type="range" id="timeSlider" min="0" max="720" step="1" value="0" />
+
+    <!-- Spanish and numeric time displays -->
+    <p id="spanishTime" class="time-display"></p>
+    <p id="numericTime" class="time-display"></p>
+
+    <!-- New literal-English translation display -->
+    <p id="literalEnglishTime" class="time-display" style="font-style: italic;"></p>
+
+  </div>
+
+  <script>
+    /**************************************************
+     *  1) Dynamically add minute ticks (48 total)    *
+     **************************************************/
+    const clockContainer = document.getElementById('clockContainer');
+
+    for (let i = 1; i < 60; i++) {
+      if (i % 5 === 0) continue; // skip the multiples of 5 (hour ticks)
+      const tick = document.createElement('div');
+      tick.className = 'minute-tick';
+      // Each minute is 6 degrees (360/60)
+      tick.style.transform = `
+        translate(-50%, -50%)
+        rotate(${i * 6}deg)
+        translateY(calc(-1 * var(--tick-distance)))
+      `;
+      clockContainer.appendChild(tick);
+    }
+
+    /**************************************************
+     *  2) Spanish time helpers                       *
+     **************************************************/
+    function numberToSpanish(num) {
+      const units = ["", "uno", "dos", "tres", "cuatro", "cinco", "seis", "siete", "ocho", "nueve"];
+      const teens = ["diez", "once", "doce", "trece", "catorce", "quince", "dieciséis", "diecisiete", "dieciocho", "diecinueve"];
+      const tens = ["", "", "veinte", "treinta", "cuarenta", "cincuenta"];
+
+      if (num < 10) return units[num];
+      if (num >= 10 && num < 20) return teens[num - 10];
+      if (num >= 20 && num < 30) return num === 20 ? "veinte" : "veinti" + units[num % 10];
+      if (num >= 30 && num < 60) {
+        const tensPart = tens[Math.floor(num / 10)];
+        const unitPart = units[num % 10];
+        return unitPart ? `${tensPart} y ${unitPart}` : tensPart;
+      }
+      return num.toString(); 
+    }
+
+    function formatTimeToSpanish(hours, minutes) {
+      const hourNames = ["", "una", "dos", "tres", "cuatro", "cinco", "seis", "siete", "ocho", "nueve", "diez", "once", "doce"];
+      let hourInSpanish = hourNames[hours];
+      let minuteInSpanish = "";
+
+      if (minutes === 0) {
+        minuteInSpanish = "en punto";
+      } else if (minutes === 15) {
+        minuteInSpanish = "y cuarto";
+      } else if (minutes === 30) {
+        minuteInSpanish = "y media";
+      } else if (minutes === 45) {
+        hourInSpanish = hourNames[(hours % 12) + 1];
+        minuteInSpanish = "menos cuarto";
+      } else if (minutes < 30) {
+        minuteInSpanish = `y ${numberToSpanish(minutes)}`;
+      } else {
+        hourInSpanish = hourNames[(hours % 12) + 1];
+        minuteInSpanish = `menos ${numberToSpanish(60 - minutes)}`;
+      }
+
+      let phrase = `Son las ${hourInSpanish} ${minuteInSpanish}`;
+      // Correct "Son las una" to "Es la una"
+      phrase = phrase.replace("Son las una", "Es la una");
+      return phrase.trim();
+    }
+
+    /**************************************************
+     *  3) NEW: Literal English translation           *
+     **************************************************/
+    function formatLiteralEnglish(hours, minutes) {
+      // Decide whether to say "(the hour) is" or "(the hours) are"
+      let hourPhrase, verb;
+      if (hours === 1) {
+        hourPhrase = "<i>(the hour)</i>";
+        verb = "<b>is</b>";
+      } else {
+        hourPhrase = "<i>(the hours)</i>";
+        verb = "<b>are</b>";
+      }
+
+      // Next hour for "menos" times
+      const nextHour = hours === 12 ? 1 : hours + 1;
+
+      // For zero minutes:
+      if (minutes === 0) {
+        // e.g. "1:00" => (the hour) is 1, on the dot
+        return `${hourPhrase} ${verb} ${hours}, on the dot`;
+      }
+      // Quarter past
+      if (minutes === 15) {
+        // e.g. "1:15" => (the hour) is 1, and a quarter (hour)
+        return `${hourPhrase} ${verb} ${hours}, and a quarter <i>(hour)</i>`;
+      }
+      // Half past
+      if (minutes === 30) {
+        // e.g. "1:30" => (the hour) is 1, and a half (hour)
+        return `${hourPhrase} ${verb} ${hours}, and a half <i>(hour)</i>`;
+      }
+      // Quarter till
+      if (minutes === 45) {
+        // e.g. "1:45" => (the hours) are 2, minus a quarter (minutes)
+        let hourPhrase2, verb2;
+        if (nextHour === 1) {
+          hourPhrase2 = "<i>(the hour)</i>";
+          verb2 = "<b>is</b>";
+        } else {
+          hourPhrase2 = "<i>(the hours)</i>";
+          verb2 = "<b>are</b>";
+        }
+        return `${hourPhrase2} ${verb2} ${nextHour}, minus a quarter <i>(hour)</i>`;
+      }
+      // If minutes < 30 (regular "y")
+      if (minutes < 30) {
+        // e.g. "1:09" => (the hour) is 1, and 9 (minutes)
+        return `${hourPhrase} ${verb} ${hours}, and ${minutes} <i>(minutes)</i>`;
+      }
+      // Else minutes > 30 => "menos" something
+      let hourPhrase2, verb2;
+      if (nextHour === 1) {
+        hourPhrase2 = "<i>(the hour)</i>";
+        verb2 = "<b>is</b>";
+      } else {
+        hourPhrase2 = "<i>(the hours)</i>";
+        verb2 = "<b>are</b>";
+      }
+      const diff = 60 - minutes;
+      // e.g. "1:56" => (the hours) are 2, minus 4 (minutes)
+      return `${hourPhrase2} ${verb2} ${nextHour}, minus ${diff} <i>(minutes)</i>`;
+    }
+
+    /**************************************************
+     *  4) Tie everything together with the slider    *
+     **************************************************/
+    const timeSlider = document.getElementById("timeSlider");
+    const hourHand = document.getElementById("hourHand");
+    const minuteHand = document.getElementById("minuteHand");
+    const spanishTime = document.getElementById("spanishTime");
+    const numericTime = document.getElementById("numericTime");
+    const literalEnglishTime = document.getElementById("literalEnglishTime");
+
+    // Update the clock on slider input
+    timeSlider.addEventListener("input", updateClock);
+
+    function updateClock() {
+      const totalMinutes = parseInt(timeSlider.value);
+
+      // Convert total minutes into hours/minutes on a 12-hour clock
+      const hours = Math.floor(totalMinutes / 60); // 0–12
+      const minutes = totalMinutes % 60;
+
+      // Convert 0 hours to 12 for display
+      const displayHours = hours === 0 ? 12 : hours;
+
+      // Calculate angles
+      const hourAngle = (displayHours % 12) * 30 + (minutes * 0.5);
+      const minuteAngle = minutes * 6;
+
+      // Move the hands
+      hourHand.style.transform = `translate(-50%, 0) rotate(${hourAngle}deg)`;
+      minuteHand.style.transform = `translate(-50%, 0) rotate(${minuteAngle}deg)`;
+
+      // Update the textual displays
+      spanishTime.textContent = formatTimeToSpanish(displayHours, minutes);
+      numericTime.textContent = `${displayHours}:${String(minutes).padStart(2, "0")}`;
+
+      // **New**: Show the literal English translation
+      literalEnglishTime.innerHTML = formatLiteralEnglish(displayHours, minutes);
+    }
+
+    // Initialize on page load
+    updateClock();
+  </script>
+</body>
+</html>

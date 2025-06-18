@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+      padding-bottom: 150px; /* ensures content doesn't hide behind the fixed bar */
+    }
+    h1 {
+      text-align: center;
+      margin: 0px;
+      padding: 0%;
+    }
+    /* NEW HEADER STYLES (taken from your provided snippet) */
+    .header {
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+    }
+    .header-section {
+      width: 100%;
+      max-width: 300px;
+      display: flex;
+      align-items: center;
+    }
+    .header-section.nombre {
+      max-width: 325px;
+    }
+    .header-section.fecha {
+      max-width: 150px;
+    }
+    .header-section.clase {
+      max-width: 100px;
+    }
+    .header label {
+      font-weight: bold;
+      margin-right: 5px;
+    }
+    .input-line {
+      border: none;
+      border-bottom: 1px solid black;
+      font-size: 16px;
+      outline: none;
+      width: 100%;
+    }
+    .input-line::placeholder {
+      color: black;
+    }
+    .divider-line {
+      border-top: 2px solid black;
+      margin: 20px 0;
+    }
+    /* END NEW HEADER STYLES */
+
+    table {
+      border-collapse: collapse;
+      width: 100%;
+      margin-top: 20px;
+    }
+    table caption {
+      font-size: 1.5em;
+      font-weight: bold;
+      margin-bottom: 10px;
+    }
+    th, td {
+      border: 1px solid #000;
+      padding: 5px;
+      padding-top: 2px;
+      padding-bottom: 2px;
+      text-align: center;
+      min-width: 25px;
+    }
+    th {
+      background-color: #f2f2f2;
+    }
+    .topic-cell {
+      text-align: left;
+      font-weight: bold;
+      min-width: 150px;
+      white-space: nowrap; /* Prevents wrapping of topic names */
+      font-size: 0.75em;
+
+    }
+    .cell-input {
+      width: 100%;
+      border: none;
+      text-align: center;
+      background: transparent;
+      box-sizing: border-box;
+    }
+    .cell-input:focus {
+      outline: none;
+      background-color: #e0f7fa;
+    }
+    /* Config bar styling */
+    .config-bar {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 80%;
+      background-color: #fff;
+      padding: 10px;
+      border: 2px solid #000;
+      border-radius: 10px;
+      z-index: 1000;
+      box-shadow: 0 0 10px rgba(0,0,0,0.5);
+    }
+    .config-bar label {
+      margin-right: 5px;
+    }
+    .config-bar input {
+      margin-right: 15px;
+    }
+    /* Hide config bar when printing */
+    @media print {
+      .config-bar {
+        display: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Container for the generated chart(s) -->
+  <div id="tableContainer"></div>
+  
+  <!-- Fixed configuration bar at the bottom -->
+  <div class="config-bar">
+    <label for="assessmentTitle">Assessment Title:</label>
+    <input type="text" id="assessmentTitle" placeholder="Enter assessment title" value="Interactive Quiz Data Tracking Worksheet">
+    <label for="numQuestions">Number of Questions:</label>
+    <input type="number" id="numQuestions" placeholder="Enter number of questions" value="20" min="1">
+    <label for="topicsInput">Topics (comma-separated):</label>
+    <input type="text" id="topicsInput" placeholder="Enter topics" value="Verb Conjugations, Cognate, Weather, ABCs, Time, Colors, Days, Seasons, Months, You're Welcome, Ser vs Estar, Greetings, Numbers, Parts of Speech, Gustar">
+    <label for="numCharts">Number of Charts:</label>
+    <input type="number" id="numCharts" placeholder="Number of charts" value="2" min="1">
+  </div>
+  
+  <script>
+    // Function to generate the chart(s) dynamically based on configuration inputs
+    function updateTable() {
+      // Read configuration values
+      const assessmentTitle = document.getElementById('assessmentTitle').value || "Interactive Quiz Data Tracking Worksheet";
+      const numQuestions = parseInt(document.getElementById('numQuestions').value) || 20;
+      const topicsStr = document.getElementById('topicsInput').value;
+      const topics = topicsStr.split(',').map(topic => topic.trim()).filter(topic => topic.length > 0);
+      const numCharts = parseInt(document.getElementById('numCharts').value) || 2;
+      
+      let allTablesHTML = "";
+      
+      // Create each chart/table based on the number of charts specified
+      for (let c = 0; c < numCharts; c++) {
+        // NEW SHEET HEADER (matches provided header style)
+        let sheetHeaderHTML = `
+        <br>
+        <br>
+        <br>
+          <div class="header">
+            <div class="header-section nombre">
+              <label for="Name_${c}">Name:</label>
+              <input type="text" spellcheck="false" id="nombre_${c}" class="input-line" placeholder="">
+            </div>
+            <div class="header-section fecha">
+              <label for="Date_${c}">Date:</label>
+              <input type="text" spellcheck="false" id="fecha_${c}" class="input-line" placeholder="">
+            </div>
+            <div class="header-section clase">
+              <label for="Class_${c}">Class:</label>
+              <input type="text" spellcheck="false" id="clase_${c}" class="input-line" placeholder="">
+            </div>
+          </div>
+        `;
+        
+        let tableHTML = `<table><caption>${assessmentTitle}</caption><thead><tr>`;
+        tableHTML += '<th>Topic</th>';
+        for (let i = 1; i <= numQuestions; i++) {
+          tableHTML += `<th>${i}</th>`;
+        }
+        tableHTML += '<th>Number Correct</th>';
+        tableHTML += '</tr></thead>';
+        
+        tableHTML += '<tbody>';
+        topics.forEach((topic, rowIndex) => {
+          tableHTML += '<tr>';
+          tableHTML += `<td class="topic-cell">${topic}</td>`;
+          for (let i = 0; i < numQuestions; i++) {
+            tableHTML += `<td><input type="text" class="cell-input" data-row="${rowIndex}" data-col="${i}"></td>`;
+          }
+          tableHTML += `<td><input type="text" class="cell-input" data-row="${rowIndex}" data-col="${numQuestions}"></td>`;
+          tableHTML += '</tr>';
+        });
+        tableHTML += '</tbody></table>';
+        
+        // Append the header and table to the overall HTML; add spacing between charts if needed
+        allTablesHTML += sheetHeaderHTML + tableHTML;
+        if (c < numCharts - 1) {
+          allTablesHTML += "<br><br>";
+        }
+      }
+      
+      // Insert the generated charts into the container
+      document.getElementById('tableContainer').innerHTML = allTablesHTML;
+      
+      // Attach event listeners to inputs in the first chart to mirror values to subsequent charts
+      const tables = document.querySelectorAll('#tableContainer table');
+      if (tables.length > 1) {
+        const firstTable = tables[0];
+        const inputs = firstTable.querySelectorAll('input.cell-input');
+        inputs.forEach(input => {
+          input.oninput = function() {
+            const row = this.getAttribute('data-row');
+            const col = this.getAttribute('data-col');
+            // Update corresponding inputs in all subsequent charts
+            for (let i = 1; i < tables.length; i++) {
+              const corresponding = tables[i].querySelector(`input.cell-input[data-row="${row}"][data-col="${col}"]`);
+              if (corresponding) {
+                corresponding.value = this.value;
+              }
+            }
+          };
+        });
+      }
+    }
+    
+    // Listen for changes in any configuration input to update the charts in real time
+    document.getElementById('assessmentTitle').addEventListener('input', updateTable);
+    document.getElementById('numQuestions').addEventListener('input', updateTable);
+    document.getElementById('topicsInput').addEventListener('input', updateTable);
+    document.getElementById('numCharts').addEventListener('input', updateTable);
+    
+    // Generate the charts on initial load
+    updateTable();
+  </script>
+</body>
+</html>

@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="en" translate="no">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Spanish Adjective Agreement Lesson</title>
+  <style>
+    /* Full-screen container */
+    body, html {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      background-color: #fff;
+      font-family: "Nunito", Arial, sans-serif;
+    }
+    .container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 100%;
+      min-height: 100%;
+      box-sizing: border-box;
+    }
+    /* Thicker progress bar with increased margins and rounded corners */
+    .progress-bar-container {
+      width: 100%;
+      margin: 20px;
+      height: 20px;
+      background-color: #eee;
+      border-radius: 10px;
+      overflow: hidden;
+    }
+    .progress-bar {
+      height: 100%;
+      width: 0;
+      background-color: #58CC02;
+      border-radius: 10px;
+      transition: width 0.3s;
+    }
+    /* Full-width question container */
+    .question-container {
+      width: 100%;
+      text-align: center;
+      padding: 20px;
+      box-sizing: border-box;
+    }
+    h2 {
+      font-size: 1.8em;
+      color: #333;
+      margin: 10px 0;
+    }
+    #prompt {
+      font-size: 1.2em;
+      color: #555;
+      margin: 15px 0;
+    }
+    #answerDisplay {
+      font-size: 1.1em;
+      margin: 10px 0;
+    }
+    /* Word block containers: fixed height, centered */
+    .word-container {
+      width: 100%;
+      max-width: 600px;
+      height: 80px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: center;
+      margin: 10px 0;
+      border: 1px dashed transparent;
+      box-sizing: border-box;
+    }
+    /* Word block styling */
+    .word-block {
+      margin: 5px;
+      padding: 10px 15px;
+      font-size: 1.1em;
+      border: 1px solid #ccc;
+      border-radius: 30px;
+      background-color: #f2f2f2;
+      cursor: pointer;
+      transition: background-color 0.2s, transform 0.1s;
+    }
+    .word-block:hover {
+      background-color: #e0e0e0;
+    }
+    .word-block.selected {
+      background-color: #58CC02;
+      color: #fff;
+    }
+    /* Input styling */
+    .input-box {
+      font-size: 1.2em;
+      padding: 10px;
+      width: 80%;
+      max-width: 600px;
+      border: 1px solid #ccc;
+      border-radius: 30px;
+      text-align: center;
+      outline: none;
+    }
+    /* Accent button container and styling (centered horizontally) */
+    .accent-container {
+      width: 80%;
+      max-width: 600px;
+      margin: 10px auto;
+      text-align: center;
+    }
+    .accent-button {
+      margin: 3px;
+      padding: 5px 10px;
+      font-size: 1.2em;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      background-color: #f2f2f2;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+    .accent-button:hover {
+      background-color: #e0e0e0;
+    }
+    /* Button styling */
+    .button {
+      margin-top: 20px;
+      padding: 10px 25px;
+      font-size: 1em;
+      border: none;
+      border-radius: 30px;
+      cursor: pointer;
+      background-color: #58CC02;
+      color: #fff;
+      transition: background-color 0.2s, transform 0.1s;
+    }
+    .button:hover {
+      background-color: #46a802;
+    }
+    .button:active {
+      transform: scale(0.95);
+    }
+    /* Round finish container */
+    .round-finish {
+      width: 100%;
+      text-align: center;
+      padding: 20px;
+      box-sizing: border-box;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Progress Bar -->
+    <div class="progress-bar-container">
+      <div id="progressBar" class="progress-bar"></div>
+    </div>
+    <!-- Main Lesson Container -->
+    <div id="mainContainer">
+      <div class="question-container">
+        <h2>Spanish Adjective Agreement</h2>
+        <p id="prompt"></p>
+        <p id="answerDisplay"></p>
+      </div>
+      <!-- Word block containers for click-type questions -->
+      <div id="selectedContainer" class="word-container"></div>
+      <div id="blockContainer" class="word-container"></div>
+      <!-- Input container for write-type questions -->
+      <div id="inputContainer" class="question-container" style="display:none;">
+        <input type="text" id="answerInput" class="input-box" autocomplete="off" spellcheck="false" />
+        <div id="accentContainer" class="accent-container"></div>
+      </div>
+      <!-- Submit Button -->
+      <button id="submitButton" class="button">Submit</button>
+    </div>
+    <!-- Round Finish Screen -->
+    <div id="roundFinishContainer" class="round-finish" style="display:none;">
+      <h2>Round Complete!</h2>
+      <p id="roundTimeDisplay"></p>
+      <button id="nextRoundButton" class="button">Next Round</button>
+    </div>
+    <!-- Restart Button (for final restart) -->
+    <button id="restartButton" class="button" style="display: none;">Restart Lesson</button>
+  </div>
+
+  <script>
+    // INITIAL SETUP
+    const correctDelay = 2000; // delay in ms after correct answer
+    const ROUND_SIZE = 5; // number of questions per round
+    // Extended questions (at least 15) focused on adjective agreement.
+    const initialQuestions = [
+      {
+        type: "click",
+        instruction: "Complete the sentence: The red car",
+        sentence: "El carro rojo",
+        blocks: ["El", "carro", "rojo"],
+        distractors: ["roja", "rojos", "rojas"]
+      },
+      {
+        type: "click",
+        instruction: "Complete the sentence: The red house",
+        sentence: "La casa roja",
+        blocks: ["La", "casa", "roja"],
+        distractors: ["rojo", "rojos", "rojas"]
+      },
+      {
+        type: "write",
+        instruction: "Translate to Spanish: The small children",
+        sentence: ["los niños pequeños", "niños pequeños"]
+      },
+      {
+        type: "write",
+        instruction: "Translate to Spanish: The tall woman",
+        sentence: ["la mujer alta", "mujer alta"]
+      },
+      {
+        type: "click",
+        instruction: "Complete the sentence: The big dog",
+        sentence: "El perro grande",
+        blocks: ["El", "perro", "grande"],
+        distractors: ["granda", "grandes", "grandi"]
+      },
+      {
+        type: "click",
+        instruction: "Complete the sentence: The big cats",
+        sentence: "Los gatos grandes",
+        blocks: ["Los", "gatos", "grandes"],
+        distractors: ["grande", "granda", "grandi"]
+      },
+      {
+        type: "click",
+        instruction: "Complete the sentence: The young man",
+        sentence: "El hombre joven",
+        blocks: ["El", "hombre", "joven"],
+        distractors: ["jovén", "jóven", "jovenes"]
+      },
+      {
+        type: "click",
+        instruction: "Complete the sentence: The young women",
+        sentence: "Las mujeres jóvenes",
+        blocks: ["Las", "mujeres", "jóvenes"],
+        distractors: ["joven", "jovén", "jovenes"]
+      },
+      {
+        type: "click",
+        instruction: "Complete the sentence: The old book",
+        sentence: "El libro viejo",
+        blocks: ["El", "libro", "viejo"],
+        distractors: ["vieja", "viejos", "viejas"]
+      },
+      {
+        type: "click",
+        instruction: "Complete the sentence: The old books",
+        sentence: "Los libros viejos",
+        blocks: ["Los", "libros", "viejos"],
+        distractors: ["vieja", "viejos", "viejas"]
+      },
+      {
+        type: "click",
+        instruction: "Complete the sentence: The blue shirt",
+        sentence: "La camisa azul",
+        blocks: ["La", "camisa", "azul"],
+        distractors: ["azule", "azules", "azulo"]
+      },
+      {
+        type: "click",
+        instruction: "Complete the sentence: The blue shirts",
+        sentence: "Las camisas azules",
+        blocks: ["Las", "camisas", "azules"],
+        distractors: ["azul", "azule", "azulo"]
+      },
+      {
+        type: "write",
+        instruction: "Translate to Spanish: The happy family",
+        sentence: ["la familia feliz", "familia feliz"]
+      },
+      {
+        type: "click",
+        instruction: "Complete the sentence: The cold winter",
+        sentence: "El invierno frío",
+        blocks: ["El", "invierno", "frío"],
+        distractors: ["fria", "fríos", "frías"]
+      },
+      {
+        type: "click",
+        instruction: "Complete the sentence: The green tree",
+        sentence: "El árbol verde",
+        blocks: ["El", "árbol", "verde"],
+        distractors: ["verda", "verdes"]
+      },
+      {
+        type: "click",
+        instruction: "Complete the sentence: The green trees",
+        sentence: "Los árboles verdes",
+        blocks: ["Los", "árboles", "verdes"],
+        distractors: ["verde", "verda", "verdes"]
+      },
+      {
+        type: "write",
+        instruction: "Translate to Spanish: The white car",
+        sentence: ["el carro blanco", "carro blanco"]
+      },
+      {
+        type: "write",
+        instruction: "Translate to Spanish: The black dogs",
+        sentence: ["los perros negros", "perros negros"]
+      },
+      
+    ];
+    // For questions answered correctly on the first try, remove them.
+    let pendingQuestions = initialQuestions.map(q => ({ ...q, firstTry: true }));
+    const totalQuestions = initialQuestions.length;
+    // roundQuestions will be the subset for the current round.
+    let roundQuestions = [];
+    let roundQuestionIndex = 0;
+    let roundStartTime = 0;
+
+    // DOM Elements
+    const promptElement = document.getElementById("prompt");
+    const answerDisplay = document.getElementById("answerDisplay");
+    const selectedContainer = document.getElementById("selectedContainer");
+    const blockContainer = document.getElementById("blockContainer");
+    const inputContainer = document.getElementById("inputContainer");
+    const answerInput = document.getElementById("answerInput");
+    const accentContainer = document.getElementById("accentContainer");
+    const submitButton = document.getElementById("submitButton");
+    const restartButton = document.getElementById("restartButton");
+    const progressBar = document.getElementById("progressBar");
+    const roundFinishContainer = document.getElementById("roundFinishContainer");
+    const mainContainer = document.getElementById("mainContainer");
+    const roundTimeDisplay = document.getElementById("roundTimeDisplay");
+    const nextRoundButton = document.getElementById("nextRoundButton");
+
+    // For click questions: store selected words (order matters)
+    let selectedWords = [];
+    let availableBlocks = [];
+
+    // Update progress bar based on overall progress
+    function updateProgressBar() {
+      const completed = totalQuestions - pendingQuestions.length;
+      const progressPercentage = (completed / totalQuestions) * 100;
+      progressBar.style.width = progressPercentage + "%";
+    }
+
+    // Accent characters for buttons
+    const accents = ["á", "é", "í", "ó", "ú", "ñ", "¿", "¡"];
+
+    // Populate accent buttons container
+    function loadAccentButtons() {
+      accentContainer.innerHTML = "";
+      accents.forEach(char => {
+        const btn = document.createElement("button");
+        btn.textContent = char;
+        btn.className = "accent-button";
+        btn.onclick = () => insertAccent(char);
+        accentContainer.appendChild(btn);
+      });
+    }
+
+    // Insert accent at the cursor position in the input box
+    function insertAccent(char) {
+      const start = answerInput.selectionStart;
+      const end = answerInput.selectionEnd;
+      const text = answerInput.value;
+      answerInput.value = text.substring(0, start) + char + text.substring(end);
+      answerInput.focus();
+      answerInput.selectionStart = answerInput.selectionEnd = start + char.length;
+    }
+
+    // Start a new round: select up to ROUND_SIZE random questions from pendingQuestions.
+    function startRound() {
+      roundQuestions = [];
+      roundQuestionIndex = 0;
+      // Shuffle pendingQuestions and take the first ROUND_SIZE (or all if fewer)
+      const shuffled = shuffle([...pendingQuestions]);
+      const count = Math.min(ROUND_SIZE, shuffled.length);
+      for (let i = 0; i < count; i++) {
+        roundQuestions.push(shuffled[i]);
+      }
+      roundStartTime = Date.now();
+      // Hide round finish container; show main lesson container.
+      roundFinishContainer.style.display = "none";
+      mainContainer.style.display = "block";
+      loadRoundQuestion();
+    }
+
+    // Load current question from roundQuestions.
+    function loadRoundQuestion() {
+      answerDisplay.textContent = "";
+      answerDisplay.style.color = "#d9534f";
+      answerInput.value = "";
+      selectedContainer.innerHTML = "";
+      blockContainer.innerHTML = "";
+      inputContainer.style.display = "none";
+      accentContainer.innerHTML = "";
+      if (roundQuestionIndex >= roundQuestions.length) {
+        endRound();
+        return;
+      }
+      const q = roundQuestions[roundQuestionIndex];
+      promptElement.textContent = q.instruction;
+      if (q.type === "click") {
+        selectedWords = [];
+        availableBlocks = q.blocks.concat(q.distractors);
+        availableBlocks = shuffle(availableBlocks);
+        availableBlocks.forEach(word => {
+          const btn = document.createElement("button");
+          btn.textContent = word;
+          btn.className = "word-block";
+          btn.onclick = () => toggleWord(btn, word);
+          blockContainer.appendChild(btn);
+        });
+      }
+      if (q.type === "write") {
+        inputContainer.style.display = "block";
+        answerInput.focus();
+        loadAccentButtons();
+      }
+      updateProgressBar();
+    }
+
+    // Fisher-Yates shuffle
+    function shuffle(array) {
+      for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+      }
+      return array;
+    }
+
+    // Toggle selection for click-type word blocks
+    function toggleWord(button, word) {
+      if (button.classList.contains("selected")) {
+        button.classList.remove("selected");
+        const index = selectedWords.indexOf(word);
+        if (index > -1) selectedWords.splice(index, 1);
+        blockContainer.appendChild(button);
+      } else {
+        button.classList.add("selected");
+        selectedWords.push(word);
+        selectedContainer.appendChild(button);
+      }
+    }
+
+    // Check answer for the current round question
+    function checkAnswer() {
+      const q = roundQuestions[roundQuestionIndex];
+      let userAnswer = "";
+      if (q.type === "click") {
+        userAnswer = selectedWords.join(" ").trim();
+      } else {
+        userAnswer = answerInput.value.trim();
+      }
+      let isCorrect = false;
+      if (q.type === "write") {
+        if (Array.isArray(q.sentence)) {
+          isCorrect = q.sentence.some(ans => ans.toLowerCase() === userAnswer.toLowerCase());
+        } else {
+          isCorrect = q.sentence.toLowerCase() === userAnswer.toLowerCase();
+        }
+      } else {
+        isCorrect = q.sentence.toLowerCase() === userAnswer.toLowerCase();
+      }
+      if (isCorrect) {
+        answerDisplay.style.color = "green";
+        answerDisplay.textContent = "Correct!";
+        if (q.firstTry) {
+          pendingQuestions = pendingQuestions.filter(item => item !== q);
+        }
+        roundQuestionIndex++;
+        setTimeout(() => {
+          loadRoundQuestion();
+        }, correctDelay);
+      } else {
+        answerDisplay.style.color = "red";
+        const correctAnswer = Array.isArray(q.sentence) ? q.sentence[0] : q.sentence;
+        answerDisplay.textContent = `Incorrect. The correct sentence is: "${correctAnswer}"`;
+        q.firstTry = false;
+      }
+      updateProgressBar();
+    }
+
+    // End current round: display round time and "Next Round" button.
+    function endRound() {
+      const roundEndTime = Date.now();
+      const roundTimeSeconds = ((roundEndTime - roundStartTime) / 1000).toFixed(2);
+      mainContainer.style.display = "none";
+      roundFinishContainer.style.display = "block";
+      roundTimeDisplay.textContent = `Time for this round: ${roundTimeSeconds} seconds`;
+    }
+
+    // End lesson if no pending questions remain.
+    function endLesson() {
+      promptElement.textContent = "Lesson Complete!";
+      answerDisplay.style.color = "#333";
+      answerDisplay.textContent = `You answered ${totalQuestions - pendingQuestions.length} out of ${totalQuestions} correctly on the first try.`;
+      selectedContainer.innerHTML = "";
+      blockContainer.innerHTML = "";
+      inputContainer.style.display = "none";
+      submitButton.style.display = "none";
+      nextRoundButton.style.display = "none";
+      restartButton.style.display = "block";
+      progressBar.style.width = "100%";
+      roundFinishContainer.style.display = "none";
+    }
+
+    // Restart lesson: reset pendingQuestions to initial state.
+    restartButton.addEventListener("click", () => {
+      pendingQuestions = initialQuestions.map(q => ({ ...q, firstTry: true }));
+      currentQuestionIndex = 0;
+      roundQuestionIndex = 0;
+      submitButton.style.display = "block";
+      restartButton.style.display = "none";
+      startRound();
+    });
+
+    // Next Round button event listener
+    nextRoundButton.addEventListener("click", () => {
+      if (pendingQuestions.length === 0) {
+        endLesson();
+      } else {
+        startRound();
+      }
+    });
+
+    // Submit button event listener
+    submitButton.addEventListener("click", checkAnswer);
+
+    // Allow Enter key to trigger submission
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        checkAnswer();
+      }
+    });
+
+    // Create Next Round button if it doesn't exist (already created in HTML)
+    // Start the first round on page load
+    startRound();
+  </script>
+</body>
+</html>

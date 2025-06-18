@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Bubble Sheet OMR with Camera & File Input (Responsive Layout)</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+      text-align: center;
+    }
+    /* Container for global controls */
+    #globalControls {
+      margin-bottom: 20px;
+    }
+    .input-group {
+      margin: 10px auto;
+      max-width: 300px;
+    }
+    /* Flex container for images */
+    #imagesContainer {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 20px;
+    }
+    /* Each image container */
+    .image-container {
+      border: 1px solid #ccc;
+      padding: 10px;
+      max-width: 300px;
+      flex: 1 1 auto;
+    }
+    .image-container h3 {
+      margin-bottom: 10px;
+    }
+    /* Make canvases responsive */
+    canvas {
+      width: 100%;
+      height: auto;
+      border: 1px solid #999;
+    }
+    /* Container for sliders under each image */
+    .sliders {
+      margin-top: 10px;
+    }
+    .sliders .input-group {
+      text-align: center;
+    }
+    /* Output transcription */
+    #output {
+      background: #f0f0f0;
+      padding: 10px;
+      display: inline-block;
+      text-align: left;
+      margin-top: 20px;
+    }
+    /* Source selection styling */
+    #sourceSelection {
+      margin-bottom: 20px;
+    }
+    #cameraContainer, #fileContainer {
+      margin-bottom: 20px;
+    }
+    /* Hide the hidden capture canvas */
+    #captureCanvas {
+      display: none;
+    }
+  </style>
+  <!-- Load OpenCV.js version 3.4.0 -->
+  <script async src="https://docs.opencv.org/3.4.0/opencv.js" 
+          onload="onOpenCvReady();" type="text/javascript"></script>
+</head>
+<body>
+  <h1>Bubble Sheet OMR with Camera & File Input (Responsive Layout)</h1>
+  
+  <!-- Source Selection: Choose between Camera and Import Image -->
+  <div id="sourceSelection" class="input-group">
+    <label><input type="radio" name="source" value="camera" id="sourceCamera"> Use Camera</label>
+    &nbsp;&nbsp;
+    <label><input type="radio" name="source" value="file" id="sourceFile" checked> Import Image</label>
+  </div>
+  
+  <!-- Camera Container -->
+  <div id="cameraContainer" style="display: none;" class="input-group">
+    <video id="videoSource" autoplay playsinline width="600" height="800"></video>
+    <br>
+    <button id="captureFromCameraButton">Capture from Camera</button>
+  </div>
+  
+  <!-- File Container -->
+  <div id="fileContainer" class="input-group">
+    <input type="file" id="fileInput" accept="image/*">
+  </div>
+  
+  <!-- Global Controls -->
+  <div id="globalControls">
+    <!-- Global slider: Number of rows per column (each column's rows) -->
+    <div class="input-group">
+      <label for="numQuestions">Rows per Column: <span id="numQuestionsValue">10</span></label>
+      <input type="range" id="numQuestions" min="5" max="30" value="10">
+    </div>
+  </div>
+  
+  <!-- Images container -->
+  <div id="imagesContainer">
+    <!-- Original Image Container -->
+    <div class="image-container">
+      <h3>Original</h3>
+      <canvas id="originalCanvas" width="600" height="800"></canvas>
+    </div>
+    <!-- Warped Image Container -->
+    <div class="image-container">
+      <h3>Warped</h3>
+      <canvas id="warpedCanvas" width="600" height="800"></canvas>
+    </div>
+    <!-- Threshold Image Container -->
+    <div class="image-container">
+      <h3>Threshold</h3>
+      <canvas id="threshCanvas" width="600" height="800"></canvas>
+      <div class="sliders">
+        <div class="input-group">
+          <input type="checkbox" id="manualThresholdCheckbox">
+          <label for="manualThresholdCheckbox">Manual Threshold</label>
+        </div>
+        <div class="input-group" id="manualThresholdGroup" style="display: none;">
+          <label for="thresholdValue">Threshold: <span id="thresholdValueDisplay">128</span></label>
+          <input type="range" id="thresholdValue" min="0" max="255" value="128">
+        </div>
+      </div>
+    </div>
+    <!-- Detection Image Container -->
+    <div class="image-container">
+      <h3>Detection</h3>
+      <canvas id="detectionCanvas" width="600" height="800"></canvas>
+      <div class="sliders">
+        <div class="input-group">
+          <label for="minBubbleSize">Min Bubble Size: <span id="minBubbleSizeValue">10</span></label>
+          <input type="range" id="minBubbleSize" min="5" max="50" value="10" step="1">
+        </div>
+        <div class="input-group">
+          <label for="minCircularityDet">Min Circularity: <span id="minCircularityDetValue">0.60</span></label>
+          <input type="range" id="minCircularityDet" min="0.5" max="1.0" value="0.60" step="0.01">
+        </div>
+        <div class="input-group">
+          <label for="fillThreshold">Fill Threshold: <span id="fillThresholdValue">150</span></label>
+          <input type="range" id="fillThreshold" min="0" max="300" value="150" step="1">
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <h2>Transcribed Answers</h2>
+  <pre id="output">No transcription yet.</pre>
+  
+  <!-- Hidden canvas for image capture (not displayed) -->
+  <canvas id="captureCanvas" width="600" height="800"></canvas>
+  
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+      let cvReady = false;
+      window.onOpenCvReady = function() {
+        cvReady = true;
+        console.log("OpenCV.js is ready");
+      };
+      
+      // Toggle source display based on radio button selection.
+      document.getElementById("sourceCamera").addEventListener("change", function() {
+        if (this.checked) {
+          document.getElementById("cameraContainer").style.display = "block";
+          document.getElementById("fileContainer").style.display = "none";
+          startCamera();
+        }
+      });
+      document.getElementById("sourceFile").addEventListener("change", function() {
+        if (this.checked) {
+          document.getElementById("cameraContainer").style.display = "none";
+          document.getElementById("fileContainer").style.display = "block";
+          stopCamera();
+        }
+      });
+      
+      // Start the camera stream.
+      let videoStream = null;
+      function startCamera() {
+        const video = document.getElementById("videoSource");
+        if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+          navigator.mediaDevices.getUserMedia({ video: true })
+            .then(function(stream) {
+              videoStream = stream;
+              video.srcObject = stream;
+              video.play();
+            })
+            .catch(function(err) {
+              console.error("Error accessing camera: " + err);
+            });
+        }
+      }
+      
+      // Stop the camera stream.
+      function stopCamera() {
+        if (videoStream) {
+          videoStream.getTracks().forEach(track => track.stop());
+          videoStream = null;
+        }
+      }
+      
+      // Capture frame from camera.
+      document.getElementById("captureFromCameraButton").addEventListener("click", function() {
+        const video = document.getElementById("videoSource");
+        const captureCanvas = document.getElementById("captureCanvas");
+        const ctx = captureCanvas.getContext("2d");
+        ctx.drawImage(video, 0, 0, captureCanvas.width, captureCanvas.height);
+        processImage();
+      });
+      
+      // Main processing function.
+      function processImage() {
+        if (!cvReady) {
+          alert("OpenCV.js is not ready yet.");
+          return;
+        }
+        
+        // Determine source: camera or file.
+        let source;
+        if (document.getElementById("sourceCamera").checked) {
+          source = document.getElementById("captureCanvas");
+        } else {
+          let fileInput = document.getElementById("fileInput");
+          if (fileInput.files.length === 0) {
+            alert("Please choose an image file.");
+            return;
+          }
+          let file = fileInput.files[0];
+          let img = new Image();
+          let reader = new FileReader();
+          reader.onload = function(e) {
+            img.onload = function() {
+              let captureCanvas = document.getElementById("captureCanvas");
+              let ctx = captureCanvas.getContext("2d");
+              ctx.clearRect(0, 0, captureCanvas.width, captureCanvas.height);
+              ctx.drawImage(img, 0, 0, captureCanvas.width, captureCanvas.height);
+              runPipeline();
+            };
+            img.src = e.target.result;
+          };
+          reader.readAsDataURL(file);
+          return;
+        }
+        runPipeline();
+      }
+      
+      // The processing pipeline (runs on the image in captureCanvas).
+      function runPipeline() {
+        let captureCanvas = document.getElementById("captureCanvas");
+        let src = cv.imread(captureCanvas);
+        
+        // Step 1: Preprocess the image.
+        let gray = new cv.Mat();
+        cv.cvtColor(src, gray, cv.COLOR_RGBA2GRAY);
+        let blurred = new cv.Mat();
+        cv.GaussianBlur(gray, blurred, new cv.Size(5, 5), 0);
+        let edged = new cv.Mat();
+        cv.Canny(blurred, edged, 75, 200);
+        
+        // Step 2: Find the bubble sheet contour (largest 4-point contour).
+        let contours = new cv.MatVector();
+        let hierarchy = new cv.Mat();
+        cv.findContours(edged, contours, hierarchy, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE);
+        console.log("Contours found: " + contours.size());
+        let contourArray = [];
+        for (let i = 0; i < contours.size(); i++) {
+          contourArray.push(contours.get(i));
+        }
+        contourArray.sort((a, b) => cv.contourArea(b) - cv.contourArea(a));
+        
+        let sheetContour = null;
+        for (let i = 0; i < contourArray.length; i++) {
+          let peri = cv.arcLength(contourArray[i], true);
+          let approx = new cv.Mat();
+          cv.approxPolyDP(contourArray[i], approx, 0.04 * peri, true);
+          if (approx.rows === 4) {
+            sheetContour = approx;
+            break;
+          }
+          approx.delete();
+        }
+        
+        if (sheetContour === null) {
+          document.getElementById("output").textContent = "Could not find bubble sheet contour.";
+          src.delete(); gray.delete(); blurred.delete(); edged.delete();
+          contours.delete(); hierarchy.delete();
+          contourArray.forEach(c => c.delete());
+          return;
+        }
+        
+        // Extract the 4 points.
+        let pts = [];
+        for (let i = 0; i < 4; i++) {
+          pts.push({ x: sheetContour.intAt(i, 0), y: sheetContour.intAt(i, 1) });
+        }
+        sheetContour.delete();
+        contours.delete(); hierarchy.delete();
+        gray.delete(); blurred.delete(); edged.delete();
+        contourArray.forEach(c => c.delete());
+        
+        // Step 3: Perspective transform.
+        let warped = fourPointTransform(src, pts);
+        src.delete();
+        cv.imshow("warpedCanvas", warped);
+        
+        // Step 4: Threshold the warped image.
+        let warpedGray = new cv.Mat();
+        cv.cvtColor(warped, warpedGray, cv.COLOR_RGBA2GRAY);
+        let thresh = new cv.Mat();
+        let useManual = document.getElementById("manualThresholdCheckbox").checked;
+        if (useManual) {
+          let threshVal = parseInt(document.getElementById("thresholdValue").value);
+          cv.threshold(warpedGray, thresh, threshVal, 255, cv.THRESH_BINARY_INV);
+        } else {
+          cv.threshold(warpedGray, thresh, 0, 255, cv.THRESH_BINARY_INV | cv.THRESH_OTSU);
+        }
+        cv.imshow("threshCanvas", thresh);
+        
+        // Step 5: Bubble Detection.
+        let minBubbleSize = parseInt(document.getElementById("minBubbleSize").value);
+        let minCircularity = parseFloat(document.getElementById("minCircularityDet").value);
+        let numRows = parseInt(document.getElementById("numQuestions").value);
+        let bubblesPerQuestion = 5; // Assuming answers A-E.
+        let fillThreshold = parseInt(document.getElementById("fillThreshold").value);
+        
+        let bubbleContours = new cv.MatVector();
+        let bubbleHierarchy = new cv.Mat();
+        cv.findContours(thresh, bubbleContours, bubbleHierarchy, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE);
+        let bubbleList = [];
+        for (let i = 0; i < bubbleContours.size(); i++) {
+          let cnt = bubbleContours.get(i);
+          let rect = cv.boundingRect(cnt);
+          if (rect.width >= minBubbleSize && rect.height >= minBubbleSize) {
+            let area = cv.contourArea(cnt);
+            let perimeter = cv.arcLength(cnt, true);
+            let circularity = perimeter === 0 ? 0 : (4 * Math.PI * area) / (perimeter * perimeter);
+            if (circularity >= minCircularity) {
+              bubbleList.push({ cnt: cnt, rect: rect });
+            } else {
+              cnt.delete();
+            }
+          } else {
+            cnt.delete();
+          }
+        }
+        bubbleHierarchy.delete();
+        bubbleContours.delete();
+        
+        // Separate bubbles into two columns based on warped image width.
+        let leftBubbles = [];
+        let rightBubbles = [];
+        let halfWidth = warped.cols / 2;
+        bubbleList.forEach(obj => {
+          let centerX = obj.rect.x + obj.rect.width / 2;
+          if (centerX < halfWidth) {
+            leftBubbles.push(obj);
+          } else {
+            rightBubbles.push(obj);
+          }
+        });
+        
+        // Sort each column top-to-bottom.
+        leftBubbles.sort((a, b) => a.rect.y - b.rect.y);
+        rightBubbles.sort((a, b) => a.rect.y - b.rect.y);
+        
+        // Prepare a color copy of thresh for drawing detections.
+        let detectionMat = new cv.Mat();
+        cv.cvtColor(thresh, detectionMat, cv.COLOR_GRAY2RGBA);
+        bubbleList.forEach(obj => {
+          let r = Math.round(Math.min(obj.rect.width, obj.rect.height) / 2);
+          let centerX = obj.rect.x + obj.rect.width / 2;
+          let centerY = obj.rect.y + obj.rect.height / 2;
+          cv.circle(detectionMat, new cv.Point(centerX, centerY), r, new cv.Scalar(0, 255, 0, 255), 2);
+        });
+        cv.imshow("detectionCanvas", detectionMat);
+        
+        // Step 6: Group bubbles and transcribe answers.
+        // Expected count per column = numRows * bubblesPerQuestion.
+        let expectedCountPerColumn = numRows * bubblesPerQuestion;
+        let answers = [];
+        if (leftBubbles.length === expectedCountPerColumn && rightBubbles.length === expectedCountPerColumn) {
+          // Process left column (questions 1 to numRows)
+          for (let r = 0; r < numRows; r++) {
+            let row = leftBubbles.slice(r * bubblesPerQuestion, (r + 1) * bubblesPerQuestion);
+            row.sort((a, b) => a.rect.x - b.rect.x);
+            let bubbled = -1;
+            let maxNonZero = 0;
+            for (let i = 0; i < row.length; i++) {
+              let mask = new cv.Mat.zeros(thresh.rows, thresh.cols, cv.CV_8UC1);
+              let contourVec = new cv.MatVector();
+              contourVec.push_back(row[i].cnt);
+              cv.drawContours(mask, contourVec, 0, new cv.Scalar(255), -1);
+              contourVec.delete();
+              let masked = new cv.Mat();
+              cv.bitwise_and(thresh, thresh, masked, mask);
+              let total = cv.countNonZero(masked);
+              if (total > maxNonZero) {
+                maxNonZero = total;
+                bubbled = i;
+              }
+              mask.delete(); masked.delete();
+            }
+            let answer = (bubbled !== -1 && maxNonZero >= fillThreshold) ? String.fromCharCode(65 + bubbled) : "No Response";
+            answers.push(answer);
+          }
+          // Process right column (questions numRows+1 to 2*numRows)
+          for (let r = 0; r < numRows; r++) {
+            let row = rightBubbles.slice(r * bubblesPerQuestion, (r + 1) * bubblesPerQuestion);
+            row.sort((a, b) => a.rect.x - b.rect.x);
+            let bubbled = -1;
+            let maxNonZero = 0;
+            for (let i = 0; i < row.length; i++) {
+              let mask = new cv.Mat.zeros(thresh.rows, thresh.cols, cv.CV_8UC1);
+              let contourVec = new cv.MatVector();
+              contourVec.push_back(row[i].cnt);
+              cv.drawContours(mask, contourVec, 0, new cv.Scalar(255), -1);
+              contourVec.delete();
+              let masked = new cv.Mat();
+              cv.bitwise_and(thresh, thresh, masked, mask);
+              let total = cv.countNonZero(masked);
+              if (total > maxNonZero) {
+                maxNonZero = total;
+                bubbled = i;
+              }
+              mask.delete(); masked.delete();
+            }
+            let answer = (bubbled !== -1 && maxNonZero >= fillThreshold) ? String.fromCharCode(65 + bubbled) : "No Response";
+            answers.push(answer);
+          }
+        } else {
+          answers.push("Error: Detected bubbles do not match expected counts.\nLeft: " + leftBubbles.length + " Right: " + rightBubbles.length);
+        }
+        
+        let outputText = "";
+        for (let i = 0; i < answers.length; i++) {
+          outputText += (i + 1) + ": " + answers[i] + "\n";
+        }
+        document.getElementById("output").textContent = outputText;
+        
+        bubbleList.forEach(obj => { obj.cnt.delete(); });
+        detectionMat.delete(); warped.delete(); warpedGray.delete(); thresh.delete();
+      }
+      
+      // Update controls to re-run processing.
+      document.getElementById("numQuestions").addEventListener("input", function() {
+        document.getElementById("numQuestionsValue").textContent = this.value;
+        if (cvReady) { processImage(); }
+      });
+      
+      document.getElementById("manualThresholdCheckbox").addEventListener("change", function() {
+        let group = document.getElementById("manualThresholdGroup");
+        group.style.display = this.checked ? "block" : "none";
+        if (cvReady) { processImage(); }
+      });
+      
+      document.getElementById("thresholdValue").addEventListener("input", function() {
+        document.getElementById("thresholdValueDisplay").textContent = this.value;
+        if (cvReady) { processImage(); }
+      });
+      
+      document.getElementById("minBubbleSize").addEventListener("input", function() {
+        document.getElementById("minBubbleSizeValue").textContent = this.value;
+        if (cvReady) { processImage(); }
+      });
+      
+      document.getElementById("minCircularityDet").addEventListener("input", function() {
+        document.getElementById("minCircularityDetValue").textContent = parseFloat(this.value).toFixed(2);
+        if (cvReady) { processImage(); }
+      });
+      
+      document.getElementById("fillThreshold").addEventListener("input", function() {
+        document.getElementById("fillThresholdValue").textContent = this.value;
+        if (cvReady) { processImage(); }
+      });
+      
+      document.getElementById("processButton").addEventListener("click", processImage);
+    });
+  </script>
+</body>
+</html>
