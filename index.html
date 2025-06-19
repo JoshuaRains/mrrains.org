@@ -92,13 +92,13 @@
     }
 
     .game-item {
-      background-color: #abd1b5;
+      background-color: #abd1b500;
       width: 150px;
       height: 150px;
       border-radius: 10px;
       border-color: #5c8a6d00;
       text-align: center;
-      padding: 10px;
+      padding: 25px;
       transition: transform 0.3s ease, filter 0.3s ease;
       cursor: pointer;
     }
@@ -456,15 +456,32 @@ image-rendering: -webkit-optimize-contrast;
         <div class="games-slide" data-title="Announcements">
             <div class="announcement-box">
                 <!-- Slip #1: header + body -->
-                <div class="slip" style="top: 20px; left: 30px;">
+                <div class="slip" style="top: 20px; left: 40%;">
                   <div class="pin"></div>
                   <h3 style="margin: 0 0 6px; font-size: 16px; color: #333;">Welcome to class!</h3>
                   <p style="margin: 0; font-size: 14px; color: #555;">
                     I hope you are all excited to learn Spanish this year!<br>
                   </p>
                 </div>
+
+                <div class="slip" style="bottom: 20px; left: 50px;">
+                  <div class="pin"></div>
+                  <h3 style="margin: 0 0 6px; font-size: 16px; color: #333;">Navigation:</h3>
+                  <p style="margin: 0; font-size: 14px; color: #555;">
+                    View the daily activities below under "Spanish I"<br>
+                  </p>
+                </div>
+
+                <div class="slip" style="bottom: 20px; right: 50px; width: 250px;">  
+                  <div class="pin"></div>
+                  <h3 style="margin: 0 0 6px; font-size: 16px; color: #333;">Navigation:</h3>
+                  <p style="margin: 0; font-size: 14px; color: #555;">
+                    View the whiteboard for the day by clicking "daily whiteboard" on the next slide →<br>
+                  </p>
+                </div>
               
-                <!-- Slip #2: flag of Colombia -->
+                <!-- 
+
                 <div class="slip" style="top: 50px; left: 400px; width: 150px; padding: 0px">
                   <div class="pin"></div>
                   <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/21/Flag_of_Colombia.svg/1280px-Flag_of_Colombia.svg.png" alt="Colombia flag"
@@ -476,6 +493,7 @@ image-rendering: -webkit-optimize-contrast;
                   <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/d/df/Flag_of_Peru_%28state%29.svg/1280px-Flag_of_Peru_%28state%29.svg.png" alt="Colombia flag"
                        style="display: block; width: 100%; border-radius: 4px;" />
                 </div>
+                -->
               </div>
               
         </div>
@@ -483,7 +501,9 @@ image-rendering: -webkit-optimize-contrast;
         
         <!-- Diversos Slide -->
         <div class="games-slide" data-title="Tools">
-          <button class="game-item" onclick="window.open('https://corpus.rae.es/frec/1000_formas.TXT','_blank')"><img src="assets/vector_icons/TopVocab.svg" alt="Vocab Común"><p>Vocab Común</p></button>
+          <button class="game-item" onclick="location.href='./pages/tools/interactivewhiteboardviewer/index.html'"><img src="assets/vector_icons/Whiteboard.svg" alt="Vocab Común"><p>Daily Whiteboard</p></button>
+
+          <button class="game-item" onclick="window.open('https://corpus.rae.es/frec/1000_formas.TXT','_blank')"><img src="assets/vector_icons/TopVocab.svg" alt="Vocab Común"><p>Most Common Words</p></button>
           <button class="game-item" onclick="location.href='./pages/tools/gradecalculator/index.html'"><img src="assets/vector_icons/GradeCalc.svg" alt="Grade Calculator"><p>Grade Calculator</p></button>
           <button class="game-item" onclick="location.href='./pages/tools/bathroompass/index.html'"><img src="assets/vector_icons/BathroomTimer.svg" alt="Bathroom Timer"><p>Bathroom Timer</p></button>
           <button class="game-item" onclick="location.href='./pages/tools/bubblescanner/index.html'"><img src="assets/vector_icons/BubbleScanner.svg" alt="Bubble Scanner"><p>Bubble Sheet Scanner</p></button>
@@ -521,13 +541,13 @@ image-rendering: -webkit-optimize-contrast;
           <div id="spanish1" class="activities-content active">
             <br>
             <br>
-            <p class="activity-topic">4/20</p>
-            <button class="activity-button" onclick="location.href='./Topics/Verb_Review/VerbLists/TopVerbs.html'">
+            <p class="activity-topic">8/1</p>
+            <button class="activity-button" onclick="location.href=''">
               <div class="activity-item">
                 <div class="activity-icon description">
                   <span class="material-icons">description</span>
                 </div>
-                <div class="activity-text">Verb Vocabulary List</div>
+                <div class="activity-text">Syllabus</div>
               </div>
             </button>
           </div>
@@ -535,19 +555,76 @@ image-rendering: -webkit-optimize-contrast;
           <div id="spanish2" class="activities-content">
             <br>
             <br>
-            <p class="activity-topic">4/20</p>
-            <button class="activity-button" onclick="location.href='./Topics/Verb_Review/VerbLists/TopVerbs.html'">
-              <div class="activity-item">
-                <div class="activity-icon description">
-                  <span class="material-icons">description</span>
-                </div>
-                <div class="activity-text">Verb Vocabulary List</div>
-              </div>
-            </button>
-      
+            <div style="display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%;">
+            <p class="activity-topic" style="margin: 0;">Nothing here yet...</p>
+            <img src="assets/maxwell dance.gif" alt="Maxwell Dance" style="width: 100px; height: auto;">
+          </div> 
+        </div>
 
-  </div>
-
+        <!-- Library pane 
+          <div id="library" class="activities-content">
+            <iframe src="./Library/index.html" style="width: 100%; height: 600px; border: none;"></iframe>
+          </div>
+          -->
+          <!-- Vocabulario pane -->
+          <div id="vocab" class="activities-content">
+        <br>
+        <p class="activity-topic">Unidad 1</p>
+        <button class="activity-button" onclick="window.open('./Topics/Senderos_vocab/Spanish 1 - List 1.pdf', '_blank')">
+          <div class="activity-item">
+            <div class="activity-icon description">
+              <span class="material-icons">description</span>
+            </div>
+            <div class="activity-text">Senderos Vocabulario - Unidad 1</div>
+          </div>
+        </button>
+        <p class="activity-topic">Unidad 2</p>
+        <button class="activity-button" onclick="window.open('./Topics/Senderos_vocab/Spanish 1 - List 2.pdf', '_blank')">
+          <div class="activity-item">
+            <div class="activity-icon description">
+              <span class="material-icons">description</span>
+            </div>
+            <div class="activity-text">Senderos Vocabulario - Unidad 2</div>
+          </div>
+        </button>
+        <p class="activity-topic">Unidad 3</p>
+        <button class="activity-button" onclick="window.open('./Topics/Senderos_vocab/Spanish 1 - List 3.pdf', '_blank')">
+          <div class="activity-item">
+            <div class="activity-icon description">
+              <span class="material-icons">description</span>
+            </div>
+            <div class="activity-text">Senderos Vocabulario - Unidad 3</div>
+          </div>
+        </button>
+        <p class="activity-topic">Unidad 4</p>
+        <button class="activity-button" onclick="window.open('./Topics/Senderos_vocab/Spanish 1 - List 4.pdf', '_blank')">
+          <div class="activity-item">
+            <div class="activity-icon description">
+              <span class="material-icons">description</span>
+            </div>
+            <div class="activity-text">Senderos Vocabulario - Unidad 4</div>
+          </div>
+        </button>
+        <p class="activity-topic">Unidad 5</p>
+        <button class="activity-button" onclick="window.open('./Topics/Senderos_vocab/Spanish 1 - List 5.pdf', '_blank')">
+          <div class="activity-item">
+            <div class="activity-icon description">
+              <span class="material-icons">description</span>
+            </div>
+            <div class="activity-text">Senderos Vocabulario - Unidad 5</div>
+          </div>
+        </button>
+        <p class="activity-topic">Unidad 6</p>
+        <button class="activity-button" onclick="window.open('./Topics/Senderos_vocab/Spanish 1 - List 6.pdf', '_blank')">
+          <div class="activity-item">
+            <div class="activity-icon description">
+              <span class="material-icons">description</span>
+            </div>
+            <div class="activity-text">Senderos Vocabulario - Unidad 6</div> 
+          </div>
+        </button>
+      </div>
+    </div>
   <script>
     document.addEventListener("DOMContentLoaded", () => {
       const slider = document.getElementById('slider');
@@ -595,7 +672,7 @@ image-rendering: -webkit-optimize-contrast;
 
     document.addEventListener("DOMContentLoaded", () => {
       // Set the start date (e.g., January 1, 2025)
-      const startDate = new Date("2025-05-04");
+      const startDate = new Date("2025-04-13");
       const today = new Date();
 
       // Calculate the number of days since the start date
