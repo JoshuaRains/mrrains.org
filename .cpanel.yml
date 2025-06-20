@@ -1,0 +1,12 @@
+---
+deployment:
+  tasks:
+    - export DEPLOYPATH=/home1/myhewbmy/public_html
+    - /bin/cp index.html $DEPLOYPATH
+    - /bin/cp hidden.html $DEPLOYPATH
+    - /bin/cp -R assets $DEPLOYPATH
+    - /bin/cp -R library $DEPLOYPATH
+    - /bin/cp -R pages $DEPLOYPATH
+    - /bin/cp -R topics $DEPLOYPATH
+    
+    
