@@ -2,7 +2,7 @@ name: FTP Deploy to cPanel
 
 on:
   push:
-    branches: [ main ]  # Change if your main branch is not "main"
+    branches: [ main ]
 
 jobs:
   ftp-deploy:
@@ -11,6 +11,10 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Replace minor version in index.html
+        run: |
+          sed -i "s/MINOR_VERSION/${{ github.run_number }}/" index.html
+
       - name: FTP Deploy
         uses: SamKirkland/FTP-Deploy-Action@v4.3.4
         with:
@@ -18,5 +22,5 @@ jobs:
           username: ${{ secrets.SFTP_USERNAME }}
           password: ${{ secrets.SFTP_PASSWORD }}
           port: ${{ secrets.SFTP_PORT }}
-          local-dir: ./          # Your whole repo directory
+          local-dir: ./
           server-dir: ${{ secrets.SFTP_TARGET }}
