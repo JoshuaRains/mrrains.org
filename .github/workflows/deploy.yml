@@ -1,23 +1,22 @@
-name: SFTP Deploy to cPanel
+name: FTP Deploy to cPanel
 
 on:
   push:
-    branches: [ main ]   # Change to your main branch name if needed
+    branches: [ main ]  # Change if your main branch is not "main"
 
 jobs:
-  deploy:
+  ftp-deploy:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: SFTP Deploy
-        uses: wlixcc/SFTP-Deploy-Action@v1.2.4
+      - name: FTP Deploy
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.4
         with:
-          username: ${{ secrets.SFTP_USERNAME }}
-          server: ${{ secrets.SFTP_HOST }}
-          password: ${{ secrets.SFTP_PASSWORD }}
-          port: ${{ secrets.SFTP_PORT }}
-          local_path: "./"               # Upload everything from repo root
-          remote_path: ${{ secrets.SFTP_TARGET }}
-          sftp_only: true                # Use SFTP only
+          server: ${{ secrets.FTP_HOST }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          port: ${{ secrets.FTP_PORT }}
+          local-dir: ./          # Your whole repo directory
+          server-dir: ${{ secrets.FTP_TARGET }}
