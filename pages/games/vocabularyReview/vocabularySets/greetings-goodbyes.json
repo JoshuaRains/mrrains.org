@@ -1,0 +1,125 @@
+[
+  {
+    "term": "Hola.",
+    "translation": [
+      "Hello.",
+      "Hi.",
+      "Hello",
+      "Hi",
+      "Hey"
+    ]
+  },
+  {
+    "term": "Buenos días.",
+    "translation": [
+      "Good morning.",
+      "Good day.",
+      "Morning.",
+      "Good morning",
+      "Good day",
+      "Morning"
+    ]
+  },
+  {
+    "term": "Buenas tardes.",
+    "translation": [
+      "Good afternoon.",
+      "Good afternoon",
+      "Afternoon."
+    ]
+  },
+  {
+    "term": "Buenas noches.",
+    "translation": [
+      "Good night.",
+      "Good evening.",
+      "Night.",
+      "Evening.",
+      "Good night",
+      "Good evening",
+      "Night",
+      "Evening"
+    ]
+  },
+  {
+    "term": "Adiós.",
+    "translation": [
+      "Goodbye.",
+      "Goodbye",
+      "Bye.",
+      "Bye",
+      "Farewell.",
+      "Farewell"
+    ]
+  },
+  {
+    "term": "Nos vemos.",
+    "translation": [
+      "See you.",
+      "See you",
+      "See you later.",
+      "See you later",
+      "We'll see each other.",
+      "We'll see each other"
+    ]
+  },
+  {
+    "term": "Hasta luego.",
+    "translation": [
+      "See you later.",
+      "Until later.",
+      "See you.",
+      "See you",
+      "Later.",
+      "Later",
+      "Until later"
+    ]
+  },
+  {
+    "term": "Hasta la vista.",
+    "translation": [
+      "See you later.",
+      "Until we see each other again.",
+      "Until the sight.",
+      "See you.",
+      "See you",
+      "Until we meet again."
+    ]
+  },
+  {
+    "term": "Hasta pronto.",
+    "translation": [
+      "See you soon.",
+      "Until soon.",
+      "See you.",
+      "See you",
+      "Soon."
+    ]
+  },
+  {
+    "term": "Hasta mañana.",
+    "translation": [
+      "See you tomorrow.",
+      "Until tomorrow.",
+      "Tomorrow."
+    ]
+  },
+  {
+    "term": "Saludos a...",
+    "translation": [
+      "Greetings to...",
+      "Say hello to...",
+      "Send my regards to...",
+      "Greetings to"
+    ]
+  },
+  {
+    "term": "Chau.",
+    "translation": [
+      "Bye.",
+      "Bye",
+      "Ciao.",
+      "Ciao"
+    ]
+  }
+]

@@ -1,0 +1,119 @@
+[
+  {
+    "term": "¿Cómo está usted?",
+    "translation": [
+      "How are you? (formal)",
+      "How are you? (Formal)",
+      "How are you (formal)",
+      "How are you (Formal)",
+      "How do you do? (formal)",
+      "How do you do? (Formal)",
+      "How are you?"
+    ]
+  },
+  {
+    "term": "¿Cómo estás?",
+    "translation": [
+      "How are you? (familiar)",
+      "How are you? (Familiar)",
+      "How are you (familiar)",
+      "How are you (Familiar)",
+      "How are you?",
+      "How do you do? (familiar)",
+      "How do you do? (Familiar)",
+      "How do you do?"
+    ]
+  },
+  {
+    "term": "¿Qué hay de nuevo?",
+    "translation": [
+      "What's new?",
+      "What's new",
+      "What is new?",
+      "What is new"
+    ]
+  },
+  {
+    "term": "¿Qué pasa?",
+    "translation": [
+      "What's happening?",
+      "What's going on?",
+      "What's happening",
+      "What's going on",
+      "What is happening?",
+      "What is happening",
+      "What is going on?",
+      "What is going on"
+    ]
+  },
+  {
+    "term": "¿Qué tal?",
+    "translation": [
+      "How are you?",
+      "How's it going?",
+      "How are things?",
+      "How are you",
+      "How's it going",
+      "How are things"
+    ]
+  },
+  {
+    "term": "(Muy) bien, gracias.",
+    "translation": [
+      "(Very) well, thanks.",
+      "Very well, thanks.",
+      "Well, thanks.",
+      "Well, thank you.",
+      "(Very) well, thank you.",
+      "I'm well, thanks.",
+      "I'm good, thanks.",
+      "I'm fine, thank you.",
+      "I'm fine, thanks."
+    ]
+  },
+  {
+    "term": "Nada.",
+    "translation": [
+      "Nothing.",
+      "Nothing",
+      "Not much.",
+      "Not much"
+    ]
+  },
+  {
+    "term": "No muy bien.",
+    "translation": [
+      "Not very well.",
+      "Not very well",
+      "I'm not well.",
+      "I'm not very well.",
+      "Not so well."
+    ]
+  },
+  {
+    "term": "Regular.",
+    "translation": [
+      "So-so.",
+      "OK.",
+      "So-so",
+      "OK",
+      "Okay.",
+      "Okay",
+      "Alright.",
+      "Alright",
+      "I'm okay.",
+      "I'm so-so."
+    ]
+  },
+  {
+    "term": "Mucho gusto.",
+    "translation": [
+      "Pleased to meet you.",
+      "Nice to meet you.",
+      "It's a pleasure.",
+      "My pleasure.",
+      "Glad to meet you.",
+      "Delighted to meet you."
+    ]
+  }
+]

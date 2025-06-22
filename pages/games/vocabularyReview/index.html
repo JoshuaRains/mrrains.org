@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en" translate="no">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spanish Vocabulary Review Game</title>
+    <style>
+        body, html {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100%;
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: linear-gradient(to bottom, #517860, #5c8a6d);
+        }
+        .game-container {
+            text-align: center;
+            width: 100%;
+            max-width: 800px;
+            padding: 100px;
+            border: 2px solid #d3d3d3;
+            background-color: #f7f4f4;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        .progress-bar-container {
+            width: 100%;
+            height: 20px;
+            background-color: #d3d3d3;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
+        .progress-bar {
+            height: 100%;
+            width: 0;
+            background: linear-gradient(to right, #28a745, #5cd85c);
+            border-radius: 10px;
+            transition: width 0.3s;
+        }
+        .input-box {
+            font-size: 1.2em;
+            padding: 10px;
+            width: 90%;
+            border: 2px solid lightgrey;
+            border-radius: 8px;
+            transition: color 0.3s;
+        }
+        .input-box.correct {
+            color: green;
+        }
+        .button {
+            margin-top: 20px;
+            padding: 10px 20px;
+            font-size: 1em;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            background-color: #007BFF;
+            color: white;
+        }
+        .button:hover {
+            background-color: #0056b3;
+        }
+        .hint {
+            margin-top: 10px;
+            font-size: 1em;
+            color: #555;
+        }
+        .answer-display {
+            margin-top: 10px;
+            font-size: 1.1em;
+            color: #d9534f;
+        }
+        .accent-buttons {
+            margin-top: 10px;
+        }
+        .accent-button {
+            font-size: 1.2em;
+            padding: 5px 10px;
+            margin: 2px;
+            border: 1px solid #d3d3d3;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .accent-button:hover {
+            background-color: #e0e0e0;
+        }
+    </style>
+</head>
+<body>
+
+<div class="game-container">
+    <div class="progress-bar-container">
+        <div id="progressBar" class="progress-bar"></div>
+    </div>
+    <h2 id="gameTitle">Spanish Vocabulary Review</h2>
+    <p id="prompt"></p>
+    <p id="hint" class="hint">Hint: (in 5 seconds)</p>
+    <p id="answerDisplay" class="answer-display"></p>
+    <input type="text" id="answerInput" class="input-box" autocomplete="off" spellcheck="false" />
+    <div class="accent-buttons">
+        <button class="accent-button" onclick="insertAccent('á')">á</button>
+        <button class="accent-button" onclick="insertAccent('é')">é</button>
+        <button class="accent-button" onclick="insertAccent('í')">í</button>
+        <button class="accent-button" onclick="insertAccent('ó')">ó</button>
+        <button class="accent-button" onclick="insertAccent('ú')">ú</button>
+        <button class="accent-button" onclick="insertAccent('ñ')">ñ</button>
+    </div>
+    <button id="restartButton" class="button" style="display: none;">Restart</button>
+    <p id="timerDisplay"></p>
+</div>
+
+<script>
+function getSetParam() {
+    const params = new URLSearchParams(window.location.search);
+    return params.get('set') || 'default';
+}
+
+// Game settings (can make these configurable if needed)
+const answerTime = 1000; // Delay before next question (ms)
+const CorrectTimesRequired = 1;
+
+// Accuracy settings
+let checkAccentMarks = false;
+let checkPunctuation = false;
+let checkCapitalization = false;
+
+let vocabularyList = [];
+let roundCount = 0;
+let currentWord = null;
+let isTermQuestion = false;
+let startTime, endTime;
+let hintTimer;
+let hintCounter = 5;
+let hintUsed = false;
+let totalCorrectPoints = 0;
+let totalPoints = 0;
+
+// DOM elements
+const promptElement = document.getElementById("prompt");
+const answerInput = document.getElementById("answerInput");
+const hintElement = document.getElementById("hint");
+const answerDisplay = document.getElementById("answerDisplay");
+const restartButton = document.getElementById("restartButton");
+const timerDisplay = document.getElementById("timerDisplay");
+
+function insertAccent(char) {
+    const input = document.getElementById("answerInput");
+    const startPos = input.selectionStart;
+    const endPos = input.selectionEnd;
+    input.value = input.value.substring(0, startPos) + char + input.value.substring(endPos);
+    input.focus();
+    input.setSelectionRange(startPos + char.length, startPos + char.length);
+}
+
+// Load vocab list from JSON file based on URL param
+async function loadVocabSet() {
+    const set = getSetParam();
+    const url = `vocabularySets/${set}.json`;
+    try {
+        const resp = await fetch(url);
+        if (!resp.ok) throw new Error();
+        const data = await resp.json();
+        // Normalize structure and add tracking fields if not present
+        vocabularyList = data.map(word => ({
+            term: word.term,
+            translation: Array.isArray(word.translation) ? word.translation : [word.translation],
+            times_seen: 0,
+            times_correct: 0
+        }));
+        totalPoints = vocabularyList.length * CorrectTimesRequired;
+        document.getElementById("gameTitle").textContent = "Spanish Vocabulary Review";
+        startGame();
+    } catch (e) {
+        document.getElementById("gameTitle").textContent = "Error loading set";
+        promptElement.textContent = `Could not load set "${set}". (File missing or invalid JSON)`;
+        answerInput.style.display = "none";
+        document.querySelector(".accent-buttons").style.display = "none";
+        restartButton.style.display = "none";
+        return;
+    }
+}
+
+function normalizeAnswer(answer) {
+    if (!checkAccentMarks) {
+        answer = answer.normalize("NFD").replace(/[̀-ͯ]/g, "");
+    }
+    if (!checkPunctuation) {
+        answer = answer.replace(/[.,!?]/g, "");
+    }
+    if (!checkCapitalization) {
+        answer = answer.toLowerCase();
+    }
+    return answer.trim();
+}
+
+function updateProgressBar() {
+    const progressBar = document.getElementById("progressBar");
+    const progressPercentage = (totalCorrectPoints / totalPoints) * 100;
+    progressBar.style.width = `${progressPercentage}%`;
+}
+
+function startGame() {
+    // Reset
+    vocabularyList.forEach(word => {
+        word.times_seen = 0;
+        word.times_correct = 0;
+    });
+    totalCorrectPoints = 0;
+    updateProgressBar();
+    roundCount = 0;
+    timerDisplay.textContent = "";
+    restartButton.style.display = "none";
+    answerDisplay.textContent = "";
+    answerInput.value = "";
+    answerInput.disabled = false;
+    answerInput.classList.remove("correct");
+    answerInput.style.display = "";
+    document.querySelector(".accent-buttons").style.display = "";
+    answerInput.focus();
+    startTime = new Date();
+    nextQuestion();
+}
+
+function nextQuestion() {
+    const remainingTerms = vocabularyList.filter(term => term.times_correct < CorrectTimesRequired);
+    if (remainingTerms.length === 0) {
+        endRound();
+        return;
+    }
+    let randomIndex = Math.floor(Math.random() * remainingTerms.length);
+    currentWord = remainingTerms[randomIndex];
+    currentWord.times_seen++;
+    hintUsed = false;
+    isTermQuestion = (currentWord.times_correct > 2);
+    if (isTermQuestion) {
+        promptElement.textContent = `What is the Spanish word for: ${currentWord.translation.join(", ")}`;
+    } else {
+        promptElement.textContent = `Translate this word: ${currentWord.term}`;
+    }
+    answerInput.value = "";
+    answerInput.classList.remove("correct");
+    answerInput.disabled = false;
+    answerInput.focus();
+    startHintCountdown();
+    roundCount++;
+}
+
+function startHintCountdown() {
+    answerDisplay.textContent = "";
+    hintCounter = 5;
+    hintElement.textContent = `Hint: (in ${hintCounter} seconds)`;
+    clearInterval(hintTimer);
+    hintTimer = setInterval(() => {
+        hintCounter--;
+        if (hintCounter > 0) {
+            hintElement.textContent = `Hint: (in ${hintCounter} seconds)`;
+        } else {
+            hintElement.textContent = `Hint: (press enter)`;
+            clearInterval(hintTimer);
+        }
+    }, 1000);
+}
+
+answerInput.addEventListener("input", () => {
+    if (!currentWord) return;
+    let isCorrect = false;
+    if (isTermQuestion) {
+        isCorrect = normalizeAnswer(answerInput.value) === normalizeAnswer(currentWord.term);
+    } else {
+        isCorrect = currentWord.translation.some(tr => normalizeAnswer(answerInput.value) === normalizeAnswer(tr));
+    }
+    if (isCorrect) {
+        answerInput.classList.add("correct");
+        answerInput.disabled = true;
+        if (!hintUsed) {
+            currentWord.times_correct++;
+            totalCorrectPoints++;
+            updateProgressBar();
+        }
+        clearInterval(hintTimer);
+        setTimeout(nextQuestion, answerTime);
+    }
+});
+
+answerInput.addEventListener("keydown", (event) => {
+    if (event.key === "Enter" && hintCounter <= 0 && currentWord) {
+        answerDisplay.textContent = `Correct answer: ${isTermQuestion ? currentWord.term : currentWord.translation.join(", ")}`;
+        hintUsed = true;
+    }
+});
+
+function endRound() {
+    endTime = new Date();
+    const totalTime = ((endTime - startTime) / 1000).toFixed(2);
+    timerDisplay.textContent = `Round completed in ${totalTime} seconds!`;
+    restartButton.style.display = "block";
+}
+
+restartButton.addEventListener("click", startGame);
+
+// Load vocab set and start
+loadVocabSet();
+</script>
+
+</body>
+</html>

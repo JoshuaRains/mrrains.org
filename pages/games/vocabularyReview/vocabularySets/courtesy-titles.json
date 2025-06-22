@@ -1,0 +1,132 @@
+[
+  {
+    "term": "Con permiso.",
+    "translation": [
+      "Pardon me.",
+      "Excuse me.",
+      "With your permission.",
+      "If you will excuse me.",
+      "Excuse me"
+    ]
+  },
+  {
+    "term": "De nada.",
+    "translation": [
+      "You're welcome.",
+      "You're welcome",
+      "No problem.",
+      "No problem",
+      "It's nothing.",
+      "It's nothing"
+    ]
+  },
+  {
+    "term": "Lo siento.",
+    "translation": [
+      "I'm sorry.",
+      "I'm sorry",
+      "Sorry.",
+      "Sorry"
+    ]
+  },
+  {
+    "term": "(Muchas) gracias.",
+    "translation": [
+      "Thank you very much.",
+      "Thanks a lot.",
+      "Thank you.",
+      "Thanks.",
+      "Many thanks.",
+      "Thanks so much."
+    ]
+  },
+  {
+    "term": "No hay de qué.",
+    "translation": [
+      "You're welcome.",
+      "Don't mention it.",
+      "No problem.",
+      "No worries.",
+      "It's nothing.",
+      "No hay de qué."
+    ]
+  },
+  {
+    "term": "Perdón.",
+    "translation": [
+      "Pardon me.",
+      "Excuse me.",
+      "Sorry.",
+      "Forgive me.",
+      "Pardon.",
+      "Excuse me"
+    ]
+  },
+  {
+    "term": "Por favor.",
+    "translation": [
+      "Please.",
+      "Please"
+    ]
+  },
+  {
+    "term": "señor (Sr.); don",
+    "translation": [
+      "Mr.; sir.",
+      "Mr.",
+      "Sir.",
+      "Don.",
+      "Sir"
+    ]
+  },
+  {
+    "term": "señora (Sra.); doña",
+    "translation": [
+      "Mrs.; ma'am.",
+      "Mrs.",
+      "Ma'am.",
+      "Doña.",
+      "Madam.",
+      "Ma'am"
+    ]
+  },
+  {
+    "term": "señorita (Srta.)",
+    "translation": [
+      "Miss.",
+      "Miss",
+      "Ms.",
+      "Ms"
+    ]
+  },
+  {
+    "term": "El gusto es mío.",
+    "translation": [
+      "The pleasure is mine.",
+      "My pleasure.",
+      "The pleasure's mine.",
+      "It's my pleasure."
+    ]
+  },
+  {
+    "term": "Encantado/a.",
+    "translation": [
+      "Delighted.",
+      "Pleased to meet you.",
+      "Enchanted.",
+      "Nice to meet you.",
+      "Glad to meet you.",
+      "Delighted to meet you."
+    ]
+  },
+  {
+    "term": "Igualmente.",
+    "translation": [
+      "Likewise.",
+      "Same here.",
+      "Me too.",
+      "You too.",
+      "Likewise"
+    ]
+  }
+]

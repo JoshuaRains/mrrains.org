@@ -1,0 +1,164 @@
+[
+  {
+    "term": "¿Cómo se llama usted?",
+    "translation": [
+      "What's your name? (formal)",
+      "What is your name? (formal)",
+      "What are you called? (formal)",
+      "Who are you? (formal)",
+      "What's your name?",
+      "What is your name?",
+      "Who are you?"
+    ]
+  },
+  {
+    "term": "¿Cómo te llamas?",
+    "translation": [
+      "What's your name? (familiar)",
+      "What is your name? (familiar)",
+      "What are you called? (familiar)",
+      "Who are you? (familiar)",
+      "What's your name?",
+      "What is your name?",
+      "Who are you?"
+    ]
+  },
+  {
+    "term": "Me llamo...",
+    "translation": [
+      "My name is...",
+      "I'm called...",
+      "I am called...",
+      "I am..."
+    ]
+  },
+  {
+    "term": "¿Y usted?",
+    "translation": [
+      "And you? (formal)",
+      "And you (formal)",
+      "And yourself? (formal)",
+      "And you?",
+      "And you"
+    ]
+  },
+  {
+    "term": "¿Y tú?",
+    "translation": [
+      "And you? (familiar)",
+      "And you (familiar)",
+      "And yourself? (familiar)",
+      "And you?",
+      "And you"
+    ]
+  },
+  {
+    "term": "Le presento a...",
+    "translation": [
+      "I would like to introduce you to (formal).",
+      "I'd like to introduce you to (formal).",
+      "Let me introduce you to (formal).",
+      "I present to you (formal).",
+      "This is (formal)."
+    ]
+  },
+  {
+    "term": "Te presento a...",
+    "translation": [
+      "I would like to introduce you to (familiar).",
+      "I'd like to introduce you to (familiar).",
+      "Let me introduce you to (familiar).",
+      "I present to you (familiar).",
+      "This is (familiar)."
+    ]
+  },
+  {
+    "term": "el nombre",
+    "translation": [
+      "Name.",
+      "Name"
+    ]
+  },
+  {
+    "term": "¿De dónde es usted?",
+    "translation": [
+      "Where are you from? (formal)",
+      "Where are you from (formal)",
+      "Where do you come from? (formal)",
+      "Where are you from?",
+      "Where do you come from?"
+    ]
+  },
+  {
+    "term": "¿De dónde eres?",
+    "translation": [
+      "Where are you from? (familiar)",
+      "Where are you from (familiar)",
+      "Where do you come from? (familiar)",
+      "Where are you from?",
+      "Where do you come from?"
+    ]
+  },
+  {
+    "term": "Soy de...",
+    "translation": [
+      "I'm from...",
+      "I am from...",
+      "I come from..."
+    ]
+  },
+  {
+    "term": "¿cuánto(s)/a(s)?",
+    "translation": [
+      "How much?",
+      "How many?",
+      "How much",
+      "How many"
+    ]
+  },
+  {
+    "term": "¿de quién...?",
+    "translation": [
+      "Whose?",
+      "Of whom?",
+      "To whom does it belong?",
+      "Whose"
+    ]
+  },
+  {
+    "term": "¿de quiénes...?",
+    "translation": [
+      "Whose? (plural)",
+      "Whose (plural)",
+      "Of whom? (plural)",
+      "To whom do they belong?",
+      "Whose?",
+      "Whose"
+    ]
+  },
+  {
+    "term": "(no) hay",
+    "translation": [
+      "There is not.",
+      "There isn't.",
+      "There are not.",
+      "There aren't.",
+      "There is (not).",
+      "There are (not).",
+      "There is.",
+      "There are.",
+      "There isn't any.",
+      "There aren't any."
+    ]
+  },
+  {
+    "term": "Mucho gusto.",
+    "translation": [
+      "Pleased to meet you.",
+      "Nice to meet you.",
+      "It's a pleasure.",
+      "Glad to meet you.",
+      "Delighted to meet you."
+    ]
+  }
+]

@@ -9,6 +9,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Chewy&family=Doto:wght@100..900&family=Edu+AU+VIC+WA+NT+Guides:wght@400..700&family=Silkscreen:wght@400;700&family=Noto+Serif&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" />
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
@@ -238,6 +239,9 @@
     .activity-icon.dictionary {
         background: linear-gradient(to right, #00C6FF, #0072FF); /* Bright blue gradient for "notifications" */
     }
+    .activity-icon.assignment_add {
+        background: linear-gradient(to right, #a3299f, #eb02dc); /* Bright pink gradient for "assignment_add" */
+    }
 
     .flower-container {
       position: relative; /* Ensure it is positioned absolutely */
@@ -300,6 +304,21 @@ image-rendering: -webkit-optimize-contrast;
     .special-symbols button:hover {
       background-color: #3a5744;
     }
+
+    .material-icons {
+  font-family: 'Material Icons';
+  font-size: 24px;
+  font-style: normal;
+  font-weight: normal;
+  line-height: 1;
+  letter-spacing: normal;
+  text-transform: none;
+  display: inline-block;
+  white-space: nowrap;
+  direction: ltr;
+}
+
+
   </style>
 </head>
 <body>
@@ -536,7 +555,7 @@ image-rendering: -webkit-optimize-contrast;
         <div class="activities-tabs">
           <button class="activities-tab active" data-tab="spanish1">Spanish I</button>
           <button class="activities-tab" data-tab="spanish2">Spanish II</button>
-          <button class="activities-tab" data-tab="library">Biblioteca</button>
+          <!--<button class="activities-tab" data-tab="library">Biblioteca</button> -->
           <button class="activities-tab" data-tab="vocab">Vocabulario</button>
         </div>
   
@@ -546,7 +565,7 @@ image-rendering: -webkit-optimize-contrast;
           <div id="spanish1" class="activities-content active">
             <br>
             <br>
-            <p class="activity-topic">8/1</p>
+            <p class="activity-topic">Week 1</p>
             <button class="activity-button" onclick="location.href=''">
               <div class="activity-item">
                 <div class="activity-icon description">
@@ -555,6 +574,35 @@ image-rendering: -webkit-optimize-contrast;
                 <div class="activity-text">Syllabus</div>
               </div>
             </button>
+
+            <button class="activity-button" onclick="location.href='./topics/Classroom Commands/Class Commands Poster.pdf'">
+              <div class="activity-item">
+                <div class="activity-icon description">
+                  <span class="material-icons">description</span>
+                </div>
+                <div class="activity-text">Classroom Commmands</div>
+              </div>
+            </button>
+
+            <button class="activity-button" onclick="window.open('./pages/games/vocabularyReview/index.html?set=class-commands', '_blank')">
+          <div class="activity-item">
+            <div class="activity-icon model_training">
+              <span class="material-icons">model_training</span>
+            </div>
+            <div class="activity-text">Classroom Commands Practice</div>
+          </div>
+        </button>
+
+        <button class="activity-button" onclick="location.href='./pages/tools/studentdrivenvocabulary/index.html'">
+              <div class="activity-item">
+                <div class="activity-icon assignment_add">
+                  <span class="material-symbols-outlined">assignment_add</span>
+                </div>
+                <div class="activity-text">Choosing Vocabulary</div>
+              </div>
+            </button>
+
+        
           </div>
           <!-- Spanish II pane -->
           <div id="spanish2" class="activities-content">
@@ -583,6 +631,63 @@ image-rendering: -webkit-optimize-contrast;
             <div class="activity-text">Senderos Vocabulario - Unidad 1</div>
           </div>
         </button>
+
+        <button class="activity-button" onclick="window.open('./pages/games/vocabularyReview/index.html?set=greetings-goodbyes', '_blank')">
+          <div class="activity-item">
+            <div class="activity-icon model_training">
+              <span class="material-icons">model_training</span>
+            </div>
+            <div class="activity-text">Saludos y Despedidas</div>
+          </div>
+        </button>
+
+        <button class="activity-button" onclick="window.open('./pages/games/vocabularyReview/index.html?set=introductions', '_blank')">
+          <div class="activity-item">
+            <div class="activity-icon model_training">
+              <span class="material-icons">model_training</span>
+            </div>
+            <div class="activity-text">Introducciones</div>
+          </div>
+        </button>
+
+        <button class="activity-button" onclick="window.open('./pages/games/vocabularyReview/index.html?set=courtesy-titles', '_blank')">
+          <div class="activity-item">
+            <div class="activity-icon model_training">
+              <span class="material-icons">model_training</span>
+            </div>
+            <div class="activity-text">Títulos y Cortesía</div>
+          </div>
+        </button>
+
+        <button class="activity-button" onclick="window.open('./pages/games/vocabularyReview/index.html?set=questions-feelings', '_blank')">
+          <div class="activity-item">
+            <div class="activity-icon model_training">
+              <span class="material-icons">model_training</span>
+            </div>
+            <div class="activity-text">Preguntas y Sentimientos</div>
+          </div>
+        </button>
+
+        <button class="activity-button" onclick="window.open('./pages/games/vocabularyReview/index.html?set=nouns1', '_blank')">
+          <div class="activity-item">
+            <div class="activity-icon model_training">
+              <span class="material-icons">model_training</span>
+            </div>
+            <div class="activity-text">Sustantivos 1</div>
+          </div>
+        </button>
+
+        <button class="activity-button" onclick="window.open('./pages/games/vocabularyReview/index.html?set=nouns2', '_blank')">
+          <div class="activity-item">
+            <div class="activity-icon model_training">
+              <span class="material-icons">model_training</span>
+            </div>
+            <div class="activity-text">Sustantivos 2</div>
+          </div>
+        </button>
+
+      
+
         <p class="activity-topic">Unidad 2</p>
         <button class="activity-button" onclick="window.open('./Topics/Senderos_vocab/Spanish 1 - List 2.pdf', '_blank')">
           <div class="activity-item">

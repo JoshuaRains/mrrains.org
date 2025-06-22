@@ -1,0 +1,211 @@
+[
+  {
+    "term": "traduce",
+    "translation": [
+      "Translate.",
+      "Translate",
+      "Translate it."
+    ]
+  },
+  {
+    "term": "saca",
+    "translation": [
+      "Take out.",
+      "Take out",
+      "Get out.",
+      "Get out"
+    ]
+  },
+  {
+    "term": "escucha",
+    "translation": [
+      "Listen.",
+      "Listen",
+      "Hear.",
+      "Hear"
+    ]
+  },
+  {
+    "term": "repite",
+    "translation": [
+      "Repeat.",
+      "Repeat",
+      "Say it again.",
+      "Say it again"
+    ]
+  },
+  {
+    "term": "escribe",
+    "translation": [
+      "Write.",
+      "Write",
+      "Write it.",
+      "Write it"
+    ]
+  },
+  {
+    "term": "lee",
+    "translation": [
+      "Read.",
+      "Read",
+      "Read it."
+    ]
+  },
+  {
+    "term": "levanta la mano",
+    "translation": [
+      "Raise your hand.",
+      "Raise your hand",
+      "Put your hand up.",
+      "Put up your hand.",
+      "Hand up.",
+      "Hand up"
+    ]
+  },
+  {
+    "term": "siéntate",
+    "translation": [
+      "Sit down.",
+      "Sit down",
+      "Take a seat.",
+      "Be seated.",
+      "Have a seat."
+    ]
+  },
+  {
+    "term": "levántate",
+    "translation": [
+      "Stand up.",
+      "Stand up",
+      "Get up.",
+      "Rise.",
+      "Rise up."
+    ]
+  },
+  {
+    "term": "trabaja en parejas",
+    "translation": [
+      "Work in pairs.",
+      "Work in pairs",
+      "Pair up.",
+      "Work with a partner.",
+      "Partner up."
+    ]
+  },
+  {
+    "term": "trabaja en grupo",
+    "translation": [
+      "Work in groups.",
+      "Work in groups",
+      "Group work.",
+      "Work as a group."
+    ]
+  },
+  {
+    "term": "entrega la tarea",
+    "translation": [
+      "Turn in the work.",
+      "Turn in your homework.",
+      "Hand in the work.",
+      "Hand in your homework.",
+      "Submit the work.",
+      "Submit your homework."
+    ]
+  },
+  {
+    "term": "contesta",
+    "translation": [
+      "Answer.",
+      "Answer (the question).",
+      "Answer the question.",
+      "Respond.",
+      "Respond (the question).",
+      "Respond to the question."
+    ]
+  },
+  {
+    "term": "pregunta",
+    "translation": [
+      "Ask.",
+      "Ask (a question).",
+      "Ask a question.",
+      "Question."
+    ]
+  },
+  {
+    "term": "mira",
+    "translation": [
+      "Look.",
+      "Look",
+      "Look at this.",
+      "See.",
+      "Watch."
+    ]
+  },
+  {
+    "term": "presta atención",
+    "translation": [
+      "Pay attention.",
+      "Pay attention",
+      "Focus.",
+      "Listen carefully."
+    ]
+  },
+  {
+    "term": "guarda tus cosas",
+    "translation": [
+      "Put your things away.",
+      "Put your things away",
+      "Put away your things.",
+      "Put away your stuff.",
+      "Pack up.",
+      "Pack your things."
+    ]
+  },
+  {
+    "term": "más despacio, por favor",
+    "translation": [
+      "Slower, please.",
+      "Slower please.",
+      "More slowly, please.",
+      "More slowly please.",
+      "Can you go slower?",
+      "Can you go more slowly?",
+      "Please go slower.",
+      "Please go more slowly."
+    ]
+  },
+  {
+    "term": "¿Puedo ir al baño?",
+    "translation": [
+      "Can I go to the bathroom?",
+      "Can I go to the restroom?",
+      "May I go to the bathroom?",
+      "May I go to the restroom?",
+      "Can I use the bathroom?",
+      "Can I use the restroom?",
+      "May I use the bathroom?",
+      "May I use the restroom?",
+      "Go to the bathroom?",
+      "Go to the restroom?"
+    ]
+  },
+  {
+    "term": "¿Qué significa...?",
+    "translation": [
+      "What does ... mean?",
+      "What does it mean?",
+      "What does this mean?",
+      "What is the meaning of ...?"
+    ]
+  },
+  {
+    "term": "¿Cómo se dice ... en español?",
+    "translation": [
+      "How do you say ... in Spanish?",
+      "How do you say this in Spanish?",
+      "How do you say it in Spanish?",
+      "How is ... said in Spanish?"
+    ]
+  }
+]

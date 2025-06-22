@@ -1,0 +1,21 @@
+[
+  { "term": "la boca", "translation": ["mouth"] },
+  { "term": "la cabeza", "translation": ["head"] },
+  { "term": "el cuello", "translation": ["neck"] },
+  { "term": "el dedo de pie", "translation": ["toe"] },
+  { "term": "la garganta", "translation": ["throat"] },
+  { "term": "la nariz", "translation": ["nose"] },
+  { "term": "la oreja", "translation": ["ear"] },
+  { "term": "la pierna", "translation": ["leg"] },
+  { "term": "el tobillo", "translation": ["ankle"] },
+  { "term": "el cuerpo", "translation": ["body"] },
+  { "term": "el brazo", "translation": ["arm"] },
+  { "term": "el corazón", "translation": ["heart"] },
+  { "term": "el dedo", "translation": ["finger"] },
+  { "term": "el estómago", "translation": ["stomach"] },
+  { "term": "el hueso", "translation": ["bone"] },
+  { "term": "el ojo", "translation": ["eye"] },
+  { "term": "el pie", "translation": ["foot"] },
+  { "term": "la rodilla", "translation": ["knee"] },
+  { "term": "el pecho", "translation": ["chest"] }
+]
