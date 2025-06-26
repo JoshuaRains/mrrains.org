@@ -1,0 +1,42 @@
+[
+  {
+    "videoId": "mD3-wzyF5fI",
+    "questions": [
+      {
+        "text": "¿Qué dice el presentador al principio?",
+        "answers": [
+          "Habla de los ingredientes.",
+          "Dice el nombre del canal."
+        ],
+        "selectedIndex": null,
+        "timeStart": 0,
+        "timeEnd": 15
+      },
+      {
+        "text": "¿Qué fruta muestra primero?",
+        "answers": [
+          "Una manzana.",
+          "Una naranja."
+        ],
+        "selectedIndex": null,
+        "timeStart": 16,
+        "timeEnd": 30
+      }
+    ]
+  },
+  {
+    "videoId": "ID_DEL_SEGUNDO_VIDEO",
+    "questions": [
+      {
+        "text": "¿De qué color es la camisa del presentador?",
+        "answers": [
+          "Roja.",
+          "Azul."
+        ],
+        "selectedIndex": null,
+        "timeStart": 0,
+        "timeEnd": 10
+      }
+    ]
+  }
+]

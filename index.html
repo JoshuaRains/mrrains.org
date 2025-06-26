@@ -480,13 +480,7 @@ image-rendering: -webkit-optimize-contrast;
         <div class="games-slide" data-title="Announcements">
             <div class="announcement-box">
                 <!-- Slip #1: header + body -->
-                <div class="slip" style="top: 20px; left: 40%;">
-                  <div class="pin"></div>
-                  <h3 style="margin: 0 0 6px; font-size: 16px; color: #333;">Welcome to class!</h3>
-                  <p style="margin: 0; font-size: 14px; color: #555;">
-                    I hope you are all excited to learn Spanish this year!<br>
-                  </p>
-                </div>
+               
 
                 <div class="slip" style="bottom: 20px; left: 50px;">
                   <div class="pin"></div>
@@ -496,13 +490,15 @@ image-rendering: -webkit-optimize-contrast;
                   </p>
                 </div>
 
-                <div class="slip" style="bottom: 20px; right: 50px; width: 250px;">  
+                <div class="slip" style="top: 20px; left: 40%;">
                   <div class="pin"></div>
-                  <h3 style="margin: 0 0 6px; font-size: 16px; color: #333;">Navigation:</h3>
+                  <h3 style="margin: 0 0 6px; font-size: 16px; color: #333;">Welcome!</h3>
                   <p style="margin: 0; font-size: 14px; color: #555;">
-                    View the whiteboard for the day by clicking "daily whiteboard" on the next slide →<br>
+                    Students and Parents, please take a moment to read the Syllabus.<br>
                   </p>
                 </div>
+
+                
               
                 <!-- 
 
@@ -534,10 +530,11 @@ image-rendering: -webkit-optimize-contrast;
         </div>
 
         <div class="games-slide" data-title="Maps">
-          <button class="game-item" onclick="location.href='./pages/maps/mapgame/index.html'"><img src="assets/vector_icons/MapGame.svg" alt="0-30"><p>Map Game</p></button>
+          <!-- <button class="game-item" onclick="location.href='./pages/maps/mapgame/index.html'"><img src="assets/vector_icons/MapGame.svg" alt="0-30"><p>Map Game</p></button> -->
           <!-- <button class="game-item" onclick="location.href='pages/Countries'"><img src="assets/Countries.png" alt="30-100"><p>Countries Culture</p></button> -->
-          <button class="game-item" onclick="location.href='./pages/maps/countriesweather/index.html'"><img src="assets/vector_icons/MapWeather.svg" alt="30-100"><p>Countries Weather</p></button>
-          <button class="game-item" onclick="location.href='./pages/maps/countries/index.html'"><img src="assets/vector_icons/Countries.svg" alt="30-100"><p>Countries Info</p></button>
+           <button class="game-item" onclick="location.href='./pages/maps/countriesweather/index.html'"><img src="assets/vector_icons/MapWeather.svg" alt="30-100"><p>Countries Weather</p></button>
+          <!-- <button class="game-item" onclick="location.href='./pages/maps/countries/index.html'"><img src="assets/vector_icons/Countries.svg" alt="30-100"><p>Countries Info</p></button> -->
+          <button class="game-item" onclick="window.open('https://www.oldmapsonline.org/en/history/regions/981#position=3.18/-5.53/-35.51&year=1545','_blank')"><img src="assets/vector_icons/Timeline map.svg" alt="Vocab Común"><p>Historical Map</p></button>
 
         </div>
 
@@ -585,13 +582,22 @@ image-rendering: -webkit-optimize-contrast;
             </button>
 
             <button class="activity-button" onclick="window.open('./pages/games/vocabularyReview/index.html?set=class-commands', '_blank')">
-          <div class="activity-item">
-            <div class="activity-icon model_training">
-              <span class="material-icons">model_training</span>
-            </div>
-            <div class="activity-text">Classroom Commands Practice </div>
-          </div>
-        </button>
+              <div class="activity-item">
+                <div class="activity-icon model_training">
+                  <span class="material-icons">model_training</span>
+                </div>
+                <div class="activity-text">Classroom Commands Practice </div>
+              </div>
+            </button>
+
+            <button class="activity-button" onclick="location.href='./topics/_temp_Quizzes/Quiz Unit 1-1.pdf'">
+              <div class="activity-item">
+                <div class="activity-icon description">
+                  <span class="material-icons">description</span>
+                </div>
+                <div class="activity-text">Classroom Commmands Quiz Preview</div>
+              </div>
+            </button>
 
         <button class="activity-button" onclick="location.href='./pages/tools/studentdrivenvocabulary/index.html'">
               <div class="activity-item">
