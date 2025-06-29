@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Story Generator with Footnotes</title>
+  <style>
+    body {
+      font-family: 'Noto Sans', sans-serif;
+      margin: 0;
+      background: #f4f4f4;
+    }
+    .controls {
+      padding: 1rem;
+      background: #fff;
+      border-bottom: 1px solid #ccc;
+    }
+    textarea {
+      width: 100%;
+      height: 200px;
+      font-family: monospace;
+      margin-bottom: 10px;
+    }
+    #validation-errors {
+      color: red;
+      padding: 0.5rem 1rem;
+      font-size: 0.9em;
+    }
+    .page {
+      width: 5.5in;
+      height: 8.5in;
+      background: white;
+      margin: 1rem auto;
+      padding: 0.5in;
+      box-shadow: 0 0 10px rgba(0,0,0,0.2);
+      position: relative;
+      box-sizing: border-box;
+      display: flex;
+      flex-direction: column;
+    }
+    .page-number {
+      position: absolute;
+      top: 0.3in;
+      font-size: 12px;
+    }
+    .page-number.left { left: 0.3in; }
+    .page-number.right { right: 0.3in; text-align: right; }
+    .story-text {
+      overflow: hidden;
+    }
+    .footnotes {
+      display: flex;
+      flex-wrap: wrap;
+      font-size: 11px;
+      gap: 4px;
+      column-count: 2;
+      column-gap: 1em;
+      margin-top: auto;
+      padding-top: 0.5em;
+      border-top: 1px solid #ccc;
+    }
+    .footnote {
+      break-inside: avoid;
+      margin-bottom: 0.25em;
+    }
+    sup { font-size: 0.8em; vertical-align: super; }
+    @media print {
+      .controls, #validation-errors { display: none; }
+      .page { box-shadow: none; margin: 0 auto; }
+    }
+  </style>
+</head>
+<body>
+  <div class="controls">
+    <label for="input"><b>Text with tags:</b></label><br>
+    <textarea id="input" placeholder="Enter your story here, using <fn definition=\"...\">word</fn> tags for footnotes"></textarea><br>
+    <label><input type="checkbox" id="restartEachPage" checked> Restart footnotes on each page</label>
+    <button onclick="generatePagesStepByStep()">Next step</button>
+    <button onclick="window.print()">Print PDF</button>
+  </div>
+
+  <!-- Real-time validation errors -->
+  <div id="validation-errors"></div>
+
+  <div id="pages"></div>
+
+  <script>
+    let stepIndex = 0;
+    let parsedParagraphs = [];
+    let restartEachPage = true;
+    let pageNum = 1;
+    let globalFootnoteCount = 1;
+    let currentParas = [];
+    let currentFootnotes = [];
+    let footnoteCounter = 1;
+    let story, footnotes;
+    let pagesDiv;
+    let measureDiv;
+
+    function setup() {
+      parsedParagraphs = document.getElementById('input').value.split(/\n\n+/);
+      restartEachPage = document.getElementById('restartEachPage').checked;
+      pagesDiv = document.getElementById('pages');
+      pagesDiv.innerHTML = '';
+      stepIndex = 0;
+      pageNum = 1;
+      globalFootnoteCount = 1;
+      currentParas = [];
+      currentFootnotes = [];
+      footnoteCounter = 1;
+
+      measureDiv = document.createElement('div');
+      Object.assign(measureDiv.style, {
+        position: 'absolute',
+        visibility: 'hidden',
+        width: '5.5in',
+        height: '8.5in',
+        padding: '0.5in',
+        boxSizing: 'border-box',
+        display: 'flex',
+        flexDirection: 'column'
+      });
+      document.body.appendChild(measureDiv);
+
+      ({ story, footnotes } = newPage());
+      validateStory();
+    }
+
+    function newPage() {
+      const page = document.createElement('div');
+      page.className = 'page';
+
+      const pageNumber = document.createElement('div');
+      pageNumber.className = 'page-number ' + (pageNum % 2 === 0 ? 'left' : 'right');
+      pageNumber.textContent = pageNum++;
+      page.appendChild(pageNumber);
+
+      const storyEl = document.createElement('div');
+      storyEl.className = 'story-text';
+      page.appendChild(storyEl);
+
+      const footnotesEl = document.createElement('div');
+      footnotesEl.className = 'footnotes';
+      page.appendChild(footnotesEl);
+
+      pagesDiv.appendChild(page);
+      return { page, story: storyEl, footnotes: footnotesEl };
+    }
+
+    function parseParagraph(raw, startCount) {
+      const foots = [];
+      let count = startCount;
+      const html = raw.replace(/<fn definition="(.*?)">(.*?)<\/fn>/g, (_, def, word) => {
+        foots.push(`${count}. ${def}`);
+        return `${word}<sup>${count++}</sup>`;
+      });
+      return { html, footnotes: foots, count };
+    }
+
+    function validateStory() {
+      const text = document.getElementById('input').value;
+      const openTags = (text.match(/<fn definition=".*?">/g) || []).length;
+      const closeTags = (text.match(/<\/fn>/g) || []).length;
+      const errors = [];
+      if (openTags !== closeTags) {
+        errors.push(`🔴 Found ${openTags} <fn> tags and ${closeTags} </fn> tags: mismatched tags.`);
+      }
+      const emptyDefs = [...text.matchAll(/<fn definition="(.*?)">/g)].filter(m => m[1].trim() === '').length;
+      if (emptyDefs > 0) {
+        errors.push(`🔴 ${emptyDefs} <fn> tag(s) without definition.`);
+      }
+      const errorDiv = document.getElementById('validation-errors');
+      errorDiv.textContent = errors.join(' ') || '✅ No errors found.';
+    }
+
+    document.getElementById('input').addEventListener('input', validateStory);
+
+    function generatePagesStepByStep() {
+      console.log("------------------ STEP ------------------");
+      if (stepIndex === 0) setup();
+      if (stepIndex >= parsedParagraphs.length) return;
+
+      const paraRaw = parsedParagraphs[stepIndex].trim();
+
+      // First parse for measurement
+      const measureStart = restartEachPage ? footnoteCounter : globalFootnoteCount;
+      const { html, footnotes: newFoots, count: newCount } = parseParagraph(paraRaw, measureStart);
+
+      // Measure with a temp page
+      measureDiv.innerHTML = '';
+      const tempStory = document.createElement('div');
+      tempStory.className = 'story-text';
+      currentParas.forEach(pHtml => {
+        const p = document.createElement('p'); p.innerHTML = pHtml;
+        tempStory.appendChild(p);
+      });
+      const pNew = document.createElement('p'); pNew.innerHTML = html;
+      tempStory.appendChild(pNew);
+
+      const tempFoot = document.createElement('div');
+      tempFoot.className = 'footnotes';
+      [...currentFootnotes, ...newFoots].forEach(fnText => {
+        const fn = document.createElement('div'); fn.className = 'footnote'; fn.textContent = fnText;
+        tempFoot.appendChild(fn);
+      });
+
+      measureDiv.appendChild(tempStory);
+      measureDiv.appendChild(tempFoot);
+
+      const maxHeight = 720;
+      console.log(`🧠 Max allowed page height: ${maxHeight}px`);
+      const storyHeight = tempStory.offsetHeight;
+      console.log(`📘 Story content height: ${storyHeight}px`);
+      const footnoteHeight = tempFoot.offsetHeight;
+      console.log(`📏 Footnotes height: ${footnoteHeight}px`);
+      const combinedHeight = storyHeight + footnoteHeight;
+      console.log(`📐 Combined height: ${combinedHeight}px`);
+
+      const overflow = combinedHeight >= maxHeight;
+
+      if (overflow) {
+        console.log(`⛔ Overflow on paragraph ${stepIndex + 1}, starting new page.`);
+
+        // start a new page
+        ({ story, footnotes } = newPage());
+
+        // reset before re-parsing
+        if (restartEachPage) {
+          footnoteCounter = 1;
+          console.log('🔄 Footnote counter reset to 1');
+        }
+
+        // re-parse for real
+        const realStart = restartEachPage ? footnoteCounter : globalFootnoteCount;
+        const { html: realHtml, footnotes: realFoots, count: realCount } = parseParagraph(paraRaw, realStart);
+
+        // append paragraph
+        const vp = document.createElement('p');
+        vp.innerHTML = realHtml;
+        story.appendChild(vp);
+        console.log(`✏️ Appended paragraph ${stepIndex + 1} to new page`);
+
+        // append its definitions
+        realFoots.forEach(fnText => {
+          console.log(`🔖 Creating footnote div for: ${fnText}`);
+          const fn = document.createElement('div'); fn.className = 'footnote'; fn.textContent = fnText;
+          footnotes.appendChild(fn);
+          console.log('✅ Footnote appended');
+        });
+
+        currentParas = [realHtml];
+        currentFootnotes = [...realFoots];
+        if (restartEachPage) footnoteCounter = realCount;
+        else globalFootnoteCount = realCount;
+
+      } else {
+        console.log(`✅ Paragraph ${stepIndex + 1} added to current page.`);
+
+        // append to existing page
+        const vp = document.createElement('p'); vp.innerHTML = html; story.appendChild(vp);
+
+        currentParas.push(html);
+        newFoots.forEach(fnText => {
+          console.log(`🔖 Creating footnote div for: ${fnText}`);
+          const fn = document.createElement('div'); fn.className = 'footnote'; fn.textContent = fnText;
+          footnotes.appendChild(fn);
+          console.log('✅ Footnote appended');
+        });
+        currentFootnotes.push(...newFoots);
+
+        if (restartEachPage) footnoteCounter = newCount;
+        else globalFootnoteCount = newCount;
+      }
+
+      stepIndex++;
+      if (stepIndex === parsedParagraphs.length) {
+        document.body.removeChild(measureDiv);
+        console.log('✅ All paragraphs processed.');
+      }
+    }
+  </script>
+</body>
+</html>
