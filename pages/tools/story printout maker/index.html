@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Generador de Cuentos con Notas</title>
+  <style>
+    body {
+      font-family: 'Noto Sans', sans-serif;
+      margin: 0;
+      background: #f4f4f4;
+    }
+    .controls {
+      padding: 1rem;
+      background: #fff;
+      border-bottom: 1px solid #ccc;
+    }
+    textarea {
+      width: 100%;
+      height: 200px;
+      font-family: monospace;
+      margin-bottom: 10px;
+    }
+    .page {
+      width: 5.5in;
+      height: 8.5in;
+      background: white;
+      margin: 1rem auto;
+      padding: 0.5in;
+      box-shadow: 0 0 10px rgba(0,0,0,0.2);
+      position: relative;
+      box-sizing: border-box;
+      page-break-after: always;
+    }
+    .page-number {
+      position: absolute;
+      top: 0.3in;
+      font-size: 12px;
+    }
+    .page-number.left { left: 0.3in; }
+    .page-number.right { right: 0.3in; text-align: right; }
+    .story-text {
+      font-size: 14px;
+      line-height: 1.6;
+    }
+    .footnotes {
+      margin-top: 1em;
+      border-top: 1px solid #ccc;
+      padding-top: 0.5em;
+      font-size: 12px;
+    }
+    sup { font-size: 0.8em; vertical-align: super; }
+    @media print {
+      .controls { display: none; }
+      .page { box-shadow: none; margin: 0 auto; }
+    }
+  </style>
+</head>
+<body>
+<div class="controls">
+  <label for="input"><b>Texto con etiquetas:</b></label><br>
+  <textarea id="input"></textarea><br>
+  <label><input type="checkbox" id="restartEachPage" checked> Reiniciar notas en cada página</label>
+  <button onclick="generatePages()">Generar</button>
+  <button onclick="window.print()">Imprimir PDF</button>
+</div>
+<div id="pages"></div>
+<script>
+function generatePages() {
+  const input = document.getElementById('input').value;
+  const restartEachPage = document.getElementById('restartEachPage').checked;
+  const pagesDiv = document.getElementById('pages');
+  pagesDiv.innerHTML = '';
+
+  const paragraphs = input.split(/\n\n+/);
+  let currentPage;
+  let storyDiv;
+  let footnoteDiv;
+  let pageNum = 1;
+  let footnoteIndex = 1;
+  let globalFootnoteCount = 1;
+
+  function newPage() {
+    const page = document.createElement('div');
+    page.className = 'page';
+    const pageNumber = document.createElement('div');
+    pageNumber.className = 'page-number ' + (pageNum % 2 === 0 ? 'left' : 'right');
+    pageNumber.textContent = pageNum;
+    page.appendChild(pageNumber);
+
+    storyDiv = document.createElement('div');
+    storyDiv.className = 'story-text';
+    page.appendChild(storyDiv);
+
+    footnoteDiv = document.createElement('div');
+    footnoteDiv.className = 'footnotes';
+    page.appendChild(footnoteDiv);
+
+    pagesDiv.appendChild(page);
+    pageNum++;
+    if (restartEachPage) footnoteIndex = 1;
+  }
+
+  function parseText(text) {
+    return text.replace(/<fn definition=\"(.*?)\">(.*?)<\/fn>/g, (_, def, word) => {
+      const n = restartEachPage ? footnoteIndex++ : globalFootnoteCount++;
+      currentFootnotes.push(`${n}. ${def}`);
+      return `${word}<sup>${n}</sup>`;
+    }).replace(/<b>(.*?)<\/b>/g, '<strong>$1</strong>').replace(/<i>(.*?)<\/i>/g, '<em>$1</em>');
+  }
+
+  let currentFootnotes = [];
+  newPage();
+  for (let para of paragraphs) {
+    const parsed = parseText(para.trim());
+    const p = document.createElement('p');
+    p.innerHTML = parsed;
+    storyDiv.appendChild(p);
+    if (storyDiv.scrollHeight + footnoteDiv.scrollHeight > storyDiv.parentNode.clientHeight - 40) {
+      storyDiv.removeChild(p);
+      if (currentFootnotes.length) {
+        footnoteDiv.innerHTML = currentFootnotes.map(f => `<div>${f}</div>`).join('');
+      }
+      currentFootnotes = [];
+      newPage();
+      p.innerHTML = parseText(para.trim());
+      storyDiv.appendChild(p);
+    }
+  }
+  if (currentFootnotes.length) {
+    footnoteDiv.innerHTML = currentFootnotes.map(f => `<div>${f}</div>`).join('');
+  }
+}
+</script>
+</body>
+</html>
