@@ -12,27 +12,68 @@
       margin: 0;
       padding: 20px;
     }
-
     .container {
       max-width: 800px;
       margin: 0 auto;
+      display: none; /* Hidden until fully authenticated */
     }
+    /* --- Modal styles --- */
+    .modal-backdrop {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100vw; height: 100vh;
+      background: rgba(0,0,0,0.6);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+    }
+    .modal-content {
+      background: #fff;
+      padding: 22px 16px 20px 16px;
+      border-radius: 8px;
+      text-align: center;
+      min-width: 260px;
+      box-shadow: 0 2px 14px rgba(0,0,0,.17);
+    }
+    .modal-content input,
+    .modal-content select,
+    .modal-content button {
+      width: 90%;
+      margin-top: 12px;
+      padding: 8px;
+      border-radius: 5px;
+      font-size: 1em;
 
+    }
+    .modal-content button {
+      background: #4CAF50; color: #fff; border: none;
+      transition: background 0.2s;
+    }
+    .modal-content button:hover {
+      background: #45a049;
+    }
+    .modal-content .error-msg {
+      color: #d32f2f;
+      min-height: 1.2em;
+      margin-top: 6px;
+      font-size: 0.99em;
+    }
+    /* --- (Your other styles unchanged, omitted for brevity) --- */
+    /* Add your .input-container, .vocabulary-item, etc., here as before. */
     .input-container {
       display: flex;
       gap: 10px;
       margin-bottom: 20px;
     }
-
     input[type="text"] {
       flex: 1;
       padding: 10px;
-      border: none;
+      border: 1px solid #dee2e6;
       border-radius: 5px;
-      background-color: #3c3c3c;
-      color: #fff;
+      background-color: white;
+      color: #333;
     }
-
     button {
       padding: 10px 20px;
       border: none;
@@ -42,11 +83,7 @@
       cursor: pointer;
       transition: background-color 0.3s;
     }
-
-    button:hover {
-      background-color: #45a049;
-    }
-
+    button:hover { background-color: #45a049; }
     .vocabulary-item {
       background-color: white;
       padding: 8px 12px;
@@ -58,42 +95,17 @@
       align-items: center;
       font-size: 14px;
     }
-
     .pending {
       opacity: 0.7;
       background-color: #f8f9fa;
     }
-
-    .word-info {
-      flex: 1;
-    }
-
-    .actions {
-      display: flex;
-      gap: 6px;
-    }
-
-    .actions button {
-      padding: 4px 8px;
-      font-size: 12px;
-    }
-
-    .approve {
-      background-color: #4CAF50;
-    }
-
-    .deny {
-      background-color: #f44336;
-    }
-
-    .translate {
-      background-color: #2196F3;
-    }
-
-    .lightbulb {
-      background-color: #FFC107;
-    }
-
+    .word-info { flex: 1; }
+    .actions { display: flex; gap: 6px; }
+    .actions button { padding: 4px 8px; font-size: 12px; }
+    .approve { background-color: #4CAF50; }
+    .deny { background-color: #f44336; }
+    .translate { background-color: #2196F3; }
+    .lightbulb { background-color: #FFC107; }
     .section-header {
       margin-top: 30px;
       padding: 10px;
@@ -102,69 +114,55 @@
       color: #495057;
       font-size: 1.2em;
     }
-
     .accent-buttons {
       display: flex;
       gap: 4px;
       margin-top: 4px;
     }
-
     .accent-button {
       padding: 4px 8px;
       font-size: 12px;
       background-color: #e9ecef;
       color: #333;
     }
-
-    .accent-button:hover {
-      background-color: #dee2e6;
-    }
-
-    input[type="text"] {
-      background-color: white;
-      border: 1px solid #dee2e6;
-      color: #333;
-    }
-
+    .accent-button:hover { background-color: #dee2e6; }
     input[type="text"]:focus {
       outline: none;
       border-color: #80bdff;
       box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25);
     }
-
-    /* modal styles */
-    #classModal {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0,0,0,0.6);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      z-index: 1000;
-    }
-
-    #classModal .modal-content {
-      background: #fff;
-      padding: 20px;
-      border-radius: 8px;
-      text-align: center;
-      width: 90%;
-      max-width: 300px;
-    }
-
-    #classModal select,
-    #classModal button {
-      margin-top: 10px;
-      width: 100%;
-      padding: 8px;
-    }
   </style>
 </head>
 <body>
-  <div id="classModal">
+  <!-- Login modal (step 1) -->
+  <div id="loginModal" class="modal-backdrop" style="display:flex;">
+    <div class="modal-content">
+      <h2>Enter Class Password</h2>
+      <input id="loginPassword"  autocomplete="current-password" placeholder="Class password">
+      <button id="loginButton">Sign In</button>
+      <div id="loginError" class="error-msg"></div>
+    </div>
+  </div>
+  <!-- Teacher password modal (step 2) -->
+  <div id="teacherPwModal" class="modal-backdrop" style="display:none;">
+    <div class="modal-content">
+      <h2>Enter Teacher Password</h2>
+      <input id="teacherPwInput" type="password" autocomplete="off" placeholder="Teacher password">
+      <button id="teacherPwButton">Continue</button>
+      <div id="teacherPwError" class="error-msg"></div>
+    </div>
+  </div>
+
+  <!-- Results Modal -->
+<div id="resultsModal" style="display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:2000;align-items:center;justify-content:center;background:rgba(0,0,0,0.6);">
+  <div style="background:#fff;border-radius:8px; height:90%; width:90%;margin:30px auto;padding:24px 14px;text-align:center;">
+    <h2>Top Voted Words</h2>
+    <div id="resultsList" style="margin:18px 0 10px 0; font-size:xx-large;"></div>
+    <button onclick="document.getElementById('resultsModal').style.display='none';" style="margin-top:12px;">Close</button>
+  </div>
+</div>
+  <!-- Class period modal (step 3) -->
+  <div id="classModal" class="modal-backdrop" style="display:none;">
     <div class="modal-content">
       <h2>Select Class Period</h2>
       <select id="classSelect">
@@ -178,11 +176,12 @@
     </div>
   </div>
 
+  <!-- Main content (hidden until authentication passes) -->
   <div class="container">
     <h1>Vocabulary List - Teacher View</h1>
     <div class="input-container">
       <input type="text" id="spanishWord" placeholder="Spanish word">
-      <div class="accent-buttons" style="display:flex;gap:4px;margin-top:4px;">
+      <div class="accent-buttons">
         <button class="accent-button" onclick="insertAccent('á')">á</button>
         <button class="accent-button" onclick="insertAccent('é')">é</button>
         <button class="accent-button" onclick="insertAccent('í')">í</button>
@@ -196,7 +195,6 @@
       <input type="text" id="englishTranslation" placeholder="English translation">
       <button onclick="addWord()">Add Word</button>
     </div>
-
     <div class="input-container" style="margin-bottom: 30px;">
       <label for="timerMinutes" style="margin-right:10px;">Set Timer:</label>
       <select id="timerMinutes">
@@ -213,163 +211,424 @@
       <button id="cancelTimer">Cancel Timer</button>
       <span id="timerStatus" style="margin-left:15px;font-weight:bold;"></span>
     </div>
-
     <div id="timerDisplay" style="font-size:1.3em;font-weight:bold;margin-bottom:18px;"></div>
+    
+    <button id="voteBtn" style="margin-left:10px;">Start Vote</button>
+  <input type="number" id="voteCount" value="5" min="2" max="20" style="width:60px;margin-left:8px;" title="Number of words to vote for">
+  <button id="tallyBtn" style="margin-left:10px;display:none;">Tally Votes</button>
+  
+
 
     <h2 class="section-header">Pending Approval</h2>
     <div id="pendingList"></div>
-
     <h2 class="section-header">Approved Vocabulary</h2>
     <div id="approvedList"></div>
   </div>
 
   <script type="module">
-    import { initializeApp }    from 'https://www.gstatic.com/firebasejs/11.8.1/firebase-app.js';
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/11.8.1/firebase-app.js';
     import {
       getDatabase, ref, push,
       onValue, remove, update, get, set
     } from 'https://www.gstatic.com/firebasejs/11.8.1/firebase-database.js';
+    import { getAuth, signInWithEmailAndPassword } from 'https://www.gstatic.com/firebasejs/11.8.1/firebase-auth.js';
 
-    // Your Firebase config here:
+    // Firebase config and constants
     const firebaseConfig = {
-            apiKey: "AIzaSyBBxUdOHCB1fJI9mZgYHJ0HCg6p_8R_1-s",
-            authDomain: "interactive-whiteboard-8bc1e.firebaseapp.com",
-            projectId: "interactive-whiteboard-8bc1e",
-            storageBucket: "interactive-whiteboard-8bc1e.firebasestorage.app",
-            messagingSenderId: "403793324386",
-            appId: "1:403793324386:web:c5f8da9579cd97f935a43b"
-        };
+      apiKey: "AIzaSyBBxUdOHCB1fJI9mZgYHJ0HCg6p_8R_1-s",
+      authDomain: "interactive-whiteboard-8bc1e.firebaseapp.com",
+      projectId: "interactive-whiteboard-8bc1e",
+      storageBucket: "interactive-whiteboard-8bc1e.firebasestorage.app",
+      messagingSenderId: "403793324386",
+      appId: "1:403793324386:web:c5f8da9579cd97f935a43b"
+    };
+    const SHARED_EMAIL = "classroom@myapp.com"; // <-- use your shared classroom email
+    const TEACHER_PW_PATH = "teacher_password"; // Location in DB for teacher password
+
     const app = initializeApp(firebaseConfig);
     const db  = getDatabase(app);
+    const auth = getAuth(app);
 
-    const modal  = document.getElementById('classModal');
+    // Modal DOM
+    const loginModal = document.getElementById('loginModal');
+    const loginPassword = document.getElementById('loginPassword');
+    const loginButton = document.getElementById('loginButton');
+    const loginError = document.getElementById('loginError');
+    const teacherPwModal = document.getElementById('teacherPwModal');
+    const teacherPwInput = document.getElementById('teacherPwInput');
+    const teacherPwButton = document.getElementById('teacherPwButton');
+    const teacherPwError = document.getElementById('teacherPwError');
+    const classModal = document.getElementById('classModal');
     const select = document.getElementById('classSelect');
-    document.getElementById('confirmClass').onclick = () => {
-      modal.style.display = 'none';
-      initApp(select.value);
-    };
-    modal.style.display = 'flex';
+    const mainContainer = document.querySelector('.container');
 
-    function initApp(classPeriod) {
-      const pendingVocabRef  = ref(db, `pending_vocabulary/period${classPeriod}`);
-      const approvedVocabRef = ref(db, `approved_vocabulary/period${classPeriod}`);
-
-      window.addWord = function() {
-        const s = document.getElementById('spanishWord').value.trim();
-        const e = document.getElementById('englishTranslation').value.trim();
-        if (!s || !e) return;
-        push(approvedVocabRef, { spanish: s, english: e, timestamp: Date.now() });
-        document.getElementById('spanishWord').value = '';
-        document.getElementById('englishTranslation').value = '';
-      };
-
-      window.editWord = function(btn, id) {
-        const info = btn.closest('.vocabulary-item').querySelector('.word-info');
-        const [os, oe] = info.querySelector('.original-text').textContent.split('|');
-        info.innerHTML = `
-          <input type="text" class="edit-spanish" value="${os}" />
-          <input type="text" class="edit-english" value="${oe}" />
-          <button onclick="saveEdit(this,'${id}')">Save</button>
-        `;
-      };
-
-      window.saveEdit = function(btn, id) {
-        const item = btn.closest('.vocabulary-item');
-        const newS = item.querySelector('.edit-spanish').value.trim();
-        const newE = item.querySelector('.edit-english').value.trim();
-        if (!newS || !newE) return;
-
-        const wr = ref(db, `pending_vocabulary/period${classPeriod}/${id}`);
-        update(wr, { spanish: newS, english: newE })
-          .then(() => {
-            const info = item.querySelector('.word-info');
-            info.innerHTML = `
-              <strong>${newS}</strong> – ${newE}
-              <p class="original-text" style="display:none;">
-                ${newS}|${newE}
-              </p>`;
-          })
-          .catch(console.error);
-      };
-
-      window.approveWord = function(id) {
-        const wr = ref(db, `pending_vocabulary/period${classPeriod}/${id}`);
-        get(wr).then(snap => {
-          const w = snap.val();
-          if (!w) return;
-          push(approvedVocabRef, {
-            spanish: w.spanish,
-            english: w.english,
-            originalSpanish: w.originalSpanish || w.spanish,
-            originalEnglish: w.originalEnglish || w.english,
-            timestamp: Date.now()
-          });
-          remove(wr);
-        });
-      };
-
-      window.deleteWord = function(id, list) {
-        remove(ref(db, `${list}/period${classPeriod}/${id}`));
-      };
-
-      function createVocabularyItem(w, id, isPending) {
-        const d = document.createElement('div');
-        d.className = `vocabulary-item ${isPending ? 'pending' : ''}`;
-        d.innerHTML = `
-          <div class="word-info">
-            <strong>${w.spanish}</strong> – ${w.english}
-            ${isPending ? `<p class="original-text" style="display:none;">
-              ${w.spanish}|${w.english}
-            </p>` : ''}
-          </div>
-          <div class="actions">
-            <button class="translate"
-              onclick="window.open(
-                'https://www.spanishdict.com/translate/${encodeURIComponent(w.spanish)}',
-                '_blank'
-              )">SpanishDict</button>
-            <button class="lightbulb">💡</button>
-            ${isPending ? `
-              <button class="edit" onclick="editWord(this,'${id}')">✏️</button>
-              <button class="approve" onclick="approveWord('${id}')">✓</button>
-            ` : ``}
-            <button class="deny"
-              onclick="deleteWord(
-                '${id}',
-                '${isPending ? 'pending_vocabulary' : 'approved_vocabulary'}'
-              )">🗑️</button>
-          </div>`;
-        return d;
-      }
-
-      onValue(pendingVocabRef, snap => {
-        const list = document.getElementById('pendingList');
-        list.innerHTML = '';
-        const words = snap.val();
-        if (words) {
-          Object.entries(words)
-            .sort(([,a],[,b]) => b.timestamp - a.timestamp)
-            .forEach(([id, w]) => list.appendChild(createVocabularyItem(w, id, true)));
-        }
-      });
-
-      onValue(approvedVocabRef, snap => {
-        const list = document.getElementById('approvedList');
-        list.innerHTML = '';
-        const words = snap.val();
-        if (words) {
-          Object.entries(words)
-            .sort(([,a],[,b]) => b.timestamp - a.timestamp)
-            .forEach(([id, w]) => list.appendChild(createVocabularyItem(w, id, false)));
-        }
-      });
-
-      setupTimer(classPeriod);
+    // Modal flow
+    function showModal(id) {
+      loginModal.style.display = 'none';
+      teacherPwModal.style.display = 'none';
+      classModal.style.display = 'none';
+      if (id === 'login') loginModal.style.display = 'flex';
+      if (id === 'teacher') teacherPwModal.style.display = 'flex';
+      if (id === 'class') classModal.style.display = 'flex';
     }
 
-    let timerRef;
+    // ---- Login Modal (step 1) ----
+    loginButton.onclick = tryLogin;
+    loginPassword.onkeydown = e => { if(e.key==='Enter') tryLogin(); };
+    function tryLogin() {
+      const email = SHARED_EMAIL;
+      const pass  = loginPassword.value;
+      loginError.textContent = '';
+      if (!pass) {
+        loginError.textContent = "Please enter the password.";
+        return;
+      }
+      loginButton.disabled = true;
+      signInWithEmailAndPassword(auth, email, pass)
+        .then(() => {
+          loginButton.disabled = false;
+          loginPassword.value = '';
+          showModal('teacher');
+          setTimeout(() => teacherPwInput.focus(), 100);
+        })
+        .catch(err => {
+          loginError.textContent = "Incorrect password. Try again.";
+          loginButton.disabled = false;
+        });
+    }
+
+    // ---- Teacher Password Modal (step 2) ----
+    teacherPwButton.onclick = tryTeacherPassword;
+    teacherPwInput.onkeydown = e => { if(e.key==='Enter') tryTeacherPassword(); };
+    function tryTeacherPassword() {
+      teacherPwError.textContent = '';
+      teacherPwButton.disabled = true;
+      const typedPw = teacherPwInput.value.trim();
+      if (!typedPw) {
+        teacherPwError.textContent = "Please enter the teacher password.";
+        teacherPwButton.disabled = false;
+        return;
+      }
+      get(ref(db, TEACHER_PW_PATH)).then(snap => {
+        const teacherPw = snap.val();
+        if (teacherPw === typedPw) {
+          teacherPwInput.value = '';
+          showModal('class');
+          setTimeout(() => select.focus(), 100);
+        } else {
+          teacherPwError.textContent = "Incorrect teacher password.";
+          teacherPwButton.disabled = false;
+          teacherPwInput.focus();
+        }
+      }).catch(err => {
+        teacherPwError.textContent = "Could not verify password. Try again.";
+        teacherPwButton.disabled = false;
+        teacherPwInput.focus();
+      });
+    }
+
+    // ---- Class Modal (step 3) ----
+    document.getElementById('confirmClass').onclick = () => {
+      showModal(null);
+      mainContainer.style.display = '';
+      initApp(select.value);
+    };
+
+    // On load, show login modal and hide everything else
+    showModal('login');
+    mainContainer.style.display = 'none';
+
+    // --- Main app logic (your code) ---
+   function initApp(classPeriod) {
+  const pendingVocabRef  = ref(db, `pending_vocabulary/period${classPeriod}`);
+  const approvedVocabRef = ref(db, `approved_vocabulary/period${classPeriod}`);
+  const timerRef = ref(db, `timer/period${classPeriod}`);
+  const voteRef = ref(db, `vote/period${classPeriod}`);
+  const votesRef = ref(db, `votes/period${classPeriod}`);
+  let voteActive = false;
+  let voteWords = [];
+  let voteCount = 5;
+
+      mainContainer.style.display = 'block';
+
+
+  // Voting controls
+  const voteBtn = document.getElementById('voteBtn');
+  const voteCountInput = document.getElementById('voteCount');
+  const tallyBtn = document.getElementById('tallyBtn');
+  const resultsModal = document.getElementById('resultsModal');
+  const resultsList = document.getElementById('resultsList');
+
+  voteBtn.onclick = async function() {
+    if (!voteActive) {
+      // Start Vote
+      voteCount = Math.max(2, Math.min(20, parseInt(voteCountInput.value)||5));
+      // Get latest approved vocabulary
+      const snapshot = await get(approvedVocabRef);
+      const vocabData = snapshot.val();
+      if (!vocabData) { alert("No approved vocabulary to vote on."); return; }
+      
+      // Use ALL approved vocab, not just top N:
+let entries = Object.entries(vocabData)
+  .sort(([,a],[,b]) => b.timestamp - a.timestamp);
+// .slice(0, voteCount); // REMOVE this .slice!
+
+
+      if (entries.length < voteCount) {
+        alert(`Not enough words to vote. Need at least ${voteCount}.`);
+        return;
+      }
+
+      voteWords = entries.map(([id, w]) => id);
+      await set(voteRef, { active: true, words: voteWords, count: voteCount, timestamp: Date.now() });
+      voteActive = true;
+    } else {
+      // Stop vote
+      await set(voteRef, { active: false });
+      voteActive = false;
+    }
+  };
+
+  tallyBtn.onclick = tallyVotes;
+
+  // Listen for vote state changes
+  onValue(voteRef, snap => {
+    const data = snap.val();
+    voteActive = !!(data && data.active);
+    voteWords = data && data.words ? data.words : [];
+    voteCount = data && data.count ? data.count : 5;
+
+    voteBtn.textContent = voteActive ? "Stop Vote" : "Start Vote";
+    voteBtn.style.background = voteActive ? "#d32f2f" : "#4CAF50";
+    voteBtn.style.color = voteActive ? "#fff" : "";
+    tallyBtn.style.display = voteActive ? "inline-block" : "none";
+    voteCountInput.disabled = voteActive;
+  });
+
+  async function tallyVotes() {
+    const voteSnapshot = await get(voteRef);
+    const voteData = voteSnapshot.val();
+    if (!voteData || !voteData.words || voteData.words.length < 2) {
+      alert("No active vote or not enough words.");
+      return;
+    }
+    const vocabSnap = await get(approvedVocabRef);
+    const vocabData = vocabSnap.val() || {};
+    const votesSnap = await get(votesRef);
+    const votes = votesSnap.val() || {};
+
+    const points = {};
+    const n = voteData.words.length;
+    for (const wordId of voteData.words) points[wordId] = 0;
+
+    for (const voterId in votes) {
+      const ranks = votes[voterId];
+      if (!Array.isArray(ranks) || ranks.length !== n) continue;
+      for (let i = 0; i < n; ++i) {
+        const wordId = ranks[i];
+        if (points[wordId] !== undefined) points[wordId] += n - i;
+      }
+    }
+
+    let totalPoints = Object.values(points).reduce((a,b) => a+b, 0) || 1;
+    let sorted = Object.entries(points)
+      .map(([id, pts]) => ({
+        id, pts,
+        word: vocabData[id]?.spanish || "(deleted)",
+        english: vocabData[id]?.english || "",
+        pct: Math.round(100*pts/totalPoints)
+      }))
+      .sort((a, b) => b.pts - a.pts);
+
+    resultsList.innerHTML = sorted.slice(0, voteCount).map((item, i) =>
+      `<div style="margin-bottom:8px;font-size:1.12em;">
+        <b>#${i+1}:</b> ${item.word} <span style="color:#555;font-size:0.9em;">(${item.english})</span>
+        <br><span style="font-size:1.1em;color:#388e3c;">${item.pts} pts</span> — <b>${item.pct}%</b>
+      </div>`
+    ).join('');
+
+    resultsModal.style.display = 'flex';
+  }
+
+  // --- Existing logic for adding/editing/approving vocab, timer, etc ---
+  // (No changes from your existing logic!)
+  window.addWord = function() {
+    const s = document.getElementById('spanishWord').value.trim();
+    const e = document.getElementById('englishTranslation').value.trim();
+    if (!s || !e) return;
+    push(approvedVocabRef, { spanish: s, english: e, timestamp: Date.now() });
+    document.getElementById('spanishWord').value = '';
+    document.getElementById('englishTranslation').value = '';
+  };
+
+  window.editWord = function(btn, id) {
+    const info = btn.closest('.vocabulary-item').querySelector('.word-info');
+    const [os, oe] = info.querySelector('.original-text').textContent.split('|');
+    info.innerHTML = `
+      <input type="text" class="edit-spanish" value="${os}" />
+      <input type="text" class="edit-english" value="${oe}" />
+      <button onclick="saveEdit(this,'${id}')">Save</button>
+    `;
+  };
+
+  window.saveEdit = function(btn, id) {
+    const item = btn.closest('.vocabulary-item');
+    const newS = item.querySelector('.edit-spanish').value.trim();
+    const newE = item.querySelector('.edit-english').value.trim();
+    if (!newS || !newE) return;
+    const wr = ref(db, `pending_vocabulary/period${classPeriod}/${id}`);
+    update(wr, { spanish: newS, english: newE })
+      .then(() => {
+        const info = item.querySelector('.word-info');
+        info.innerHTML = `
+          <strong>${newS}</strong> – ${newE}
+          <p class="original-text" style="display:none;">
+            ${newS}|${newE}
+          </p>`;
+      })
+      .catch(console.error);
+  };
+
+  window.approveWord = function(id) {
+    const wr = ref(db, `pending_vocabulary/period${classPeriod}/${id}`);
+    get(wr).then(snap => {
+      const w = snap.val();
+      if (!w) return;
+      push(approvedVocabRef, {
+        spanish: w.spanish,
+        english: w.english,
+        originalSpanish: w.originalSpanish || w.spanish,
+        originalEnglish: w.originalEnglish || w.english,
+        timestamp: Date.now()
+      });
+      remove(wr);
+    });
+  };
+
+  window.deleteWord = function(id, list) {
+    remove(ref(db, `${list}/period${classPeriod}/${id}`));
+  };
+
+  function createVocabularyItem(w, id, isPending) {
+    const d = document.createElement('div');
+    d.className = `vocabulary-item ${isPending ? 'pending' : ''}`;
+    d.innerHTML = `
+      <div class="word-info">
+        <strong>${w.spanish}</strong> – ${w.english}
+        ${isPending ? `<p class="original-text" style="display:none;">
+          ${w.spanish}|${w.english}
+        </p>` : ''}
+      </div>
+      <div class="actions">
+        <button class="translate"
+          onclick="window.open(
+            'https://www.spanishdict.com/translate/${encodeURIComponent(w.spanish)}',
+            '_blank'
+          )">SpanishDict</button>
+        <button class="lightbulb">💡</button>
+        ${isPending ? `
+          <button class="edit" onclick="editWord(this,'${id}')">✏️</button>
+          <button class="approve" onclick="approveWord('${id}')">✓</button>
+        ` : ``}
+        <button class="deny"
+          onclick="deleteWord(
+            '${id}',
+            '${isPending ? 'pending_vocabulary' : 'approved_vocabulary'}'
+          )">🗑️</button>
+      </div>`;
+    return d;
+  }
+
+  onValue(pendingVocabRef, snap => {
+    const list = document.getElementById('pendingList');
+    list.innerHTML = '';
+    const words = snap.val();
+    if (words) {
+      Object.entries(words)
+        .sort(([,a],[,b]) => b.timestamp - a.timestamp)
+        .forEach(([id, w]) => list.appendChild(createVocabularyItem(w, id, true)));
+    }
+  });
+
+  onValue(approvedVocabRef, snap => {
+    const list = document.getElementById('approvedList');
+    list.innerHTML = '';
+    const words = snap.val();
+    if (words) {
+      Object.entries(words)
+        .sort(([,a],[,b]) => b.timestamp - a.timestamp)
+        .forEach(([id, w]) => list.appendChild(createVocabularyItem(w, id, false)));
+    }
+  });
+
+  // --- Timer logic (as before) ---
+  setupTimer(classPeriod);
+
+  function setupTimer(classPeriod) {
+    const timerRef = ref(db, `timer/period${classPeriod}`);
+    const minutesSelect = document.getElementById('timerMinutes');
+    const startBtn = document.getElementById('startTimer');
+    const cancelBtn = document.getElementById('cancelTimer');
+    const status = document.getElementById('timerStatus');
+    const timerDisplay = document.getElementById('timerDisplay');
     let timerInterval;
 
+    function setDisabled(disabled) {
+      minutesSelect.disabled = disabled;
+      startBtn.disabled = disabled;
+    }
+
+    function updateTimer(ts) {
+      clearInterval(timerInterval);
+      function render() {
+        const now = Date.now();
+        let diff = Math.max(0, ts - now);
+        if (diff <= 0) {
+          timerDisplay.textContent = '⏰ Time is up!';
+          clearInterval(timerInterval);
+          return;
+        }
+        const min = Math.floor(diff/60000);
+        const sec = Math.floor((diff%60000)/1000);
+        timerDisplay.textContent = `⏳ Time left: ${min}:${sec.toString().padStart(2,'0')}`;
+      }
+      render();
+      timerInterval = setInterval(render, 1000);
+    }
+
+    startBtn.onclick = () => {
+      const mins = parseInt(minutesSelect.value, 10);
+      const endTimestamp = Date.now() + mins * 60 * 1000;
+      set(timerRef, endTimestamp);
+      setDisabled(true);
+      status.textContent = `Timer started for ${mins} min${mins > 1 ? 's' : ''}`;
+    };
+
+    cancelBtn.onclick = () => {
+      set(timerRef, Date.now());
+      setDisabled(false);
+      status.textContent = 'Timer cancelled.';
+      timerDisplay.textContent = '';
+    };
+
+    onValue(timerRef, snap => {
+      const ts = snap.val();
+      if (!ts || ts <= Date.now()) {
+        setDisabled(false);
+        status.textContent = 'Timer not running.';
+        timerDisplay.textContent = '';
+        clearInterval(timerInterval);
+        return;
+      }
+      setDisabled(true);
+      updateTimer(ts);
+      const mins = Math.round((ts - Date.now()) / 60000);
+      status.textContent = `Timer running: ends in ${mins} min${mins !== 1 ? 's' : ''}`;
+    });
+  }
+}
+
+    // Timer logic
     function setupTimer(classPeriod) {
       const timerRef = ref(db, `timer/period${classPeriod}`);
       const minutesSelect = document.getElementById('timerMinutes');
@@ -378,12 +637,10 @@
       const status = document.getElementById('timerStatus');
       const timerDisplay = document.getElementById('timerDisplay');
       let timerInterval;
-
       function setDisabled(disabled) {
         minutesSelect.disabled = disabled;
         startBtn.disabled = disabled;
       }
-
       function updateTimer(ts) {
         clearInterval(timerInterval);
         function render() {
@@ -401,7 +658,6 @@
         render();
         timerInterval = setInterval(render, 1000);
       }
-
       startBtn.onclick = () => {
         const mins = parseInt(minutesSelect.value, 10);
         const endTimestamp = Date.now() + mins * 60 * 1000;
@@ -409,14 +665,12 @@
         setDisabled(true);
         status.textContent = `Timer started for ${mins} min${mins > 1 ? 's' : ''}`;
       };
-
       cancelBtn.onclick = () => {
         set(timerRef, Date.now());
         setDisabled(false);
         status.textContent = 'Timer cancelled.';
         timerDisplay.textContent = '';
       };
-
       onValue(timerRef, snap => {
         const ts = snap.val();
         if (!ts || ts <= Date.now()) {
@@ -433,6 +687,7 @@
       });
     }
 
+    // Accent button
     window.insertAccent = function(accent) {
       const input = document.getElementById('spanishWord');
       if (!input) return;
