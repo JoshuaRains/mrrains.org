@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title></title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    html,body {height:100%;margin:0;background:#191b22;color:#f5f5f7;font-family:sans-serif;}
+    body {display:flex;align-items:center;justify-content:center;height:100vh;}
+    #bigName {
+      font-size: 4.5em;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      color: #37d67a;
+      text-shadow: 0 4px 32px #000b;
+      text-align: center;
+      min-width: 2em;
+      min-height: 1.3em;
+      transition: font-size 0.2s;
+    }
+    @media (max-width: 700px) {
+      #bigName { font-size: 2.2em; }
+    }
+  </style>
+</head>
+<body>
+  <div id="bigName"></div>
+  <script>
+    window.addEventListener('message', function(e) {
+      if(e.data && e.data.type === "SHOW_NAME") {
+        animateName(e.data.sequence, e.data.names, e.data.duration);
+      }
+    });
+    function animateName(sequence, names, duration) {
+      let div = document.getElementById('bigName');
+      let t = 0, frame = 0;
+      let lastTime = performance.now();
+      function step(now) {
+        let elapsed = now - lastTime;
+        lastTime = now;
+        t += elapsed;
+        frame = Math.floor((t/duration) * sequence.length);
+        if (frame >= sequence.length) frame = sequence.length-1;
+        div.textContent = names[sequence[frame]];
+        if (frame < sequence.length-1)
+          requestAnimationFrame(step);
+      }
+      step(performance.now());
+    }
+  </script>
+</body>
+</html>

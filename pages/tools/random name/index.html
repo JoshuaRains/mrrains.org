@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title></title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    html, body {
+      height: 100%;
+      margin: 0;
+      background: #191b22;
+      color: #f5f5f7;
+      font-family: sans-serif;
+    }
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      min-height: 100vh;
+    }
+    .container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 100vw;
+      margin-top: 4vw;
+    }
+    .animation {
+      min-height: 3em;
+      height: 3.2em;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2.2em;
+      font-weight: 600;
+      color: #37d67a;
+      margin-bottom: 2.2em;
+      letter-spacing: 0.03em;
+      text-shadow: 0 2px 16px #000a;
+      transition: font-size 0.2s;
+    }
+    .pick-btn, .open-btn {
+      margin-bottom: 2em;
+      padding: 1em 2em;
+      font-size: 1.1rem;
+      border: none;
+      border-radius: 0.7em;
+      background: #293042;
+      color: #f5f5f7;
+      cursor: pointer;
+      transition: background 0.15s, box-shadow 0.18s;
+      box-shadow: 0 2px 10px #0005;
+    }
+    .pick-btn:hover, .open-btn:hover {
+      background: #39445c;
+    }
+    .student-list {
+      width: 75vw;
+      max-width: 950px;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 0.9em;
+      background: #23262e;
+      padding: 2em 0.8em;
+      border-radius: 1em;
+    }
+    .student-btn {
+      min-width: 110px;
+      flex: 1 0 16%;
+      margin: 0.2em 0;
+      padding: 0.9em 0.4em;
+      background: #232c38;
+      color: #e3e3e6;
+      border: none;
+      border-radius: 0.6em;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: background 0.13s, color 0.11s, transform 0.09s;
+      outline: none;
+      box-shadow: 0 1px 6px #0002;
+    }
+    .student-btn:active {
+      background: #39445c;
+      color: #a3e6b1;
+      transform: scale(0.98);
+    }
+    @media (max-width: 700px) {
+      .student-list { width: 95vw; }
+      .student-btn { flex: 1 0 40%; font-size: 0.98rem;}
+      .animation { font-size: 1.3em; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <button class="open-btn" id="openDisplayBtn">Open Student Display</button>
+    <div class="animation" id="animationArea"></div>
+    <button class="pick-btn" id="randomBtn">Randomly Select Student</button>
+    <div class="student-list" id="studentList"></div>
+  </div>
+  <script>
+    const students = [
+      "Aiden", "Alicia", "Brandon", "Carmen", "Daniel",
+      "Diana", "Emily", "Ethan", "Fatima", "Giovanni",
+      "Hailey", "Isabella", "Jacob", "Jasmine", "Kevin",
+      "Lila", "Lucas", "Madison", "Mateo", "Maya",
+      "Nathan", "Noah", "Olivia", "Oscar", "Penelope",
+      "Quinn", "Riley", "Sofia", "Tristan", "Zara"
+    ];
+
+    let displayWin = null;
+
+    document.getElementById('openDisplayBtn').onclick = function() {
+      if (!displayWin || displayWin.closed) {
+        displayWin = window.open('student-display.html', '_blank');
+      } else {
+        displayWin.focus();
+      }
+    };
+
+    // Set up the config window
+    const listDiv = document.getElementById('studentList');
+    students.forEach((name, i) => {
+      const btn = document.createElement('button');
+      btn.className = 'student-btn';
+      btn.textContent = name;
+      btn.addEventListener('mousedown', () => btn.style.background = '#39445c');
+      btn.addEventListener('mouseup', () => btn.style.background = '#232c38');
+      btn.addEventListener('mouseleave', () => btn.style.background = '#232c38');
+      btn.addEventListener('click', () => startRoulette(i));
+      listDiv.appendChild(btn);
+    });
+
+    document.getElementById('randomBtn').addEventListener('click', () => {
+      const idx = Math.floor(Math.random() * students.length);
+      startRoulette(idx);
+    });
+
+    function startRoulette(winnerIndex) {
+      const totalFrames = 35;
+      const duration = 1800; // ms
+      let sequence = [];
+      let pos = Math.floor(Math.random()*students.length);
+      let last = pos;
+      for (let i = 0; i < totalFrames; ++i) {
+        let step = Math.round(Math.pow(i / totalFrames, 2.1) * (students.length * 2)) + 1;
+        last = (last + step) % students.length;
+        sequence.push(last);
+      }
+      sequence[sequence.length-1] = winnerIndex;
+
+      animateName(sequence, students, duration);
+
+      // Animate on student display
+      if (displayWin && !displayWin.closed) {
+        displayWin.postMessage({
+          type: "SHOW_NAME",
+          names: students,
+          sequence,
+          duration
+        }, "*");
+      }
+    }
+
+    // Animate the main window
+    function animateName(sequence, names, duration) {
+      const div = document.getElementById('animationArea');
+      let t = 0, frame = 0;
+      let lastTime = performance.now();
+      function step(now) {
+        let elapsed = now - lastTime;
+        lastTime = now;
+        t += elapsed;
+        frame = Math.floor((t/duration) * sequence.length);
+        if (frame >= sequence.length) frame = sequence.length-1;
+        div.textContent = names[sequence[frame]];
+        if (frame < sequence.length-1)
+          requestAnimationFrame(step);
+      }
+      step(performance.now());
+    }
+  </script>
+</body>
+</html>
