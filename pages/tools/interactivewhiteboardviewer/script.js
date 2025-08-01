@@ -8,7 +8,10 @@ import {
   set,
   remove,
   get
+  
 } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-database.js";
+import { setPersistence, inMemoryPersistence } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-auth.js";
+import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-auth.js";
 
 // ------------------------------
 // Firebase initialization
@@ -24,12 +27,61 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db  = getDatabase(app);
 
+
+const auth = getAuth(app);
+
+await setPersistence(auth, inMemoryPersistence);
+
+const SHARED_EMAIL = "classroom@myapp.com"; // your shared email
+
+
+function showModal(which) {
+  loginModal.style.display = which === 'login' ? 'flex' : 'none';
+}
+
+// 1. Show login modal on load
+showModal('login');
+
+// 2. Class password authentication (uses Firebase email/pass)
+loginButton.onclick = tryLogin;
+loginPassword.onkeydown = e => { if(e.key==='Enter') tryLogin(); };
+function tryLogin() {
+  const email = SHARED_EMAIL;
+  const pass = loginPassword.value;
+  loginError.textContent = '';
+  if (!pass) {
+    loginError.textContent = "Please enter the password.";
+    return;
+  }
+  loginButton.disabled = true;
+  signInWithEmailAndPassword(auth, email, pass)
+    .then(() => {
+      loginButton.disabled = false;
+      loginPassword.value = '';
+      showModal(null);
+      onLoginSuccess();
+    })
+    .catch(err => {
+      loginError.textContent = "Incorrect password. Try again.";
+      loginButton.disabled = false;
+    });
+}
+
+
+// (optional) Prevent whiteboard UI until authenticated
+document.addEventListener('DOMContentLoaded', () => {
+    
+  
+});
+
 // ------------------------------
 // Canvas & state variables
 // ------------------------------
 const CANVAS_WIDTH    = 2000;
 const CANVAS_HEIGHT   = 2000;
 const REF_DOT_SPACING = 100;
+
+
 
 let canvas, ctx;
 let isLocked       = false;
@@ -129,15 +181,13 @@ el.elementCancelBtn = document.getElementById("element-cancel");
 
 }
 
-// ------------------------------
-// Initialization
-// ------------------------------
-document.addEventListener("DOMContentLoaded", () => {
-  cacheDOM();
+function onLoginSuccess(){
+
+cacheDOM();
   initCanvas();
   setupUI();
-  fetchBoards();
-});
+fetchBoards();
+}
 
 // ------------------------------
 // initialize canvas size & handlers

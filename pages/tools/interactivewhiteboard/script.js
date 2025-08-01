@@ -9,6 +9,9 @@ import {
   remove,
   get
 } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-database.js";
+import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-auth.js";
+import { ref as dbRef, get as dbGet } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-database.js";
+import { setPersistence, inMemoryPersistence } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-auth.js";
 
 // ------------------------------
 // Firebase initialization
@@ -24,12 +27,103 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db  = getDatabase(app);
 
+
+const auth = getAuth(app);
+await setPersistence(auth, inMemoryPersistence);
+
+const loginModal = document.getElementById('loginModal');
+const loginPassword = document.getElementById('loginPassword');
+const loginButton = document.getElementById('loginButton');
+const loginError = document.getElementById('loginError');
+const teacherPwModal = document.getElementById('teacherPwModal');
+const teacherPwInput = document.getElementById('teacherPwInput');
+const teacherPwButton = document.getElementById('teacherPwButton');
+const teacherPwError = document.getElementById('teacherPwError');
+
+function showModal(which) {
+  loginModal.style.display = which === 'login' ? 'flex' : 'none';
+  teacherPwModal.style.display = which === 'teacher' ? 'flex' : 'none';
+}
+
+// 1. Show login modal on load
+showModal('login');
+
+// 2. Class password authentication (uses Firebase email/pass)
+loginButton.onclick = tryLogin;
+loginPassword.onkeydown = e => { if(e.key==='Enter') tryLogin(); };
+function tryLogin() {
+  const email = SHARED_EMAIL;
+  const pass = loginPassword.value;
+  loginError.textContent = '';
+  if (!pass) {
+    loginError.textContent = "Please enter the password.";
+    return;
+  }
+  loginButton.disabled = true;
+  signInWithEmailAndPassword(auth, email, pass)
+    .then(() => {
+      loginButton.disabled = false;
+      loginPassword.value = '';
+      showModal('teacher');
+      setTimeout(() => teacherPwInput.focus(), 100);
+    })
+    .catch(err => {
+      loginError.textContent = "Incorrect password. Try again.";
+      loginButton.disabled = false;
+    });
+}
+
+// 3. Teacher password (checks DB value)
+teacherPwButton.onclick = tryTeacherPassword;
+teacherPwInput.onkeydown = e => { if(e.key==='Enter') tryTeacherPassword(); };
+function tryTeacherPassword() {
+  teacherPwError.textContent = '';
+  teacherPwButton.disabled = true;
+  const typedPw = teacherPwInput.value.trim();
+  if (!typedPw) {
+    teacherPwError.textContent = "Please enter the teacher password.";
+    teacherPwButton.disabled = false;
+    return;
+  }
+  dbGet(dbRef(db, TEACHER_PW_PATH)).then(snap => {
+    const teacherPw = snap.val();
+    if (teacherPw === typedPw) {
+      teacherPwInput.value = '';
+      showModal(null); // Hide all
+      // After this, your normal whiteboard UI is accessible.
+
+      onLoginSuccess(); 
+    } else {
+      teacherPwError.textContent = "Incorrect teacher password.";
+      teacherPwButton.disabled = false;
+      teacherPwInput.focus();
+    }
+  }).catch(err => {
+    teacherPwError.textContent = "Could not verify password. Try again.";
+    teacherPwButton.disabled = false;
+    teacherPwInput.focus();
+  });
+}
+
+// (optional) Prevent whiteboard UI until authenticated
+document.addEventListener('DOMContentLoaded', () => {
+    
+  
+});
+
+
+
 // ------------------------------
 // Canvas & state variables
 // ------------------------------
 const CANVAS_WIDTH    = 4000;
 const CANVAS_HEIGHT   = 4000;
 const REF_DOT_SPACING = 100;
+
+
+const SHARED_EMAIL = "classroom@myapp.com"; // your shared email
+const TEACHER_PW_PATH = "teacher_password"; // where the teacher pass is stored
+
 
 let canvas, ctx;
 let isLocked       = false;
@@ -131,16 +225,14 @@ el.elementCancelBtn = document.getElementById("element-cancel");
 
 }
 
-// ------------------------------
-// Initialization
-// ------------------------------
-document.addEventListener("DOMContentLoaded", () => {
-  cacheDOM();
+
+function onLoginSuccess(){
+
+cacheDOM();
   initCanvas();
   setupUI();
-  fetchBoards();
-});
-
+fetchBoards();
+}
 // ------------------------------
 // initialize canvas size & handlers
 // ------------------------------

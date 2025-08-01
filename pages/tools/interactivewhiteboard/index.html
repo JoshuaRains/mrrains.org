@@ -10,6 +10,30 @@
     
 </head>
 <body>
+
+<!-- Authentication Modals -->
+<div id="loginModal" style="display:flex;position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:3000;align-items:center;justify-content:center;background:rgba(0,0,0,0.55);">
+  <div style="background:#fff;padding:28px 24px 18px 24px;border-radius:9px;min-width:270px;box-shadow:0 2px 14px rgba(0,0,0,.18);text-align:center;">
+    <h2 style="margin-top:0;">Enter Class Password</h2>
+    <input id="loginPassword"  style="width:100%;margin:12px 0 8px 0;padding:7px;border-radius:5px;" placeholder="Class password" autocomplete="current-password">
+    <button id="loginButton" style="width:100%;">Sign In</button>
+    <div id="loginError" style="color:#d32f2f;margin-top:8px;min-height:1.1em;font-size:.99em;"></div>
+  </div>
+</div>
+<div id="teacherPwModal" style="display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:3000;align-items:center;justify-content:center;background:rgba(0,0,0,0.55);">
+  <div style="background:#fff;padding:28px 24px 18px 24px;border-radius:9px;min-width:270px;box-shadow:0 2px 14px rgba(0,0,0,.18);text-align:center;">
+    <h2 style="margin-top:0;">Enter Teacher Password</h2>
+    <input id="teacherPwInput" type="password" style="width:100%;margin:12px 0 8px 0;padding:7px;border-radius:5px;" placeholder="Teacher password" autocomplete="off">
+    <button id="teacherPwButton" style="width:100%;">Continue</button>
+    <div id="teacherPwError" style="color:#d32f2f;margin-top:8px;min-height:1.1em;font-size:.99em;"></div>
+  </div>
+</div>
+
+
+
+
+
+
 	<!-- Top bar with boards dropdown -->
 	<div class="top-bar">
 		<button id="board-dropdown-btn" class="icon-btn">

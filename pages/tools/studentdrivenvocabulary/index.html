@@ -186,7 +186,7 @@
   <script type="module">
     import { initializeApp }    from 'https://www.gstatic.com/firebasejs/11.8.1/firebase-app.js';
     import { getDatabase, ref, push, onValue, get, set } from 'https://www.gstatic.com/firebasejs/11.8.1/firebase-database.js';
-    import { getAuth, signInWithEmailAndPassword } from 'https://www.gstatic.com/firebasejs/11.8.1/firebase-auth.js';
+    import { getAuth, signInWithEmailAndPassword, setPersistence, inMemoryPersistence } from 'https://www.gstatic.com/firebasejs/11.8.1/firebase-auth.js';
 
     // ←– YOUR FIREBASE CONFIG:
     const firebaseConfig = {
@@ -203,7 +203,8 @@
     const app = initializeApp(firebaseConfig);
     const db  = getDatabase(app);
     const auth = getAuth(app);
-
+    await setPersistence(auth, inMemoryPersistence);
+    
     const loginModal = document.getElementById('loginModal');
     const loginPassword = document.getElementById('loginPassword');
     const loginButton = document.getElementById('loginButton');
