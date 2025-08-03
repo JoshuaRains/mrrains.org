@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8" />
+	<title>Teacher Flashcards</title>
+	<style>
+		@media print {
+			body {
+				margin: 0;
+			}
+			.page {
+				page-break-after: always;
+			}
+		}
+		body {
+			margin: 0;
+			font-family: sans-serif;
+		}
+		.page {
+			width: 8.5in;
+			height: 11in;
+			display: grid;
+			grid-template-columns: repeat(2, 1fr);
+			grid-template-rows: repeat(3, 1fr);
+			box-sizing: border-box;
+		}
+		.card {
+			border: 1px solid #000;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			font-size: 20pt;
+			text-align: center;
+			padding: 0.5in;
+		}
+		.material-symbols-outlined {
+			font-size: 190pt !important;
+			display: block;
+			font-variation-settings:
+				'FILL' 0,
+				'wght' 400,
+				'GRAD' 0,
+				'opsz' 48;
+		}
+	</style>
+
+	<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
+</head>
+<body>
+	<script>
+		const cardData = [
+			"chair",
+			"brightness_3",
+			"radio",
+			"meeting_room",
+			"apartment",
+			"bed",
+			"landscape",
+			"egg",
+			"directions_car",
+			"window",
+			"music_note",
+			"public",
+			"computer",
+			"local_pizza",
+			"castle",
+			"accessibility",
+			"eco",
+			"mic",
+			"icecream",
+			"store",
+			"directions_bike",
+			"home",
+			"book_2",
+			"water_drop",
+			"mode_heat",
+			"photo_camera",
+			"visibility",
+			"phone",
+			"star",
+			"local_drink",
+		];
+
+		let page;
+		cardData.forEach((icon, i) => {
+			if (i % 6 === 0) {
+				page = document.createElement('div');
+				page.className = 'page';
+				document.body.appendChild(page);
+			}
+			const div = document.createElement('div');
+			div.className = 'card';
+			div.innerHTML = `<span class="material-symbols-outlined">${icon}</span>`;
+			page.appendChild(div);
+		});
+	</script>
+</body>
+</html>

@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Spanish Flashcards</title>
+  <style>
+    @media print {
+      body {
+        margin: 0;
+      }
+      .page {
+        width: 8.5in;
+        height: 11in;
+        page-break-after: always;
+      }
+    }
+    body {
+      margin: 0;
+      font-family: sans-serif;
+    }
+    .page {
+      width: 8.5in;
+      height: 11in;
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      grid-template-rows: repeat(auto-fill, 1fr);
+      padding: 0;
+      box-sizing: border-box;
+    }
+    .card {
+      aspect-ratio: 1 / 1;
+      border: 1px dashed #000;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-size: 20pt;
+      text-align: center;
+      position: relative;
+    }
+    .material-symbols-outlined {
+      font-size: 70pt !important;
+      display: block;
+      font-variation-settings:
+        'FILL' 0,
+        'wght' 400,
+        'GRAD' 0,
+        'opsz' 48;
+    }
+    .number {
+      position: absolute;
+      top: 0.2em;
+      left: 0.3em;
+      font-size: 14pt;
+      color: #000;
+    }
+  </style>
+
+  <!-- ✅ Load Material Symbols (modern icons like book_2) -->
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
+</head>
+<body>
+  <div class="page">
+    <script>
+      const cardData = [
+   ["chair", "silla"],
+  ["brightness_3", "luna"],
+  ["meeting_room", "puerta"],
+  ["apartment", "edificio"],
+  ["bed", "cama"],
+  ["landscape", "montaña"],
+  ["egg", "huevo"],
+  ["directions_car", "carro"],
+  ["window", "ventana"],
+  ["music_note", "música"],
+  ["public", "mundo"],
+  ["computer", "computadora"],
+  ["local_pizza", "pizza"],
+  ["castle", "castillo"],
+  ["accessibility", "cuerpo"],
+  ["eco", "hoja"],
+  ["mic", "micrófono"],
+  ["icecream", "helado"],
+  ["store", "tienda"],
+  ["directions_bike", "bicicleta"],
+  ["home", "casa"],
+  ["book_2", "libro"],
+  ["water_drop", "agua"],
+  ["mode_heat", "fuego"],
+  ["photo_camera", "cámara"],
+  ["visibility", "ojo"],
+  ["phone", "teléfono"],
+  ["star", "estrella"],
+  ["local_drink", "vaso"],
+
+      ];
+
+      const container = document.querySelector('.page');
+      cardData.forEach((card, index) => {
+        const div = document.createElement('div');
+        div.className = 'card';
+        div.innerHTML = `<div class="number">${index + 1}</div><span class="material-symbols-outlined">${card[0]}</span>${card[1]}`;
+        container.appendChild(div);
+      });
+    </script>
+  </div>
+</body>
+</html>

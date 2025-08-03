@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Flashcard SVG Exporter</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      padding: 1rem;
+    }
+    .card {
+      width: 800px;
+      height: 800px;
+      border: 2px dashed #000;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-size: 100pt;
+      margin-bottom: 2rem;
+      position: relative;
+    }
+    .material-symbols-outlined {
+      font-size: 450px !important;
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 48;
+      display: block;
+      margin-bottom: 0.25em;
+    }
+    .number {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      font-size: 40pt;
+    }
+  </style>
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
+</head>
+<body>
+  <button onclick="downloadAll()">⬇️ Download All as SVG</button>
+  <div id="container"></div>
+
+  <script>
+    const cardData = [
+      ["book_2", "libro"],
+      ["directions_car", "auto"],
+      ["phone", "teléfono"],
+      ["local_drink", "vaso"],
+      ["visibility", "ojo"],
+      ["accessibility", "cuerpo"],
+      ["public", "mundo"],
+      ["mode_heat", "fuego"],
+      ["storefront", "negocio"]
+    ];
+
+    const container = document.getElementById("container");
+
+    cardData.forEach(([icon, word], i) => {
+      const div = document.createElement("div");
+      div.className = "card";
+      div.id = `card-${i+1}`;
+      div.innerHTML = `
+        <div class="number">${i + 1}</div>
+        <span class="material-symbols-outlined">${icon}</span>
+        <div>${word}</div>
+      `;
+      container.appendChild(div);
+    });
+
+    function downloadAll() {
+      document.querySelectorAll(".card").forEach((card, i) => {
+        const serializer = new XMLSerializer();
+        const svgDoc = document.implementation.createDocument("http://www.w3.org/2000/svg", "svg", null);
+        const svg = svgDoc.documentElement;
+        svg.setAttribute("xmlns", "http://www.w3.org/2000/svg");
+        svg.setAttribute("width", "800");
+        svg.setAttribute("height", "800");
+
+        const foreign = svgDoc.createElementNS("http://www.w3.org/2000/svg", "foreignObject");
+        foreign.setAttribute("width", "800");
+        foreign.setAttribute("height", "800");
+        foreign.innerHTML = `<style>
+          * { margin: 0; padding: 0; box-sizing: border-box; }
+          .material-symbols-outlined {
+            font-family: 'Material Symbols Outlined';
+            font-size: 128pt;
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 48;
+          }
+          div { font-family: sans-serif; font-size: 40pt; text-align: center; }
+          .number { position: absolute; top: 20px; left: 20px; font-size: 28pt; }
+        </style>` + card.outerHTML;
+
+        svg.appendChild(foreign);
+        const svgStr = serializer.serializeToString(svgDoc);
+
+        const blob = new Blob([svgStr], { type: "image/svg+xml" });
+        const a = document.createElement("a");
+        a.href = URL.createObjectURL(blob);
+        a.download = `card_${i + 1}.svg`;
+        a.click();
+      });
+    }
+  </script>
+</body>
+</html>
