@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8" />
+	<title>Classroom Soundboard</title>
+	<style>
+		body {
+			margin: 0;
+			font-family: sans-serif;
+			display: flex;
+			height: 100vh;
+			background-color: #121212;
+			color: #ffffff;
+		}
+		.sidebar {
+			width: 30%;
+			background: #1e1e1e;
+			padding: 1em;
+			box-sizing: border-box;
+			overflow-y: auto;
+			border-right: 2px solid #2a2a2a;
+		}
+		.main {
+			flex: 1;
+			display: flex;
+			flex-direction: column;
+			justify-content: center;
+			align-items: center;
+			gap: 2em;
+		}
+		.sound-item {
+			display: flex;
+			align-items: center;
+			margin-bottom: 0.5em;
+			font-size: 1.1em;
+			line-height: 1.5em;
+		}
+		.sound-item label {
+			flex: 1;
+			white-space: nowrap;
+			overflow: hidden;
+			text-overflow: ellipsis;
+			margin-left: 0.5em;
+		}
+		.sound-item .preview {
+			font-size: 0.9em;
+			padding: 0.3em 0.6em;
+			background: #333;
+			color: white;
+			border: 1px solid #555;
+			border-radius: 6px;
+			cursor: pointer;
+			line-height: 1.5em;
+			margin-left: 0.3em;
+		}
+		.sound-item .preview:hover {
+			background: #555;
+		}
+		.sound-item .toggle {
+			width: 1.5em;
+			height: 1.5em;
+			padding: 0;
+			background: #333;
+			color: white;
+			border: 1px solid #555;
+			border-radius: 4px;
+			cursor: pointer;
+			font-size: 1em;
+			text-align: center;
+			line-height: 1.5em;
+			margin-right: 0.3em;
+		}
+		.sound-item .toggle:hover {
+			background: #555;
+		}
+		.sound-item input[type="checkbox"] {
+			transform: scale(1.3);
+		}
+		.play-button {
+			padding: 1em 2em;
+			font-size: 1.5em;
+			cursor: pointer;
+			background: #333;
+			color: white;
+			border: 2px solid #555;
+			border-radius: 10px;
+		}
+		.play-button:hover {
+			background: #555;
+		}
+	</style>
+</head>
+<body>
+	<div class="sidebar" id="soundList"></div>
+	<div class="main">
+		<button class="play-button" id="playMain">▶ Play Main</button>
+		<button class="play-button" id="playAlt">◀ Play Alt</button>
+	</div>
+
+	<script>
+		const sounds = [
+			
+			{ name: "bruh", file: "sounds/bruh.mp3" },
+			{ name: "vineboom", file: "sounds/vineboom.mp3" },
+            { name: "android", file: "sounds/android.mp3" },
+            { name: "duck", file: "sounds/duck.mp3" },
+            { name: "error", file: "sounds/error.mp3" },
+            { name: "minecraft", file: "sounds/minecraft.mp3" },
+            { name: "windows", file: "sounds/windows.mp3" },
+            { name: "outro", file: "sounds/outro.mp3" },
+		];
+
+		let currentAudio = null;
+		let mainSound = null;
+		let altSound = null;
+
+		const soundList = document.getElementById('soundList');
+
+		sounds.forEach((sound, index) => {
+			const div = document.createElement('div');
+			div.className = 'sound-item';
+
+			const toggle = document.createElement('button');
+			toggle.className = 'toggle';
+			toggle.textContent = '';
+			toggle.style.display = 'none';
+
+			const checkbox = document.createElement('input');
+			checkbox.type = 'checkbox';
+			checkbox.name = 'sound-' + index;
+
+			const label = document.createElement('label');
+			label.textContent = sound.name;
+
+			const preview = document.createElement('button');
+			preview.textContent = '▶';
+			preview.className = 'preview';
+			preview.title = "Preview sound";
+			preview.addEventListener('click', () => {
+				if (currentAudio) currentAudio.pause();
+				currentAudio = new Audio(sound.file);
+				currentAudio.play();
+			});
+
+			toggle.addEventListener('click', (e) => {
+				e.preventDefault();
+				if (toggle.textContent === '→') {
+					mainSound = null;
+					altSound = sound.file;
+				} else {
+					altSound = null;
+					mainSound = sound.file;
+				}
+				updateToggles();
+			});
+
+			checkbox.addEventListener('change', () => {
+				if (checkbox.checked) {
+					if (!mainSound && !altSound) {
+						mainSound = sound.file;
+						toggle.textContent = '→';
+					} else if (!mainSound) {
+						mainSound = sound.file;
+						toggle.textContent = '→';
+					} else if (!altSound) {
+						altSound = sound.file;
+						toggle.textContent = '←';
+					} else {
+						altSound = sound.file;
+						toggle.textContent = '←';
+					}
+					toggle.style.display = '';
+				} else {
+					if (mainSound === sound.file) mainSound = null;
+					if (altSound === sound.file) altSound = null;
+					toggle.style.display = 'none';
+					toggle.textContent = '';
+				}
+				updateToggles();
+			});
+
+			div.appendChild(toggle);
+			div.appendChild(checkbox);
+			div.appendChild(label);
+			div.appendChild(preview);
+			soundList.appendChild(div);
+
+			sound._elements = { toggle, checkbox };
+		});
+
+		function updateToggles() {
+			sounds.forEach(sound => {
+				const { toggle, checkbox } = sound._elements;
+				if (sound.file === mainSound) {
+					toggle.textContent = '→';
+					checkbox.checked = true;
+					toggle.style.display = '';
+				} else if (sound.file === altSound) {
+					toggle.textContent = '←';
+					checkbox.checked = true;
+					toggle.style.display = '';
+				} else {
+					toggle.textContent = '';
+					toggle.style.display = 'none';
+					checkbox.checked = false;
+				}
+			});
+		}
+
+		function playSound(file) {
+			if (file) {
+				if (currentAudio) currentAudio.pause();
+				currentAudio = new Audio(file);
+				currentAudio.play();
+			} else {
+				alert("No sound selected.");
+			}
+		}
+
+		document.getElementById('playMain').addEventListener('click', () => playSound(mainSound));
+		document.getElementById('playAlt').addEventListener('click', () => playSound(altSound));
+
+		document.addEventListener('keydown', (e) => {
+			if (e.key === 'ArrowRight') playSound(mainSound);
+			if (e.key === 'ArrowLeft') playSound(altSound);
+		});
+	</script>
+</body>
+</html>
