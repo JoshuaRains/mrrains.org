@@ -99,7 +99,6 @@
 
 	<script>
 		const sounds = [
-			
 			{ name: "bruh", file: "sounds/bruh.mp3" },
 			{ name: "vineboom", file: "sounds/vineboom.mp3" },
             { name: "android", file: "sounds/android.mp3" },
@@ -220,10 +219,14 @@
 		document.getElementById('playMain').addEventListener('click', () => playSound(mainSound));
 		document.getElementById('playAlt').addEventListener('click', () => playSound(altSound));
 
-		document.addEventListener('keydown', (e) => {
-			if (e.key === 'ArrowRight') playSound(mainSound);
-			if (e.key === 'ArrowLeft') playSound(altSound);
+		document.addEventListener('wheel', (e) => {
+			if (e.deltaY < 0) {
+				playSound(mainSound);
+			} else if (e.deltaY > 0) {
+				playSound(altSound);
+			}
 		});
 	</script>
 </body>
 </html>
+
