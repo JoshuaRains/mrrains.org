@@ -153,14 +153,7 @@
     </div>
   </div>
 
-  <!-- Results Modal -->
-<div id="resultsModal" style="display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:2000;align-items:center;justify-content:center;background:rgba(0,0,0,0.6);">
-  <div style="background:#fff;border-radius:8px; height:90%; width:90%;margin:30px auto;padding:24px 14px;text-align:center;">
-    <h2>Top Voted Words</h2>
-    <div id="resultsList" style="margin:18px 0 10px 0; font-size:xx-large;"></div>
-    <button onclick="document.getElementById('resultsModal').style.display='none';" style="margin-top:12px;">Close</button>
-  </div>
-</div>
+
   <!-- Class period modal (step 3) -->
   <div id="classModal" class="modal-backdrop" style="display:none;">
     <div class="modal-content">
@@ -214,9 +207,11 @@
     <div id="timerDisplay" style="font-size:1.3em;font-weight:bold;margin-bottom:18px;"></div>
     
     <button id="voteBtn" style="margin-left:10px;">Start Vote</button>
-  <input type="number" id="voteCount" value="5" min="2" max="20" style="width:60px;margin-left:8px;" title="Number of words to vote for">
-  <button id="tallyBtn" style="margin-left:10px;display:none;">Tally Votes</button>
-  
+<input type="number" id="voteCount" value="5" min="2" max="20" style="width:60px;margin-left:8px;" title="Number of words to vote for">
+<button id="resetBtn" style="margin-left:10px;background:#9e9e9e;">Reset Votes</button>
+<span id="ballotCount" style="margin-left:12px;font-weight:bold;"></span>
+
+
 
 
     <h2 class="section-header">Pending Approval</h2>
@@ -355,41 +350,72 @@
   // Voting controls
   const voteBtn = document.getElementById('voteBtn');
   const voteCountInput = document.getElementById('voteCount');
-  const tallyBtn = document.getElementById('tallyBtn');
-  const resultsModal = document.getElementById('resultsModal');
+  
   const resultsList = document.getElementById('resultsList');
 
-  voteBtn.onclick = async function() {
-    if (!voteActive) {
-      // Start Vote
-      voteCount = Math.max(2, Math.min(20, parseInt(voteCountInput.value)||5));
-      // Get latest approved vocabulary
-      const snapshot = await get(approvedVocabRef);
-      const vocabData = snapshot.val();
-      if (!vocabData) { alert("No approved vocabulary to vote on."); return; }
-      
-      // Use ALL approved vocab, not just top N:
-let entries = Object.entries(vocabData)
-  .sort(([,a],[,b]) => b.timestamp - a.timestamp);
-// .slice(0, voteCount); // REMOVE this .slice!
+const ballotCountEl = document.getElementById('ballotCount');
+const submissionsRef = ref(db, `submissions/period${classPeriod}`);
+
+onValue(submissionsRef, snap => {
+  const all = snap.val() || {};
+  ballotCountEl.textContent = `Ballots: ${Object.keys(all).length}`;
+});
 
 
-      if (entries.length < voteCount) {
-        alert(`Not enough words to vote. Need at least ${voteCount}.`);
-        return;
-      }
 
-      voteWords = entries.map(([id, w]) => id);
-      await set(voteRef, { active: true, words: voteWords, count: voteCount, timestamp: Date.now() });
-      voteActive = true;
-    } else {
-      // Stop vote
-      await set(voteRef, { active: false });
-      voteActive = false;
+voteBtn.onclick = async function() {
+  if (!voteActive) {
+    // Start Vote (no resetting here)
+    voteCount = Math.max(2, Math.min(20, parseInt(voteCountInput.value)||5));
+    const snapshot = await get(approvedVocabRef);
+    const vocabData = snapshot.val();
+    if (!vocabData) { alert("No approved vocabulary to vote on."); return; }
+
+    const entries = Object.entries(vocabData)
+      .sort(([,a],[,b]) => b.timestamp - a.timestamp);
+
+    if (entries.length < voteCount) {
+      alert(`Not enough words to vote. Need at least ${voteCount}.`);
+      return;
     }
-  };
 
-  tallyBtn.onclick = tallyVotes;
+    const voteWords = entries.map(([id]) => id);
+    await set(voteRef, { active: true, words: voteWords, count: voteCount, timestamp: Date.now() });
+    voteActive = true;
+  } else {
+    // Stop Vote (don’t wipe words unless you want to)
+    await set(voteRef, { active: false });
+    voteActive = false;
+  }
+};
+
+const resetBtn = document.getElementById('resetBtn');
+resetBtn.onclick = async () => {
+  const ok = confirm('Reset all votes and clear all submitted ballots for this class?');
+  if (!ok) return;
+
+  // 1) Zero the votes for all approved vocabulary in this period
+  const approvedSnap = await get(approvedVocabRef);
+  const approved = approvedSnap.val() || {};
+  const updates = {};
+  for (const id of Object.keys(approved)) {
+    updates[`approved_vocabulary/period${classPeriod}/${id}/votes`] = 0;
+  }
+  if (Object.keys(updates).length) {
+    await update(ref(db), updates);
+  }
+
+  // 2) Clear submissions and per-user ballots for this period
+  await Promise.all([
+    remove(ref(db, `submissions/period${classPeriod}`)),
+    remove(ref(db, `votes/period${classPeriod}`))
+  ]);
+
+  // (Optional) keep current vote state as-is (active or not). No change here.
+};
+
+
+
 
   // Listen for vote state changes
   onValue(voteRef, snap => {
@@ -401,65 +427,27 @@ let entries = Object.entries(vocabData)
     voteBtn.textContent = voteActive ? "Stop Vote" : "Start Vote";
     voteBtn.style.background = voteActive ? "#d32f2f" : "#4CAF50";
     voteBtn.style.color = voteActive ? "#fff" : "";
-    tallyBtn.style.display = voteActive ? "inline-block" : "none";
     voteCountInput.disabled = voteActive;
   });
 
-  async function tallyVotes() {
-    const voteSnapshot = await get(voteRef);
-    const voteData = voteSnapshot.val();
-    if (!voteData || !voteData.words || voteData.words.length < 2) {
-      alert("No active vote or not enough words.");
-      return;
-    }
-    const vocabSnap = await get(approvedVocabRef);
-    const vocabData = vocabSnap.val() || {};
-    const votesSnap = await get(votesRef);
-    const votes = votesSnap.val() || {};
 
-    const points = {};
-    const n = voteData.words.length;
-    for (const wordId of voteData.words) points[wordId] = 0;
-
-    for (const voterId in votes) {
-      const ranks = votes[voterId];
-      if (!Array.isArray(ranks) || ranks.length !== n) continue;
-      for (let i = 0; i < n; ++i) {
-        const wordId = ranks[i];
-        if (points[wordId] !== undefined) points[wordId] += n - i;
-      }
-    }
-
-    let totalPoints = Object.values(points).reduce((a,b) => a+b, 0) || 1;
-    let sorted = Object.entries(points)
-      .map(([id, pts]) => ({
-        id, pts,
-        word: vocabData[id]?.spanish || "(deleted)",
-        english: vocabData[id]?.english || "",
-        pct: Math.round(100*pts/totalPoints)
-      }))
-      .sort((a, b) => b.pts - a.pts);
-
-    resultsList.innerHTML = sorted.slice(0, voteCount).map((item, i) =>
-      `<div style="margin-bottom:8px;font-size:1.12em;">
-        <b>#${i+1}:</b> ${item.word} <span style="color:#555;font-size:0.9em;">(${item.english})</span>
-        <br><span style="font-size:1.1em;color:#388e3c;">${item.pts} pts</span> — <b>${item.pct}%</b>
-      </div>`
-    ).join('');
-
-    resultsModal.style.display = 'flex';
-  }
 
   // --- Existing logic for adding/editing/approving vocab, timer, etc ---
   // (No changes from your existing logic!)
   window.addWord = function() {
-    const s = document.getElementById('spanishWord').value.trim();
-    const e = document.getElementById('englishTranslation').value.trim();
-    if (!s || !e) return;
-    push(approvedVocabRef, { spanish: s, english: e, timestamp: Date.now() });
-    document.getElementById('spanishWord').value = '';
-    document.getElementById('englishTranslation').value = '';
-  };
+  const s = document.getElementById('spanishWord').value.trim();
+  const e = document.getElementById('englishTranslation').value.trim();
+  if (!s || !e) return;
+  push(approvedVocabRef, {
+    spanish: s,
+    english: e,
+    timestamp: Date.now(),
+    votes: 0
+  });
+  document.getElementById('spanishWord').value = '';
+  document.getElementById('englishTranslation').value = '';
+};
+
 
   window.editWord = function(btn, id) {
     const info = btn.closest('.vocabulary-item').querySelector('.word-info');
@@ -489,21 +477,23 @@ let entries = Object.entries(vocabData)
       .catch(console.error);
   };
 
-  window.approveWord = function(id) {
-    const wr = ref(db, `pending_vocabulary/period${classPeriod}/${id}`);
-    get(wr).then(snap => {
-      const w = snap.val();
-      if (!w) return;
-      push(approvedVocabRef, {
-        spanish: w.spanish,
-        english: w.english,
-        originalSpanish: w.originalSpanish || w.spanish,
-        originalEnglish: w.originalEnglish || w.english,
-        timestamp: Date.now()
-      });
-      remove(wr);
+window.approveWord = function(id) {
+  const wr = ref(db, `pending_vocabulary/period${classPeriod}/${id}`);
+  get(wr).then(snap => {
+    const w = snap.val();
+    if (!w) return;
+    push(approvedVocabRef, {
+      spanish: w.spanish,
+      english: w.english,
+      originalSpanish: w.originalSpanish || w.spanish,
+      originalEnglish: w.originalEnglish || w.english,
+      timestamp: Date.now(),
+      votes: 0
     });
-  };
+    remove(wr);
+  });
+};
+
 
   window.deleteWord = function(id, list) {
     remove(ref(db, `${list}/period${classPeriod}/${id}`));
@@ -550,16 +540,37 @@ let entries = Object.entries(vocabData)
     }
   });
 
-  onValue(approvedVocabRef, snap => {
-    const list = document.getElementById('approvedList');
-    list.innerHTML = '';
-    const words = snap.val();
-    if (words) {
-      Object.entries(words)
-        .sort(([,a],[,b]) => b.timestamp - a.timestamp)
-        .forEach(([id, w]) => list.appendChild(createVocabularyItem(w, id, false)));
-    }
+onValue(approvedVocabRef, snap => {
+  const list = document.getElementById('approvedList');
+  list.innerHTML = '';
+  const words = snap.val();
+  if (!words) return;
+
+  // Normalize votes to 0 when missing, then sort by votes desc, timestamp desc
+  const entries = Object.entries(words)
+    .map(([id, w]) => [id, { ...w, votes: w.votes || 0, timestamp: w.timestamp || 0 }])
+    .sort(([,a],[,b]) => (b.votes - a.votes) || (b.timestamp - a.timestamp));
+
+  entries.forEach(([id, w]) => {
+    const d = document.createElement('div');
+    d.className = 'vocabulary-item';
+    d.innerHTML = `
+      <div class="word-info">
+        <strong>${w.spanish}</strong> – ${w.english}
+      </div>
+      <div class="actions">
+        <span style="margin-right:8px;">${w.votes} pts</span>
+        <button class="translate"
+          onclick="window.open('https://www.spanishdict.com/translate/${encodeURIComponent(w.spanish)}','_blank')">
+          SpanishDict
+        </button>
+        <button class="deny" onclick="deleteWord('${id}','approved_vocabulary')">🗑️</button>
+      </div>`;
+    list.appendChild(d);
   });
+});
+
+
 
   // --- Timer logic (as before) ---
   setupTimer(classPeriod);

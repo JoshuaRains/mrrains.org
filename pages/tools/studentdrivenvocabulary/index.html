@@ -175,6 +175,11 @@
       <input type="text" id="englishTranslation" placeholder="English translation">
       <button id="suggestBtn" onclick="addWord()" disabled>Suggest Word</button>
     </div>
+    <div id="submitRow" style="display:none;margin:10px 0 14px 0;gap:10px;align-items:center;">
+	<button id="submitBtn">Submit Ballot</button>
+	<span id="submitStatus" style="color:#555;"></span>
+</div>
+
     <div id="voteNotice" style="margin-bottom:14px;color:#206cba;font-size:1.09em;display:none;"></div>
 <div id="votingFlexList"></div>
 
@@ -185,7 +190,7 @@
 
   <script type="module">
     import { initializeApp }    from 'https://www.gstatic.com/firebasejs/11.8.1/firebase-app.js';
-    import { getDatabase, ref, push, onValue, get, set } from 'https://www.gstatic.com/firebasejs/11.8.1/firebase-database.js';
+    import { getDatabase, ref, push, onValue, get, set, runTransaction} from 'https://www.gstatic.com/firebasejs/11.8.1/firebase-database.js';
     import { getAuth, signInWithEmailAndPassword, setPersistence, inMemoryPersistence } from 'https://www.gstatic.com/firebasejs/11.8.1/firebase-auth.js';
 
     // ←– YOUR FIREBASE CONFIG:
@@ -271,6 +276,13 @@ function initApp(classPeriod) {
   const timerRef = ref(db, `timer/period${classPeriod}`);
   const voteRef = ref(db, `vote/period${classPeriod}`);
 
+  const submitRow = document.getElementById('submitRow');
+const submitBtn = document.getElementById('submitBtn');
+const submitStatus = document.getElementById('submitStatus');
+
+let hasSubmitted = false;
+
+
   const timerDisplay = document.getElementById('timerDisplay');
   const suggestBtn = document.getElementById('suggestBtn');
   const voteNotice = document.getElementById('voteNotice');
@@ -280,10 +292,30 @@ function initApp(classPeriod) {
   let pendingSubmissions = [];
   let voting = false, voteWords = [], voteCount = 5, vocabById = {}, myVoteOrder = [];
 
+
+// listen for users ballot to lock or unlock
+onValue(ref(db, `votes/period${classPeriod}/${userId}`), snap => {
+	const v = snap.val();
+	hasSubmitted = !!v?.submitted;
+	if (v?.order && Array.isArray(v.order)) {
+		myVoteOrder = [...v.order];
+	}
+	if (voting) {
+		submitRow.style.display = '';
+		submitBtn.disabled = hasSubmitted;
+		submitStatus.textContent = hasSubmitted ? 'Ballot submitted.' : '';
+	}
+	renderVoteUI();
+});
+
+
+
   // --- DRAG & DROP VOTING UI ---
   function renderVoteUI() {
     votingFlexList.innerHTML = '';
     votingFlexList.style.display = '';
+
+
     myVoteOrder.forEach((id, idx) => {
       const word = vocabById[id];
       if (!word) return;
@@ -324,11 +356,14 @@ function initApp(classPeriod) {
         </div>
       `;
       // DRAG EVENTS
+          item.draggable = !hasSubmitted;
+
       item.addEventListener('dragstart', e => {
-        e.dataTransfer.effectAllowed = "move";
-        item.classList.add('dragging');
-        e.dataTransfer.setData('text/plain', idx);
-      });
+	if (hasSubmitted) { e.preventDefault(); return; }
+	e.dataTransfer.effectAllowed = "move";
+	item.classList.add('dragging');
+	e.dataTransfer.setData('text/plain', idx);
+});
       item.addEventListener('dragend', e => {
         item.classList.remove('dragging');
       });
@@ -340,28 +375,25 @@ function initApp(classPeriod) {
         item.style.background = "";
       });
       item.addEventListener('drop', e => {
-        e.preventDefault();
-        item.style.background = "";
-        const fromIdx = parseInt(e.dataTransfer.getData('text/plain'),10);
-        const toIdx = idx;
-        if (fromIdx !== toIdx) {
-          let newOrder = [...myVoteOrder];
-          const [moved] = newOrder.splice(fromIdx, 1);
-          newOrder.splice(toIdx, 0, moved);
-          myVoteOrder = newOrder;
-          saveVote();
-          renderVoteUI();
-        }
-      });
+	if (hasSubmitted) return;
+	e.preventDefault();
+	item.style.background = "";
+	const fromIdx = parseInt(e.dataTransfer.getData('text/plain'),10);
+	const toIdx = idx;
+	if (fromIdx !== toIdx) {
+		let newOrder = [...myVoteOrder];
+		const [moved] = newOrder.splice(fromIdx, 1);
+		newOrder.splice(toIdx, 0, moved);
+		myVoteOrder = newOrder;
+		renderVoteUI(); // local re-render only
+	}
+});
       row.appendChild(item);
 
       votingFlexList.appendChild(row);
     });
   }
 
-  function saveVote() {
-    set(ref(db, `votes/period${classPeriod}/${userId}`), myVoteOrder);
-  }
 
   // --- VOTING STATE WATCHER ---
   onValue(voteRef, async snap => {
@@ -376,21 +408,30 @@ function initApp(classPeriod) {
       voteWords = voteWords.filter(id => vocabById[id]);
       // Use previous order or default
       const voteSnap = await get(ref(db, `votes/period${classPeriod}/${userId}`));
-      if (voteSnap.exists() && Array.isArray(voteSnap.val()) && voteSnap.val().length === voteWords.length) {
-        myVoteOrder = [...voteSnap.val()];
-      } else {
-        myVoteOrder = [...voteWords];
-        saveVote();
-      }
+const prev = voteSnap.val();
+if (prev && Array.isArray(prev.order) && prev.order.length === voteWords.length) {
+  myVoteOrder = [...prev.order];
+} else {
+  myVoteOrder = [...voteWords];
+}
+
       voteNotice.style.display = '';
       voteNotice.innerHTML = `🗳️ <b>Voting is active!</b> Drag to rank your favorite ${voteCount} words. Your top choices are on top!`;
       suggestBtn.disabled = true;
+
+      submitRow.style.display = '';
+	submitBtn.disabled = hasSubmitted;
+	submitStatus.textContent = hasSubmitted ? 'Ballot submitted.' : '';
+
       renderVoteUI();
     } else {
       voteNotice.style.display = 'none';
       votingFlexList.style.display = 'none';
       myVoteOrder = [];
       vocabById = {};
+
+      submitRow.style.display = 'none';
+	submitStatus.textContent = '';
       displayVocabulary();
       setSuggestBtnState(timerActive);
     }
@@ -500,6 +541,60 @@ function initApp(classPeriod) {
   // Initially disable the suggest button and clear timer
   setSuggestBtnState(false);
   timerDisplay.textContent = '';
+
+
+submitBtn.onclick = async () => {
+  if (!voting || hasSubmitted || !Array.isArray(myVoteOrder) || !myVoteOrder.length) return;
+
+  // Load current vote config (valid IDs + top-N count)
+  const cfgSnap = await get(voteRef);
+  const cfg = cfgSnap.val();
+  if (!cfg?.active) return;
+
+  const validIds = Array.isArray(cfg.words) ? cfg.words : [];
+  const count = Number(cfg.count) || 5;
+
+  // Guard: prevent double submission
+  const mySubRef = ref(db, `submissions/period${classPeriod}/${userId}`);
+  const already = await get(mySubRef);
+  if (already.exists()) {
+    hasSubmitted = true;
+    submitBtn.disabled = true;
+    submitStatus.textContent = 'Ballot submitted.';
+    return;
+  }
+
+  // Score the top N, but ONLY for words included in this round
+  const top = myVoteOrder.filter(id => validIds.includes(id)).slice(0, count);
+
+  // Increment the 'votes' integer under each approved word: points = count - idx
+  await Promise.all(top.map((wordId, idx) => {
+    const pts = count - idx;
+    const votesRef = ref(db, `approved_vocabulary/period${classPeriod}/${wordId}/votes`);
+    return runTransaction(votesRef, cur => (cur || 0) + pts);
+  }));
+
+  // Record the submission (for teacher ballot count)
+  await set(mySubRef, {
+    submittedAt: Date.now(),
+    order: myVoteOrder
+  });
+
+  // Also keep the per-user ballot here so the student UI locks via your existing listener
+  await set(ref(db, `votes/period${classPeriod}/${userId}`), {
+    order: myVoteOrder,
+    submitted: true,
+    submittedAt: Date.now()
+  });
+
+  hasSubmitted = true;
+  submitBtn.disabled = true;
+  submitStatus.textContent = 'Ballot submitted.';
+  renderVoteUI();
+};
+
+
+
 }
 
   </script>
