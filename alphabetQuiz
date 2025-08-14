@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Spanish Alphabet Quiz</title>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    margin: 0;
+    background: #f0f0f0;
+  }
+  button {
+    width: 60px;
+    height: 60px;
+    margin: 10px;
+    font-size: 24px;
+    font-weight: bold;
+    border-radius: 8px;
+    border: 2px solid #007BFF;
+    background-color: white;
+    cursor: pointer;
+    transition: background-color 0.3s;
+  }
+  button:hover {
+    background-color: #cce5ff;
+  }
+</style>
+</head>
+<body>
+
+<script>
+  // Spanish alphabet letters in order
+  const letters = ['a','b','c','d','e','f','g','h','i','j','k','l','m','n','ñ','o','p','q','r','s','t','u','v','w','x','y','z'];
+
+  // Create array of numbers 1 to 27 (27 letters)
+  const numbers = Array.from({length: letters.length}, (_, i) => i + 1);
+
+  // Shuffle numbers array (Fisher-Yates shuffle)
+  function shuffle(array) {
+    for (let i = array.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [array[i], array[j]] = [array[j], array[i]];
+    }
+    return array;
+  }
+
+  const shuffledNumbers = shuffle(numbers);
+
+  shuffledNumbers.forEach(num => {
+    const btn = document.createElement('button');
+    btn.textContent = num;
+    btn.title = `Play letter ${letters[num - 1].toUpperCase()}`;
+
+    btn.addEventListener('click', () => {
+    const audio = new Audio('sounds/' + letters[num - 1] + '.mp3');
+      audio.play();
+    });
+
+    document.body.appendChild(btn);
+  });
+</script>
+
+</body>
+</html>
