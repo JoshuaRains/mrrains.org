@@ -65,7 +65,9 @@
         currentAudio.currentTime = 0;
       }
       // Play the scrambled letter's audio
-      currentAudio = new Audio(scrambledLetters[i - 1] + '.mp3');
+
+
+      currentAudio = new Audio('sounds/' + letters[num - 1] + '.mp3');
       currentAudio.play();
     });
 
