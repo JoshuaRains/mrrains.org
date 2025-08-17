@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Hoy es… — juego rápido</title>
+<style>
+  :root {
+    color-scheme: dark;
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    height: 100%;
+    margin: 0;
+    font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Segoe UI Emoji", "Apple Color Emoji", "Noto Color Emoji", "Noto Sans", "Noto Sans JP", "Noto Sans Symbols";
+    background: #0d0f12;
+    color: #e9eef4;
+  }
+  .wrap {
+    height: 100%;
+    display: grid;
+    grid-template-rows: 1fr auto;
+    align-items: center;
+    justify-items: center;
+    gap: 2rem;
+    padding: 6vh 4vw 4vh;
+  }
+  .card {
+    text-align: center;
+    max-width: 1200px;
+  }
+  .prompt, .answer {
+    font-weight: 800;
+    letter-spacing: 0.02em;
+    margin: 0.35em 0;
+    line-height: 1.1;
+  }
+  .prompt {
+    font-size: clamp(36px, 7vw, 96px);
+    opacity: 0.95;
+  }
+  .answer {
+    font-size: clamp(28px, 5.5vw, 72px);
+    opacity: 0;
+    transform: translateY(6px);
+    transition: opacity 180ms ease-out, transform 180ms ease-out;
+  }
+  .answer.revealed {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  .hint {
+    opacity: 0.7;
+    font-weight: 700;
+    font-size: clamp(14px, 1.8vw, 18px);
+    text-align: center;
+  }
+  .brand {
+    position: fixed;
+    top: 10px;
+    left: 14px;
+    font-weight: 800;
+    font-size: 14px;
+    letter-spacing: 0.06em;
+    opacity: 0.55;
+    user-select: none;
+  }
+</style>
+</head>
+<body>
+  <div class="brand">HOY ES…</div>
+  <div class="wrap">
+    <main class="card" aria-live="polite">
+      <div id="prompt" class="prompt">Pulsa <span style="border:1px solid #4a5568;border-radius:6px;padding:2px 8px">Espacio</span> para empezar</div>
+      <div id="answer" class="answer" aria-hidden="true"></div>
+    </main>
+    <div class="hint" id="hint">Espacio: nueva frase / revelar respuesta</div>
+  </div>
+
+<script>
+(() => {
+  const days = ["lunes","martes","miércoles","jueves","viernes","sábado","domingo"];
+  const promptEl = document.getElementById('prompt');
+  const answerEl = document.getElementById('answer');
+  const hintEl = document.getElementById('hint');
+
+  let state = "idle"; // "idle" | "question" | "answer"
+  let current = null;
+  let lastDayIdx = null; // NEW: remember the last "today"
+
+  function randInt(n){ return Math.floor(Math.random()*n); }
+
+  function newRound(){
+    let todayIdx;
+    do {
+      todayIdx = randInt(7);
+    } while (todayIdx === lastDayIdx); // ensure not same as last time
+    lastDayIdx = todayIdx;
+
+    const askTomorrow = Math.random() < 0.5;
+
+    const today = days[todayIdx];
+    const next = days[(todayIdx + 1) % 7];
+    const prev = days[(todayIdx + 6) % 7];
+
+    const askText = askTomorrow ? "mañana es ..." : "ayer fue ...";
+    const fullAnswer = askTomorrow ? `mañana es ${next}.` : `ayer fue ${prev}.`;
+
+    current = {
+      prompt: `hoy es ${today}. ${askText}`,
+      answer: fullAnswer
+    };
+
+    promptEl.textContent = capitalize(current.prompt);
+    answerEl.textContent = capitalize(current.answer);
+    answerEl.classList.remove('revealed');
+    answerEl.setAttribute('aria-hidden', 'true');
+
+    state = "question";
+    hintEl.textContent = "Espacio: revelar respuesta";
+  }
+
+  function reveal(){
+    if (!current) return;
+    answerEl.classList.add('revealed');
+    answerEl.setAttribute('aria-hidden', 'false');
+    state = "answer";
+    hintEl.textContent = "Espacio: nueva frase";
+  }
+
+  function capitalize(s){
+    return s.charAt(0).toUpperCase() + s.slice(1);
+  }
+
+  function onSpace(e){
+    if (e.code === 'Space') {
+      e.preventDefault(); // prevent page scroll
+      if (state === "idle" || state === "answer") {
+        newRound();
+      } else if (state === "question") {
+        reveal();
+      }
+    }
+  }
+
+  window.addEventListener('keydown', onSpace, {passive:false});
+  window.addEventListener('click', () => {
+    if (state === "idle" || state === "answer") newRound();
+    else if (state === "question") reveal();
+  });
+})();
+</script>
+
+</body>
+</html>

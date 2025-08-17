@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Rueda de color — Nombres en español</title>
+<style>
+  body {
+    margin:0; font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+    display: grid; place-items: center; min-height: 100vh;
+    background:#fff; color:#111;
+  }
+  .wrap {
+    display: flex; align-items: center; gap: 32px;
+  }
+  .wheel {
+    width: 320px; height: 320px;
+    border-radius: 50%; border:1px solid #ddd;
+    display:grid; place-items:center; position:relative;
+    touch-action: none; user-select: none;
+  }
+  canvas { width: 100%; height: 100%; border-radius:50%; }
+  .marker {
+    position:absolute; width:16px; height:16px; margin:-8px 0 0 -8px;
+    border-radius:50%; border:2px solid #fff; outline:1px solid rgba(0,0,0,.25);
+    pointer-events:none;
+  }
+  .display {
+    border:1px solid #ddd; border-radius: 12px; padding: 20px;
+    display:grid; gap: 16px; width:320px;
+  }
+  .swatch {
+    width: 100%; aspect-ratio: 16/9; border-radius: 12px; border:1px solid #ddd;
+  }
+  .label { font-size: 36px; font-weight: 800; text-align:left; }
+  .meta { color:#666; font-size: 14px; display:flex; gap:12px; flex-wrap:wrap; }
+  .light-slider {
+    display:flex; flex-direction:column; align-items:center; gap:8px;
+  }
+  .light-slider input[type=range] {
+    writing-mode: bt-lr; /* vertical */
+    -webkit-appearance: slider-vertical;
+    width: 28px; height: 320px;
+  }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <!-- Lightness slider -->
+    <div class="light-slider">
+      <span>Claro</span>
+      <input type="range" id="light" min="0" max="100" value="60" />
+      <span>Oscuro</span>
+    </div>
+
+    <!-- Color wheel -->
+    <div class="wheel" id="wheel">
+      <canvas id="cv" width="320" height="320"></canvas>
+      <div id="mark" class="marker"></div>
+    </div>
+
+    <!-- Display -->
+    <div class="display">
+      <div id="swatch" class="swatch"></div>
+      <div id="label" class="label">—</div>
+      <div class="meta">
+        <span id="hex">#000000</span>
+        <span id="hsl">HSL(0, 0%, 0%)</span>
+      </div>
+    </div>
+  </div>
+
+<script>
+/* Helpers */
+const clamp=(x,a=0,b=1)=>Math.min(b,Math.max(a,x));
+function hslToRgb(h,s,l){
+  const c=(1-Math.abs(2*l-1))*s;
+  const hp=h/60, x=c*(1-Math.abs((hp%2)-1));
+  let [r1,g1,b1]=[0,0,0];
+  if(hp>=0&&hp<1) [r1,g1,b1]=[c,x,0];
+  else if(hp<2)   [r1,g1,b1]=[x,c,0];
+  else if(hp<3)   [r1,g1,b1]=[0,c,x];
+  else if(hp<4)   [r1,g1,b1]=[0,x,c];
+  else if(hp<5)   [r1,g1,b1]=[x,0,c];
+  else            [r1,g1,b1]=[c,0,x];
+  const m=l-c/2;
+  return {r:Math.round((r1+m)*255), g:Math.round((g1+m)*255), b:Math.round((b1+m)*255)};
+}
+function rgbToHex({r,g,b}){return"#"+[r,g,b].map(v=>v.toString(16).padStart(2,"0")).join("").toUpperCase();}
+function rgbToHsl({r,g,b}){
+  r/=255; g/=255; b/=255;
+  const max=Math.max(r,g,b), min=Math.min(r,g,b);
+  let h,s,l=(max+min)/2;
+  if(max===min){h=0;s=0;}
+  else{const d=max-min; s=l>0.5?d/(2-max-min):d/(max+min);
+    switch(max){case r:h=(g-b)/d+(g<b?6:0);break;
+    case g:h=(b-r)/d+2;break;case b:h=(r-g)/d+4;break;} h*=60;}
+  return {h:(h+360)%360,s,l};
+}
+
+/* Spanish naming */
+function spanishNameFromRGB(rgb){
+  const {h,s,l}=rgbToHsl(rgb); const H=(isNaN(h)?0:h), S=s*100, L=l*100;
+  if(S<10){if(L>=92)return"blanco"; if(L<20)return"negro"; if(L>=70)return"gris claro"; if(L<=35)return"gris oscuro"; return"gris";}
+  let base=""; if(H<15||H>=345) base="rojo";
+  else if(H<45) base=(S<50&&L<55)?"marrón":"anaranjado";
+  else if(H<75) base="amarillo";
+  else if(H<165) base="verde";
+  else if(H<195) base=(S>50?"turquesa":"aguamarina");
+  else if(H<255) base=(L>=85&&S>=35&&H>=185&&H<=210)?"celeste":"azul";
+  else if(H<285) base="morado";
+  else if(H<330) base="violeta";
+  else base=(S>60?"fucsia":"rosa");
+  let mod=""; if(L>=82) mod="claro"; else if(L<35) mod="oscuro";
+  const parts=[base]; if(mod&&base!=="blanco"&&base!=="negro"&&base!=="gris") parts.push(mod);
+  return parts.join(" ");
+}
+
+/* Wheel drawing */
+const cv=document.getElementById('cv'), ctx=cv.getContext('2d',{willReadFrequently:true});
+const W=cv.width,H=cv.height,cx=W/2,cy=H/2,R=W/2;
+let L=0.6; let current={h:210,s:0.5};
+function drawWheel(){
+  const img=ctx.createImageData(W,H),d=img.data;
+  for(let y=0;y<H;y++){for(let x=0;x<W;x++){
+    const dx=x-cx,dy=y-cy,r=Math.sqrt(dx*dx+dy*dy),i=(y*W+x)*4;
+    if(r>R){d[i+3]=0;continue;}
+    const sat=clamp(r/R,0,1),ang=(Math.atan2(dy,dx)*180/Math.PI+360)%360;
+    const rgb=hslToRgb(ang,sat,L);
+    d[i]=rgb.r; d[i+1]=rgb.g; d[i+2]=rgb.b; d[i+3]=255;
+  }} ctx.putImageData(img,0,0);
+}
+drawWheel();
+
+/* Marker & display */
+const mark=document.getElementById('mark'),swatch=document.getElementById('swatch'),
+label=document.getElementById('label'),hexOut=document.getElementById('hex'),hslOut=document.getElementById('hsl');
+function placeMarker(h,s){
+  const r=s*R,x=cx+r*Math.cos(h*Math.PI/180),y=cy+r*Math.sin(h*Math.PI/180);
+  mark.style.left=x+"px"; mark.style.top=y+"px";
+}
+function update(h,s){
+  const rgb=hslToRgb(h,s,L); swatch.style.background=rgbToHex(rgb);
+  label.textContent=spanishNameFromRGB(rgb);
+  hexOut.textContent=rgbToHex(rgb);
+  const {h:H,s:S,l:Lp}=rgbToHsl(rgb);
+  hslOut.textContent=`HSL(${Math.round(H)}, ${Math.round(S*100)}%, ${Math.round(Lp*100)}%)`;
+}
+placeMarker(current.h,current.s); update(current.h,current.s);
+
+/* Interaction */
+function eventToHS(e){
+  const rect=cv.getBoundingClientRect();
+  const x=(e.touches?e.touches[0].clientX:e.clientX)-rect.left,
+        y=(e.touches?e.touches[0].clientY:e.clientY)-rect.top;
+  const dx=x-cx,dy=y-cy,r=Math.sqrt(dx*dx+dy*dy);
+  return {h:(Math.atan2(dy,dx)*180/Math.PI+360)%360,s:clamp(r/R,0,1)};
+}
+let dragging=false;
+function down(e){dragging=true;const hs=eventToHS(e);current=hs;placeMarker(hs.h,hs.s);update(hs.h,hs.s);e.preventDefault();}
+function move(e){if(!dragging)return;const hs=eventToHS(e);current=hs;placeMarker(hs.h,hs.s);update(hs.h,hs.s);e.preventDefault();}
+function up(){dragging=false;}
+cv.addEventListener('mousedown',down);window.addEventListener('mousemove',move);window.addEventListener('mouseup',up);
+cv.addEventListener('touchstart',down,{passive:false});window.addEventListener('touchmove',move,{passive:false});window.addEventListener('touchend',up);
+
+/* Lightness slider */
+document.getElementById('light').addEventListener('input',e=>{
+  L=e.target.value/100; drawWheel(); update(current.h,current.s);
+});
+</script>
+</body>
+</html>
