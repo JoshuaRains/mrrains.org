@@ -86,19 +86,30 @@
 
   let state = "idle"; // "idle" | "question" | "answer"
   let current = null;
-  let lastDayIdx = null; // NEW: remember the last "today"
+  let lastDayIdx = null;
 
   function randInt(n){ return Math.floor(Math.random()*n); }
 
+  // NEW: instantly hide answer without leaving inline styles
+  function instantHideAnswer() {
+    answerEl.style.transition = 'none';
+    answerEl.classList.remove('revealed');
+    answerEl.setAttribute('aria-hidden', 'true');
+    answerEl.style.opacity = '';
+    answerEl.style.transform = '';
+    void answerEl.offsetWidth;
+    answerEl.style.transition = '';
+  }
+
   function newRound(){
+    // Hide any previously visible answer immediately
+    instantHideAnswer();
+
     let todayIdx;
-    do {
-      todayIdx = randInt(7);
-    } while (todayIdx === lastDayIdx); // ensure not same as last time
+    do { todayIdx = randInt(7); } while (todayIdx === lastDayIdx);
     lastDayIdx = todayIdx;
 
     const askTomorrow = Math.random() < 0.5;
-
     const today = days[todayIdx];
     const next = days[(todayIdx + 1) % 7];
     const prev = days[(todayIdx + 6) % 7];
@@ -106,15 +117,10 @@
     const askText = askTomorrow ? "mañana es ..." : "ayer fue ...";
     const fullAnswer = askTomorrow ? `mañana es ${next}.` : `ayer fue ${prev}.`;
 
-    current = {
-      prompt: `hoy es ${today}. ${askText}`,
-      answer: fullAnswer
-    };
+    current = { prompt: `hoy es ${today}. ${askText}`, answer: fullAnswer };
 
     promptEl.textContent = capitalize(current.prompt);
     answerEl.textContent = capitalize(current.answer);
-    answerEl.classList.remove('revealed');
-    answerEl.setAttribute('aria-hidden', 'true');
 
     state = "question";
     hintEl.textContent = "Espacio: revelar respuesta";
@@ -128,18 +134,13 @@
     hintEl.textContent = "Espacio: nueva frase";
   }
 
-  function capitalize(s){
-    return s.charAt(0).toUpperCase() + s.slice(1);
-  }
+  function capitalize(s){ return s.charAt(0).toUpperCase() + s.slice(1); }
 
   function onSpace(e){
     if (e.code === 'Space') {
-      e.preventDefault(); // prevent page scroll
-      if (state === "idle" || state === "answer") {
-        newRound();
-      } else if (state === "question") {
-        reveal();
-      }
+      e.preventDefault();
+      if (state === "idle" || state === "answer") newRound();
+      else if (state === "question") reveal();
     }
   }
 
@@ -150,6 +151,7 @@
   });
 })();
 </script>
+
 
 </body>
 </html>
