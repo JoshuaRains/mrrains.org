@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1" />
+	<title>Pescar</title>
+	<style>
+		:root{
+			--ink:#1b1b1b; --muted:#6b7280; --accent:#3a6ea5; --shadow:#1f2a44;
+			--gold:#facc15; --card:#fffdf7; --outline:#000;
+		}
+		html,body{ margin:0; padding:0; font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial; color:var(--ink); background:transparent; }
+
+		.wrap{ padding:16px; }
+
+		/* Layout: fishing area (left) + history (right) */
+		.board{
+			display:grid; grid-template-columns: minmax(420px, 1fr) 280px; gap:16px; align-items:start;
+			min-height:480px;
+		}
+		.play{ margin-left:-8px; display:flex; flex-direction:column; align-items:center; gap:12px; }
+		.side{ position:relative; }
+
+		.pixel-card{
+			background:var(--card);
+			box-shadow: 0 0 0 3px var(--outline) inset, 0 6px 0 var(--outline), 0 10px 0 var(--shadow);
+			border-radius:8px;
+		}
+
+		/* Meter */
+		.meter{
+			position: relative; width: 120px; height: 320px;
+			background: linear-gradient(#dbeafe,#bfdbfe);
+			box-shadow: 0 0 0 3px #000 inset, 0 6px 0 #000, 0 10px 0 #3b5;
+			touch-action: none;
+		}
+		.hook{
+			position:absolute; left:8px; width:104px; height:72px;
+			background: repeating-linear-gradient(90deg, #86efac 0, #86efac 10px, #6ee7b7 10px, #6ee7b7 20px);
+			box-shadow: 0 0 0 3px #000 inset;
+		}
+		.fish{
+			position:absolute; left:45px; font-size:28px; filter: drop-shadow(0 2px 0 #000); user-select:none;
+		}
+
+		.catchBar{ width:260px; height:16px; background:#e5e7eb; box-shadow: inset 0 0 0 3px #000; position:relative; }
+		.catchFill{ position:absolute; left:0; top:0; bottom:0; width:0%; background: linear-gradient(90deg, #fde68a, var(--gold)); }
+
+		.msg{ text-align:center; min-height:1.6em; font-weight:800; color:#0b6; }
+		.msg.fail{ color:#c026d3; }
+
+		/* Right column: last catches (hardcoded) */
+		.sideHeader{ font-weight:900; margin:0 0 8px 0; }
+		.catches{ display:flex; flex-direction:column; gap:10px; }
+		.tile{
+			display:flex; align-items:center; gap:10px; padding:8px; border-radius:8px;
+			box-shadow: 0 0 0 3px var(--outline) inset, 0 4px 0 var(--outline);
+			background:#fff;
+		}
+		.tile .img{
+			font-size:24px; width:36px; height:36px; display:grid; place-items:center;
+			box-shadow: 0 0 0 3px var(--outline) inset; border-radius:6px; background:#f0fdf4;
+		}
+		.tile .name{ font-weight:800; }
+		.tile .meta{ font-size:12px; color:var(--muted); }
+
+		/* “no worms” overlay badge */
+		.noworms{
+			display:none; position:absolute; top:0; left:0; right:0; padding:8px; text-align:center; font-weight:800;
+			color:#fff; background:#d11a2a; box-shadow: 0 3px 0 #000;
+		}
+		.noworms.show{ display:block; }
+	</style>
+</head>
+<body>
+	<div class="wrap">
+		<div class="board">
+			<!-- LEFT: fishing play area -->
+			<div class="play">
+				<div class="meter" id="meter">
+					<div class="hook" id="hook" style="top:160px;"></div>
+					<div class="fish" id="fish" style="top:160px;">🐟</div>
+				</div>
+				<div class="catchBar pixel-card"><div class="catchFill" id="catchFill"></div></div>
+				<div class="msg" id="catchMsg"></div>
+			</div>
+
+			<!-- RIGHT: last 5 catches (hardcoded for now) -->
+			<aside class="side">
+				<div class="noworms" id="noWormsBanner">Sin gusanos (cebo). Gana más en la actividad.</div>
+				<h3 class="sideHeader">Últimas capturas</h3>
+				<div class="catches">
+					<div class="tile"><div class="img">🐠</div><div><div class="name">Boquerón</div><div class="meta">común</div></div></div>
+					<div class="tile"><div class="img">🐟</div><div><div class="name">Mojarra</div><div class="meta">común</div></div></div>
+					<div class="tile"><div class="img">🐡</div><div><div class="name">Pez globo</div><div class="meta">raro</div></div></div>
+					<div class="tile"><div class="img">🦑</div><div><div class="name">Calamar</div><div class="meta">raro</div></div></div>
+					<div class="tile"><div class="img">🦐</div><div><div class="name">Camarón</div><div class="meta">poco común</div></div></div>
+				</div>
+			</aside>
+		</div>
+	</div>
+
+	<script>
+	/* -------- parent messaging (no HUD in iframe) -------- */
+	let team = '—';
+	let worms = 0;
+
+	// Receive from parent
+	window.addEventListener('message', (e)=>{
+		const msg = e.data || {};
+		if(!msg || msg.source !== 'vamos') return;
+		if(msg.type === 'init'){ team = msg.team; setWorms(msg.worms|0); }
+		if(msg.type === 'team'){ team = msg.value; }
+		if(msg.type === 'worms'){ setWorms(msg.value); }
+		if(msg.type === 'stop'){ stopFishing(); }
+	}, false);
+
+	function notifyParent(type, payload){
+		try{ parent && parent.postMessage({source:'fishing', type, ...payload}, '*'); }catch(_){}
+	}
+
+	function setWorms(n){
+		worms = Math.max(0, n|0);
+		noWormsBanner.classList.toggle('show', worms === 0);
+	}
+
+	/* ---------------- fishing gameplay ---------------- */
+	const meter = document.getElementById('meter');
+	const hookEl = document.getElementById('hook');
+	const fishEl = document.getElementById('fish');
+	const catchFill = document.getElementById('catchFill');
+	const catchMsg = document.getElementById('catchMsg');
+	const noWormsBanner = document.getElementById('noWormsBanner');
+
+	let raf = null, running = false, pressing = false, spentThisRound = false;
+
+	const METER_H = 320, HOOK_H = 72, FISH_H = 24, FISH_MARGIN = 24;
+	let hookY = 0.5*(METER_H - HOOK_H), hookV = 0;
+	let fishY = 0.5*(METER_H - FISH_H), fishV = 0, fishTarget = 0.5*METER_H;
+
+	let progress = 0;
+
+	const UP_ACCEL = 2200, GRAVITY = 1800, HOOK_DAMP = 0.94;
+	const FISH_NOISE=500, FISH_MAXV=260;
+	const PROGRESS_GAIN=0.45, PROGRESS_LOSS=0.65, LOSS_DELAY_S=0.7;
+
+	let firstPressAt = null, lossEnabled = false;
+
+	function clamp(v,lo,hi){ return Math.max(lo, Math.min(hi,v)); }
+	function randRange(a,b){ return a + Math.random()*(b-a); }
+
+	function resetFishing(){
+		progress = 0; catchFill.style.width='0%';
+		catchMsg.textContent=''; catchMsg.classList.remove('fail');
+		hookY=(METER_H-HOOK_H)*0.5; hookV=0;
+		const top=FISH_MARGIN, bot=METER_H - FISH_H - FISH_MARGIN;
+		fishY=(top+bot)/2; fishV=0; fishTarget=randRange(top,bot);
+		firstPressAt=null; lossEnabled=false; spentThisRound=false;
+		updateUI();
+	}
+	function updateUI(){ hookEl.style.top=`${hookY}px`; fishEl.style.top=`${fishY}px`; }
+	function insideHook(){
+		const fishTop=fishY, fishBottom=fishY+FISH_H, hookTop=hookY, hookBottom=hookY+HOOK_H;
+		return !(fishBottom<hookTop || fishTop>hookBottom);
+	}
+
+	let last=0;
+	function loop(ts){
+		if(!running) return;
+		if(!last) last=ts;
+		const dt=Math.min(0.033,(ts-last)/1000); last=ts;
+
+		if(pressing){ hookV -= UP_ACCEL*dt; } else { hookV += GRAVITY*dt; }
+		hookV *= HOOK_DAMP; hookY += hookV*dt;
+		hookY = clamp(hookY, 0, METER_H - HOOK_H);
+		if((hookY===0&&hookV<0)||(hookY===METER_H-HOOK_H&&hookV>0)) hookV=0;
+
+		const top=FISH_MARGIN, bot=METER_H - FISH_H - FISH_MARGIN;
+		fishTarget += (Math.random()-0.5)*140*dt; fishTarget=clamp(fishTarget,top,bot);
+		const accel = clamp((fishTarget-fishY)*6 + (Math.random()-0.5)*FISH_NOISE, -1200, 1200);
+		fishV += accel*dt; fishV=clamp(fishV,-FISH_MAXV,FISH_MAXV);
+		fishY += fishV*dt; fishY=clamp(fishY, top, bot);
+
+		if(!lossEnabled && firstPressAt){
+			if((performance.now()-firstPressAt)/1000 >= LOSS_DELAY_S) lossEnabled=true;
+		}
+
+		if(insideHook()){ progress += PROGRESS_GAIN*dt; }
+		else if(lossEnabled){ progress -= PROGRESS_LOSS*dt; }
+		progress = clamp(progress,0,1); catchFill.style.width=(progress*100).toFixed(1)+'%';
+
+		updateUI();
+
+		if(progress>=1){
+			catchMsg.textContent='¡Pez atrapado!';
+			spendWorm(); stopFishing();
+			notifyParent('caught', { fish:{ name:'Pez común' }});
+			return;
+		}
+		if(lossEnabled && progress<=0){
+			catchMsg.textContent='¡Se escapó el pez!'; catchMsg.classList.add('fail');
+			spendWorm(); stopFishing();
+			notifyParent('escaped', {});
+			return;
+		}
+
+		raf=requestAnimationFrame(loop);
+	}
+
+	function startFishing(){
+		if(running) return;
+		resetFishing();
+		running=true; last=0; raf=requestAnimationFrame(loop);
+	}
+	function stopFishing(){ running=false; if(raf){ cancelAnimationFrame(raf); raf=null; } }
+
+	function spendWorm(){
+		if(spentThisRound) return;
+		spentThisRound = true;
+		// local optimistic update; parent will send back canonical total
+		setWorms(worms-1);
+		notifyParent('worms_delta', {delta:-1});
+		notifyParent('worms', {value: worms});
+	}
+
+	/* controls: Space to cast/raise; pointer holds on meter */
+	function isTyping(){
+		const a=document.activeElement;
+		return a && (a.tagName==='INPUT' || a.tagName==='TEXTAREA' || a.isContentEditable);
+	}
+	function tryCast(){
+		if(worms<=0){
+			catchMsg.textContent='No tienes gusanos (cebo).';
+			catchMsg.classList.add('fail');
+			noWormsBanner.classList.add('show');
+			return false;
+		}
+		catchMsg.textContent=''; catchMsg.classList.remove('fail');
+		noWormsBanner.classList.remove('show');
+		startFishing(); return true;
+	}
+
+	document.addEventListener('keydown', (e)=>{
+		if(e.code==='Space'){
+			e.preventDefault();
+			if(!isTyping()){
+				if(!running){ if(!tryCast()) return; }
+				pressing=true; if(!firstPressAt) firstPressAt=performance.now();
+			}
+		}
+	});
+	document.addEventListener('keyup', (e)=>{
+		if(e.code==='Space'){ e.preventDefault(); pressing=false; }
+	});
+
+	meter.addEventListener('pointerdown', ()=>{
+		if(!running){ if(!tryCast()) return; }
+		pressing=true; if(!firstPressAt) firstPressAt=performance.now();
+	});
+	window.addEventListener('pointerup', ()=>{ pressing=false; });
+
+	// Start idle; parent controls worms/team and the user casts with Space.
+	</script>
+</body>
+</html>

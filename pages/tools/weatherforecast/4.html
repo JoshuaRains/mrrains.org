@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Mapa del tiempo interactivo — Sudamérica (demo v15)</title>
+  <link href="https://cdn.jsdelivr.net/npm/maplibre-gl@5.7.0/dist/maplibre-gl.css" rel="stylesheet" />
+  <style>
+    :root{ --ui-bg: rgba(0,0,0,.65); --ui-border: rgba(255,255,255,.25); --ui-text: #fff; --accent: #79b791; }
+    html, body { height: 100%; margin: 0; font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Noto Sans"; }
+    #map { position: fixed; inset: 0; }
+
+    .controls { position: fixed; left: 50%; transform: translateX(-50%); bottom: 72px; display: grid; gap: .5rem; grid-auto-flow: column; align-items: center; background: var(--ui-bg); border: 1px solid var(--ui-border); color: var(--ui-text); padding: .6rem .8rem; border-radius: 12px; backdrop-filter: blur(6px); box-shadow: 0 6px 20px rgba(0,0,0,.3); z-index: 6; }
+    .controls .chip { background: rgba(255,255,255,.1); color: var(--ui-text); border: 1px solid var(--ui-border); border-radius: 10px; padding: .45rem .7rem; font-weight: 600; letter-spacing: .2px; }
+
+    .timeline { position: fixed; left: 50%; transform: translateX(-50%); bottom: 12px; background: var(--ui-bg); border:1px solid var(--ui-border); border-radius:12px; padding:.6rem .8rem .8rem; display:grid; gap:.35rem; z-index:6; backdrop-filter: blur(6px); }
+    .timeline input[type="range"]{ width: 520px; accent-color: var(--accent); }
+    .ticks{ display:grid; grid-template-columns: repeat(7, 1fr); gap:.25rem; font-size: 12px; color:#eee; opacity:.9; }
+    .ticks span{ text-align:center; }
+
+    .legend { position: fixed; top: 12px; right: 12px; color: var(--ui-text); background: var(--ui-bg); border:1px solid var(--ui-border); padding: .8rem; border-radius: 12px; max-width: 420px; backdrop-filter: blur(6px); z-index: 6; }
+    .legend h3{ margin: 0 0 .35rem; font-size: 1rem; }
+    .row{ display:flex; align-items:center; gap:.5rem; margin:.25rem 0; }
+    .swatch{ width: 14px; height: 14px; border-radius:3px; display:inline-block; margin-right:.4rem; vertical-align: middle; }
+    .mini{ font-size:.9em; opacity:.85; }
+
+    .stamp { position: fixed; left: 12px; bottom: 12px; color:#eee; background: var(--ui-bg); border:1px solid var(--ui-border); padding: .4rem .6rem; border-radius: 10px; font-size: 12px; z-index: 6; }
+    .map-attrib { position: fixed; right: 12px; bottom: 12px; color:#eee; font-size: 12px; text-shadow: 0 1px 2px rgba(0,0,0,.5); z-index: 6;}
+    .map-attrib a{ color:#fff; }
+
+    /* Vertical opacity slider */
+    .opacity-ctrl { position: fixed; left: 10px; top: 50%; transform: translateY(-50%); z-index: 7; background: var(--ui-bg); border:1px solid var(--ui-border); border-radius:12px; padding:.6rem; display:flex; flex-direction:column; align-items:center; gap:.5rem; }
+    .opacity-ctrl label{ color:#fff; font-size:12px; opacity:.9; }
+    .opacity-ctrl input[type=range]{
+      writing-mode: bt-lr; /* most browsers */
+      -webkit-appearance: slider-vertical; /* Safari/Chromium */
+      height: 220px; width: 22px; accent-color: var(--accent);
+    }
+  </style>
+</head>
+<body>
+  <div id="map"></div>
+
+  <aside class="legend" aria-label="Leyenda del mapa">
+    <h3>Leyenda (precipitación IMERG · NASA GIBS)</h3>
+    <div class="row"><span class="swatch" style="background:#ef4444"></span> <strong>Rojo:</strong> mucha lluvia</div>
+    <div class="row"><span class="swatch" style="background:#22c55e"></span> <strong>Verde:</strong> lluvia</div>
+    <div class="row"><span class="swatch" style="background:#3b82f6"></span> <strong>Azul:</strong> nieve <span class="mini">(simplificado)</span></div>
+    <div class="row mini">Temperatura: círculos con °C / °F, tamaño constante.</div>
+  </aside>
+
+  <div class="controls" role="group" aria-label="Capas">
+    <label class="chip"><input id="togglePrecip" type="checkbox" checked /> Precipitación</label>
+    <label class="chip"><input id="toggleTemp" type="checkbox" checked /> Temperatura</label>
+  </div>
+
+  <div class="timeline" aria-label="Selector de días">
+    <input id="dayRange" type="range" min="0" max="6" step="1" value="0" />
+    <div class="ticks"><span>Lunes</span><span>Martes</span><span>Miércoles</span><span>Jueves</span><span>Viernes</span><span>Sábado</span><span>Domingo</span></div>
+  </div>
+
+  <div class="opacity-ctrl" aria-label="Opacidad de nubes">
+    <label for="opacityRange">Opacidad</label>
+    <input id="opacityRange" type="range" min="0" max="1" step="0.02" value="0.20" />
+  </div>
+
+  <div class="stamp" id="snapshotStamp">Elige un día…</div>
+  <div class="map-attrib">Base © <a href="https://www.carto.com/" target="_blank" rel="noopener">CARTO</a> · Datos © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> · Precipitación © <a href="https://nasa-gibs.github.io/gibs-api-docs/" target="_blank" rel="noopener">NASA GIBS / GPM IMERG</a></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/maplibre-gl@5.7.0/dist/maplibre-gl.js"></script>
+  <script>
+  // =====================
+  // ✨ CLASSROOM CONFIG ✨
+  // Edit these values only. Everything else updates automatically.
+  // =====================
+  const DAYS = ['Lunes','Martes','Miércoles','Jueves','Viernes','Sábado','Domingo'];
+
+  // 1) Choose the IMERG snapshot time for each weekday (ISO-8601, UTC)
+  // Pick any day/time in the archive (years back are fine). 12:00 UTC is a good default.
+  const TIMES = {
+    'Lunes':      '2019-02-12T12:00:00Z',
+    'Martes':     '2015-03-25T12:00:00Z',
+    'Miércoles':  '2017-03-15T12:00:00Z',
+    'Jueves':     '2020-07-25T12:00:00Z',
+    'Viernes':    '2016-01-04T12:00:00Z',
+    'Sábado':     '2018-04-03T12:00:00Z',
+    'Domingo':    '2023-11-08T12:00:00Z'
+  };
+
+  // 2) Cities (you can add/remove). Names must match keys in TEMPS_C below if you edit.
+  const CITIES = [
+    {name:'São Paulo',   lat:-23.5505, lon:-46.6333},
+    {name:'Rio de Janeiro', lat:-22.9068, lon:-43.1729},
+    {name:'Buenos Aires', lat:-34.6037, lon:-58.3816},
+    {name:'Santiago',    lat:-33.4489, lon:-70.6693},
+    {name:'Lima',        lat:-12.0464, lon:-77.0428},
+    {name:'Bogotá',      lat:  4.7110, lon:-74.0721},
+    {name:'Quito',       lat:  -0.1807, lon:-78.4678},
+    {name:'La Paz',      lat: -16.4897, lon:-68.1193},
+    {name:'Asunción',    lat: -25.2637, lon:-57.5759},
+    {name:'Montevideo',  lat: -34.9011, lon:-56.1645},
+    {name:'Caracas',     lat:  10.4806, lon:-66.9036},
+    {name:'Manaus',      lat:  -3.1190, lon:-60.0217},
+    {name:'Recife',      lat:  -8.0476, lon:-34.8770},
+    {name:'Salvador',    lat: -12.9777, lon:-38.5016},
+    {name:'Porto Alegre',lat: -30.0346, lon:-51.2177}
+  ];
+
+  // 3) Hard-coded temperatures per weekday per city (°C). You edit these.
+  //    Any city not found will fall back to 20°C.
+  const TEMPS_C = {
+    'Lunes':     { 'São Paulo':26, 'Rio de Janeiro':28, 'Buenos Aires':30, 'Santiago':27, 'Lima':23, 'Bogotá':19, 'Quito':18, 'La Paz':12, 'Asunción':32, 'Montevideo':28, 'Caracas':31, 'Manaus':29, 'Recife':30, 'Salvador':29, 'Porto Alegre':25 },
+    'Martes':    { 'São Paulo':24, 'Rio de Janeiro':26, 'Buenos Aires':22, 'Santiago':18, 'Lima':22, 'Bogotá':18, 'Quito':17, 'La Paz':10, 'Asunción':29, 'Montevideo':23, 'Caracas':30, 'Manaus':28, 'Recife':29, 'Salvador':28, 'Porto Alegre':20 },
+    'Miércoles': { 'São Paulo':25, 'Rio de Janeiro':27, 'Buenos Aires':18, 'Santiago':16, 'Lima':21, 'Bogotá':17, 'Quito':16, 'La Paz':8,  'Asunción':28, 'Montevideo':20, 'Caracas':31, 'Manaus':28, 'Recife':29, 'Salvador':28, 'Porto Alegre':19 },
+    'Jueves':    { 'São Paulo':20, 'Rio de Janeiro':22, 'Buenos Aires':12, 'Santiago':3,  'Lima':17, 'Bogotá':14, 'Quito':12, 'La Paz':-2, 'Asunción':26, 'Montevideo':14, 'Caracas':28, 'Manaus':27, 'Recife':28, 'Salvador':27, 'Porto Alegre':12 },
+    'Viernes':   { 'São Paulo':29, 'Rio de Janeiro':31, 'Buenos Aires':33, 'Santiago':30, 'Lima':25, 'Bogotá':20, 'Quito':19, 'La Paz':13, 'Asunción':34, 'Montevideo':32, 'Caracas':32, 'Manaus':31, 'Recife':31, 'Salvador':31, 'Porto Alegre':28 },
+    'Sábado':    { 'São Paulo':23, 'Rio de Janeiro':25, 'Buenos Aires':20, 'Santiago':18, 'Lima':19, 'Bogotá':17, 'Quito':16, 'La Paz':9,  'Asunción':27, 'Montevideo':19, 'Caracas':30, 'Manaus':27, 'Recife':28, 'Salvador':27, 'Porto Alegre':18 },
+    'Domingo':   { 'São Paulo':27, 'Rio de Janeiro':29, 'Buenos Aires':21, 'Santiago':15, 'Lima':20, 'Bogotá':18, 'Quito':17, 'La Paz':7,  'Asunción':28, 'Montevideo':21, 'Caracas':30, 'Manaus':27, 'Recife':28, 'Salvador':28, 'Porto Alegre':20 }
+  };
+
+  // 4) Visual knobs
+  const SCENE_SCALE = 4;                 // circle size scaling
+  const CIRCLE_RADIUS = Math.round(28 * SCENE_SCALE); // big circles
+  const START_DAY_INDEX = 0;             // 0=Lunes ... 6=Domingo
+  const INITIAL_PRECIP_OPACITY = 0.20;   // default overlay opacity
+
+  // =====================
+  // Implementation
+  // =====================
+  function cToF(c){ return Math.round(c*9/5 + 32); }
+
+  const map = new maplibregl.Map({ container: 'map', style: {
+      version: 8,
+      glyphs: 'https://demotiles.maplibre.org/font/{fontstack}/{range}.pbf',
+      sources: { carto: { type: 'raster', tiles: [
+        'https://a.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',
+        'https://b.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',
+        'https://c.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',
+        'https://d.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png'
+      ], tileSize: 256, attribution: 'Map tiles © CARTO, Data © OpenStreetMap contributors' } },
+      layers: [ { id: 'carto', type: 'raster', source: 'carto', minzoom: 0, maxzoom: 19 } ]
+    }, center: [-60, -15], zoom: 3.3, pitch: 0, bearing: 0, attributionControl: false });
+
+  map.addControl(new maplibregl.NavigationControl({ showZoom: true, showCompass: false }), 'top-left');
+  map.addControl(new maplibregl.AttributionControl({compact: true}));
+
+  const dayRange = document.getElementById('dayRange');
+  const stamp    = document.getElementById('snapshotStamp');
+  const opacityRange = document.getElementById('opacityRange');
+
+  map.on('load', () => {
+    map.dragRotate.disable();
+    map.touchZoomRotate.disableRotation();
+
+    // ======== NASA GIBS IMERG (time-aware) ========
+    const NASA_LAYER = 'IMERG_Precipitation_Rate_30min';
+    const NASA_TMS   = 'GoogleMapsCompatible_Level6'; // valid zooms 0..6
+
+    function gibsUrlFor(timeISO){
+      return `https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/${NASA_LAYER}/default/${timeISO}/${NASA_TMS}/{z}/{y}/{x}.png`;
+    }
+
+    function setPrecipTime(dayIdx){
+      const dayName = DAYS[dayIdx];
+      const timeISO = TIMES[dayName];
+      if (map.getLayer('precip')) map.removeLayer('precip');
+      if (map.getSource('precip-gibs')) map.removeSource('precip-gibs');
+      map.addSource('precip-gibs', { type:'raster', tiles:[ gibsUrlFor(timeISO) ], tileSize:256, attribution:'NASA GIBS / GPM (IMERG)' });
+      map.addLayer({ id:'precip', type:'raster', source:'precip-gibs', minzoom:0, maxzoom:6, paint:{ 'raster-opacity': INITIAL_PRECIP_OPACITY, 'raster-fade-duration': 0 } }, 'temp-circles');
+      // Force temp layers to the top in case other layers were added later
+      if (map.getLayer('temp-circles')) map.moveLayer('temp-circles');
+if (map.getLayer('temp-labels'))  map.moveLayer('temp-labels');
+
+const d = new Date(timeISO);
+stamp.textContent = `${dayName} · ${String(d.getUTCDate()).padStart(2,'0')}/${String(d.getUTCMonth()+1).padStart(2,'0')}/${d.getUTCFullYear()} · ${String(d.getUTCHours()).padStart(2,'0')}:00 UTC`;
+
+      // sync slider value
+      opacityRange.value = String(INITIAL_PRECIP_OPACITY);
+    }
+
+    // ======== Temperature circles ========
+    map.addSource('temp-points', { type:'geojson', data: { type:'FeatureCollection', features: [] } });
+    map.addLayer({ id:'temp-circles', type:'circle', source:'temp-points', paint:{
+      'circle-radius': ['interpolate',['linear'],['zoom'], 0, CIRCLE_RADIUS, 10, CIRCLE_RADIUS, 22, CIRCLE_RADIUS],
+      'circle-color': [ 'interpolate', ['linear'], ['get','tempC'], -5,'#60a5fa', 0,'#38bdf8', 10,'#34d399', 20,'#fbbf24', 28,'#f97316', 35,'#ef4444' ],
+      'circle-opacity': 0.95,
+      'circle-stroke-color':'#000000',
+      'circle-stroke-opacity': 0.55,
+      'circle-stroke-width': 4
+    }});
+    map.addLayer({ id:'temp-labels', type:'symbol', source:'temp-points', layout:{
+      'text-field': ['get','label'],
+      'text-size': Math.round(12 + SCENE_SCALE*2),
+      'text-font': ['sans-serif'],
+      'text-offset': [0, 0],
+      'text-anchor': 'center',
+      'text-allow-overlap': true,
+      'text-ignore-placement': true,
+      'text-line-height': 1.1
+    }, paint:{ 'text-color':'#ffffff', 'text-halo-color':'rgba(0,0,0,0.65)', 'text-halo-width': 1.6 }});
+
+    function updateTempsFor(dayIdx){
+      const dayName = DAYS[dayIdx];
+      const temps = TEMPS_C[dayName] || {};
+      const features = CITIES.map(c => {
+        const tc = Number(temps[c.name]);
+        const tempC = isFinite(tc) ? tc : 20;
+        const tempF = cToF(tempC);
+        const label = `${Math.round(tempC)}°C
+${tempF}°F`;
+        return { type:'Feature', geometry:{ type:'Point', coordinates:[c.lon, c.lat] }, properties:{ name:c.name, tempC, label } };
+      });
+      const src = map.getSource('temp-points'); if (src) src.setData({ type:'FeatureCollection', features });
+    }
+
+    // ======== Init & interactions ========
+    dayRange.value = String(START_DAY_INDEX);
+    setPrecipTime(START_DAY_INDEX);
+    updateTempsFor(START_DAY_INDEX);
+
+    dayRange.addEventListener('input', () => {
+      const idx = Number(dayRange.value);
+      setPrecipTime(idx);
+      updateTempsFor(idx);
+    });
+
+    document.getElementById('togglePrecip').onchange = (e)=>{
+      const v = e.target.checked ? 'visible' : 'none';
+      if (map.getLayer('precip')) map.setLayoutProperty('precip','visibility', v);
+    };
+    document.getElementById('toggleTemp').onchange = (e)=>{
+      const v = e.target.checked ? 'visible' : 'none';
+      if (map.getLayer('temp-circles')) map.setLayoutProperty('temp-circles','visibility', v);
+      if (map.getLayer('temp-labels')) map.setLayoutProperty('temp-labels','visibility', v);
+    };
+
+    // Real-time opacity control
+    opacityRange.addEventListener('input', () => {
+      const val = parseFloat(opacityRange.value);
+      if (map.getLayer('precip')) map.setPaintProperty('precip','raster-opacity', val);
+    });
+  });
+  </script>
+</body>
+</html>

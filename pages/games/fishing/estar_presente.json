@@ -1,0 +1,17 @@
+{
+  "type": "conjugation_fill_blank",
+  "title": "Estar — Presente",
+  "language": "es",
+  "dataset": [
+    { "sentence": "Yo _ en la escuela.", "answer": "estoy" },
+    { "sentence": "Tú _ cansado.", "answer": "estás" },
+    { "sentence": "Él _ en casa.", "answer": "está" },
+    { "sentence": "Ella _ contenta.", "answer": "está" },
+    { "sentence": "Usted _ aquí.", "answer": "está" },
+    { "sentence": "Nosotros _ en la clase.", "answer": "estamos" },
+    { "sentence": "Nosotras _ listas.", "answer": "estamos" },
+    { "sentence": "Ellos _ enfermos.", "answer": "están" },
+    { "sentence": "Ellas _ ocupadas.", "answer": "están" },
+    { "sentence": "Ustedes _ en el gimnasio.", "answer": "están" }
+  ]
+}

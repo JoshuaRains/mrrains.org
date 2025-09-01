@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Mapa del tiempo interactivo — España (demo v9)</title>
+  <link href="https://cdn.jsdelivr.net/npm/maplibre-gl@5.7.0/dist/maplibre-gl.css" rel="stylesheet" />
+  <style>
+    :root{ --ui-bg: rgba(0,0,0,.65); --ui-border: rgba(255,255,255,.25); --ui-text: #fff; --accent: #79b791; }
+    html, body { height: 100%; margin: 0; font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Noto Sans"; }
+    #map { position: fixed; inset: 0; }
+
+    .controls { position: fixed; left: 50%; transform: translateX(-50%); bottom: 12px; display: grid; gap: .5rem; grid-auto-flow: column; align-items: center; background: var(--ui-bg); border: 1px solid var(--ui-border); color: var(--ui-text); padding: .6rem .8rem; border-radius: 12px; backdrop-filter: blur(6px); box-shadow: 0 6px 20px rgba(0,0,0,.3); }
+    .controls .chip { background: rgba(255,255,255,.1); color: var(--ui-text); border: 1px solid var(--ui-border); border-radius: 10px; padding: .45rem .7rem; font-weight: 600; letter-spacing: .2px; }
+
+    .legend { position: fixed; top: 12px; right: 12px; color: var(--ui-text); background: var(--ui-bg); border:1px solid var(--ui-border); padding: .8rem; border-radius: 12px; max-width: 360px; backdrop-filter: blur(6px); }
+    .legend h3{ margin: 0 0 .35rem; font-size: 1rem; }
+    .row{ display:flex; align-items:center; gap:.5rem; margin:.25rem 0; }
+    .swatch{ width: 14px; height: 14px; border-radius:3px; display:inline-block; margin-right:.4rem; vertical-align: middle; }
+
+    .map-attrib { position: fixed; right: 12px; bottom: 12px; color:#eee; font-size: 12px; text-shadow: 0 1px 2px rgba(0,0,0,.5);} 
+    .map-attrib a{ color:#fff; }
+
+    canvas.overlay { position: absolute; left:-99999px; top:-99999px; }
+  </style>
+</head>
+<body>
+  <div id="map"></div>
+
+  <!-- Offscreen canvas for MapLibre canvas source (static) -->
+  <canvas id="cloudCanvas" class="overlay" width="1280" height="1280"></canvas>
+
+  <aside class="legend" aria-label="Leyenda del mapa">
+    <h3>Leyenda</h3>
+    <div class="row"><span class="swatch" style="background:#16A34A"></span> Verde = lluvia ligera</div>
+    <div class="row"><span class="swatch" style="background:#DC2626"></span> Rojo = lluvia intensa</div>
+    <div class="row"><span class="swatch" style="background:#FFFFFF; border:1px solid rgba(255,255,255,.6)"></span> Blanco = nieve</div>
+    <div class="row"><span class="swatch" style="background:#6D28D9"></span> Morado = tormenta/mixto</div>
+    <div class="row" style="opacity:.85">Temperatura: círculos con °C (tamaño constante).</div>
+  </aside>
+
+  <div class="controls" role="group" aria-label="Capas">
+    <label class="chip"><input id="toggleClouds" type="checkbox" checked /> Nubes/Precipitación</label>
+    <label class="chip"><input id="toggleTemp" type="checkbox" checked /> Temperatura</label>
+  </div>
+
+  <div class="map-attrib">Map tiles © <a href="https://www.carto.com/" target="_blank" rel="noopener">CARTO</a> · Datos © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> colaboradores</div>
+
+  <script src="https://cdn.jsdelivr.net/npm/maplibre-gl@5.7.0/dist/maplibre-gl.js"></script>
+  <script>
+  // ======== SINGLE KNOB TO SCALE EVERYTHING ========
+  // Increase SCENE_SCALE to make cloud blobs MUCH larger and temperature circles bigger.
+  // Decrease for finer cloud detail and smaller circles.
+  const SCENE_SCALE = 4; // try 2, 4, 6, 8...
+
+  // Derived settings from SCENE_SCALE
+  const GRID = Math.max(12, Math.round(96 / SCENE_SCALE)); // lower grid => larger features
+  const NOISE_FREQ0 = 0.35 / SCENE_SCALE;                  // lower freq => larger blobs
+  const CIRCLE_RADIUS = Math.round(24 * SCENE_SCALE);      // constant pixel size on screen
+
+  // ======== BASEMAP STYLE ========
+  const RASTER_STYLE = {
+    version: 8,
+    glyphs: 'https://demotiles.maplibre.org/font/{fontstack}/{range}.pbf',
+    sources: { carto: { type: 'raster', tiles: [
+      'https://a.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',
+      'https://b.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',
+      'https://c.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',
+      'https://d.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png'
+    ], tileSize: 256, attribution: 'Map tiles © CARTO, Data © OpenStreetMap contributors' } },
+    layers: [ { id: 'carto', type: 'raster', source: 'carto', minzoom: 0, maxzoom: 19 } ]
+  };
+
+  // España bbox (NW, NE, SE, SW)
+  const SPAIN_BBOX = [ [-10.0, 44.0], [ 4.0, 44.0], [ 4.0, 35.0], [-10.0, 35.0] ];
+  
+  // Expand the overlay footprint ~4× area (2× width & height)
+  const COVERAGE_FACTOR = 2; // linear scale; 2 => ~4x area
+  function scaleBbox(bbox, factor){
+    // bbox corners: NW, NE, SE, SW
+    const lons = bbox.map(p=>p[0]);
+    const lats = bbox.map(p=>p[1]);
+    const minLng = Math.min(...lons), maxLng = Math.max(...lons);
+    const minLatB = Math.min(...lats), maxLatB = Math.max(...lats);
+    const cx = (minLng + maxLng)/2, cy = (minLatB + maxLatB)/2;
+    const halfW = (maxLng - minLng)/2 * factor;
+    const halfH = (maxLatB - minLatB)/2 * factor;
+    const west = cx - halfW, east = cx + halfW, south = cy - halfH, north = cy + halfH;
+    return [ [west, north], [east, north], [east, south], [west, south] ];
+  }
+  const OVERLAY_BBOX = scaleBbox(SPAIN_BBOX, COVERAGE_FACTOR);
+  
+  // Keep Spain bounds for temp gradient math
+  const minLon=-10, maxLon=4, minLat=35, maxLat=44;
+
+  // Major cities
+  const cities = [
+    {name:'Madrid',     lon:-3.7038, lat:40.4168},
+    {name:'Barcelona',  lon: 2.1734, lat:41.3851},
+    {name:'Valencia',   lon:-0.3763, lat:39.4699},
+    {name:'Sevilla',    lon:-5.9845, lat:37.3891},
+    {name:'Zaragoza',   lon:-0.8891, lat:41.6488},
+    {name:'Bilbao',     lon:-2.9350, lat:43.2630},
+    {name:'Málaga',     lon:-4.4214, lat:36.7213},
+    {name:'Murcia',     lon:-1.1307, lat:37.9870},
+    {name:'Valladolid', lon:-4.7286, lat:41.6523},
+    {name:'A Coruña',   lon:-8.4115, lat:43.3623}
+  ];
+
+  // ======== MAP ========
+  const map = new maplibregl.Map({ container: 'map', style: RASTER_STYLE, center: [-3.7038, 40.4168], zoom: 5.5, pitch: 0, bearing: 0, attributionControl: false });
+  map.addControl(new maplibregl.NavigationControl({ showZoom: true, showCompass: false }), 'top-left');
+  map.addControl(new maplibregl.AttributionControl({compact: true}));
+  map.on('load', () => {
+    // Disable rotation & pitch
+    map.dragRotate.disable(); map.touchZoomRotate.disableRotation(); map.keyboard.disableRotation && map.keyboard.disableRotation();
+
+    // Constrain panning to the overlay coverage
+    const ovLngs = OVERLAY_BBOX.map(p=>p[0]);
+    const ovLats = OVERLAY_BBOX.map(p=>p[1]);
+    const maxBounds = [[Math.min(...ovLngs), Math.min(...ovLats)], [Math.max(...ovLngs), Math.max(...ovLats)]];
+    map.setMaxBounds(maxBounds);
+
+    // Static canvas source (cloud/precip classification)
+    map.addSource('clouds-src', { type: 'canvas', canvas: 'cloudCanvas', coordinates: OVERLAY_BBOX });
+    map.addLayer({ id: 'clouds', type: 'raster', source: 'clouds-src', paint: { 'raster-opacity': 0.9, 'raster-fade-duration': 0 } });
+
+    // Temperature circles as GeoJSON (constant-size)
+    map.addSource('temp-points', { type:'geojson', data: { type:'FeatureCollection', features: [] } });
+    map.addLayer({ id:'temp-circles', type:'circle', source:'temp-points', paint:{ 'circle-radius': CIRCLE_RADIUS, 'circle-color': [ 'interpolate', ['linear'], ['get','temp'], 0,'#1d4ed8', 10,'#06b6d4', 20,'#fbbf24', 28,'#f97316', 35,'#ef4444' ], 'circle-opacity': 0.98, 'circle-stroke-color':'#ffffff', 'circle-stroke-width': 3 } });
+    map.addLayer({ id:'temp-labels', type:'symbol', source:'temp-points', layout:{ 'text-field': ['concat', ['to-string', ['round', ['get','temp']]], '°'], 'text-size': Math.round(10 + SCENE_SCALE*2), 'text-font': ['Open Sans Bold'], 'text-offset': [0, 0], 'text-anchor': 'center' }, paint:{ 'text-color':'#ffffff', 'text-halo-color':'rgba(0,0,0,0.6)', 'text-halo-width': 1.5 } });
+
+    // Draw the static scenario once
+    drawCloudsStatic();
+    setTempsStatic();
+    if (map.triggerRepaint) map.triggerRepaint();
+  });
+
+  // Toggles
+  const tClouds = document.getElementById('toggleClouds');
+  const tTemp   = document.getElementById('toggleTemp');
+  tClouds.onchange = () => { const v = tClouds.checked ? 'visible' : 'none'; if (map.getLayer('clouds')) map.setLayoutProperty('clouds','visibility', v); };
+  tTemp.onchange   = () => { const v = tTemp.checked ? 'visible' : 'none'; if (map.getLayer('temp-circles')) map.setLayoutProperty('temp-circles','visibility', v); if (map.getLayer('temp-labels')) map.setLayoutProperty('temp-labels','visibility', v); };
+
+  // ======== STATIC CLOUD OVERLAY (Perlin-style noise → categories) ========
+  function drawCloudsStatic(){
+    const cnv = document.getElementById('cloudCanvas');
+    const ctx = cnv.getContext('2d');
+    const W = cnv.width, H = cnv.height;
+
+    const img = ctx.createImageData(W, H);
+
+    // Coarse grid noise for large features (scaled by SCENE_SCALE)
+    const grid = GRID; // lower grid => larger features
+    const g = new Float32Array((grid+1)*(grid+1));
+    const seed = 1337;
+    function rand(i){ const x = Math.sin(i*12.9898 + seed)*43758.5453; return x - Math.floor(x); }
+    for(let y=0;y<=grid;y++) for(let x=0;x<=grid;x++){ g[y*(grid+1)+x] = rand(y*73856093 ^ x*19349663); }
+
+    function valueNoise(u,v){
+      const x = u*grid, y=v*grid; const x0=x|0, y0=y|0; const xf=x-x0, yf=y-y0;
+      const i00=g[y0*(grid+1)+x0], i10=g[y0*(grid+1)+x0+1]; const i01=g[(y0+1)*(grid+1)+x0], i11=g[(y0+1)*(grid+1)+x0+1];
+      const sx = xf*xf*(3-2*xf), sy = yf*yf*(3-2*yf);
+      const nx0 = i00*(1-sx)+i10*sx; const nx1 = i01*(1-sx)+i11*sx; return nx0*(1-sy)+nx1*sy;
+    }
+    function fbm(u,v){
+      const octaves = 4, persistence = 0.6; let a=1, f=NOISE_FREQ0, sum=0, norm=0;
+      for(let o=0;o<octaves;o++){ sum += a*valueNoise((u*f)%1,(v*f)%1); norm += a; a*=persistence; f*=2; }
+      return sum/norm; // 0..1
+    }
+
+    for(let y=0;y<H;y++){
+      for(let x=0;x<W;x++){
+        const u = x/W, v = y/H;
+        const n = fbm(u, v); // 0..1
+        // Map to categories: clear → green → red → white → purple
+        let r=0,gc=0,b=0,a=0;
+        if (n < 0.45){ a = 0; } // clear
+        else if (n < 0.60){ r=22; gc=163; b=74; a=180; }   // green (#16A34A)
+        else if (n < 0.75){ r=220; gc=38; b=38; a=200; }  // red (#DC2626)
+        else if (n < 0.90){ r=255; gc=255; b=255; a=220; } // white
+        else { r=109; gc=40; b=217; a=220; }               // purple (#6D28D9)
+
+        const idx = (y*W + x)*4; img.data[idx]=r; img.data[idx+1]=gc; img.data[idx+2]=b; img.data[idx+3]=a;
+      }
+    }
+    ctx.putImageData(img,0,0);
+  }
+
+  // ======== STATIC TEMPERATURE CIRCLES ========
+  function setTempsStatic(){
+    const features = cities.map(c => {
+      const u = (c.lon - minLon)/(maxLon-minLon), v = (maxLat - c.lat)/(maxLat-minLat);
+      let T = 18 + 6*(u-0.5) - 2*(1-v); // west↔east & north↔south gradient
+      T += (Math.sin((u+v)*6.283)*2);   // small regional bump
+      return { type:'Feature', geometry:{ type:'Point', coordinates:[c.lon, c.lat] }, properties:{ name:c.name, temp:T } };
+    });
+    const src = map.getSource('temp-points'); if (src) src.setData({ type:'FeatureCollection', features });
+  }
+
+  </script>
+</body>
+</html>

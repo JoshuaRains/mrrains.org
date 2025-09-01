@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Mapa del tiempo interactivo — Sudamérica (demo v12)</title>
+  <link href="https://cdn.jsdelivr.net/npm/maplibre-gl@5.7.0/dist/maplibre-gl.css" rel="stylesheet" />
+  <style>
+    :root{ --ui-bg: rgba(0,0,0,.65); --ui-border: rgba(255,255,255,.25); --ui-text: #fff; --accent: #79b791; }
+    html, body { height: 100%; margin: 0; font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Noto Sans"; }
+    #map { position: fixed; inset: 0; }
+
+    .controls { position: fixed; left: 50%; transform: translateX(-50%); bottom: 12px; display: grid; gap: .5rem; grid-auto-flow: column; align-items: center; background: var(--ui-bg); border: 1px solid var(--ui-border); color: var(--ui-text); padding: .6rem .8rem; border-radius: 12px; backdrop-filter: blur(6px); box-shadow: 0 6px 20px rgba(0,0,0,.3); z-index: 5; }
+    .controls .chip { background: rgba(255,255,255,.1); color: var(--ui-text); border: 1px solid var(--ui-border); border-radius: 10px; padding: .45rem .7rem; font-weight: 600; letter-spacing: .2px; }
+
+    .legend { position: fixed; top: 12px; right: 12px; color: var(--ui-text); background: var(--ui-bg); border:1px solid var(--ui-border); padding: .8rem; border-radius: 12px; max-width: 420px; backdrop-filter: blur(6px); z-index: 5; }
+    .legend h3{ margin: 0 0 .35rem; font-size: 1rem; }
+    .row{ display:flex; align-items:center; gap:.5rem; margin:.25rem 0; }
+    .swatch{ width: 14px; height: 14px; border-radius:3px; display:inline-block; margin-right:.4rem; vertical-align: middle; }
+    .mini{ font-size:.9em; opacity:.85; }
+
+    .stamp { position: fixed; left: 12px; bottom: 12px; color:#eee; background: var(--ui-bg); border:1px solid var(--ui-border); padding: .4rem .6rem; border-radius: 10px; font-size: 12px; z-index: 5; }
+
+    .map-attrib { position: fixed; right: 12px; bottom: 12px; color:#eee; font-size: 12px; text-shadow: 0 1px 2px rgba(0,0,0,.5); z-index: 5;} 
+    .map-attrib a{ color:#fff; }
+  </style>
+</head>
+<body>
+  <div id="map"></div>
+
+  <aside class="legend" aria-label="Leyenda del mapa">
+    <h3>Leyenda</h3>
+    <div class="row"><span class="swatch" style="background:#00AEEF"></span> <strong>Precipitación</strong> (IMERG, NASA/GPM · vía GIBS) — tonalidades = mayor intensidad</div>
+    <div class="row mini">Temperatura puntual: círculos con °C (Open‑Meteo). Tamaño constante en pantalla.</div>
+  </aside>
+
+  <div class="controls" role="group" aria-label="Capas">
+    <label class="chip"><input id="togglePrecip" type="checkbox" checked /> Precipitación</label>
+    <label class="chip"><input id="toggleTemp" type="checkbox" checked /> Temperatura</label>
+  </div>
+
+  <div class="stamp" id="snapshotStamp">Cargando datos…</div>
+  <div class="map-attrib">Base © <a href="https://www.carto.com/" target="_blank" rel="noopener">CARTO</a> · Datos © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> · Precipitación © <a href="https://nasa-gibs.github.io/gibs-api-docs/" target="_blank" rel="noopener">NASA GIBS / GPM IMERG</a> · Temperatura © <a href="https://open-meteo.com/" target="_blank" rel="noopener">Open‑Meteo</a></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/maplibre-gl@5.7.0/dist/maplibre-gl.js"></script>
+  <script>
+  // ======== KNOBS ========
+  const SCENE_SCALE = 4;                 // controls circle size
+  const CIRCLE_RADIUS = Math.round(24 * SCENE_SCALE);
+  const ALLOW_WIDE_ZOOM = true;          // let users zoom far out
+
+  // ======== BASEMAP STYLE ========
+  const RASTER_STYLE = {
+    version: 8,
+    glyphs: 'https://demotiles.maplibre.org/font/{fontstack}/{range}.pbf',
+    sources: { carto: { type: 'raster', tiles: [
+      'https://a.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',
+      'https://b.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',
+      'https://c.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',
+      'https://d.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png'
+    ], tileSize: 256, attribution: 'Map tiles © CARTO, Data © OpenStreetMap contributors' } },
+    layers: [ { id: 'carto', type: 'raster', source: 'carto', minzoom: 0, maxzoom: 19 } ]
+  };
+
+  // ======== CITIES (SAMPLE) ========
+  const cities = [
+    {name:'São Paulo',   lat:-23.5505, lon:-46.6333},
+    {name:'Rio de Janeiro', lat:-22.9068, lon:-43.1729},
+    {name:'Buenos Aires', lat:-34.6037, lon:-58.3816},
+    {name:'Santiago',    lat:-33.4489, lon:-70.6693},
+    {name:'Lima',        lat:-12.0464, lon:-77.0428},
+    {name:'Bogotá',      lat:  4.7110, lon:-74.0721},
+    {name:'Quito',       lat:  -0.1807, lon:-78.4678},
+    {name:'La Paz',      lat: -16.4897, lon:-68.1193},
+    {name:'Asunción',    lat: -25.2637, lon:-57.5759},
+    {name:'Montevideo',  lat: -34.9011, lon:-56.1645},
+    {name:'Caracas',     lat:  10.4806, lon:-66.9036},
+    {name:'Manaus',      lat:  -3.1190, lon:-60.0217},
+    {name:'Recife',      lat:  -8.0476, lon:-34.8770},
+    {name:'Salvador',    lat: -12.9777, lon:-38.5016},
+    {name:'Porto Alegre',lat: -30.0346, lon:-51.2177}
+  ];
+
+  // ======== MAP ========
+  const map = new maplibregl.Map({ container: 'map', style: RASTER_STYLE, center: [-60, -15], zoom: 3.3, pitch: 0, bearing: 0, attributionControl: false });
+  map.addControl(new maplibregl.NavigationControl({ showZoom: true, showCompass: false }), 'top-left');
+  map.addControl(new maplibregl.AttributionControl({compact: true}));
+  map.on('load', () => {
+    // No rotation & pitch
+    map.dragRotate.disable();
+    map.touchZoomRotate.disableRotation();
+
+    // Optionally allow very wide zoom-out
+    if (ALLOW_WIDE_ZOOM) { map.setMinZoom(0); map.setMaxZoom(19); }
+
+    // ======== NASA GIBS IMERG precipitation snapshot (no watermark overlay) ========
+    // Uses WMTS REST in Web Mercator as generic XYZ. "default" time = latest available.
+    const NASA_LAYER = 'IMERG_Precipitation_Rate_30min';
+    const NASA_TMS   = 'GoogleMapsCompatible_Level6'; // z 0..6 for this layer
+    const NASA_TIME  = 'default';
+    const gibsUrl = `https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/${NASA_LAYER}/default/${NASA_TIME}/${NASA_TMS}/{z}/{y}/{x}.png`;
+
+    map.addSource('precip-gibs', {
+      type: 'raster',
+      tiles: [gibsUrl],
+      tileSize: 256,
+      attribution: 'NASA GIBS / GPM (IMERG)'
+    });
+    map.addLayer({ id: 'precip', type: 'raster', source: 'precip-gibs', minzoom: 0, maxzoom: 19, paint: { 'raster-opacity': 0.48, 'raster-fade-duration': 0 } });
+
+    // ======== Temperature circles (Open‑Meteo, snapshot) ========
+    map.addSource('temp-points', { type:'geojson', data: { type:'FeatureCollection', features: [] } });
+    map.addLayer({ id:'temp-circles', type:'circle', source:'temp-points', paint:{ 'circle-radius': CIRCLE_RADIUS, 'circle-color': [ 'interpolate', ['linear'], ['get','temp'], 0,'#1d4ed8', 10,'#06b6d4', 20,'#fbbf24', 28,'#f97316', 35,'#ef4444' ], 'circle-opacity': 0.9, 'circle-stroke-color':'#000', 'circle-stroke-opacity': 0.45, 'circle-stroke-width': 4 } });
+    map.addLayer({ id:'temp-labels', type:'symbol', source:'temp-points', layout:{ 'text-field': ['concat', ['to-string', ['round', ['get','temp']]], '°'], 'text-size': Math.round(10 + SCENE_SCALE*2), 'text-font': ['Open Sans Bold'], 'text-offset': [0, 0], 'text-anchor': 'center' }, paint:{ 'text-color':'#ffffff', 'text-halo-color':'rgba(0,0,0,0.6)', 'text-halo-width': 1.5 } });
+
+    // Load temps once (snapshot)
+    fetchOpenMeteoTemps().catch(console.error);
+  });
+
+  // Toggles
+  const tPrecip = document.getElementById('togglePrecip');
+  const tTemp   = document.getElementById('toggleTemp');
+  tPrecip.onchange = () => { const v = tPrecip.checked ? 'visible' : 'none'; if (map.getLayer('precip')) map.setLayoutProperty('precip','visibility', v); };
+  tTemp.onchange   = () => { const v = tTemp.checked ? 'visible' : 'none'; if (map.getLayer('temp-circles')) map.setLayoutProperty('temp-circles','visibility', v); if (map.getLayer('temp-labels')) map.setLayoutProperty('temp-labels','visibility', v); };
+
+  // ======== Fetch current temps from Open‑Meteo and update circles ========
+  async function fetchOpenMeteoTemps(){
+    const stamp = document.getElementById('snapshotStamp');
+    const lats = cities.map(c => c.lat).join(',');
+    const lons = cities.map(c => c.lon).join(',');
+    const url = `https://api.open-meteo.com/v1/forecast?latitude=${encodeURIComponent(lats)}&longitude=${encodeURIComponent(lons)}&current=temperature_2m&timezone=UTC`;
+    const res = await fetch(url);
+    if (!res.ok) throw new Error('Open‑Meteo request failed');
+    const data = await res.json();
+
+    const list = Array.isArray(data) ? data : [data];
+    const features = list.map((entry, i) => {
+      const c = cities[i];
+      const temp = entry?.current?.temperature_2m;
+      const time = entry?.current?.time || null;
+      if (i === 0 && time) stamp.textContent = `Instantánea: ${time} UTC`;
+      return { type:'Feature', geometry:{ type:'Point', coordinates:[c.lon, c.lat] }, properties:{ name:c.name, temp: Number(temp) } };
+    });
+
+    const src = map.getSource('temp-points'); if (src) src.setData({ type:'FeatureCollection', features });
+  }
+  </script>
+</body>
+</html>
