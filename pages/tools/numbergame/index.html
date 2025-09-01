@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Números 1–100 — juego rápido</title>
+<style>
+  :root { color-scheme: dark; }
+  * { box-sizing: border-box; }
+  html, body {
+    height: 100%;
+    margin: 0;
+    background: #0d0f12;
+    color: #e9eef4;
+    font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+  }
+  .wrap {
+    height: 100%;
+    display: grid;
+    grid-template-rows: 1fr auto;
+    place-items: center;
+    gap: 2rem;
+    padding: 6vh 4vw 4vh;
+    text-align: center;
+  }
+  .brand {
+    position: fixed;
+    top: 10px;
+    left: 14px;
+    font-weight: 800;
+    font-size: 14px;
+    letter-spacing: .06em;
+    opacity: .55;
+    user-select: none;
+  }
+  .prompt, .answer, .hint {
+    margin: .35em 0;
+    font-weight: 800;
+    letter-spacing: .02em;
+  }
+  .number {
+    font-size: clamp(48px, 12vw, 160px);
+    line-height: 1;
+  }
+  .prompt { font-size: clamp(24px, 4.5vw, 48px); opacity: .95; }
+  .answer {
+    font-size: clamp(28px, 5vw, 56px);
+    opacity: 0;
+    transform: translateY(6px);
+    transition: opacity 180ms ease-out, transform 180ms ease-out;
+  }
+  .answer.revealed { opacity: 1; transform: translateY(0); }
+  .hint {
+    opacity: .7;
+    font-weight: 700;
+    font-size: clamp(14px, 1.8vw, 18px);
+  }
+  .kbd {
+    border:1px solid #4a5568; border-radius:6px; padding:2px 8px; font-weight: 800;
+  }
+</style>
+</head>
+<body>
+  <div class="brand">HOY ES… (NÚMEROS)</div>
+  <div class="wrap">
+    <main aria-live="polite">
+      <div id="number" class="number">—</div>
+      <div id="prompt" class="prompt">Pulsa <span class="kbd">Espacio</span> para empezar</div>
+      <div id="answer" class="answer" aria-hidden="true"></div>
+    </main>
+    <div class="hint" id="hint">Espacio: nuevo número / revelar nombre</div>
+  </div>
+
+<script>
+(() => {
+  // Hard-coded Spanish names 1–100 (index = number). Index 0 unused.
+  const NAMES = [
+    null,
+    "uno","dos","tres","cuatro","cinco","seis","siete","ocho","nueve","diez",
+    "once","doce","trece","catorce","quince","dieciséis","diecisiete","dieciocho","diecinueve","veinte",
+    "veintiuno","veintidós","veintitrés","veinticuatro","veinticinco","veintiséis","veintisiete","veintiocho","veintinueve","treinta",
+    "treinta y uno","treinta y dos","treinta y tres","treinta y cuatro","treinta y cinco","treinta y seis","treinta y siete","treinta y ocho","treinta y nueve","cuarenta",
+    "cuarenta y uno","cuarenta y dos","cuarenta y tres","cuarenta y cuatro","cuarenta y cinco","cuarenta y seis","cuarenta y siete","cuarenta y ocho","cuarenta y nueve","cincuenta",
+    "cincuenta y uno","cincuenta y dos","cincuenta y tres","cincuenta y cuatro","cincuenta y cinco","cincuenta y seis","cincuenta y siete","cincuenta y ocho","cincuenta y nueve","sesenta",
+    "sesenta y uno","sesenta y dos","sesenta y tres","sesenta y cuatro","sesenta y cinco","sesenta y seis","sesenta y siete","sesenta y ocho","sesenta y nueve","setenta",
+    "setenta y uno","setenta y dos","setenta y tres","setenta y cuatro","setenta y cinco","setenta y seis","setenta y siete","setenta y ocho","setenta y nueve","ochenta",
+    "ochenta y uno","ochenta y dos","ochenta y tres","ochenta y cuatro","ochenta y cinco","ochenta y seis","ochenta y siete","ochenta y ocho","ochenta y nueve","noventa",
+    "noventa y uno","noventa y dos","noventa y tres","noventa y cuatro","noventa y cinco","noventa y seis","noventa y siete","noventa y ocho","noventa y nueve","cien"
+  ];
+
+  const numberEl = document.getElementById('number');
+  const promptEl = document.getElementById('prompt');
+  const answerEl = document.getElementById('answer');
+  const hintEl = document.getElementById('hint');
+
+  let state = "idle"; // "idle" | "question" | "answer"
+  let lastNum = null;
+  let current = null;
+
+  function randInt(min, max){ // inclusive
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+  }
+
+  // Instantly hide answer (no inline opacity/transform) to avoid early reveal
+  function instantHideAnswer() {
+    answerEl.style.transition = 'none';
+    answerEl.classList.remove('revealed');
+    answerEl.setAttribute('aria-hidden', 'true');
+    answerEl.style.opacity = '';
+    answerEl.style.transform = '';
+    void answerEl.offsetWidth; // reflow
+    answerEl.style.transition = '';
+  }
+
+  function newRound(){
+    instantHideAnswer();
+
+    let n;
+    do { n = randInt(1, 100); } while (n === lastNum); // avoid same number twice in a row
+    lastNum = n;
+
+    current = { n, text: NAMES[n] };
+
+    numberEl.textContent = String(n);
+    promptEl.textContent = "¿Cómo se escribe?";
+    answerEl.textContent = capitalize(current.text);
+
+    state = "question";
+    hintEl.textContent = "Espacio: revelar nombre";
+  }
+
+  function reveal(){
+    if (!current) return;
+    answerEl.classList.add('revealed');
+    answerEl.setAttribute('aria-hidden', 'false');
+    state = "answer";
+    hintEl.textContent = "Espacio: nuevo número";
+  }
+
+  function capitalize(s){ return s.charAt(0).toUpperCase() + s.slice(1); }
+
+  function onSpace(e){
+    if (e.code === 'Space') {
+      e.preventDefault();
+      if (state === "idle" || state === "answer") newRound();
+      else if (state === "question") reveal();
+    }
+  }
+
+  window.addEventListener('keydown', onSpace, {passive:false});
+  window.addEventListener('click', () => {
+    if (state === "idle" || state === "answer") newRound();
+    else if (state === "question") reveal();
+  });
+})();
+</script>
+</body>
+</html>
