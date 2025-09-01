@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Tarjetas de Sentimientos</title>
+  <style>
+    @page {
+      margin: 0;
+    }
+    body {
+      margin: 0;
+      font-family: sans-serif;
+    }
+    .sheet {
+      width: 8.5in;
+      height: 11in;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      grid-template-rows: repeat(2, 1fr);
+    }
+    .card {
+      border: 2px dotted black;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      align-items: center;
+      box-sizing: border-box;
+      aspect-ratio: 1 / 1;
+      padding: 0.25in;
+    }
+    .emoji {
+      font-size: 4em;   /* much bigger emojis */
+      line-height: 1.3;
+      text-align: left;
+      align-self: flex-start;
+    }
+    .text {
+      font-size: 2.5em;  /* large bold word */
+      font-weight: bold;
+      text-align: center;
+      width: 100%;
+    }
+  </style>
+</head>
+<body>
+  <!-- Page 1 -->
+  <div class="sheet">
+    <div class="card"><div class="emoji">😀<br>😃</div><div class="text">feliz</div></div>
+    <div class="card"><div class="emoji">😮<br>😲</div><div class="text">sorprendido</div></div>
+    <div class="card"><div class="emoji">🥰<br>❤️</div><div class="text">enamorado</div></div>
+    <div class="card"><div class="emoji">😴<br>🛌</div><div class="text">cansado</div></div>
+    <div class="card"><div class="emoji">😐<br>😒</div><div class="text">aburrido</div></div>
+    <div class="card"><div class="emoji">😕<br>🤔</div><div class="text">confundido</div></div>
+  </div>
+
+  <!-- Page 2 -->
+  <div class="sheet">
+    <div class="card"><div class="emoji">😢<br>😞</div><div class="text">triste</div></div>
+    <div class="card"><div class="emoji">😡<br>😠</div><div class="text">enojado</div></div>
+    <div class="card"><div class="emoji">😰<br>😥</div><div class="text">preocupado</div></div>
+    <div class="card"><div class="emoji">😱<br>😨</div><div class="text">asustado</div></div>
+    <div class="card"><div class="emoji">😳<br>🙈</div><div class="text">avergonzado</div></div>
+    <!-- filler to keep grid complete -->
+    <div class="card"></div>
+  </div>
+</body>
+</html>

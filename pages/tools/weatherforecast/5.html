@@ -24,9 +24,9 @@
     .swatch{ width: 14px; height: 14px; border-radius:3px; display:inline-block; margin-right:.4rem; vertical-align: middle; }
     .mini{ font-size:.9em; opacity:.85; }
 
-    .stamp { position: fixed; left: 12px; bottom: 12px; color:#eee; background: var(--ui-bg); border:1px solid var(--ui-border); padding: .4rem .6rem; border-radius: 10px; font-size: 12px; z-index: 6; }
-    .map-attrib { position: fixed; right: 12px; bottom: 12px; color:#eee; font-size: 12px; text-shadow: 0 1px 2px rgba(0,0,0,.5); z-index: 6;}
-    .map-attrib a{ color:#fff; }
+    /* Hide stamp + custom attribution (use built-in attribution control) */
+    .stamp { display:none !important; }
+    .map-attrib { display:none !important; }
 
     /* Vertical opacity slider */
     .opacity-ctrl { position: fixed; left: 10px; top: 50%; transform: translateY(-50%); z-index: 7; background: var(--ui-bg); border:1px solid var(--ui-border); border-radius:12px; padding:.6rem; display:flex; flex-direction:column; align-items:center; gap:.5rem; }
@@ -37,26 +37,25 @@
       height: 220px; width: 22px; accent-color: var(--accent);
     }
 
-    /* ===== HTML marker structure (no-drift) =====
-       MapLibre positions the WRAP; we scale only the inner CIRCLE. */
-    .marker-wrap{ position:relative; width:0; height:0; } /* anchor stays fixed */
+    /* ===== HTML marker structure (no-drift) ===== */
+    .marker-wrap{ position:relative; width:0; height:0; }
     .temp-marker{
       position:absolute; left:0; top:0;
-      width: 48px; height: 48px; /* base size; we scale it */
+      width: 48px; height: 48px; /* base size; scaled via transform */
       border-radius: 50%;
       display:flex; align-items:center; justify-content:center;
       color:#fff; font-weight:800; text-align:center; line-height:1.05;
       box-shadow: 0 6px 14px rgba(0,0,0,.35), 0 0 0 3px rgba(0,0,0,.35);
       border: 2px solid rgba(255,255,255,.55);
       user-select:none; pointer-events:none;
-      transform: translate(-50%,-50%) scale(1); /* center on anchor, then scale */
+      transform: translate(-50%,-50%) scale(1);
       will-change: transform;
     }
     .temp-marker .t{
       display:block;
       white-space: pre-line;
       text-shadow: 0 1px 2px rgba(0,0,0,.6);
-      font-size: 13px; /* scales with the circle */
+      font-size: 13px;
       padding: 0 .2rem;
     }
     .maplibregl-marker { z-index: 8; }
@@ -69,7 +68,7 @@
     <h3>Leyenda (precipitación IMERG · NASA GIBS)</h3>
     <div class="row"><span class="swatch" style="background:#ef4444"></span> <strong>Rojo:</strong> mucha lluvia</div>
     <div class="row"><span class="swatch" style="background:#22c55e"></span> <strong>Verde:</strong> lluvia</div>
-    <div class="row"><span class="swatch" style="background:#3b82f6"></span> <strong>Azul:</strong> nieve <span class="mini">(simplificado)</span></div>
+    <div class="row"><span class="swatch" style="background:#3b82f6"></span> <strong>Azul:</strong> nieve <span class="mini"></span></div>
     <div class="row mini"></div>
   </aside>
 
@@ -97,18 +96,23 @@
   // ✨ CLASSROOM CONFIG ✨
   // =====================
   const DAYS = ['Lunes','Martes','Miércoles','Jueves','Viernes','Sábado','Domingo'];
-// Base pixel size for the HTML temp “thingies” (before zoom scaling)
-const BASE_MARKER_PX = 48; // was effectively ~36; bigger now
 
-  const TIMES = {
-    'Lunes':      '2019-02-12T12:00:00Z',
-    'Martes':     '2015-03-25T12:00:00Z',
-    'Miércoles':  '2017-03-15T12:00:00Z',
-    'Jueves':     '2020-07-25T12:00:00Z',
-    'Viernes':    '2016-01-04T12:00:00Z',
-    'Sábado':     '2018-04-03T12:00:00Z',
-    'Domingo':    '2023-11-08T12:00:00Z'
-  };
+  // Base pixel size for HTML temp markers (before zoom scaling)
+  const BASE_MARKER_PX = 48;
+
+const TIMES = {
+  'Lunes':     '2009-09-08T00:00:00Z',  // Tornado outbreak
+  'Martes':    '2017-06-15T12:00:00Z',  // Southern Andes snowstorm
+  'Miércoles': '2018-06-12T00:00:00Z',  // Tornado outbreak
+  'Jueves':    '2007-07-10T03:00:00Z',  // Uncommon Buenos Aires snowfall
+  'Viernes':   '2024-05-15T12:00:00Z',  // Chile cold snap
+  'Sábado':    '2015-12-28T12:00:00Z',  // El Niño floods in AR/PRY/URY
+  'Domingo':   '2023-10-25T18:00:00Z'   // Hurricane Otis landfall
+};
+
+
+
+
 
   const CITIES = [
     {name:'São Paulo',   lat:-23.5505, lon:-46.6333},
@@ -126,37 +130,106 @@ const BASE_MARKER_PX = 48; // was effectively ~36; bigger now
     {name:'Recife',      lat:  -8.0476, lon:-34.8770},
     {name:'Salvador',    lat: -12.9777, lon:-38.5016},
     {name:'Porto Alegre',lat: -30.0346, lon:-51.2177},
-{ name:'Ciudad de México', lat:19.4326, lon:-99.1332 },
-{ name:'Guatemala',       lat:14.6349, lon:-90.5069 },
-{ name:'Tegucigalpa',     lat:14.0723, lon:-87.1921 },
-{ name:'San Salvador',    lat:13.6929, lon:-89.2182 },
-{ name:'Managua',         lat:12.1140, lon:-86.2362 },
-{ name:'San José (CR)',   lat: 9.9281, lon:-84.0907 },
-{ name:'Panamá',          lat: 8.9824, lon:-79.5199 },
-{ name:'La Habana',       lat:23.1136, lon:-82.3666 },
-{ name:'Santo Domingo',   lat:18.4861, lon:-69.9312 },
-{ name:'San Juan',        lat:18.4655, lon:-66.1057 }
-
+    {name:'Ciudad de México', lat:19.4326, lon:-99.1332},
+    {name:'Guatemala',       lat:14.6349, lon:-90.5069},
+    {name:'Tegucigalpa',     lat:14.0723, lon:-87.1921},
+    {name:'San Salvador',    lat:13.6929, lon:-89.2182},
+    {name:'Managua',         lat:12.1140, lon:-86.2362},
+    {name:'San José (CR)',   lat: 9.9281, lon:-84.0907},
+    {name:'Panamá',          lat: 8.9824, lon:-79.5199},
+    {name:'La Habana',       lat:23.1136, lon:-82.3666},
+    {name:'Santo Domingo',   lat:18.4861, lon:-69.9312},
+    {name:'San Juan',        lat:18.4655, lon:-66.1057}
   ];
 
-  const TEMPS_C = {
-    'Lunes':     { 'São Paulo':26, 'Rio de Janeiro':28, 'Buenos Aires':30, 'Santiago':27, 'Lima':23, 'Bogotá':19, 'Quito':18, 'La Paz':12, 'Asunción':32, 'Montevideo':28, 'Caracas':31, 'Manaus':29, 'Recife':30, 'Salvador':29, 'Porto Alegre':25 },
-    'Martes':    { 'São Paulo':24, 'Rio de Janeiro':26, 'Buenos Aires':22, 'Santiago':18, 'Lima':22, 'Bogotá':18, 'Quito':17, 'La Paz':10, 'Asunción':29, 'Montevideo':23, 'Caracas':30, 'Manaus':28, 'Recife':29, 'Salvador':28, 'Porto Alegre':20 },
-    'Miércoles': { 'São Paulo':25, 'Rio de Janeiro':27, 'Buenos Aires':18, 'Santiago':16, 'Lima':21, 'Bogotá':17, 'Quito':16, 'La Paz':8,  'Asunción':28, 'Montevideo':20, 'Caracas':31, 'Manaus':28, 'Recife':29, 'Salvador':28, 'Porto Alegre':19 },
-    'Jueves':    { 'São Paulo':20, 'Rio de Janeiro':22, 'Buenos Aires':12, 'Santiago':3,  'Lima':17, 'Bogotá':14, 'Quito':12, 'La Paz':-2, 'Asunción':26, 'Montevideo':14, 'Caracas':28, 'Manaus':27, 'Recife':28, 'Salvador':27, 'Porto Alegre':12 },
-    'Viernes':   { 'São Paulo':29, 'Rio de Janeiro':31, 'Buenos Aires':33, 'Santiago':30, 'Lima':25, 'Bogotá':20, 'Quito':19, 'La Paz':13, 'Asunción':34, 'Montevideo':32, 'Caracas':32, 'Manaus':31, 'Recife':31, 'Salvador':31, 'Porto Alegre':28 },
-    'Sábado':    { 'São Paulo':23, 'Rio de Janeiro':25, 'Buenos Aires':20, 'Santiago':18, 'Lima':19, 'Bogotá':17, 'Quito':16, 'La Paz':9,  'Asunción':27, 'Montevideo':19, 'Caracas':30, 'Manaus':27, 'Recife':28, 'Salvador':27, 'Porto Alegre':18 },
-    'Domingo':   { 'São Paulo':27, 'Rio de Janeiro':29, 'Buenos Aires':21, 'Santiago':15, 'Lima':20, 'Bogotá':18, 'Quito':17, 'La Paz':7,  'Asunción':28, 'Montevideo':21, 'Caracas':30, 'Manaus':27, 'Recife':28, 'Salvador':28, 'Porto Alegre':20 }
-  };
+const TEMPS_C = {
+  'Lunes': { // 2009 Tornado outbreak (Argentina/Brazil spring storms)
+    'São Paulo': 26, 'Rio de Janeiro': 28, 'Buenos Aires': 29,
+    'Santiago': 22, 'Lima': 20, 'Bogotá': 18, 'Quito': 17,
+    'La Paz': 12, 'Asunción': 30, 'Montevideo': 27,
+    'Caracas': 30, 'Manaus': 28, 'Recife': 29, 'Salvador': 28,
+    'Porto Alegre': 27, 'Ciudad de México': 24, 'Guatemala': 25,
+    'Tegucigalpa': 24, 'San Salvador': 26, 'Managua': 27,
+    'San José (CR)': 26, 'Panamá': 28, 'La Habana': 29,
+    'Santo Domingo': 30, 'San Juan': 30
+  },
+
+  'Martes': { // 2017 Southern Andes snowstorm
+    'São Paulo': 12, 'Rio de Janeiro': 15, 'Buenos Aires': 5,
+    'Santiago': -2, 'Lima': 16, 'Bogotá': 10, 'Quito': 9,
+    'La Paz': -3, 'Asunción': 8, 'Montevideo': 4,
+    'Caracas': 20, 'Manaus': 24, 'Recife': 25, 'Salvador': 24,
+    'Porto Alegre': 3, 'Ciudad de México': 10, 'Guatemala': 12,
+    'Tegucigalpa': 14, 'San Salvador': 14, 'Managua': 16,
+    'San José (CR)': 15, 'Panamá': 22, 'La Habana': 18,
+    'Santo Domingo': 22, 'San Juan': 23
+  },
+
+  'Miércoles': { // 2018 Tornado outbreak
+    'São Paulo': 25, 'Rio de Janeiro': 28, 'Buenos Aires': 26,
+    'Santiago': 19, 'Lima': 20, 'Bogotá': 17, 'Quito': 16,
+    'La Paz': 11, 'Asunción': 29, 'Montevideo': 25,
+    'Caracas': 30, 'Manaus': 29, 'Recife': 30, 'Salvador': 29,
+    'Porto Alegre': 26, 'Ciudad de México': 23, 'Guatemala': 25,
+    'Tegucigalpa': 24, 'San Salvador': 25, 'Managua': 26,
+    'San José (CR)': 25, 'Panamá': 28, 'La Habana': 29,
+    'Santo Domingo': 30, 'San Juan': 30
+  },
+
+  'Jueves': { // 2007 Buenos Aires rare snowfall
+    'São Paulo': 9, 'Rio de Janeiro': 12, 'Buenos Aires': 0,
+    'Santiago': -4, 'Lima': 14, 'Bogotá': 8, 'Quito': 7,
+    'La Paz': -5, 'Asunción': 4, 'Montevideo': 1,
+    'Caracas': 18, 'Manaus': 22, 'Recife': 23, 'Salvador': 22,
+    'Porto Alegre': 2, 'Ciudad de México': 8, 'Guatemala': 10,
+    'Tegucigalpa': 12, 'San Salvador': 12, 'Managua': 14,
+    'San José (CR)': 13, 'Panamá': 20, 'La Habana': 16,
+    'Santo Domingo': 20, 'San Juan': 21
+  },
+
+  'Viernes': { // 2024 Chile cold snap (historic May freeze)
+    'São Paulo': 10, 'Rio de Janeiro': 12, 'Buenos Aires': 8,
+    'Santiago': -6, 'Lima': 13, 'Bogotá': 9, 'Quito': 8,
+    'La Paz': -4, 'Asunción': 6, 'Montevideo': 7,
+    'Caracas': 18, 'Manaus': 22, 'Recife': 23, 'Salvador': 22,
+    'Porto Alegre': 5, 'Ciudad de México': 9, 'Guatemala': 11,
+    'Tegucigalpa': 12, 'San Salvador': 12, 'Managua': 14,
+    'San José (CR)': 13, 'Panamá': 20, 'La Habana': 17,
+    'Santo Domingo': 20, 'San Juan': 21
+  },
+
+  'Sábado': { // 2015 El Niño flooding rains (warm, humid, stormy)
+    'São Paulo': 27, 'Rio de Janeiro': 29, 'Buenos Aires': 28,
+    'Santiago': 20, 'Lima': 23, 'Bogotá': 18, 'Quito': 17,
+    'La Paz': 12, 'Asunción': 30, 'Montevideo': 28,
+    'Caracas': 31, 'Manaus': 29, 'Recife': 30, 'Salvador': 29,
+    'Porto Alegre': 28, 'Ciudad de México': 24, 'Guatemala': 26,
+    'Tegucigalpa': 25, 'San Salvador': 26, 'Managua': 27,
+    'San José (CR)': 26, 'Panamá': 28, 'La Habana': 29,
+    'Santo Domingo': 30, 'San Juan': 30
+  },
+
+  'Domingo': { // 2023 Hurricane Otis landfall (Mexico tropical heat)
+    'São Paulo': 27, 'Rio de Janeiro': 29, 'Buenos Aires': 26,
+    'Santiago': 21, 'Lima': 23, 'Bogotá': 19, 'Quito': 18,
+    'La Paz': 12, 'Asunción': 30, 'Montevideo': 27,
+    'Caracas': 31, 'Manaus': 29, 'Recife': 30, 'Salvador': 29,
+    'Porto Alegre': 27, 'Ciudad de México': 28, 'Guatemala': 29,
+    'Tegucigalpa': 28, 'San Salvador': 29, 'Managua': 30,
+    'San José (CR)': 29, 'Panamá': 30, 'La Habana': 30,
+    'Santo Domingo': 31, 'San Juan': 31
+  }
+};
+
 
   const START_DAY_INDEX = 0;
   const INITIAL_PRECIP_OPACITY = 0.20;
 
-  // ===== Zoom → scale (keeps circles small, steady) =====
+  // ===== Zoom → scale (keeps circles steady) =====
   function zoomScale(z){
     const minZ = 2, maxZ = 12;
     const t = Math.max(0, Math.min(1, (z - minZ) / (maxZ - minZ)));
-    return 0.72 + t * (1.25 - 0.72); // ~0.72x .. 1.25x
+    return 0.72 + t * (1.25 - 0.72);
   }
   // Temp → green/red color
   function tempToColor(tempC){
@@ -244,6 +317,22 @@ const BASE_MARKER_PX = 48; // was effectively ~36; bigger now
     }
   }
 
+  // === Persist Temperature visibility across day changes ===
+  function applyTempVisibility(){
+    const show = document.getElementById('toggleTemp').checked;
+    const v = show ? 'visible' : 'none';
+    if (map.getLayer('temp-circles')) map.setLayoutProperty('temp-circles','visibility', v);
+    if (map.getLayer('temp-labels'))  map.setLayoutProperty('temp-labels','visibility',  v);
+    setMarkersVisible(show);
+  }
+
+  // === Persist Precipitation visibility across day changes ===
+  function applyPrecipVisibility(){
+    const show = document.getElementById('togglePrecip').checked;
+    const v = show ? 'visible' : 'none';
+    if (map.getLayer('precip')) map.setLayoutProperty('precip','visibility', v);
+  }
+
   map.on('load', () => {
     map.dragRotate.disable();
     map.touchZoomRotate.disableRotation();
@@ -257,48 +346,49 @@ const BASE_MARKER_PX = 48; // was effectively ~36; bigger now
     }
 
     function setPrecipTime(dayIdx){
-  const dayName = DAYS[dayIdx];
-  const timeISO = TIMES[dayName];
+      const dayName = DAYS[dayIdx];
+      const timeISO = TIMES[dayName];
 
-  // NEW: remember current opacity (if layer exists), else use slider's value
-  const prevOpacity = map.getLayer('precip')
-    ? map.getPaintProperty('precip','raster-opacity')
-    : parseFloat(opacityRange.value);
+      // keep current opacity
+      const prevOpacity = map.getLayer('precip')
+        ? map.getPaintProperty('precip','raster-opacity')
+        : parseFloat(opacityRange.value);
 
-  if (map.getLayer('precip')) map.removeLayer('precip');
-  if (map.getSource('precip-gibs')) map.removeSource('precip-gibs');
+      if (map.getLayer('precip')) map.removeLayer('precip');
+      if (map.getSource('precip-gibs')) map.removeSource('precip-gibs');
 
-  map.addSource('precip-gibs', {
-    type:'raster',
-    tiles:[ gibsUrlFor(timeISO) ],
-    tileSize:256,
-    attribution:'NASA GIBS / GPM (IMERG)'
-  });
+      map.addSource('precip-gibs', {
+        type:'raster',
+        tiles:[ gibsUrlFor(timeISO) ],
+        tileSize:256,
+        attribution:'NASA GIBS / GPM (IMERG)'
+      });
 
-  map.addLayer({
-    id:'precip',
-    type:'raster',
-    source:'precip-gibs',
-    minzoom:0,
-    maxzoom:6,
-    paint:{
-      // NEW: keep the previous opacity instead of resetting
-      'raster-opacity': prevOpacity,
-      'raster-fade-duration': 0
+      map.addLayer({
+        id:'precip',
+        type:'raster',
+        source:'precip-gibs',
+        minzoom:0,
+        maxzoom:6,
+        paint:{
+          'raster-opacity': prevOpacity,
+          'raster-fade-duration': 0
+        }
+      }, 'temp-circles');
+
+      if (map.getLayer('temp-circles')) map.moveLayer('temp-circles');
+      if (map.getLayer('temp-labels'))  map.moveLayer('temp-labels');
+
+      // (stamp hidden via CSS, but keep code harmless)
+      const d = new Date(timeISO);
+      stamp.textContent = `${dayName} · ${String(d.getUTCDate()).padStart(2,'0')}/${String(d.getUTCMonth()+1).padStart(2,'0')}/${d.getUTCFullYear()} · ${String(d.getUTCHours()).padStart(2,'0')}:00 UTC`;
+
+      // sync UI to preserved opacity
+      opacityRange.value = String(prevOpacity);
+
+      // NEW: ensure precip visibility matches the toggle after re-adding the layer
+      applyPrecipVisibility();
     }
-  }, 'temp-circles');
-
-  // keep temp layers on top (your existing moves)
-  if (map.getLayer('temp-circles')) map.moveLayer('temp-circles');
-  if (map.getLayer('temp-labels'))  map.moveLayer('temp-labels');
-
-  const d = new Date(timeISO);
-  stamp.textContent = `${dayName} · ${String(d.getUTCDate()).padStart(2,'0')}/${String(d.getUTCMonth()+1).padStart(2,'0')}/${d.getUTCFullYear()} · ${String(d.getUTCHours()).padStart(2,'0')}:00 UTC`;
-
-  // NEW: sync the slider to the preserved opacity (do NOT reset to INITIAL)
-  opacityRange.value = String(prevOpacity);
-}
-
 
     // ======== Temperature GL layers (kept) ========
     map.addSource('temp-points', { type:'geojson', data: { type:'FeatureCollection', features: [] } });
@@ -343,13 +433,17 @@ const BASE_MARKER_PX = 48; // was effectively ~36; bigger now
     setPrecipTime(START_DAY_INDEX);
     updateTempsFor(START_DAY_INDEX);
     drawTempMarkers(START_DAY_INDEX);
+    applyTempVisibility();    // keep Temperature toggle on load
+    applyPrecipVisibility();  // keep Precipitation toggle on load
 
     dayRange.addEventListener('input', () => {
       const idx = Number(dayRange.value);
-      setPrecipTime(idx);
+      setPrecipTime(idx);     // re-add precip layer at new time (keeps opacity)
       updateTempsFor(idx);
       drawTempMarkers(idx);
       updateMarkerScales();
+      applyTempVisibility();   // persist temperature visibility
+      applyPrecipVisibility(); // persist precipitation visibility
     });
 
     document.getElementById('togglePrecip').onchange = (e)=>{
@@ -368,7 +462,7 @@ const BASE_MARKER_PX = 48; // was effectively ~36; bigger now
       if (map.getLayer('precip')) map.setPaintProperty('precip','raster-opacity', val);
     });
 
-    // Keep circles small & centered while zooming (no drift)
+    // Keep circles centered while zooming
     map.on('zoom', updateMarkerScales);
     map.on('zoomend', updateMarkerScales);
     map.on('resize', updateMarkerScales);
