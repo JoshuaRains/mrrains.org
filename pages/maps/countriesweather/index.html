@@ -21,10 +21,7 @@
       overflow: auto;
       transition: width 0.6s ease, opacity 0.6s ease;
     }
-    #info-panel > * {
-      opacity: 0;
-      transition: opacity 0.4s ease;
-    }
+    #info-panel > * { opacity: 0; transition: opacity 0.4s ease; }
     /* map container centered */
     #map-container {
       position: absolute;
@@ -37,57 +34,34 @@
       transition: width 0.6s ease, height 0.6s ease;
     }
     /* open state */
-    body.detail-open #info-panel {
-      width: 60%; opacity: 1; pointer-events: auto;
-    }
-    body.detail-open #map-container {
-      left: 60%; transform: translateX(0);
-    }
-    body.detail-open #map-container svg {
-      width: 100%; height: 100%;
-    }
+    body.detail-open #info-panel { width: 60%; opacity: 1; pointer-events: auto; }
+    body.detail-open #map-container { left: 60%; transform: translateX(0); }
+    body.detail-open #map-container svg { width: 100%; height: 100%; }
+
     /* country styling */
-    #map-container path[id] {
-      stroke: #fff; stroke-width: 1; transition: fill 0.2s;
-    }
-    #map-container path[id]:hover {
-      fill: #F0C040 !important; cursor: pointer;
-    }
+    #map-container path[id] { stroke: #fff; stroke-width: 1; transition: fill 0.2s; }
+    #map-container path[id]:hover { fill: #F0C040 !important; cursor: pointer; }
+
     #weather {
-      font-size: 1.5em;
-      line-height: 1.5;
-      color: #e0e0e0;
-      background-color: #333;
-      padding: 10px;
-      border-radius: 8px;
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-      margin-top: 20px;
-      text-align: center;
+      font-size: 1.5em; line-height: 1.5;
+      background-color: #333; padding: 10px; border-radius: 8px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+      margin-top: 20px; text-align: center;
     }
+    #weather .header { font-size: 1.5em; font-weight: bold; margin-bottom: 5px; }
+    #weather .data { font-size: 1.2em; margin-bottom: 15px; }
+    #info-panel h2 { text-align: center; font-size: 38px; margin-bottom: 10px; }
+    #flag { display: block; margin: 0 auto; text-align: center; height: 100px; }
 
-    #weather .header {
-      font-size: 1.5em;
-      font-weight: bold;
-      margin-bottom: 5px;
+    /* Street View button */
+    .actions { display: flex; justify-content: center; margin-top: 16px; gap: 10px; }
+    .btn {
+      background: #F0C040; color: #222; border: none; border-radius: 8px;
+      padding: 10px 16px; font-size: 16px; font-weight: 600; cursor: pointer;
+      text-decoration: none; display: inline-block;
     }
-
-    #weather .data {
-      font-size: 1.2em;
-      margin-bottom: 15px;
-    }
-
-    #info-panel h2 {
-      text-align: center;
-      font-size: 38px;
-      margin-bottom: 10px;
-    }
-
-    #flag {
-      display: block;
-      margin: 0 auto;
-      text-align: center;
-      height: 100px;
-    }
+    .btn:hover { filter: brightness(0.95); }
+    .btn:focus { outline: 2px solid #fff3; outline-offset: 2px; }
   </style>
 </head>
 <body>
@@ -98,11 +72,12 @@
   document.addEventListener('DOMContentLoaded', async () => {
     const infoPanel = document.getElementById('info-panel');
     const container = document.getElementById('map-container');
-    // 1) load your SVG map
+
+    // 1) Load your SVG map
     const svgText = await fetch('map_with_ids.svg').then(r => r.text());
     container.innerHTML = svgText;
 
-    // 2) pastel palette & country id → name
+    // 2) Pastel palette & country id → Spanish name
     const pastel = ['#E9999A','#E9D9A0','#E9E9A0','#A0E9B4','#A0C6E9','#C1D9A8','#D9A8D9','#C1D1D1','#B5C3E9','#E9B5B5'];
     const countryById = {
       path17:'México', path12:'Guatemala', path4:'Belice',path24:'El Salvador',path14:'Honduras',path18:'Nicaragua',
@@ -111,7 +86,7 @@
       path29:'Brasil',path22:'Paraguay',path25:'Uruguay',path27:'Argentina',path5:'Chile',path20:'Perú',path28:'Bolivia',path10:'Ecuador'
     };
 
-    // 3) Spanish name → capital
+    // 3) Country → capital (Spanish display only)
     const capitalByCountry = {
       'México':'Ciudad de México','Guatemala':'Ciudad de Guatemala','Belice':'Belmopán',
       'El Salvador':'San Salvador','Honduras':'Tegucigalpa','Nicaragua':'Managua',
@@ -124,7 +99,7 @@
       'Ecuador':'Quito'
     };
 
-    // 4) capital → coords for Open-Meteo
+    // 4) Capital → coords for weather (Open-Meteo only)
     const capitalCoords = {
       'Ciudad de México':{lat:19.4326, lon:-99.1332}, 'Ciudad de Guatemala':{lat:14.6349, lon:-90.5069},
       'Belmopán':{lat:17.2510, lon:-88.7590}, 'San Salvador':{lat:13.6929, lon:-89.2182},
@@ -141,7 +116,7 @@
       'La Paz':{lat:-16.4897, lon:-68.1193}, 'Quito':{lat:-0.1807, lon:-78.4678}
     };
 
-    // 5) Spanish name → ISO 2-letter code for flags
+    // 5) Country → ISO 2-letter code for flag images
     const isoByCountry = {
       'México':'mx','Guatemala':'gt','Belice':'bz','El Salvador':'sv','Honduras':'hn',
       'Nicaragua':'ni','Costa Rica':'cr','Panamá':'pa','Cuba':'cu','Haití':'ht',
@@ -151,7 +126,38 @@
       'Perú':'pe','Bolivia':'bo','Ecuador':'ec'
     };
 
-    // fade helpers
+    // 6) EDIT ME: hard-coded Street View links by country (open directly in Street View)
+    // Use the "layer=c&cbll=LAT,LON" pattern to start on a nearby Street View road.
+    const streetViewUrlByCountry = {
+      'México': 'https://www.google.com/maps/place/Mexico+City+Metropolitan+Cathedral/@19.432876,-99.1331938,3a,75y,16.17h,90t/data=!3m7!1e1!3m5!1s9Jir8GULy7GPwoLHHVdc6w!2e0!6shttps:%2F%2Fstreetviewpixels-pa.googleapis.com%2Fv1%2Fthumbnail%3Fcb_client%3Dmaps_sv.tactile%26w%3D900%26h%3D600%26pitch%3D0%26panoid%3D9Jir8GULy7GPwoLHHVdc6w%26yaw%3D16.165582583609137!7i13312!8i6656!4m6!3m5!1s0x85d1f932c627afe1:0x914f3df027515f27!8m2!3d19.4343942!4d-99.1330824!16zL20vMGRkaDd3?entry=ttu&g_ep=EgoyMDI1MDkwMy4wIKXMDSoASAFQAw%3D%3D',
+      'Guatemala': 'https://www.google.com/maps/place/Guatemala+City,+Guatemala/@14.6419307,-90.5140089,2a,75y,147.8h,96.15t/data=!3m10!1e1!3m8!1s4CDjawF2UzuziRiTB_A1bQ!2e0!6shttps:%2F%2Fstreetviewpixels-pa.googleapis.com%2Fv1%2Fthumbnail%3Fcb_client%3Dmaps_sv.tactile%26w%3D900%26h%3D600%26pitch%3D-6.152208020115964%26panoid%3D4CDjawF2UzuziRiTB_A1bQ%26yaw%3D147.79833192940131!7i16384!8i8192!9m2!1b1!2i31!4m6!3m5!1s0x8589a180655c3345:0x4a72c7815b867b25!8m2!3d14.6349149!4d-90.5068824!16zL20vMDM0Nmg?entry=ttu&g_ep=EgoyMDI1MDkwMy4wIKXMDSoASAFQAw%3D%3D',
+      'Belice': 'https://www.google.com/maps/place/Belize+City,+Belize/@17.5059196,-88.1962103,3a,75y,350.55h,79.19t/data=!3m8!1e1!3m6!1sCIHM0ogKEICAgIDTq7CrMw!2e10!3e11!6shttps:%2F%2Flh3.googleusercontent.com%2Fgpms-cs-s%2FAB8u6Ha_u9s-H1pK175X-G_bisWEPR_yCGbTwDtq9JPiPvt6fFyvFpR-De-3mjPrTYW_7-jJwpkv5XNd-Y2uSSUoBMZCmU7KkLmYdIenhCFKVkxmOsz9849-fdxruEkFfDqMIrkTgAUn%3Dw900-h600-k-no-pi10.813190076603107-ya119.87397665782802-ro0-fo100!7i5888!8i2944!4m6!3m5!1s0x8f5c584b483377cf:0xe1dbdc6e9012ff22!8m2!3d17.5045661!4d-88.1962133!16zL20vMDE3N3ht?entry=ttu&g_ep=EgoyMDI1MDkwMy4wIKXMDSoASAFQAw%3D%3D',
+      'El Salvador': 'https://www.google.com/maps?layer=c&cblhttps://www.google.com/maps/@13.6976937,-89.191558,3a,75y,349.46h,101.23t/data=!3m11!1e1!3m9!1sCIHM0ogKEICAgICj7aTVGg!2e10!3e11!6shttps:%2F%2Flh3.googleusercontent.com%2Fgpms-cs-s%2FAB8u6HYuLNvnULOi3Fl3RSv6jXJqhVMAxP4sEzE8m4mgKnYg0YkRLwzWuPTjgFDYuS2a_PHjr8zoKw1e_gV-Wa32rqWQUNeMZd1vW1xaF13z46SICIBJYe5QFn09uk9_VbtvH3Uk0mw%3Dw900-h600-k-no-pi-11.232398457335592-ya272.6809118614365-ro0-fo100!7i7680!8i3840!9m2!1b1!2i31?entry=ttu&g_ep=EgoyMDI1MDkwMy4wIKXMDSoASAFQAw%3D%3Dl=13.69752,-89.19173',
+      'Honduras': 'https://www.google.com/maps/place/Honduras/@14.0846227,-87.1617743,3a,90y,213.36h,84.48t/data=!3m8!1e1!3m6!1sCIHM0ogKEICAgIDs9dyz8QE!2e10!3e11!6shttps:%2F%2Flh3.googleusercontent.com%2Fgpms-cs-s%2FAB8u6Ha21Zx6vSwRkTQctIn7cvFHuTVE5cqALZcsLX3E7ML0umEcrOmNFSwZjb8DxAo8S4OV1araepMzpqrTYvSDbrpXTKTQkAnhjbjtD7OLeUazUQys3fsrwQTJsjlbU7-lR8uLLpLwyg%3Dw900-h600-k-no-pi5.520153774191556-ya245.06409547895169-ro0-fo100!7i6720!8i3360!4m6!3m5!1s0x8f6a751a73b731cf:0x7ed1de82b6fb8264!8m2!3d15.199999!4d-86.241905!16zL20vMDNoMmM?entry=ttu&g_ep=EgoyMDI1MDkwMy4wIKXMDSoASAFQAw%3D%3D',
+      'Nicaragua': 'google.com/maps/@12.1564681,-86.2721243,3a,75y,283.02h,91.61t/data=!3m10!1e1!3m8!1sCIHM0ogKEICAgID4krLrLw!2e10!6shttps:%2F%2Flh3.googleusercontent.com%2Fgpms-cs-s%2FAB8u6HZ3Z6AcMYiC3NoMweWEAn3Oh1Jyp81u5-p45Slr55WxSnuRLdiqeg3lcsPdqcLfk_lkzwzxEaH5y0354llt0qmw6Qi-WcvjeMHPMjcmD0hTZKZGoxCjtMoPVEBzNug0nvW_iDAf%3Dw900-h600-k-no-pi-1.6069195323711938-ya107.923957105049-ro0-fo100!7i5660!8i2830!9m2!1b1!2i65?entry=ttu&g_ep=EgoyMDI1MDkwMy4wIKXMDSoASAFQAw%3D%3D',
+      'Costa Rica': 'https://www.google.com/maps/@9.9342023,-84.0713889,3a,82.8y,47.43h,98.11t/data=!3m10!1e1!3m8!1svhTcS-S82cWHjxZv46oFyQ!2e0!6shttps:%2F%2Fstreetviewpixels-pa.googleapis.com%2Fv1%2Fthumbnail%3Fcb_client%3Dmaps_sv.tactile%26w%3D900%26h%3D600%26pitch%3D-8.113339557528448%26panoid%3DvhTcS-S82cWHjxZv46oFyQ%26yaw%3D47.42946032135658!7i16384!8i8192!9m2!1b1!2i14?entry=ttu&g_ep=EgoyMDI1MDkwMy4wIKXMDSoASAFQAw%3D%3D',
+      'Panamá': 'https://www.google.com/maps?layer=c&cbll=8.95402,-79.53497',
+      'Cuba': 'https://www.google.com/maps?layer=c&cbll=23.13611,-82.35892',
+      'Haití': 'https://www.google.com/maps?layer=c&cbll=18.53939,-72.33681',
+      'República Dominicana': 'https://www.google.com/maps?layer=c&cbll=18.47438,-69.89732',
+      'Jamaica': 'https://www.google.com/maps?layer=c&cbll=17.97192,-76.79310',
+      'Puerto Rico': 'https://www.google.com/maps?layer=c&cbll=18.46678,-66.10643',
+      'Colombia': 'https://www.google.com/maps?layer=c&cbll=4.59546,-74.07660',
+      'Venezuela': 'https://www.google.com/maps?layer=c&cbll=10.50631,-66.91569',
+      'Guyana': 'https://www.google.com/maps?layer=c&cbll=6.80903,-58.15596',
+      'Surinam': 'https://www.google.com/maps?layer=c&cbll=5.82557,-55.15107',
+      'Guayana Francesa': 'https://www.google.com/maps?layer=c&cbll=4.94083,-52.33568',
+      'Brasil': 'https://www.google.com/maps?layer=c&cbll=-15.79950,-47.86094',
+      'Paraguay': 'https://www.google.com/maps?layer=c&cbll=-25.27776,-57.63733',
+      'Uruguay': 'https://www.google.com/maps?layer=c&cbll=-34.89118,-56.18768',
+      'Argentina': 'https://www.google.com/maps/@-34.608484,-58.3719457,2a,68.9y,243.34h,107.13t/data=!3m10!1e1!3m8!1szMAgbOaUyfGZvfJ15xlDtw!2e0!6shttps:%2F%2Fstreetviewpixels-pa.googleapis.com%2Fv1%2Fthumbnail%3Fcb_client%3Dmaps_sv.tactile%26w%3D900%26h%3D600%26pitch%3D-17.130327047421915%26panoid%3DzMAgbOaUyfGZvfJ15xlDtw%26yaw%3D243.33530152250287!7i13312!8i6656!9m2!1b1!2i31?entry=ttu&g_ep=EgoyMDI1MDkwMy4wIKXMDSoASAFQAw%3D%3D',
+      'Chile': 'https://www.google.com/maps?layer=c&cbll=-33.44258,-70.65377',
+      'Perú': 'https://www.google.com/maps?layer=c&cbll=-12.04686,-77.03076',
+      'Bolivia': 'https://www.google.com/maps?layer=c&cbll=-16.49591,-68.13336',
+      'Ecuador': 'https://www.google.com/maps?layer=c&cbll=-0.22002,-78.51267'
+    };
+
+    // --- fade helpers ---
     function fadeIn() {
       Array.from(infoPanel.children).forEach((c,i)=>
         setTimeout(()=>c.style.opacity='1', i*200)
@@ -161,6 +167,7 @@
       Array.from(infoPanel.children).forEach(c=>c.style.opacity='0');
     }
 
+    // --- country click handlers ---
     const svg = container.querySelector('svg');
     svg.querySelectorAll('path[id]').forEach((path,i)=>{
       path.style.fill = pastel[i % pastel.length];
@@ -170,30 +177,41 @@
         const capital = capitalByCountry[country];
         const coords  = capitalCoords[capital];
 
-        // build panel HTML
+        // build panel HTML (adds Street View button)
         infoPanel.innerHTML = `
-          <h2>${country} <span style="font-size: 0.6em; font-weight: normal;">(${capital})</span></h2>
-          <img id="flag" 
+          <h2>${country} <span style="font-size: 0.6em; font-weight: normal;">(${capital ?? '—'})</span></h2>
+          <img id="flag"
                src="https://flagcdn.com/h240/${isoByCountry[country]}.png"
-               alt="Flag of ${country}" />
+               alt="Bandera de ${country}" />
           <div id="weather"></div>
+          <div class="actions">
+            <a id="street-btn" class="btn" href="#" target="_blank" rel="noopener noreferrer">
+              Street View de ${capital ?? 'la capital'}
+            </a>
+          </div>
         `;
 
-        // fetch weather & convert to °F
+        // Street View from hard-coded links (hide if missing)
+        const streetBtn = document.getElementById('street-btn');
+        const hardLink = streetViewUrlByCountry[country];
+        if (hardLink) {
+          streetBtn.href = hardLink;
+          streetBtn.style.display = 'inline-block';
+        } else {
+          streetBtn.style.display = 'none';
+        }
+
+        // Weather (Open-Meteo)
         if (coords) {
           try {
-            const url = `https://api.open-meteo.com/v1/forecast?`+
-                        `latitude=${coords.lat}&longitude=${coords.lon}`+
-                        `&current_weather=true`;
+            const url = `https://api.open-meteo.com/v1/forecast?latitude=${coords.lat}&longitude=${coords.lon}&current_weather=true`;
             const { current_weather } = await fetch(url).then(r=>r.json());
             const c = current_weather.temperature;
             const f = Math.round(c * 9/5 + 32);
             const windSpeed = current_weather.windspeed;
             const windDirection = current_weather.winddirection;
-
-            const directions = ['Norte', 'Noreste', 'Este', 'Sureste', 'Sur', 'Suroeste', 'Oeste', 'Noroeste'];
+            const directions = ['Norte','Noreste','Este','Sureste','Sur','Suroeste','Oeste','Noroeste'];
             const cardinalDirection = directions[Math.round(windDirection / 45) % 8];
-
             document.getElementById('weather').innerHTML = `
               <div class="header">Temperatura</div>
               <div class="data">${c} °C / ${f} °F</div>
@@ -204,13 +222,11 @@
             `;
           } catch {
             document.getElementById('weather').innerHTML = `
-              <img src="../../assets/errorImage.svg" alt="Error Image" style="display: block; margin: 0 auto; width: 100px; height: auto;">
-              <p>Error al obtener temperatura.</p>
+              <p style="text-align:center;margin:0.5rem 0;">Error al obtener temperatura.</p>
             `;
           }
         } else {
-          document.getElementById('weather').textContent =
-            'Sin coordenadas de la capital.';
+          document.getElementById('weather').textContent = 'Sin coordenadas de la capital.';
         }
 
         document.body.classList.add('detail-open');
@@ -219,8 +235,9 @@
     });
 
     // click outside to close
-    svg.addEventListener('click', e=>{
-      if (document.body.classList.contains('detail-open') && e.target===svg) {
+    const svgRoot = container.querySelector('svg');
+    svgRoot.addEventListener('click', e=>{
+      if (document.body.classList.contains('detail-open') && e.target===svgRoot) {
         document.body.classList.remove('detail-open');
         reset();
       }
