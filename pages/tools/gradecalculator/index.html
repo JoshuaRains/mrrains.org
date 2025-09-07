@@ -5,54 +5,198 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 	<title>Grading Math Tool</title>
 	<style>
+		:root{
+			/* pastel bases (RGB) used with alpha for dark theme */
+			--p1: 255, 214, 165; /* peach */
+			--p2: 189, 224, 254; /* baby blue */
+			--p3: 194, 251, 215; /* mint */
+			--p4: 205, 180, 219; /* lavender */
+			--p5: 168, 218, 220; /* teal */
+			--bg: #0c111b;
+			--panel: #0f1624;
+			--text: #e6edf3;
+			--muted: #9aa4b2;
+			--line: #2a3240;     /* thick vertical separators */
+			--thin: #1e2430;     /* thin table grid lines */
+			--accent: #93c5fd;
+		}
+
+		*{ box-sizing: border-box; }
+		html, body { height: 100%; }
 		body {
-			font-family: sans-serif;
-			margin: 2em;
+			margin: 0;
+			padding: 24px;
+			background: var(--bg);
+			color: var(--text);
+			font-family: system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, "Noto Sans", "Liberation Sans", sans-serif;
 		}
+
+		h1 {
+			margin: 0 0 12px;
+			font-weight: 700;
+			letter-spacing: .2px;
+		}
+		.subtle {
+			color: var(--muted);
+			margin-bottom: 16px;
+		}
+
+		.controls {
+			display: flex;
+			align-items: center;
+			gap: 12px;
+			margin-bottom: 14px;
+		}
+		label { color: var(--muted); }
+
 		input[type="number"] {
-			padding: 0.5em;
-			margin-bottom: 1em;
-			font-size: 1em;
-			width: 100px;
+			background: #141b2a;
+			color: var(--text);
+			border: 1px solid #233048;
+			border-radius: 8px;
+			padding: 10px 12px;
+			font-size: 16px;
+			width: 120px;
+			outline: none;
 		}
-		#scoreList {
-			max-height: 500px;
-			overflow-y: auto;
-			border: 1px solid #ccc;
-			padding: 1em;
+		input[type="number"]:focus {
+			border-color: var(--accent);
+			box-shadow: 0 0 0 3px rgba(147,197,253,.15);
 		}
-		.score-item {
-			margin-bottom: 0.5em;
+
+		.panel {
+			background: var(--panel);
+			border: 1px solid #20283a;
+			border-radius: 12px;
+			overflow: hidden;
+		}
+
+		/* table layout */
+		.table-wrap{
+			max-height: 540px;
+			overflow: auto;
+		}
+		table {
+			width: 100%;
+			border-collapse: separate; /* keeps sticky header borders clean */
+			border-spacing: 0;
+			table-layout: fixed;
+			font-variant-numeric: tabular-nums;
+		}
+		colgroup col:nth-child(1){ width: 120px; }  /* Missed */
+		colgroup col:nth-child(2){ width: 160px; }  /* Score */
+		colgroup col:nth-child(3){ width: 140px; }  /* Percent */
+		colgroup col:nth-child(4){ width: 190px; }  /* Half-Back Score */
+		colgroup col:nth-child(5){ width: 150px; }  /* Half-Back % */
+
+		thead th {
+			position: sticky; top: 0; z-index: 2;
+			background: #0f1a2e;
+			color: black;
+			text-align: center;
+			padding: 12px 10px;
+			font-weight: 700;
+			border-bottom: 2px solid var(--thin);
+		}
+		tbody td {
+			padding: 10px;
+			text-align: center;
+			border-bottom: 1px solid var(--thin);
+			white-space: nowrap;
+			overflow: hidden;
+			text-overflow: ellipsis;
+		}
+		tbody tr:hover td { background: rgba(255,255,255,0.02); }
+
+		/* Thick vertical separators between columns (all rows + header) */
+		thead th + th,
+		tbody td + td { border-left: 4px solid var(--line); }
+
+		/* Pastel column tints (very subtle for dark mode) */
+		thead th:nth-child(1), tbody td:nth-child(1) { background: rgba(var(--p1), 0.10); }
+		thead th:nth-child(2), tbody td:nth-child(2) { background: rgba(var(--p2), 0.10); }
+		thead th:nth-child(3), tbody td:nth-child(3) { background: rgba(var(--p3), 0.10); }
+		thead th:nth-child(4), tbody td:nth-child(4) { background: rgba(var(--p4), 0.10); }
+		thead th:nth-child(5), tbody td:nth-child(5) { background: rgba(var(--p5), 0.10); }
+
+		/* Make the header colors slightly stronger for readability */
+		thead th:nth-child(1) { background: rgb(var(--p1)); }
+		thead th:nth-child(2) { background: rgb(var(--p2)); }
+		thead th:nth-child(3) { background: rgb(var(--p3)); }
+		thead th:nth-child(4) { background: rgb(var(--p4)); }
+		thead th:nth-child(5) { background: rgb(var(--p5)); }
+
+		/* small screen friendliness */
+		@media (max-width: 700px){
+			body { padding: 16px; }
+			colgroup col { width: auto !important; }
+			table { table-layout: auto; }
 		}
 	</style>
 </head>
 <body>
 	<h1>Grading Math Tool</h1>
-	<label for="totalPoints">Total Possible Points:</label>
-	<input type="number" id="totalPoints" value="37" min="1" />
+	<p class="subtle">Dark theme • Left column shows questions missed • Half-back = half credit for missed questions</p>
 
-	<div id="scoreList"></div>
+	<div class="controls">
+		<label for="totalPoints">Total Possible Points:</label>
+		<input type="number" id="totalPoints" value="37" min="1" />
+	</div>
+
+	<div class="panel">
+		<div class="table-wrap" id="scoreList">
+			<table aria-label="Grade Table">
+				<colgroup>
+					<col><col><col><col><col>
+				</colgroup>
+				<thead>
+					<tr>
+						<th>Missed</th>
+						<th>Score</th>
+						<th>Percent</th>
+						<th>Half-Back Score</th>
+						<th>Half-Back %</th>
+					</tr>
+				</thead>
+				<tbody id="scoreBody">
+					<!-- rows injected by JS -->
+				</tbody>
+			</table>
+		</div>
+	</div>
 
 	<script>
 		const totalPointsInput = document.getElementById("totalPoints");
-		const scoreList = document.getElementById("scoreList");
+		const scoreBody = document.getElementById("scoreBody");
+
+		function fmt(n, digits = 2){
+			return Number(n).toFixed(digits);
+		}
 
 		function updateScores() {
 			const total = parseFloat(totalPointsInput.value);
 			if (isNaN(total) || total <= 0) return;
 
-			scoreList.innerHTML = "";
+			let html = "";
 
 			for (let score = 0; score <= total; score++) {
-				const originalPercent = (score / total * 100).toFixed(2);
-				const correctedScore = score + (total - score) / 2;
-				const correctedPercent = (correctedScore / total * 100).toFixed(2);
+				const missed = total - score;
+				const originalPercent = (score / total * 100);
+				const correctedScore = score + missed / 2;
+				const correctedPercent = (correctedScore / total * 100);
 
-				const div = document.createElement("div");
-				div.className = "score-item";
-				div.textContent = `Score: ${score}/${total} → ${originalPercent}% | After Half Back: ${correctedScore.toFixed(2)}/${total} → ${correctedPercent}%`;
-				scoreList.appendChild(div);
+				html += `
+					<tr>
+						<td>${missed}</td>
+						<td>${score}/${total}</td>
+						<td>${fmt(originalPercent)}%</td>
+						<td>${fmt(correctedScore)}/${total}</td>
+						<td>${fmt(correctedPercent)}%</td>
+					</tr>
+				`;
 			}
+
+			scoreBody.innerHTML = html;
 		}
 
 		totalPointsInput.addEventListener("input", updateScores);
