@@ -1,0 +1,42 @@
+[
+  {
+    "term": "I am",
+    "translation": ["yo estoy"]
+  },
+  {
+    "term": "You are (familiar)",
+    "translation": ["tú estás"]
+  },
+  {
+    "term": "He is",
+    "translation": ["él está"]
+  },
+  {
+    "term": "She is",
+    "translation": ["ella está"]
+  },
+  {
+    "term": "You are (formal)",
+    "translation": ["usted está"]
+  },
+  {
+    "term": "We are (masculine)",
+    "translation": ["nosotros estamos"]
+  },
+  {
+    "term": "We are (feminine)",
+    "translation": ["nosotras estamos"]
+  },
+  {
+    "term": "Y'all are",
+    "translation": ["ustedes están"]
+  },
+  {
+    "term": "They are (masculine)",
+    "translation": ["ellos están"]
+  },
+  {
+    "term": "They are (feminine)",
+    "translation": ["ellas están"]
+  }
+]

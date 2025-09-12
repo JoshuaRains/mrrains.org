@@ -1,0 +1,50 @@
+[
+  {
+    "term": "the school",
+    "translation": ["la escuela"]
+  },
+  {
+    "term": "the class",
+    "translation": ["la clase"]
+  },
+  {
+    "term": "the cafeteria",
+    "translation": ["la cafetería"]
+  },
+  {
+    "term": "the library",
+    "translation": ["la biblioteca"]
+  },
+  {
+    "term": "the gym",
+    "translation": ["el gimnasio"]
+  },
+  {
+    "term": "the bathroom",
+    "translation": ["el baño"]
+  },
+  {
+    "term": "the office",
+    "translation": ["la oficina"]
+  },
+  {
+    "term": "the store",
+    "translation": ["la tienda"]
+  },
+  {
+    "term": "the supermarket",
+    "translation": ["el supermercado"]
+  },
+  {
+    "term": "the restaurant",
+    "translation": ["el restaurante"]
+  },
+  {
+    "term": "the park",
+    "translation": ["el parque"]
+  },
+  {
+    "term": "the museum",
+    "translation": ["el museo"]
+  }
+]

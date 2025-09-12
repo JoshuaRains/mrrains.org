@@ -1,0 +1,50 @@
+[
+  {
+    "term": "angry",
+    "translation": ["enojado"]
+  },
+  {
+    "term": "sad",
+    "translation": ["triste"]
+  },
+  {
+    "term": "confused",
+    "translation": ["confundido"]
+  },
+  {
+    "term": "sick",
+    "translation": ["enfermo"]
+  },
+  {
+    "term": "worried",
+    "translation": ["preocupado"]
+  },
+  {
+    "term": "in love",
+    "translation": ["enamorado"]
+  },
+  {
+    "term": "happy",
+    "translation": ["feliz"]
+  },
+  {
+    "term": "tired",
+    "translation": ["cansado"]
+  },
+  {
+    "term": "embarrassed",
+    "translation": ["avergonzado"]
+  },
+  {
+    "term": "surprised",
+    "translation": ["sorprendido"]
+  },
+  {
+    "term": "scared",
+    "translation": ["asustado"]
+  },
+  {
+    "term": "bored",
+    "translation": ["aburrido"]
+  }
+]
