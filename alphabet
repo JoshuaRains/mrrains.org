@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Spanish Alphabet Study Guide Audio</title>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    margin: 20px;
+    background: #fafafa;
+  }
+  .audio-button {
+    margin: 10px;
+    text-align: center;
+  }
+  button {
+    width: 60px;
+    height: 60px;
+    font-size: 24px;
+    font-weight: bold;
+    border-radius: 8px;
+    border: 2px solid #007BFF;
+    background-color: white;
+    cursor: pointer;
+  }
+  button:hover {
+    background-color: #d0e7ff;
+  }
+  audio {
+    display: none;
+  }
+</style>
+</head>
+<body>
+
+<div class="audio-button">
+  <button onclick="document.getElementById('audioA').play()">A</button>
+  <audio id="audioA" src="./sounds/a.mp3"></audio>
+</div>
+<div class="audio-button">
+  <button onclick="document.getElementById('audioB').play()">B</button>
+  <audio id="audioB" src="./sounds/b.mp3"></audio>
+</div>
+<div class="audio-button">
+  <button onclick="document.getElementById('audioC').play()">C</button>
+  <audio id="audioC" src="./sounds/c.mp3"></audio>
+</div>
+<div class="audio-button">
+  <button onclick="document.getElementById('audioD').play()">D</button>
+  <audio id="audioD" src="./sounds/d.mp3"></audio>
+</div>
+<div class="audio-button">
+  <button onclick="document.getElementById('audioE').play()">E</button>
+  <audio id="audioE" src="./sounds/e.mp3"></audio>
+</div>
+<div class="audio-button">
+  <button onclick="document.getElementById('audioF').play()">F</button>
+  <audio id="audioF" src="./sounds/f.mp3"></audio>
+</div>
+<div class="audio-button">
+  <button onclick="document.getElementById('audioG').play()">G</button>
+  <audio id="audioG" src="./sounds/g.mp3"></audio>
+</div>
+<div class="audio-button">
+  <button onclick="document.getElementById('audioH').play()">H</button>
+  <audio id="audioH" src="./sounds/h.mp3"></audio>
+</div>
+<div class="audio-button">
+  <button onclick="document.getElementById('audioI').play()">I</button>
+  <audio id="audioI" src="./sounds/i.mp3"></audio>
+</div>
+<div class="audio-button">
+  <button onclick="document.getElementById('audioJ').play()">J</button>
+  <audio id="audioJ" src="./sounds/j.mp3"></audio>
+</div>
+<div class="audio-button">
+  <button onclick="document.getElementById('audioK').play()">K</button>
+  <audio id="audioK" src="./sounds/k.mp3"></audio>
+</div>
+<div class="audio-button">
+  <button onclick="document.getElementById('audioL').play()">L</button>
+  <audio id="audioL" src="./sounds/l.mp3"></audio>
+</div>
+<div class="audio-button">
+  <button onclick="document.getElementById('audioM').play()">M</button>
+  <audio id="audioM" src="./sounds/m.mp3"></audio>
+</div>
+<div class="audio-button">
+  <button onclick="document.getElementById('audioN').play()">N</button>
+  <audio id="audioN" src="./sounds/n.mp3"></audio>
+</div>
+<div class="audio-button">
+  <button onclick="document.getElementById('audioÑ').play()">Ñ</button>
+  <audio id="audioÑ" src="./sounds/ñ.mp3"></audio>
+</div>
+<div class="audio-button">
+  <button onclick="document.getElementById('audioO').play()">O</button>
+  <audio id="audioO" src="./sounds/o.mp3"></audio>
+</div>
+<div class="audio-button">
+  <button onclick="document.getElementById('audioP').play()">P</button>
+  <audio id="audioP" src="./sounds/p.mp3"></audio>
+</div>
+<div class="audio-button">
+  <button onclick="document.getElementById('audioQ').play()">Q</button>
+  <audio id="audioQ" src="./sounds/q.mp3"></audio>
+</div>
+<div class="audio-button">
+  <button onclick="document.getElementById('audioR').play()">R</button>
+  <audio id="audioR" src="./sounds/r.mp3"></audio>
+</div>
+<div class="audio-button">
+  <button onclick="document.getElementById('audioS').play()">S</button>
+  <audio id="audioS" src="./sounds/s.mp3"></audio>
+</div>
+<div class="audio-button">
+  <button onclick="document.getElementById('audioT').play()">T</button>
+  <audio id="audioT" src="./sounds/t.mp3"></audio>
+</div>
+<div class="audio-button">
+  <button onclick="document.getElementById('audioU').play()">U</button>
+  <audio id="audioU" src="./sounds/u.mp3"></audio>
+</div>
+<div class="audio-button">
+  <button onclick="document.getElementById('audioV').play()">V</button>
+  <audio id="audioV" src="./sounds/v.mp3"></audio>
+</div>
+<div class="audio-button">
+  <button onclick="document.getElementById('audioW').play()">W</button>
+  <audio id="audioW" src="./sounds/w.mp3"></audio>
+</div>
+<div class="audio-button">
+  <button onclick="document.getElementById('audioX').play()">X</button>
+  <audio id="audioX" src="./sounds/x.mp3"></audio>
+</div>
+<div class="audio-button">
+  <button onclick="document.getElementById('audioY').play()">Y</button>
+  <audio id="audioY" src="./sounds/y.mp3"></audio>
+</div>
+<div class="audio-button">
+  <button onclick="document.getElementById('audioZ').play()">Z</button>
+  <audio id="audioZ" src="./sounds/z.mp3"></audio>
+</div>
+
+</body>
+</html>
