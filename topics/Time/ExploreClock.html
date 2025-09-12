@@ -1,0 +1,816 @@
+<!DOCTYPE html>
+<html lang="en" translate="no">
+<head>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<!-- Google Icons -->
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Chewy&family=Doto:wght@100..900&family=Edu+AU+VIC+WA+NT+Guides:wght@400..700&family=Noto+Sans:ital,wght@0,100..900;1,100..900&family=Silkscreen:wght@400;700&display=swap" rel="stylesheet">
+
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Worksheet</title>
+	<style>
+		body {
+		font-family: "Noto Sans", serif;
+		font-optical-sizing: auto;
+		font-weight: 500;
+		font-style: normal;
+		font-variation-settings:
+    "wdth" 100;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    
+    background: linear-gradient(135deg, #4b976a, #a8d5ba);
+    
+}
+
+:root {
+      /* Customize these to adjust the clock's appearance */
+      --clock-size: 350px;
+      --clock-bg: #ffffff;
+      --clock-tick-color: #000000;
+      --clock-font-color: #000000;
+
+      /* Distance from center for tick marks */
+      --tick-distance: 125px;
+    }
+
+    body, html {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      font-family: Arial, sans-serif;
+      background: linear-gradient(135deg, #4b976a, #a8d5ba);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+
+.page-container {
+    background-color: white;
+    width: 80%;
+    max-width: 850px;
+    min-width: 800px;
+    padding: 20px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+	
+    overflow-y: auto; /* Enable vertical scrolling */
+}
+
+#sticky-bar {
+    position: fixed;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100%;
+    max-width: 850px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 10px 15px;
+    background-color: #f4f4f4;
+    border-top: 1px solid #ddd;
+    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+    z-index: 100;
+}
+
+		@media print {
+			body {
+				background-color: white;
+				margin: 0;
+			}
+			.page-container {
+				box-shadow: none;
+				width: 850px;
+				padding: 40px;
+				
+			}
+			#sticky-bar{
+				display: none;
+			}
+			
+		}
+		.page-title {
+			text-align: center;
+			font-size: 24px;
+			font-weight: bold;
+			margin-bottom: 20px;
+		}
+		.header {
+			display: flex;
+			justify-content: center;
+			gap: 20px;
+			margin-bottom: 20px;
+		}
+		.header-section {
+			width: 100%;
+			max-width: 300px;
+			display: flex;
+			align-items: center;
+		}
+		.header-section.nombre {
+			max-width: 325px;
+		}
+		.header-section.fecha {
+			max-width: 150px;
+		}
+		.header-section.clase {
+			max-width: 100px;
+		}
+		.header label {
+			font-weight: bold;
+			margin-right: 5px;
+		}
+		.input-line {
+			border: none;
+			border-bottom: 1px solid black;
+			font-size: 16px;
+			outline: none;
+			width: 100%;
+		}
+		.input-line::placeholder {
+			color: black;
+		}
+		.divider-line {
+			border-top: 2px solid black;
+			margin: 20px 0;
+		}
+		.question {
+			margin-bottom: 20px;
+		}
+		.multiple-choice {
+			margin-bottom: 20px;
+		}
+		.multiple-choice input[type="radio"] {
+			margin-right: 10px;
+		}
+		.short-response {
+			margin-bottom: 10px;
+            
+		}
+		.short-response .line {
+			border-bottom: 1px solid black;
+			margin: 5px 0;
+			height: 20px;
+		}
+		.chart {
+			margin-bottom: 20px;
+		}
+		.chart-title {
+			font-weight: bold;
+			margin-bottom: 10px;
+		}
+		.chart-table {
+			display: grid;
+			grid-template-columns: repeat(2, 1fr);
+			grid-template-rows: repeat(3, 1fr);
+			width: 100%;
+            max-width: 450px;
+			gap: 0px;
+		}
+		.chart-table input {
+			width: 100%;
+            font-size: 16px;
+			outline: none;
+			text-align: center;
+			padding: 5px;
+		}
+		.short-response.textarea {
+    width: 100%;
+    border: none;
+    outline: none;
+    line-height: 20px;
+    resize: none;
+    overflow: hidden;
+    font-family: inherit; /* Inherit font from parent (body) */
+    font-size: inherit;   /* Inherit font size from parent */
+}
+
+
+		
+		.chart-row {
+			display: flex;
+			justify-content: center;
+			gap: 20px;
+			margin-right:15px
+		}
+
+		
+
+    .accent-button {
+        padding: 10px 15px;
+        font-size: 16px;
+        border: 1px solid #ddd;
+        border-radius: 10px;
+        background-color: #f4f4f4;
+        color: black;
+        cursor: pointer;
+        margin-right: 5px;
+    }
+    .accent-button:hover {
+        background-color: #e0e0e0;
+    }
+    #submit-button {
+        padding: 10px 15px;
+        font-size: 16px;
+        border: none;
+        border-radius: 10px;
+        background-color: #007bff;
+        color: white;
+        cursor: pointer;
+        
+    }
+    #submit-button:hover {
+        background-color: #0056b3;
+    }
+
+    #download-button {
+	padding: 8px 8px;
+	font-size: 1px;
+	border: none;
+	border-radius: 10px;
+	background-color: #007bff;
+	color: white;
+	cursor: pointer;
+    margin-right: 10px;
+    margin-left: 10px;
+    }
+
+    #download-button:hover {
+        background-color: #0056b3;
+    }
+
+    	/* Modal container styles */
+	#submit-modal {
+		display: none; /* Hidden by default */
+		position: fixed;
+		top: 0;
+		left: 0;
+		width: 100%;
+		height: 100%;
+		background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent background */
+		z-index: 200;
+		justify-content: center;
+		align-items: center;
+	}
+	#modal-content {
+		background-color: white;
+		padding: 20px;
+		width: 90%;
+		max-width: 600px;
+		border-radius: 10px;
+		box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+	}
+	#close-modal {
+		float: right;
+		cursor: pointer;
+		font-size: 20px;
+	}
+	iframe {
+		width: 100%;
+		height: 400px;
+		border: none;
+	}
+	.spaced-examples-container{
+		display: flex;
+			justify-content: center;
+			gap: 20px;
+			margin-right:15px
+	}
+
+
+
+
+
+    .container {
+      text-align: center;
+      background-color: #f7f4f4;
+      max-width: 600px;
+      width: 90%;
+      padding: 20px;
+      border: 2px solid #d3d3d3;
+      border-radius: 10px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      margin: 20px;
+    }
+
+    h2 {
+      margin-top: 0;
+    }
+
+    /* Clock styling */
+    .clock-container {
+      position: relative;
+      width: var(--clock-size);
+      height: var(--clock-size);
+      margin: 1em auto;
+      border-radius: 50%;
+      background: var(--clock-bg);
+      box-shadow: inset 0 0 10px rgba(0,0,0,0.1), 0 0 8px rgba(0,0,0,0.2);
+      --radius: calc(var(--clock-size) / 2);
+    }
+
+    /* Hour Ticks (multiples of 5) */
+    .tick {
+      position: absolute;
+      width: 2px;
+      height: 15px; /* Hour ticks are longer */
+      background-color: var(--clock-tick-color);
+      left: 50%;
+      top: 50%;
+      transform-origin: center center; 
+      z-index: 1; /* behind numbers/hands */
+    }
+
+    /* Minute Ticks (added via JS for all other minutes) */
+    .minute-tick {
+      position: absolute;
+      width: 2px;
+      height: 8px; /* Shorter than hour ticks */
+      background-color: var(--clock-tick-color);
+      left: 50%;
+      top: 50%;
+      transform-origin: center center;
+      z-index: 0; /* behind hour ticks */
+    }
+
+    /* Numbers on the clock face */
+    .number {
+      position: absolute;
+      color: var(--clock-font-color);
+      font-weight: bold;
+      left: 50%;
+      top: 50%;
+      transform-origin: center center;
+      z-index: 2; /* above ticks */
+    }
+
+    /* Hands */
+    .hand {
+      position: absolute;
+      background-color: var(--clock-font-color);
+      left: 50%;
+      transform-origin: bottom center;
+      border-radius: 2px;
+      z-index: 3;
+    }
+
+    .hour-hand {
+      width: 4px;
+      height: calc(var(--radius) * 0.5);
+      top: calc(50% - (var(--radius) * 0.5));
+    }
+
+    .minute-hand {
+      width: 2px;
+      height: calc(var(--radius) * 0.7);
+      top: calc(50% - (var(--radius) * 0.7));
+    }
+
+    /* Slider styling */
+    #timeSlider {
+      width: 80%;
+      margin: 20px 0;
+    }
+
+    /* Time displays below the clock */
+    .time-display {
+      font-size: 1.2em;
+      margin: 10px 0;
+    }
+	
+	</style>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    
+	<script>
+		let lastFocusedElement = null;
+
+		// Track the last focused input or textarea
+		document.addEventListener('focusin', (event) => {
+			if (event.target.tagName === 'INPUT' || event.target.tagName === 'TEXTAREA') {
+				lastFocusedElement = event.target;
+			}
+		});
+
+		// Insert special characters into the last focused input or textarea
+		function insertCharacter(char) {
+			if (lastFocusedElement) {
+				const start = lastFocusedElement.selectionStart;
+				const end = lastFocusedElement.selectionEnd;
+				const text = lastFocusedElement.value;
+				lastFocusedElement.value = text.slice(0, start) + char + text.slice(end);
+				lastFocusedElement.setSelectionRange(start + char.length, start + char.length);
+				lastFocusedElement.focus();
+			}
+		}
+        
+
+		async function download() {
+        const { jsPDF } = window.jspdf;
+
+        // Create a new jsPDF instance for A4 size (portrait)
+        const doc = new jsPDF('p', 'pt', 'a4');
+        const content = document.querySelector('.page-container');
+
+        // Step 1: Save the current state of checkboxes and radio buttons
+        const formElements = content.querySelectorAll('input[type="checkbox"], input[type="radio"]');
+        const elementStates = Array.from(formElements).map(el => el.checked);
+
+        // Step 2: Calculate scaling factor for A4 width
+        const pdfWidth = 595.28; // A4 width in points
+        const scale = pdfWidth / content.offsetWidth; // Calculate scaling factor
+
+        // Step 3: Render the PDF using jsPDF and html2canvas with proper scaling
+        await doc.html(content, {
+            callback: function (doc) {
+                doc.save('ExploreClock.pdf');
+            },
+            x: 0,
+            y: 0,
+            width: pdfWidth,  // Set PDF width
+            html2canvas: {
+                scale: scale,   // Scale content to fit A4 width
+                useCORS: true
+            }
+        });
+
+        // Step 4: Restore the state of checkboxes and radio buttons
+        formElements.forEach((el, index) => {
+            el.checked = elementStates[index];
+        });
+    }
+	</script>
+
+
+
+
+
+
+</head>
+<body>
+    <div class="container">
+       
+    
+        <!-- Clock Container -->
+        <div id="clockContainer" class="clock-container">
+          <!-- Hour ticks (12 total) -->
+          <div class="tick" style="transform: translate(-50%, -50%) rotate(0deg)   translateY(calc(-1 * var(--tick-distance)))"></div>
+          <div class="tick" style="transform: translate(-50%, -50%) rotate(30deg)  translateY(calc(-1 * var(--tick-distance)))"></div>
+          <div class="tick" style="transform: translate(-50%, -50%) rotate(60deg)  translateY(calc(-1 * var(--tick-distance)))"></div>
+          <div class="tick" style="transform: translate(-50%, -50%) rotate(90deg)  translateY(calc(-1 * var(--tick-distance)))"></div>
+          <div class="tick" style="transform: translate(-50%, -50%) rotate(120deg) translateY(calc(-1 * var(--tick-distance)))"></div>
+          <div class="tick" style="transform: translate(-50%, -50%) rotate(150deg) translateY(calc(-1 * var(--tick-distance)))"></div>
+          <div class="tick" style="transform: translate(-50%, -50%) rotate(180deg) translateY(calc(-1 * var(--tick-distance)))"></div>
+          <div class="tick" style="transform: translate(-50%, -50%) rotate(210deg) translateY(calc(-1 * var(--tick-distance)))"></div>
+          <div class="tick" style="transform: translate(-50%, -50%) rotate(240deg) translateY(calc(-1 * var(--tick-distance)))"></div>
+          <div class="tick" style="transform: translate(-50%, -50%) rotate(270deg) translateY(calc(-1 * var(--tick-distance)))"></div>
+          <div class="tick" style="transform: translate(-50%, -50%) rotate(300deg) translateY(calc(-1 * var(--tick-distance)))"></div>
+          <div class="tick" style="transform: translate(-50%, -50%) rotate(330deg) translateY(calc(-1 * var(--tick-distance)))"></div>
+    
+          <!-- Numbers (1-12) -->
+          <div class="number" style="transform: translate(-50%, -50%) rotate(0deg)   translateY(calc(-1 * var(--radius) + 20px)) rotate(-0deg);">
+            12
+          </div>
+          <div class="number" style="transform: translate(-50%, -50%) rotate(30deg)  translateY(calc(-1 * var(--radius) + 20px)) rotate(-30deg);">
+            1
+          </div>
+          <div class="number" style="transform: translate(-50%, -50%) rotate(60deg)  translateY(calc(-1 * var(--radius) + 20px)) rotate(-60deg);">
+            2
+          </div>
+          <div class="number" style="transform: translate(-50%, -50%) rotate(90deg)  translateY(calc(-1 * var(--radius) + 20px)) rotate(-90deg);">
+            3
+          </div>
+          <div class="number" style="transform: translate(-50%, -50%) rotate(120deg) translateY(calc(-1 * var(--radius) + 20px)) rotate(-120deg);">
+            4
+          </div>
+          <div class="number" style="transform: translate(-50%, -50%) rotate(150deg) translateY(calc(-1 * var(--radius) + 20px)) rotate(-150deg);">
+            5
+          </div>
+          <div class="number" style="transform: translate(-50%, -50%) rotate(180deg) translateY(calc(-1 * var(--radius) + 20px)) rotate(-180deg);">
+            6
+          </div>
+          <div class="number" style="transform: translate(-50%, -50%) rotate(210deg) translateY(calc(-1 * var(--radius) + 20px)) rotate(-210deg);">
+            7
+          </div>
+          <div class="number" style="transform: translate(-50%, -50%) rotate(240deg) translateY(calc(-1 * var(--radius) + 20px)) rotate(-240deg);">
+            8
+          </div>
+          <div class="number" style="transform: translate(-50%, -50%) rotate(270deg) translateY(calc(-1 * var(--radius) + 20px)) rotate(-270deg);">
+            9
+          </div>
+          <div class="number" style="transform: translate(-50%, -50%) rotate(300deg) translateY(calc(-1 * var(--radius) + 20px)) rotate(-300deg);">
+            10
+          </div>
+          <div class="number" style="transform: translate(-50%, -50%) rotate(330deg) translateY(calc(-1 * var(--radius) + 20px)) rotate(-330deg);">
+            11
+          </div>
+    
+          <!-- Clock Hands -->
+          <div id="hourHand" class="hand hour-hand"></div>
+          <div id="minuteHand" class="hand minute-hand"></div>
+        </div>
+    
+        <!-- Slider to move the clock from 0 to 720 minutes (12 hours) -->
+        <input type="range" id="timeSlider" min="0" max="720" step="1" value="0" />
+    
+        <!-- Spanish and numeric time displays -->
+        <p id="spanishTime" class="time-display"></p>
+        <p id="numericTime" class="time-display"></p>
+    
+        <!-- New literal-English translation display -->
+        <p id="literalEnglishTime" class="time-display" style="font-style: italic;"></p>
+    
+      </div>
+
+	<div class="page-container">
+        <div class="page-title">Time Vocabulary</div>
+        <div class="header">
+            <div class="header-section nombre">
+                <label for="nombre">Nombre:</label><input type="text" spellcheck="false" id="nombre" class="input-line">
+            </div>
+            <div class="header-section fecha">
+                <label for="fecha">Fecha:</label><input type="text" spellcheck="false" id="fecha" class="input-line">
+            </div>
+            <div class="header-section clase">
+                <label for="clase">Clase:</label><input type="text" spellcheck="false" id="clase" class="input-line">
+            </div>
+        </div>
+        <div class="divider-line"></div>
+        <p>
+            In Spanish, there are various ways to answer the question ¿qué hora es? (what time is it?). Here we will learn one method that only requires the numbers 1-30.
+        </p>
+        <p>
+            You can use the slider to set the rough time and then use the arrow keys on your keyboard to move by individual minutes.
+        </p>
+        
+        <p>Fill in the following definitions based on what you find in the clock:</p>
+        <div class="chart">
+            <div class="chart-table">
+                <input type="text" spellcheck="false" value="Vocabulary Word" disabled="true">
+                <input type="text" spellcheck="false" value="Definition:" disabled="true">
+                <input type="text" spellcheck="false" value="menos" disabled="true">
+                <input type="text" spellcheck="false">
+                <input type="text" spellcheck="false" value="y" disabled="true">
+                <input type="text" spellcheck="false">
+                <input type="text" spellcheck="false" value="cuarto" disabled="true">
+                <input type="text" spellcheck="false">
+                <input type="text" spellcheck="false" value="media" disabled="true">
+                <input type="text" spellcheck="false">
+                <input type="text" spellcheck="false" value="en punto" disabled="true">
+                <input type="text" spellcheck="false">
+                <input type="text" spellcheck="false" value="son" disabled="true">
+                <input type="text" spellcheck="false">
+                <input type="text" spellcheck="false" value="es" disabled="true">
+                <input type="text" spellcheck="false">
+               
+                
+            </div>
+        </div>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+    </div>
+    
+	
+		
+		<br>
+		<br>
+		<br>
+		<br>
+		<br>
+		<br>
+		<br>
+		<br>
+		<br>
+		<br>
+		<br>
+		<br>
+		<br>
+		<br>
+		<br>
+		<br>
+		<br>
+		<br>
+		<br>
+		<br>
+		<br>
+		<br>
+		<br>
+		<br>
+		<br>
+		<br>
+		<br>
+		<br>
+	</div>
+
+	
+<div id="sticky-bar">
+    <button class="accent-button" onclick="insertCharacter('á')">á</button>
+    <button class="accent-button" onclick="insertCharacter('é')">é</button>
+    <button class="accent-button" onclick="insertCharacter('í')">í</button>
+    <button class="accent-button" onclick="insertCharacter('ó')">ó</button>
+    <button class="accent-button" onclick="insertCharacter('ú')">ú</button>
+    <button class="accent-button" onclick="insertCharacter('ñ')">ñ</button>
+    <button class="accent-button" onclick="insertCharacter('ü')">ü</button>
+    <button class="accent-button" onclick="insertCharacter('¿')">¿</button>
+    <button class="accent-button" onclick="insertCharacter('¡')">¡</button>
+    <button id="download-button" onclick="download()">
+        <span class="material-icons">download</span>
+    </button>
+    <a id= "submit-button" href="https://docs.google.com/forms/d/e/1FAIpQLSd93KBw1PWfN_5VdvvNGluo4dOofDvIZHo3qTE8JlUB-fYCZA/viewform?usp=header" target="_blank">Open Dropbox</a>
+
+</div>
+
+</body>
+
+
+<script>
+    /**************************************************
+     *  1) Dynamically add minute ticks (48 total)    *
+     **************************************************/
+    const clockContainer = document.getElementById('clockContainer');
+
+    for (let i = 1; i < 60; i++) {
+      if (i % 5 === 0) continue; // skip the multiples of 5 (hour ticks)
+      const tick = document.createElement('div');
+      tick.className = 'minute-tick';
+      // Each minute is 6 degrees (360/60)
+      tick.style.transform = `
+        translate(-50%, -50%)
+        rotate(${i * 6}deg)
+        translateY(calc(-1 * var(--tick-distance)))
+      `;
+      clockContainer.appendChild(tick);
+    }
+
+    /**************************************************
+     *  2) Spanish time helpers                       *
+     **************************************************/
+    function numberToSpanish(num) {
+      const units = ["", "uno", "dos", "tres", "cuatro", "cinco", "seis", "siete", "ocho", "nueve"];
+      const teens = ["diez", "once", "doce", "trece", "catorce", "quince", "dieciséis", "diecisiete", "dieciocho", "diecinueve"];
+      const tens = ["", "", "veinte", "treinta", "cuarenta", "cincuenta"];
+
+      if (num < 10) return units[num];
+      if (num >= 10 && num < 20) return teens[num - 10];
+      if (num >= 20 && num < 30) return num === 20 ? "veinte" : "veinti" + units[num % 10];
+      if (num >= 30 && num < 60) {
+        const tensPart = tens[Math.floor(num / 10)];
+        const unitPart = units[num % 10];
+        return unitPart ? `${tensPart} y ${unitPart}` : tensPart;
+      }
+      return num.toString(); 
+    }
+
+    function formatTimeToSpanish(hours, minutes) {
+      const hourNames = ["", "una", "dos", "tres", "cuatro", "cinco", "seis", "siete", "ocho", "nueve", "diez", "once", "doce"];
+      let hourInSpanish = hourNames[hours];
+      let minuteInSpanish = "";
+
+      if (minutes === 0) {
+        minuteInSpanish = "en punto";
+      } else if (minutes === 15) {
+        minuteInSpanish = "y cuarto";
+      } else if (minutes === 30) {
+        minuteInSpanish = "y media";
+      } else if (minutes === 45) {
+        hourInSpanish = hourNames[(hours % 12) + 1];
+        minuteInSpanish = "menos cuarto";
+      } else if (minutes < 30) {
+        minuteInSpanish = `y ${numberToSpanish(minutes)}`;
+      } else {
+        hourInSpanish = hourNames[(hours % 12) + 1];
+        minuteInSpanish = `menos ${numberToSpanish(60 - minutes)}`;
+      }
+
+      let phrase = `Son las ${hourInSpanish} ${minuteInSpanish}`;
+      // Correct "Son las una" to "Es la una"
+      phrase = phrase.replace("Son las una", "Es la una");
+      return phrase.trim();
+    }
+
+    /**************************************************
+     *  3) NEW: Literal English translation           *
+     **************************************************/
+    function formatLiteralEnglish(hours, minutes) {
+      // Decide whether to say "(the hour) is" or "(the hours) are"
+      let hourPhrase, verb;
+      if (hours === 1) {
+        hourPhrase = "<i>(the hour)</i>";
+        verb = "<b>is</b>";
+      } else {
+        hourPhrase = "<i>(the hours)</i>";
+        verb = "<b>are</b>";
+      }
+
+      // Next hour for "menos" times
+      const nextHour = hours === 12 ? 1 : hours + 1;
+
+      // For zero minutes:
+      if (minutes === 0) {
+        // e.g. "1:00" => (the hour) is 1, on the dot
+        return `${hourPhrase} ${verb} ${hours}, on the dot`;
+      }
+      // Quarter past
+      if (minutes === 15) {
+        // e.g. "1:15" => (the hour) is 1, and a quarter (hour)
+        return `${hourPhrase} ${verb} ${hours}, and a quarter <i>(hour)</i>`;
+      }
+      // Half past
+      if (minutes === 30) {
+        // e.g. "1:30" => (the hour) is 1, and a half (hour)
+        return `${hourPhrase} ${verb} ${hours}, and a half <i>(hour)</i>`;
+      }
+      // Quarter till
+      if (minutes === 45) {
+        // e.g. "1:45" => (the hours) are 2, minus a quarter (minutes)
+        let hourPhrase2, verb2;
+        if (nextHour === 1) {
+          hourPhrase2 = "<i>(the hour)</i>";
+          verb2 = "<b>is</b>";
+        } else {
+          hourPhrase2 = "<i>(the hours)</i>";
+          verb2 = "<b>are</b>";
+        }
+        return `${hourPhrase2} ${verb2} ${nextHour}, minus a quarter <i>(hour)</i>`;
+      }
+      // If minutes < 30 (regular "y")
+      if (minutes < 30) {
+        // e.g. "1:09" => (the hour) is 1, and 9 (minutes)
+        return `${hourPhrase} ${verb} ${hours}, and ${minutes} <i>(minutes)</i>`;
+      }
+      // Else minutes > 30 => "menos" something
+      let hourPhrase2, verb2;
+      if (nextHour === 1) {
+        hourPhrase2 = "<i>(the hour)</i>";
+        verb2 = "<b>is</b>";
+      } else {
+        hourPhrase2 = "<i>(the hours)</i>";
+        verb2 = "<b>are</b>";
+      }
+      const diff = 60 - minutes;
+      // e.g. "1:56" => (the hours) are 2, minus 4 (minutes)
+      return `${hourPhrase2} ${verb2} ${nextHour}, minus ${diff} <i>(minutes)</i>`;
+    }
+
+    /**************************************************
+     *  4) Tie everything together with the slider    *
+     **************************************************/
+    const timeSlider = document.getElementById("timeSlider");
+    const hourHand = document.getElementById("hourHand");
+    const minuteHand = document.getElementById("minuteHand");
+    const spanishTime = document.getElementById("spanishTime");
+    const numericTime = document.getElementById("numericTime");
+    const literalEnglishTime = document.getElementById("literalEnglishTime");
+
+    // Update the clock on slider input
+    timeSlider.addEventListener("input", updateClock);
+
+    function updateClock() {
+      const totalMinutes = parseInt(timeSlider.value);
+
+      // Convert total minutes into hours/minutes on a 12-hour clock
+      const hours = Math.floor(totalMinutes / 60); // 0–12
+      const minutes = totalMinutes % 60;
+
+      // Convert 0 hours to 12 for display
+      const displayHours = hours === 0 ? 12 : hours;
+
+      // Calculate angles
+      const hourAngle = (displayHours % 12) * 30 + (minutes * 0.5);
+      const minuteAngle = minutes * 6;
+
+      // Move the hands
+      hourHand.style.transform = `translate(-50%, 0) rotate(${hourAngle}deg)`;
+      minuteHand.style.transform = `translate(-50%, 0) rotate(${minuteAngle}deg)`;
+
+      // Update the textual displays
+      spanishTime.textContent = formatTimeToSpanish(displayHours, minutes);
+      numericTime.textContent = `${displayHours}:${String(minutes).padStart(2, "0")}`;
+
+      // **New**: Show the literal English translation
+      literalEnglishTime.innerHTML = formatLiteralEnglish(displayHours, minutes);
+    }
+
+    // Initialize on page load
+    updateClock();
+  </script>
+
+
+
+
+
+
+</html>
