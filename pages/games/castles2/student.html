@@ -255,6 +255,18 @@
 
       // --- End Bomb Mode Functions ---
 
+      function setButtonsDisabled(disabled) {
+  const buttons = optionsContainer.getElementsByTagName("button");
+  for (let btn of buttons) {
+    btn.disabled = disabled;
+    if (disabled) {
+      btn.style.cursor = "not-allowed";
+    } else {
+      btn.style.cursor = "pointer";
+    }
+  }
+}
+
       function joinGame() {
         gameCode = gameCodeInput.value.trim();
         if (!gameCode) return;
@@ -445,6 +457,8 @@
           });
           optionsContainer.appendChild(btn);
         });
+        setButtonsDisabled(false);
+
       }
 
       function checkAnswer(e, selectedOption) {
@@ -463,20 +477,24 @@
           gridSection.style.display = "flex";
           renderGrid();
         } else {
-          e.target.style.backgroundColor = "#ff6b6b";
-          const buttons = optionsContainer.getElementsByTagName("button");
-          for (let btn of buttons) {
-            if (btn.innerText.trim().toLowerCase() === currentQuestion.answer.trim().toLowerCase()) {
-              btn.style.backgroundColor = "#51cf66";
-            }
-          }
-          setTimeout(() => {
-            for (let btn of buttons) {
-              btn.style.backgroundColor = "";
-            }
-            showNextQuestion();
-          }, 2000);
-        }
+  // Lock all buttons immediately
+  setButtonsDisabled(true);
+
+  e.target.style.backgroundColor = "#ff6b6b";
+  const buttons = optionsContainer.getElementsByTagName("button");
+  for (let btn of buttons) {
+    if (btn.innerText.trim().toLowerCase() === currentQuestion.answer.trim().toLowerCase()) {
+      btn.style.backgroundColor = "#51cf66";
+    }
+  }
+  setTimeout(() => {
+    for (let btn of buttons) {
+      btn.style.backgroundColor = "";
+    }
+    // Unlock buttons only after new question is shown
+    showNextQuestion();
+  }, 2000);
+}
       }
 
       function submitChallengeAnswer(isCorrect) {
