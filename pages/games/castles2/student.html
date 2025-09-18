@@ -132,6 +132,11 @@
         font-size: 24px;
         margin-bottom: 10px;
       }
+      /* When 4th period mode is active, initial screens text goes neon green */
+.fourth-mode {
+  color: #34eb8f;
+}
+
     </style>
   </head>
   <body>
@@ -267,40 +272,95 @@
   }
 }
 
-      function joinGame() {
-        gameCode = gameCodeInput.value.trim();
-        if (!gameCode) return;
-        db.ref("games/" + gameCode).once("value").then(snapshot => {
-          if (snapshot.exists()) {
-            db.ref("games/" + gameCode + "/players").once("value").then(snap => {
-              const players = snap.val() || {};
-              const count = Object.keys(players).length;
-              // Alternate teams: even count -> red, odd -> blue.
-              studentTeam = (count % 2 === 0) ? "red" : "blue";
-              studentRef = db.ref("games/" + gameCode + "/players").push();
-              studentRef.set({
-                team: studentTeam,
-                joinedAt: firebase.database.ServerValue.TIMESTAMP
-              });
-              studentRef.onDisconnect().remove();
-              joinSection.style.display = "none";
-              waitingSection.style.display = "block";
-              topLeftTeam.innerText = "Team: " + studentTeam.toUpperCase();
-              topLeftTeam.style.color = (studentTeam === "red") ? "#ff6b6b" : "#4dabf7";
-              topLeftTeam.style.display = "block";
-              topRightCode.innerText = "Game Code: " + gameCode;
-              topRightCode.style.display = "block";
-              listenForGameState();
-              listenForGridUpdates();
-            });
-          } else {
-            errorMsg.innerText = "Game not found. Please check the game code.";
-          }
-        }).catch(err => {
-          console.error("Error joining game:", err);
-          errorMsg.innerText = "Error connecting to server.";
-        });
+window.uiFourthPeriodMode = false;
+
+function applyStudentUIMode() {
+  const isGreen = !!window.uiFourthPeriodMode;
+
+  // Body class (initial screens text color)
+  document.body.classList.toggle("fourth-mode", isGreen);
+
+  // Update team chip text & color if already joined
+  if (studentTeam) {
+    topLeftTeam.innerText = "Team: " + (isGreen ? "GREEN" : studentTeam.toUpperCase());
+    topLeftTeam.style.color = isGreen
+      ? "#34eb8f"
+      : (studentTeam === "red" ? "#ff6b6b" : "#4dabf7");
+  }
+
+  // Re-render grid to swap tile colors
+  if (gridSection.style.display !== "none") {
+    renderGrid();
+  }
+}
+
+function listenForUIMode() {
+  const modeRef = db.ref("games/" + gameCode + "/uiFourthPeriodMode");
+  modeRef.on("value", snap => {
+    window.uiFourthPeriodMode = !!snap.val();
+    applyStudentUIMode();
+  });
+}
+
+function joinGame() {
+  gameCode = gameCodeInput.value.trim();
+  if (!gameCode) return;
+
+  db.ref("games/" + gameCode).once("value").then(snapshot => {
+    if (!snapshot.exists()) {
+      errorMsg.innerText = "Game not found. Please check the game code.";
+      return;
+    }
+
+    const playersRef = db.ref("games/" + gameCode + "/players");
+    playersRef.once("value").then(snap => {
+      const players = snap.val() || {};
+      let redCount = 0, blueCount = 0;
+
+      Object.values(players).forEach(p => {
+        if (p?.team === "red") redCount++;
+        else if (p?.team === "blue") blueCount++;
+      });
+
+      // Assign to team with fewer players; if equal, pick random
+      if (redCount < blueCount) {
+        studentTeam = "red";
+      } else if (blueCount < redCount) {
+        studentTeam = "blue";
+      } else {
+        studentTeam = Math.random() < 0.5 ? "red" : "blue";
       }
+
+      studentRef = playersRef.push();
+      studentRef.set({
+        team: studentTeam,
+        joinedAt: firebase.database.ServerValue.TIMESTAMP
+      });
+      studentRef.onDisconnect().remove();
+
+      // UI updates
+      joinSection.style.display = "none";
+      waitingSection.style.display = "block";
+      const useGreen = !!window.uiFourthPeriodMode;
+topLeftTeam.innerText = "Team: " + (useGreen ? "GREEN" : studentTeam.toUpperCase());
+topLeftTeam.style.color = useGreen
+  ? "#34eb8f" // requested initial-screen green
+  : (studentTeam === "red" ? "#ff6b6b" : "#4dabf7");
+topLeftTeam.style.display = "block";
+topRightCode.innerText = "Game Code: " + gameCode;
+topRightCode.style.display = "block";
+
+
+      listenForGameState();
+      listenForUIMode();
+
+      listenForGridUpdates();
+    });
+  }).catch(err => {
+    console.error("Error joining game:", err);
+    errorMsg.innerText = "Error connecting to server.";
+  });
+}
 
       function listenForGameState() {
         db.ref("games/" + gameCode + "/state").on("value", snapshot => {
@@ -319,6 +379,8 @@
                 }
                 unseenQuestions = questions.map((q, idx) => idx);
                 showNextQuestion();
+                listenForUIMode();
+                applyStudentUIMode();
               });
             });
           } else if (state === "over") {
@@ -568,11 +630,17 @@
             if (cell.capital) {
               cellDiv.setAttribute("data-capital", "true");
             }
-            if (cell.team === "red") {
-              cellDiv.style.backgroundColor = "#ff6b6b";
-            } else if (cell.team === "blue") {
-              cellDiv.style.backgroundColor = "#4dabf7";
-            }
+            const useGreen = !!window.uiFourthPeriodMode;
+const colorMap = useGreen
+  ? { red: "#2f9422", blue: "#34eb8f" }
+  : { red: "#ff6b6b", blue: "#4dabf7" };
+
+if (cell.team === "red") {
+  cellDiv.style.backgroundColor = colorMap.red;
+} else if (cell.team === "blue") {
+  cellDiv.style.backgroundColor = colorMap.blue;
+}
+
             if (cell.capital) {
               const indicator = document.createElement("div");
               indicator.className = "capital-indicator";

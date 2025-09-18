@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="es" translate="no">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>¿Qué hora es? — Juego rápido</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;700;800&display=swap" rel="stylesheet">
+
+<style>
+  :root{
+    /* Theme */
+    --bg-grad-start:#517860;
+    --bg-grad-end:#5c8a6d;
+    --panel-bg:#e8f4ec;         /* light green panel for contrast */
+    --ink:#0f1d14;
+    --muted:#2e4a3a;
+
+    /* Color-coding */
+    --verb-color:#c62828;       /* red: son/es & are/is */
+    --hour-color:#1565c0;       /* blue: hour */
+    --minute-color:#6a1b9a;     /* purple: minutes (incl. en punto / on the dot) */
+
+    /* Clock sizing */
+    --clock-size:360px;
+    --tick-distance:135px;
+    --clock-tick:#1a1a1a;
+    --clock-font:#1a1a1a;
+  }
+
+  *{box-sizing:border-box}
+  html,body{height:100%;margin:0}
+  body{
+    font-family:"Noto Sans",system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
+    background:linear-gradient(to bottom,var(--bg-grad-start),var(--bg-grad-end));
+    color:var(--ink);
+    display:grid;
+    place-items:center;
+  }
+
+  .brand{
+    position:fixed; top:10px; left:14px;
+    font-weight:800; font-size:14px; letter-spacing:.06em;
+    color:#ffffffcc; user-select:none;
+  }
+
+  .stage{
+    width:min(92vw,860px);
+    padding:clamp(16px,3vw,28px);
+    background:var(--panel-bg);
+    border-radius:18px;
+    box-shadow:0 10px 24px rgba(0,0,0,.20), 0 2px 6px rgba(0,0,0,.08);
+    display:grid; gap:14px; justify-items:center; text-align:center;
+    border:1px solid rgba(15,29,20,0.06);
+  }
+
+  .title{
+    font-weight:800; font-size:clamp(22px,2.8vw,28px); color:var(--muted);
+    margin:2px 0 6px; user-select:none;
+  }
+
+  /* Clock */
+  .clock-container{
+    position:relative;
+    width:var(--clock-size); height:var(--clock-size);
+    border-radius:50%; background:#fff;
+    box-shadow:inset 0 0 10px rgba(0,0,0,.08), 0 0 12px rgba(0,0,0,.10);
+    --radius:calc(var(--clock-size)/2);
+  }
+  .tick{
+    position:absolute; width:3px; height:16px; background:var(--clock-tick);
+    left:50%; top:50%; transform-origin:center; z-index:1;
+  }
+  .minute-tick{
+    position:absolute; width:2px; height:8px; background:var(--clock-tick);
+    left:50%; top:50%; transform-origin:center; z-index:0; opacity:.7;
+  }
+  .number{
+    position:absolute; color:var(--clock-font); font-weight:700;
+    left:50%; top:50%; transform-origin:center; z-index:2; user-select:none;
+  }
+  .hand{
+    position:absolute; background:var(--clock-font);
+    left:50%; transform-origin:bottom center; border-radius:2px; z-index:3;
+  }
+  .hour-hand{ width:4px; height:calc(var(--radius)*0.5); top:calc(50% - (var(--radius)*0.5)); }
+  .minute-hand{ width:2px; height:calc(var(--radius)*0.7); top:calc(50% - (var(--radius)*0.7)); }
+
+  /* Prompt + Answers */
+  .prompt{
+    font-weight:800; font-size:clamp(18px,2.2vw,22px); color:var(--muted);
+    margin-top:2px; user-select:none;
+  }
+  .answers{ display:grid; gap:6px; }
+  .line{
+    font-size:clamp(18px,2.2vw,22px);
+    opacity:0; transform:translateY(6px);
+    transition:opacity 180ms ease-out, transform 180ms ease-out;
+  }
+  .reveal .line{ opacity:1; transform:translateY(0); }
+
+  /* Color spans */
+  .verb{ color:var(--verb-color); font-weight:700; }
+  .hour{ color:var(--hour-color); font-weight:700; }
+  .minute{ color:var(--minute-color); font-weight:700; }
+
+  .hint{
+    font-weight:700; font-size:clamp(14px,1.8vw,18px);
+    color:var(--muted); user-select:none; opacity:.9;
+  }
+
+  @media (max-width:480px){
+    :root{ --clock-size:68vw; --tick-distance:calc((68vw)/2 - 40px); }
+    .stage{ padding:14px; border-radius:14px; }
+  }
+</style>
+</head>
+<body>
+  <div class="brand">RELOJ — JUEGO RÁPIDO</div>
+
+  <main class="stage" aria-live="polite">
+    <div class="title">¿Qué hora es?</div>
+
+    <!-- Clock -->
+    <div id="clock" class="clock-container" aria-label="Reloj analógico">
+      <!-- Hour ticks -->
+      <div class="tick" style="transform:translate(-50%,-50%) rotate(0deg) translateY(calc(-1*var(--tick-distance)))"></div>
+      <div class="tick" style="transform:translate(-50%,-50%) rotate(30deg) translateY(calc(-1*var(--tick-distance)))"></div>
+      <div class="tick" style="transform:translate(-50%,-50%) rotate(60deg) translateY(calc(-1*var(--tick-distance)))"></div>
+      <div class="tick" style="transform:translate(-50%,-50%) rotate(90deg) translateY(calc(-1*var(--tick-distance)))"></div>
+      <div class="tick" style="transform:translate(-50%,-50%) rotate(120deg) translateY(calc(-1*var(--tick-distance)))"></div>
+      <div class="tick" style="transform:translate(-50%,-50%) rotate(150deg) translateY(calc(-1*var(--tick-distance)))"></div>
+      <div class="tick" style="transform:translate(-50%,-50%) rotate(180deg) translateY(calc(-1*var(--tick-distance)))"></div>
+      <div class="tick" style="transform:translate(-50%,-50%) rotate(210deg) translateY(calc(-1*var(--tick-distance)))"></div>
+      <div class="tick" style="transform:translate(-50%,-50%) rotate(240deg) translateY(calc(-1*var(--tick-distance)))"></div>
+      <div class="tick" style="transform:translate(-50%,-50%) rotate(270deg) translateY(calc(-1*var(--tick-distance)))"></div>
+      <div class="tick" style="transform:translate(-50%,-50%) rotate(300deg) translateY(calc(-1*var(--tick-distance)))"></div>
+      <div class="tick" style="transform:translate(-50%,-50%) rotate(330deg) translateY(calc(-1*var(--tick-distance)))"></div>
+
+      <!-- Numbers -->
+      <div class="number" style="transform:translate(-50%,-50%) rotate(0deg) translateY(calc(-1*var(--radius) + 22px)) rotate(-0deg);">12</div>
+      <div class="number" style="transform:translate(-50%,-50%) rotate(30deg) translateY(calc(-1*var(--radius) + 22px)) rotate(-30deg);">1</div>
+      <div class="number" style="transform:translate(-50%,-50%) rotate(60deg) translateY(calc(-1*var(--radius) + 22px)) rotate(-60deg);">2</div>
+      <div class="number" style="transform:translate(-50%,-50%) rotate(90deg) translateY(calc(-1*var(--radius) + 22px)) rotate(-90deg);">3</div>
+      <div class="number" style="transform:translate(-50%,-50%) rotate(120deg) translateY(calc(-1*var(--radius) + 22px)) rotate(-120deg);">4</div>
+      <div class="number" style="transform:translate(-50%,-50%) rotate(150deg) translateY(calc(-1*var(--radius) + 22px)) rotate(-150deg);">5</div>
+      <div class="number" style="transform:translate(-50%,-50%) rotate(180deg) translateY(calc(-1*var(--radius) + 22px)) rotate(-180deg);">6</div>
+      <div class="number" style="transform:translate(-50%,-50%) rotate(210deg) translateY(calc(-1*var(--radius) + 22px)) rotate(-210deg);">7</div>
+      <div class="number" style="transform:translate(-50%,-50%) rotate(240deg) translateY(calc(-1*var(--radius) + 22px)) rotate(-240deg);">8</div>
+      <div class="number" style="transform:translate(-50%,-50%) rotate(270deg) translateY(calc(-1*var(--radius) + 22px)) rotate(-270deg);">9</div>
+      <div class="number" style="transform:translate(-50%,-50%) rotate(300deg) translateY(calc(-1*var(--radius) + 22px)) rotate(-300deg);">10</div>
+      <div class="number" style="transform:translate(-50%,-50%) rotate(330deg) translateY(calc(-1*var(--radius) + 22px)) rotate(-330deg);">11</div>
+
+      <!-- Hands -->
+      <div id="hourHand" class="hand hour-hand" aria-hidden="true"></div>
+      <div id="minuteHand" class="hand minute-hand" aria-hidden="true"></div>
+    </div>
+
+    <div id="prompt" class="prompt">Haz clic o pulsa <span class="verb">Espacio</span> para empezar</div>
+
+    <section id="answers" class="answers" aria-hidden="true">
+      <div id="spanish" class="line"></div>
+      <div id="numeric" class="line"></div>
+      <div id="literal" class="line"></div>
+    </section>
+
+    <div id="hint" class="hint">Clic/Espacio: mostrar reloj → revelar respuestas → nuevo reloj</div>
+  </main>
+
+<script>
+(() => {
+  /* ---------- Utility: minute ticks ---------- */
+  const clock = document.getElementById('clock');
+  for (let i=1;i<60;i++){
+    if(i%5===0) continue;
+    const t=document.createElement('div');
+    t.className='minute-tick';
+    t.style.transform=`translate(-50%,-50%) rotate(${i*6}deg) translateY(calc(-1*var(--tick-distance)))`;
+    clock.appendChild(t);
+  }
+
+  /* ---------- Color wrappers ---------- */
+  const wrapVerb   = (txt)=>`<span class="verb">${txt}</span>`;
+  const wrapHour   = (txt)=>`<span class="hour">${txt}</span>`;
+  const wrapMinute = (txt)=>`<span class="minute">${txt}</span>`;
+
+  /* ---------- Time -> Spanish ---------- */
+  function numberToSpanish(n){
+    const u=["","uno","dos","tres","cuatro","cinco","seis","siete","ocho","nueve"];
+    const teens=["diez","once","doce","trece","catorce","quince","dieciséis","diecisiete","dieciocho","diecinueve"];
+    const tens=["","","veinte","treinta","cuarenta","cincuenta"];
+    if(n<10) return u[n];
+    if(n<20) return teens[n-10];
+    if(n<30) return n===20?"veinte":"veinti"+u[n%10];
+    if(n<60){
+      const T=tens[Math.floor(n/10)], UU=u[n%10];
+      return UU?`${T} y ${UU}`:T;
+    }
+    return String(n);
+  }
+
+  function formatSpanish(hour, minute){
+    const hours=["","una","dos","tres","cuatro","cinco","seis","siete","ocho","nueve","diez","once","doce"];
+    let h=hours[hour], part="";
+    if(minute===0) part = wrapMinute("en punto");
+    else if(minute===15) part = "y "+wrapMinute("cuarto");
+    else if(minute===30) part = "y "+wrapMinute("media");
+    else if(minute===45){ h=hours[(hour%12)+1]; part="menos "+wrapMinute("cuarto"); }
+    else if(minute<30) part = "y "+wrapMinute(numberToSpanish(minute));
+    else { h=hours[(hour%12)+1]; part="menos "+wrapMinute(numberToSpanish(60-minute)); }
+
+    let phrase = `${wrapVerb("Son")} las ${wrapHour(h)} ${part}`.trim();
+    phrase = phrase.replace(`${wrapVerb("Son")} las ${wrapHour("una")}`, `${wrapVerb("Es")} la ${wrapHour("una")}`);
+    return phrase;
+  }
+
+  /* ---------- Time -> literal English ---------- */
+  function formatLiteralEnglish(hour, minute){
+    const singular = hour===1;
+    const next = hour===12 ? 1 : hour+1;
+    const verb = singular?wrapVerb("is"):wrapVerb("are");
+    const nextVerb = (next===1)?wrapVerb("is"):wrapVerb("are");
+
+    if(minute===0)  return `(the ${singular?"hour":"hours"}) ${verb} ${wrapHour(String(hour))}, ${wrapMinute("on the dot")}`;
+    if(minute===15) return `(the ${singular?"hour":"hours"}) ${verb} ${wrapHour(String(hour))}, and ${wrapMinute("a quarter")} <i>(hour)</i>`;
+    if(minute===30) return `(the ${singular?"hour":"hours"}) ${verb} ${wrapHour(String(hour))}, and a ${wrapMinute("30")} <i>(minutes)</i>`;
+    if(minute===45) return `(the ${next===1?"hour":"hours"}) ${nextVerb} ${wrapHour(String(next))}, minus ${wrapMinute("a quarter")} <i>(hour)</i>`;
+    if(minute<30)   return `(the ${singular?"hour":"hours"}) ${verb} ${wrapHour(String(hour))}, and ${wrapMinute(String(minute))} <i>(minutes)</i>`;
+    return `(the ${next===1?"hour":"hours"}) ${nextVerb} ${wrapHour(String(next))}, minus ${wrapMinute(String(60-minute))} <i>(minutes)</i>`;
+  }
+
+  /* ---------- Clock hands + displays ---------- */
+  const hourHand = document.getElementById('hourHand');
+  const minuteHand = document.getElementById('minuteHand');
+  const spanishEl = document.getElementById('spanish');
+  const numericEl = document.getElementById('numeric');
+  const literalEl = document.getElementById('literal');
+  const answers = document.getElementById('answers');
+  const prompt = document.getElementById('prompt');
+  const hint = document.getElementById('hint');
+
+  function setClock(hour, minute){
+    const hourAngle = (hour%12)*30 + minute*0.5;
+    const minuteAngle = minute*6;
+    hourHand.style.transform = `translate(-50%,0) rotate(${hourAngle}deg)`;
+    minuteHand.style.transform = `translate(-50%,0) rotate(${minuteAngle}deg)`;
+  }
+
+  function showQuestion(h,m){
+    answers.classList.remove('reveal');
+    answers.setAttribute('aria-hidden','true');
+    prompt.textContent = "¿Qué hora es?";
+    spanishEl.innerHTML = ""; numericEl.innerHTML = ""; literalEl.innerHTML = "";
+    setClock(h,m);
+  }
+
+  function showAnswers(h,m){
+    const sp = formatSpanish(h,m);
+    const num = `${wrapHour(String(h))}:<span class="minute">${String(m).padStart(2,"0")}</span>`;
+    const en = formatLiteralEnglish(h,m);
+
+    spanishEl.innerHTML = sp;
+    numericEl.innerHTML = num;
+    literalEl.innerHTML = en;
+
+    // reveal animation
+    void answers.offsetWidth; // reflow
+    answers.classList.add('reveal');
+    answers.setAttribute('aria-hidden','false');
+  }
+
+  /* ---------- Random time generation ---------- */
+  let state = "idle"; // idle | showing | revealed
+  let last = null;
+
+  // Favor “teaching minutes”: 0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55
+  const TEACH_MINUTES = [0,5,10,15,20,25,30,35,40,45,50,55];
+
+  function randInt(a,b){ return Math.floor(Math.random()*(b-a+1))+a; }
+
+  function newTime(){
+    let h,m;
+    do {
+      h = randInt(1,12);
+      m = TEACH_MINUTES[randInt(0,TEACH_MINUTES.length-1)];
+    } while (last && last.h===h && last.m===m); // avoid exact repeat
+    last = {h,m};
+    return last;
+  }
+
+  function nextStep(){
+    if(state==="idle"){
+      const {h,m} = newTime();
+      showQuestion(h,m);
+      hint.textContent = "Clic/Espacio: revelar respuestas";
+      state="showing";
+    }else if(state==="showing"){
+      showAnswers(last.h,last.m);
+      hint.textContent = "Clic/Espacio: nuevo reloj";
+      state="revealed";
+    }else{
+      const {h,m} = newTime();
+      showQuestion(h,m);
+      hint.textContent = "Clic/Espacio: revelar respuestas";
+      state="showing";
+    }
+  }
+
+  window.addEventListener('keydown', (e)=>{
+    if(e.code==="Space"){ e.preventDefault(); nextStep(); }
+  }, {passive:false});
+  window.addEventListener('click', nextStep);
+
+  // Start prompt
+  prompt.innerHTML = 'Haz clic o pulsa <span class="verb">Espacio</span> para empezar';
+})();
+</script>
+</body>
+</html>

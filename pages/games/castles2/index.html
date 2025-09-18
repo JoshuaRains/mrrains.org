@@ -109,6 +109,47 @@
         font-size: 24px;
         margin-bottom: 10px;
       }
+       /* Team counters */
+  #teamCounters {
+    display: flex;
+    justify-content: center;
+    gap: 24px;
+    margin: 16px auto 6px;
+  }
+  .team-counter {
+    min-width: 220px;
+    padding: 12px 16px;
+    border-radius: 12px;
+    background: #1f1f1f;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.05);
+  }
+  .team-counter h4 {
+    margin: 0 0 6px 0;
+    font-size: 18px;
+    letter-spacing: 0.5px;
+    color: #ccc;
+    font-weight: 600;
+  }
+  .team-counter .count {
+    font-size: 48px;
+    line-height: 1;
+    font-weight: 900;
+  }
+  /* Red team look */
+  .team-red .count {
+    color: #ff6b6b;
+    font-family: 'Bangers', system-ui, sans-serif;
+    text-shadow: 0 2px 0 #7a2e2e, 0 6px 14px rgba(255, 107, 107, 0.35);
+  }
+  /* Blue team look */
+  .team-blue .count {
+    color: #4dabf7;
+    font-family: 'Russo One', system-ui, sans-serif;
+    text-shadow: 0 2px 0 #214a6d, 0 6px 14px rgba(77, 171, 247, 0.35);
+  }
+  /* Force both team counters to the same green when in 4th period mode */
+.green-mode .team-counter .count { color: #34eb8f !important; }
+
     </style>
   </head>
   <body>
@@ -125,6 +166,24 @@
     <div id="waitingRoomSection" class="hidden">
       <h2>Game Code: <span id="gameCodeDisplay"></span></h2>
       <p>Students Joined: <span id="studentCount">0</span></p>
+      <!-- 4th Period (Green Mode) toggle -->
+<label style="display:inline-flex; align-items:center; gap:8px; margin-top:10px;">
+	<input type="checkbox" id="fourthModeToggle">
+	<strong>4th period mode</strong>
+</label>
+
+      <!-- Insert this block somewhere under the "Students Joined" line in #waitingRoomSection -->
+<div id="teamCounters">
+  <div class="team-counter team-red">
+    <h4>Red Team</h4>
+    <div class="count" id="redCount">0</div>
+  </div>
+  <div class="team-counter team-blue">
+    <h4>Blue Team</h4>
+    <div class="count" id="blueCount">0</div>
+  </div>
+</div>
+
       <!-- New custom grid size input -->
       <div>
         <label for="gridSizeInput">Grid Size:</label>
@@ -182,6 +241,38 @@
       let startTime = 0;
       let gameOver = false;
 
+
+      // Track UI mode
+window.uiFourthPeriodMode = false;
+
+// Apply mode to labels that mention team names in teacher UI
+function applyTeacherUIMode() {
+  const isGreen = !!window.uiFourthPeriodMode;
+
+  // Update counter headings immediately
+  const redLabel = document.querySelector(".team-red h4");
+  const blueLabel = document.querySelector(".team-blue h4");
+  if (redLabel) redLabel.textContent = isGreen ? "Green" : "Red Team";
+  if (blueLabel) blueLabel.textContent = isGreen ? "Green" : "Blue Team";
+
+  // Re-render grid so tile colors update
+  if (!document.getElementById("gameGridSection").classList.contains("hidden")) {
+    renderGrid();
+  }
+  document.body.classList.toggle("green-mode", isGreen);
+}
+
+// Listen to DB for mode changes (so students and teacher stay in sync)
+function listenForUIMode() {
+  const modeRef = db.ref("games/" + gameCode + "/uiFourthPeriodMode");
+  modeRef.on("value", snap => {
+    window.uiFourthPeriodMode = !!snap.val();
+    const chk = document.getElementById("fourthModeToggle");
+    if (chk) chk.checked = window.uiFourthPeriodMode;
+    applyTeacherUIMode();
+  });
+}
+
       // Utility: Generate a random game code
       function generateGameCode(length = 6) {
         const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
@@ -200,12 +291,40 @@
       }
 
       // Listen for players joining
-      function listenForPlayers() {
-        db.ref("games/" + gameCode + "/players").on("value", snapshot => {
-          const players = snapshot.val() || {};
-          document.getElementById("studentCount").innerText = Object.keys(players).length;
-        });
-      }
+     function listenForPlayers() {
+  const playersRef = db.ref("games/" + gameCode + "/players");
+  playersRef.on("value", snapshot => {
+    const players = snapshot.val() || {};
+    const all = Object.keys(players);
+    const red = all.filter(k => players[k]?.team === "red").length;
+    const blue = all.filter(k => players[k]?.team === "blue").length;
+
+    document.getElementById("studentCount").innerText = all.length;
+
+    const isGreen = !!window.uiFourthPeriodMode;
+
+    // Update labels
+    const redLabel = document.querySelector(".team-red h4");
+    const blueLabel = document.querySelector(".team-blue h4");
+    if (redLabel) redLabel.textContent = isGreen ? "Green" : "Red Team";
+    if (blueLabel) blueLabel.textContent = isGreen ? "Green" : "Blue Team";
+
+    // Update counts
+    const redEl = document.getElementById("redCount");
+    const blueEl = document.getElementById("blueCount");
+    if (redEl) redEl.textContent = red;
+    if (blueEl) blueEl.textContent = blue;
+
+    // Counter color accents
+    const redCountEl = document.querySelector(".team-red .count");
+    const blueCountEl = document.querySelector(".team-blue .count");
+   if (redCountEl) redCountEl.style.color = isGreen ? "#34eb8f" : "#ff6b6b";
+if (blueCountEl) blueCountEl.style.color = isGreen ? "#34eb8f" : "#4dabf7";
+
+    // Body flag for optional CSS effects
+    document.body.classList.toggle("green-mode", isGreen);
+  });
+}
 
       // Listen for grid updates
       function listenForGridUpdates() {
@@ -247,6 +366,12 @@
           }
         });
       }
+
+      document.addEventListener("change", (e) => {
+  if (e.target && e.target.id === "fourthModeToggle") {
+    db.ref("games/" + gameCode + "/uiFourthPeriodMode").set(!!e.target.checked);
+  }
+});
 
       function triggerBomb(row, col) {
   const container = document.getElementById("gridContainer");
@@ -328,6 +453,8 @@
           topLeft.classList.remove("hidden");
           listenForPlayers();
           listenForGridUpdates();
+          listenForUIMode();
+
         });
       });
 
@@ -393,6 +520,8 @@
           renderGrid();
           listenForPerformanceUpdates();
           listenForBombs();
+          listenForUIMode();
+
         });
       });
 
@@ -434,11 +563,17 @@
             cellDiv.className = "grid-cell";
             cellDiv.style.width = tileSize + "px";
             cellDiv.style.height = tileSize + "px";
-            if (cell.team === "red") {
-              cellDiv.style.backgroundColor = "#ff6b6b";
-            } else if (cell.team === "blue") {
-              cellDiv.style.backgroundColor = "#4dabf7";
-            }
+            const useGreen = !!window.uiFourthPeriodMode;
+const colorMap = useGreen
+  ? { red: "#2f9422", blue: "#34eb8f" }
+  : { red: "#ff6b6b", blue: "#4dabf7" };
+
+if (cell.team === "red") {
+  cellDiv.style.backgroundColor = colorMap.red;
+} else if (cell.team === "blue") {
+  cellDiv.style.backgroundColor = colorMap.blue;
+}
+
             if (cell.capital) {
               const indicator = document.createElement("div");
               indicator.className = "capital-indicator";
@@ -505,13 +640,22 @@
 
       // Display the Game Over popup (with Restart button)
       function displayGameOverPopup(winner, tileCounts, roundTime) {
-        document.getElementById("tileCounts").innerText =
-          "Red Tiles: " + tileCounts.red + " | Blue Tiles: " + tileCounts.blue;
-        let winText = winner === "Tie" ? "Tie" : (winner === "red" ? "Red" : "Blue");
-        document.getElementById("winnerText").innerText =
-          "Winner: " + winText;
-        document.getElementById("roundTime").innerText =
-          "Round Time: " + roundTime + " seconds";
+        const isGreen = !!window.uiFourthPeriodMode;
+document.getElementById("tileCounts").innerText = isGreen
+  ? ("Green Tiles: " + (tileCounts.red + tileCounts.blue))
+  : ("Red Tiles: " + tileCounts.red + " | Blue Tiles: " + tileCounts.blue);
+
+
+let winText;
+if (winner === "Tie") {
+  winText = "Tie";
+} else {
+  // UI shows Green regardless of backend team id
+  winText = isGreen ? "Green" : (winner === "red" ? "Red" : "Blue");
+}
+document.getElementById("winnerText").innerText = "Winner: " + winText;
+document.getElementById("roundTime").innerText = "Round Time: " + roundTime + " seconds";
+
         document.getElementById("gameOverPopup").classList.remove("hidden");
       }
 
