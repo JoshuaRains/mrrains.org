@@ -14,9 +14,10 @@
 		--muted: #9aa6b2;
 		--shadow: 0 10px 30px rgba(0,0,0,.35);
 
-		--bar-h: 28px;           /* bar & dot diameter (keep all ends aligned) */
+		--bar-h: 28px;                 /* bar & dot diameter */
+		--edge-inset: calc(var(--bar-h) / 2);   /* inset for end dots */
 		--topbar-pad-x: clamp(16px, 4vw, 48px);
-		--topbar-pad-top: 48px;  /* push bar down so top labels don’t clip */
+		--topbar-pad-top: 48px;                  /* push bar down a bit */
 	}
 
 	*{ box-sizing: border-box; }
@@ -34,7 +35,7 @@
 		grid-template-rows: auto 1fr; /* controls are fixed (not in flow) */
 	}
 
-	/* ---------- Top progress bar (moved slightly down) ---------- */
+	/* ---------- Top progress bar ---------- */
 	.topbar{
 		padding:
 			var(--topbar-pad-top)
@@ -58,9 +59,9 @@
 		border-radius: var(--bar-h);
 		background: linear-gradient(180deg, #202735, #1a2130);
 		box-shadow: 0 0 0 1px #202838 inset; /* faux border */
-		overflow: visible;
+		overflow: visible; /* let caps render cleanly */
 	}
-	/* Fill with perfectly rounded ends; cap’s CENTER stays exactly at progress */
+	/* Fill with perfectly rounded ends; end-caps inset inward */
 	.progress-fill{
 		position:absolute; left:0; top:50%;
 		transform: translateY(-50%);
@@ -70,19 +71,38 @@
 		border-radius: var(--bar-h);
 		transition: width .25s linear;
 	}
-	/* Use left:100% + translateX(-50%) so cap center == fill width */
-	.progress-fill::after{
+	/* LEFT green cap — center sits at +radius from left edge */
+	.progress-fill::before{
 		content:"";
-		position:absolute; top:50%; left:100%;
-		transform: translate(-50%, -50%);
+		position:absolute; top:50%; left:0;
+		transform: translateY(-50%);
 		width: var(--bar-h); height: var(--bar-h);
 		border-radius: 50%;
 		background: var(--green);
 	}
+	/* RIGHT green cap — center sits at (width - radius) from left edge */
+	.progress-fill::after{
+		content:"";
+		position:absolute; top:50%; left: calc(100% - var(--bar-h));
+		transform: translateY(-50%);
+		width: var(--bar-h); height: var(--bar-h);
+		border-radius: 50%;
+		background: var(--green);
+        
+	}
+    /* Small-start state: show only the left cap */
+.progress-fill.small { background: transparent; }
+.progress-fill.small::after { display: none; }  /* hide right cap when tiny */
+.progress-fill.small::before { left: 0; }       /* left cap sits nicely at the start */
+
 
 	/* Checkpoints & staggered labels */
 	.checklayer{ position:absolute; inset:0; pointer-events:none; }
 	.cp{ position:absolute; top:50%; transform: translate(-50%, -50%); }
+	/* Inset the end dots (first moves right, last moves left) */
+	.cp.first{ transform: translate(calc(-50% + var(--edge-inset)), -50%); }
+	.cp.last { transform: translate(calc(-50% - var(--edge-inset)), -50%); }
+
 	.cp-dot{
 		width: var(--bar-h); height: var(--bar-h);
 		border-radius: 50%;
@@ -101,7 +121,7 @@
 		position:absolute; left:50%; transform: translateX(-50%);
 		white-space: nowrap;
 		font-weight: 800;
-		font-size: 1.25rem;          /* slightly smaller labels */
+		font-size: 1.25rem;
 		letter-spacing: .2px;
 		color: #c7d0da;
 		opacity: .98;
@@ -126,9 +146,10 @@
 		padding:
 			6px
 			max(var(--topbar-pad-x), env(safe-area-inset-right))
-			96px   /* visual breathing room; buttons float anyway */
+			96px   /* room for floating controls */
 			max(var(--topbar-pad-x), env(safe-area-inset-left));
 	}
+	/* EXACT style you provided */
 	.slides-frame{
 		width: min(100%);
 		height: 100%;
@@ -203,9 +224,15 @@
 		padding: clamp(16px, 3vw, 28px);
 		display: grid; gap: 16px;
 	}
-	.rows{ display: grid; gap: 10px; max-height: min(60vh, 420px); overflow: auto; padding-right: 4px; }
+	.cfg .field{
+		display: grid; gap: 8px;
+	}
+	.cfg label{
+		font-size: .95rem; color: var(--muted); font-weight: 700;
+	}
+	.rows{ display: grid; gap: 10px; max-height: min(60vh, 360px); overflow: auto; padding-right: 4px; }
 	.row{ display: grid; grid-template-columns: 1fr 120px 44px; gap: 10px; align-items: center; }
-	input[type="text"], input[type="number"]{
+	input[type="text"], input[type="url"], input[type="number"]{
 		width: 100%; background:#0f141e; color:var(--ink);
 		border:1px solid #2a3445; border-radius:12px; padding:12px; font-size:15px;
 		outline:none; transition:border-color .2s ease, box-shadow .2s ease;
@@ -252,6 +279,7 @@
 	<!-- Centered floating controls (over slides) -->
 	<div class="controls">
 		<button class="btn" id="restartBtn">Restart</button>
+		<button class="btn" id="pauseBtn">Pause</button>
 		<button class="btn btn-accent" id="toggleBtn">Start</button>
 		<input class="vol" id="vol" type="range" min="0" max="1" step="0.01" value="0.6" title="Volume" />
 	</div>
@@ -260,7 +288,13 @@
 <!-- Config overlay (shows when stopped) -->
 <div class="overlay" id="overlay">
 	<div class="cfg">
+		<div class="field">
+			<label for="slidesUrl">Slides URL (embed link)</label>
+			<input type="url" id="slidesUrl" placeholder="https://…/embed?…" />
+		</div>
+
 		<div class="rows" id="rows"></div>
+
 		<div style="display:flex; align-items:center; justify-content:space-between;">
 			<button class="add-btn" id="addRow">+ Add section</button>
 			<div style="color:var(--muted); font-size:.9rem;">Minutes can be decimals (e.g., 7.5)</div>
@@ -278,7 +312,9 @@
 <script>
 /* ---------- State ---------- */
 let sections = [];
+let slidesURL = "";
 let running = false;
+let paused = false;
 let startTs = 0;
 let elapsedMs = 0;
 let rafId = null;
@@ -296,6 +332,7 @@ const startNowBtn = document.getElementById('startNow');
 const clearAllBtn = document.getElementById('clearAll');
 const toggleBtn = document.getElementById('toggleBtn');
 const restartBtn = document.getElementById('restartBtn');
+const pauseBtn = document.getElementById('pauseBtn');
 
 const progressFill = document.getElementById('progressFill');
 const checkLayer = document.getElementById('checkLayer');
@@ -303,26 +340,43 @@ const checkLayer = document.getElementById('checkLayer');
 const audioEl = document.getElementById('ding');
 const volEl = document.getElementById('vol');
 
+const slidesInput = document.getElementById('slidesUrl');
+const slidesFrame = document.getElementById('slidesFrame');
+
 /* ---------- Persistence ---------- */
-const LS_KEY = 'classTimelineSections.v6';
-function saveConfig(){ localStorage.setItem(LS_KEY, JSON.stringify(sections)); }
+/* Store both sections and slidesURL together; read old formats gracefully */
+const LS_KEY = 'classTimelineConfig.v1';
+function saveConfig(){
+	const payload = { sections, slidesURL };
+	localStorage.setItem(LS_KEY, JSON.stringify(payload));
+}
 function loadConfig(){
 	try{
 		const raw = localStorage.getItem(LS_KEY);
 		if(raw){
-			const arr = JSON.parse(raw);
-			if(Array.isArray(arr)) sections = arr.filter(s => s && (s.name ?? '') !== '');
+			const data = JSON.parse(raw);
+			if(Array.isArray(data)){ // very old format (sections array)
+				sections = data.filter(s => s && (s.name ?? '') !== '');
+			}else if(data && typeof data === 'object'){
+				sections = Array.isArray(data.sections) ? data.sections : [];
+				slidesURL = typeof data.slidesURL === 'string' ? data.slidesURL : '';
+				sections = sections.filter(s => s && (s.name ?? '') !== '');
+			}
 		}
 	}catch{}
 	if(!sections.length){
 		sections = [
-			{ name: 'Warm-up', minutes: 5 },
-			{ name: 'Review', minutes: 10 },
+			{ name: 'Bellwork', minutes: 8 },
+			{ name: 'Review', minutes: 17 },
 			{ name: 'New Content', minutes: 20 },
-			{ name: 'Practice', minutes: 15 },
-			{ name: 'Exit Ticket', minutes: 5 },
+			{ name: 'Practice', minutes: 22 },
+			{ name: 'Exit Ticket', minutes: 10 },
+            { name: 'Reflection', minutes: 5 },
 		];
 	}
+	if(!slidesURL) slidesURL = "";
+	slidesInput.value = slidesURL;
+	slidesFrame.src = slidesURL || "";
 }
 
 /* ---------- Time math ---------- */
@@ -397,7 +451,7 @@ volEl.addEventListener('input', e => setVolume(parseFloat(e.target.value)));
 
 /* ---------- Run Loop ---------- */
 function update(){
-	if(!running) return;
+	if(!running || paused) return;
 	const now = performance.now();
 	elapsedMs = Math.min(totalMs, (now - startTs));
 	draw();
@@ -408,14 +462,29 @@ function update(){
 	rafId = requestAnimationFrame(update);
 }
 
-function draw(){
-	const ratio = totalMs ? (elapsedMs / totalMs) : 0;
-	progressFill.style.width = `${Math.max(0, Math.min(100, ratio*100))}%`;
-	handleChimes();
-	updateCompletionUI();
+function draw() {
+  const ratio = totalMs ? (elapsedMs / totalMs) : 0;
+  const track = document.querySelector('.progress-track');
+  const trackW = track ? track.clientWidth : 0;
+
+  // cap diameter from CSS var --bar-h
+  const barH = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--bar-h')) || 28;
+  const px = Math.max(0, Math.min(1, ratio)) * trackW;
+
+  // normal width for the rectangle part
+  progressFill.style.width = `${Math.max(0, Math.min(100, ratio*100))}%`;
+
+  // If the bar is smaller than one cap, use "small" mode (only left cap)
+  progressFill.classList.toggle('small', px < barH);
+
+  handleChimes();
+  updateCompletionUI();
 }
 
-/* Play a chime whenever we pass a new checkpoint start time */
+window.addEventListener('resize', () => draw());
+
+
+/* Play a chime whenever we pass a new checkpoint start time (skip the first) */
 function handleChimes(){
 	if(!sections.length) return;
 	let highest = -1;
@@ -423,15 +492,11 @@ function handleChimes(){
 		if(elapsedMs >= starts[i]) highest = i; else break;
 	}
 	if(highest > lastChimedIndex){
-		// If we jumped past multiple checkpoints, chime once per missed (quickly)
-		let toPlay = Math.min(highest - lastChimedIndex, 4); // cap burst
-		let n = 0;
-		const playOnce = () => {
-			try { audioEl.currentTime = 0; audioEl.play(); } catch(e) {}
-			n++;
-			if(n < toPlay) setTimeout(playOnce, 140); // gentle stagger
-		};
-		playOnce();
+		// Skip sound for the very first checkpoint (index 0)
+		let firstToPlay = Math.max(1, lastChimedIndex + 1); // ensures we start at 1 or higher
+		for(let i = firstToPlay; i <= highest; i++){
+			setTimeout(()=>{ try { audioEl.currentTime = 0; audioEl.play(); } catch(e) {} }, (i-firstToPlay)*140);
+		}
 		lastChimedIndex = highest;
 	}
 }
@@ -465,15 +530,19 @@ function startTimer(resetElapsed=true){
 	if(resetElapsed) elapsedMs = 0;
 	startTs = performance.now() - elapsedMs; // support resume
 	running = true;
+	paused = false;
 	lastChimedIndex = -1; // reset chime tracker
 	toggleBtn.textContent = 'Stop';
+	pauseBtn.textContent = 'Pause';
 	overlay.classList.remove('show');
 	cancelAnimationFrame(rafId);
 	rafId = requestAnimationFrame(update);
 }
 function stopTimer(showConfig=true){
 	running = false;
+	paused = false;
 	toggleBtn.textContent = 'Start';
+	pauseBtn.textContent = 'Pause';
 	cancelAnimationFrame(rafId);
 	if(showConfig) overlay.classList.add('show');
 }
@@ -482,14 +551,31 @@ function restartTimer(){
 	lastChimedIndex = -1;
 	startTimer(true);
 }
+function pauseTimer(){
+	if(!running || paused) return;
+	paused = true;
+	pauseBtn.textContent = 'Continue';
+	cancelAnimationFrame(rafId);
+}
+function continueTimer(){
+	if(!running || !paused) return;
+	paused = false;
+	startTs = performance.now() - elapsedMs; // keep elapsed time
+	pauseBtn.textContent = 'Pause';
+	cancelAnimationFrame(rafId);
+	rafId = requestAnimationFrame(update);
+}
 
 /* ---------- Events ---------- */
 toggleBtn.addEventListener('click', () => running ? stopTimer(true) : (buildTimeline(), startTimer(true)));
 restartBtn.addEventListener('click', () => restartTimer());
+pauseBtn.addEventListener('click', () => paused ? continueTimer() : pauseTimer());
+
 addRowBtn.addEventListener('click', () => { sections.push({ name:'', minutes:5 }); saveConfig(); buildConfigRows(); buildTimeline(); });
-startNowBtn.addEventListener('click', () => { buildTimeline(); startTimer(true); });
+startNowBtn.addEventListener('click', () => { slidesURL = slidesInput.value.trim(); slidesFrame.src = slidesURL || ""; saveConfig(); buildTimeline(); startTimer(true); });
 clearAllBtn.addEventListener('click', () => { sections = []; saveConfig(); buildConfigRows(); buildTimeline(); });
 overlay.addEventListener('click', (e) => { if(e.target === overlay) overlay.classList.remove('show'); });
+slidesInput.addEventListener('change', () => { slidesURL = slidesInput.value.trim(); slidesFrame.src = slidesURL || ""; saveConfig(); });
 
 /* ---------- Init ---------- */
 loadConfig();
@@ -497,13 +583,6 @@ buildConfigRows();
 buildTimeline();
 stopTimer(true); // show config on load
 setVolume(parseFloat(volEl.value) || 0.6);
-
-/* ---------- Slides URL ----------
-   Many providers restrict “presenter mode” in iframes. Use their embed URL so
-   you can still navigate slides. For Google Slides: publish-to-web embed (…/embed?…).
-*/
-const slidesURL = "https://docs.google.com/presentation/d/e/2PACX-1vQ9TJHxeWUmGNt5GpnS8APC1z-Xqm6p566klrINLZ06zu68cjgyTONYmoeXkx6drqNKqSNkBfGBMjQn/pubembed?start=false&loop=false&delayms=3000";
-document.getElementById('slidesFrame').src = slidesURL;
 </script>
 </body>
 </html>
