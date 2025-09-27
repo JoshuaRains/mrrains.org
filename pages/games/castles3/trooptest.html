@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Pixel Territory — Terrain + Team Combat (Time & Budget)</title>
+<style>
+  :root { color-scheme: dark; --panel:#12161f; --panel2:#0f141d; --b:#1f2530; --txt:#e9eef4; }
+  html, body { height:100%; margin:0; background:#0e1116; color:var(--txt);
+    font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial; }
+  .app { height:100%; display:grid; grid-template-rows:auto 1fr; }
+  header { display:flex; align-items:center; justify-content:center; gap:12px;
+    padding:10px 12px; border-bottom:1px solid var(--b); text-align:center; }
+  .stage { position:relative; min-height:0; display:grid; place-items:center; padding:8px; }
+  canvas {
+    width:100%; height:100%; max-width:100vw; max-height:100vh; display:block;
+    image-rendering: pixelated; image-rendering: crisp-edges;
+    background:#0b0d12; border-radius:10px; outline:1px solid #222;
+  }
+  .panel {
+    position:absolute; top:14px; right:14px; z-index:5; width:380px; max-width:min(94vw, 420px);
+    background:linear-gradient(180deg,var(--panel),var(--panel2));
+    border:1px solid var(--b); border-radius:12px; padding:12px; box-shadow:0 10px 30px rgba(0,0,0,.35);
+    display:grid; gap:10px; user-select:none;
+  }
+  .row { display:grid; grid-template-columns:1fr auto; gap:8px; align-items:center; }
+  .row .v { font-variant-numeric:tabular-nums; opacity:.9; }
+  .slider { display:grid; gap:6px; }
+  .slider label { font-size:12px; opacity:.9; }
+  input[type="range"]{ width:100%; accent-color:#4ea0ff; }
+  .cols { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+  .btns { display:flex; gap:8px; justify-content:space-between; flex-wrap:wrap; }
+  button {
+    background:#182033; color:var(--txt); border:1px solid var(--b); border-radius:10px;
+    padding:6px 10px; cursor:pointer;
+  }
+  button:hover { filter:brightness(1.1); }
+  .tiny { font-size:11px; opacity:.8; }
+  .teamBadge { display:inline-flex; align-items:center; gap:8px; }
+  .swatch { width:14px; height:14px; border-radius:50%; border:1px solid #0006; }
+  .swatch.red { background:#ff3030; }
+  .swatch.blue{ background:#3090ff; }
+  .legend { display:flex; gap:10px; align-items:center; flex-wrap:wrap; font-size:12px; opacity:.9; }
+  .chip { display:inline-flex; align-items:center; gap:6px; padding:2px 6px; border:1px solid var(--b); border-radius:8px; background:#0f141d; }
+  .box { width:14px; height:14px; border-radius:3px; border:1px solid #0006; }
+  .g { background:#6abe30; } .d{ background:#d9a066; } .w{ background:#639bff; }
+  .sectionTitle{ font-size:12px; opacity:.8; margin-top:2px; }
+</style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <strong>Pixel Territory</strong>
+    <span class="tiny">Zoom: wheel • Pan: drag • Click outside your color to push (fixed budget; desert resists more; combat enabled)</span>
+  </header>
+
+  <div class="stage">
+    <canvas id="view"></canvas>
+
+    <div class="panel" id="panel">
+      <div class="row">
+        <div class="teamBadge">
+          <span>Active team:</span>
+          <span id="teamName">Red</span>
+          <span class="swatch red" id="teamSwatch"></span>
+        </div>
+        <button id="toggleTeamBtn">Switch Team</button>
+      </div>
+
+      <div class="legend">
+        <span class="chip"><span class="box g"></span>Grass: time 1, cost 1</span>
+        <span class="chip"><span class="box d"></span>Desert: time 3, cost 3</span>
+        <span class="chip"><span class="box w"></span>Water: impassable</span>
+      </div>
+
+      <div class="sectionTitle">Attack (budget per click)</div>
+      <div class="slider">
+        <label>Red Attack Points (50–4000)</label>
+        <div class="row">
+          <input id="atkRed" type="range" min="50" max="4000" step="10" value="1200">
+          <span class="v" id="atkRedV">1200</span>
+        </div>
+      </div>
+      <div class="slider">
+        <label>Blue Attack Points (50–4000)</label>
+        <div class="row">
+          <input id="atkBlue" type="range" min="50" max="4000" step="10" value="1200">
+          <span class="v" id="atkBlueV">1200</span>
+        </div>
+      </div>
+
+      <div class="sectionTitle">Defense (extra resistance when enemy captures your tiles)</div>
+      <div class="cols">
+        <div class="slider">
+          <label>Red Defense (0–5)</label>
+          <div class="row">
+            <input id="defRed" type="range" min="0" max="5" step="1" value="1">
+            <span class="v" id="defRedV">1</span>
+          </div>
+        </div>
+        <div class="slider">
+          <label>Blue Defense (0–5)</label>
+          <div class="row">
+            <input id="defBlue" type="range" min="0" max="5" step="1" value="1">
+            <span class="v" id="defBlueV">1</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="slider">
+        <label>Budget / Frame (animation speed, budget points)</label>
+        <div class="row">
+          <input id="batchPerFrame" type="range" min="1" max="1000" step="1" value="80">
+          <span class="v" id="batchPerFrameV">80</span>
+        </div>
+      </div>
+
+      <div class="slider">
+        <label>Seed Bias λ (near-click edges go first)</label>
+        <div class="row">
+          <input id="seedBias" type="range" min="0" max="1" step="0.01" value="0.35">
+          <span class="v" id="seedBiasV">0.35</span>
+        </div>
+      </div>
+      <div class="slider">
+        <label>Direction Bonus</label>
+        <div class="row">
+          <input id="dirBonus" type="range" min="0" max="1" step="0.01" value="0.25">
+          <span class="v" id="dirBonusV">0.25</span>
+        </div>
+      </div>
+      <div class="slider">
+        <label>Noise ε</label>
+        <div class="row">
+          <input id="noise" type="range" min="0" max="0.02" step="0.001" value="0.003">
+          <span class="v" id="noiseV">0.003</span>
+        </div>
+      </div>
+
+      <div class="btns">
+        <button id="resetBtn">Reset Territory</button>
+        <button id="defaultsBtn">Defaults</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(() => {
+  // ===== Map / canvas =====
+  const MAP_SRC = "./grass_map.png";
+
+  // Teams
+  const NONE=0, RED=1, BLUE=2;
+  let activeTeam = RED;
+
+  // Terrain
+  const TERRAIN = { GRASS:0, WATER:1, DESERT:2 };
+  const GRASS_RGB = [0x6a,0xbe,0x30];  // #6abe30
+  const WATER_RGB = [0x63,0x9b,0xff];  // #639bff
+  const DESERT_RGB= [0xd9,0xa0,0x66];  // #d9a066
+
+  // Costs: desert bumped to 3 (time & budget)
+  const BASE_BUDGET_COST = { [TERRAIN.GRASS]:1, [TERRAIN.DESERT]:3, [TERRAIN.WATER]:Infinity };
+  const BASE_TIME_COST   = { [TERRAIN.GRASS]:1, [TERRAIN.DESERT]:3, [TERRAIN.WATER]:Infinity };
+
+  // Tunables (sliders)
+  let ATTACK_POINTS = { [RED]:1200, [BLUE]:1200 }; // budget per click
+  let DEFENSE_POINTS = { [RED]:1, [BLUE]:1 };      // extra resistance on owned tiles
+  let BATCH_PER_FRAME  = 80;                       // budget points per frame
+
+  let SEED_BIAS_LAMBDA = 0.35;   // near-click edges prioritized
+  let DIRECTION_BONUS  = 0.25;   // lean toward click
+  let NOISE_EPS        = 0.003;  // tiny randomness
+
+  // Camera
+  const MIN_SCALE = 0.2, MAX_SCALE = 12, ZOOM_STEP = 1.15;
+
+  // Canvas
+  const canvas = document.getElementById('view');
+  const ctx = canvas.getContext('2d', { willReadFrequently: true, alpha: false });
+  ctx.imageSmoothingEnabled = false;
+
+  // DPR & view
+  let dpr = Math.max(1, window.devicePixelRatio || 1);
+  let W=0, H=0, scale=1, offsetX=0, offsetY=0, initializedView=false;
+
+  // Game state
+  let owner; // Uint8: 0 none, 1 red, 2 blue
+  let edgeSet = { [RED]:new Set(), [BLUE]:new Set() };
+  let terrain = null; // Uint8Array of TERRAIN.*
+  let growth=null;
+
+  // Helpers
+  const idx = (x,y)=> x + y*W;
+  const inB = (x,y)=> x>=0 && y>=0 && x<W && y<H;
+  const for4 = (x,y,fn)=>{ if(x>0)fn(x-1,y); if(x<W-1)fn(x+1,y); if(y>0)fn(x,y-1); if(y<H-1)fn(x,y+1); };
+
+  // Image + terrain extraction
+  const img = new Image();
+  img.onload = () => {
+    W = img.naturalWidth || img.width;
+    H = img.naturalHeight || img.height;
+    terrain = readTerrainFromImage(img, W, H);
+    resetTerritory();
+    handleResize(true);
+    render(); loop();
+  };
+  img.src = MAP_SRC;
+
+  function readTerrainFromImage(image, w, h){
+    const off = document.createElement('canvas');
+    off.width = w; off.height = h;
+    const octx = off.getContext('2d', { willReadFrequently: true });
+    octx.imageSmoothingEnabled = false;
+    octx.drawImage(image, 0, 0, w, h);
+    const data = octx.getImageData(0, 0, w, h).data; // RGBA
+    const t = new Uint8Array(w*h);
+
+    for (let y=0; y<h; y++){
+      for (let x=0; x<w; x++){
+        const p = (x + y*w)*4;
+        const r=data[p], g=data[p+1], b=data[p+2];
+        if (r===GRASS_RGB[0] && g===GRASS_RGB[1] && b===GRASS_RGB[2])      t[idx(x,y)] = TERRAIN.GRASS;
+        else if (r===WATER_RGB[0] && g===WATER_RGB[1] && b===WATER_RGB[2]) t[idx(x,y)] = TERRAIN.WATER;
+        else if (r===DESERT_RGB[0]&& g===DESERT_RGB[1]&& b===DESERT_RGB[2])t[idx(x,y)] = TERRAIN.DESERT;
+        else t[idx(x,y)] = TERRAIN.GRASS; // default to grass
+      }
+    }
+    return t;
+  }
+
+  // Resize / DPR
+  function handleResize(fit=false){
+    dpr = Math.max(1, window.devicePixelRatio || 1);
+    const cssW = canvas.clientWidth, cssH = canvas.clientHeight;
+    if (canvas.width  !== Math.round(cssW*dpr) ||
+        canvas.height !== Math.round(cssH*dpr)) {
+      canvas.width  = Math.round(cssW*dpr);
+      canvas.height = Math.round(cssH*dpr);
+    }
+    if (fit || !initializedView){
+      if (W && H){
+        scale   = Math.min(cssW/W, cssH/H) * 0.98;
+        offsetX = (cssW - W*scale) * 0.5;
+        offsetY = (cssH - H*scale) * 0.5;
+      }
+      initializedView=true;
+    }
+    ctx.imageSmoothingEnabled = false;
+  }
+  window.addEventListener('resize', () => handleResize(false));
+
+  // Territory init
+  function resetTerritory(){
+    owner = new Uint8Array(W*H);
+    for (let y=H-10; y<H; y++) for (let x=0; x<10; x++) owner[idx(x,y)]=RED;       // red bottom-left
+    for (let y=0; y<10; y++)   for (let x=W-10; x<W; x++) owner[idx(x,y)]=BLUE;    // blue top-right
+    recomputeEdges(); growth=null;
+  }
+  function recomputeEdges(){
+    edgeSet[RED].clear(); edgeSet[BLUE].clear();
+    for (let y=0; y<H; y++){
+      for (let x=0; x<W; x++){
+        const t = owner[idx(x,y)];
+        if (t===NONE) continue;
+        let edge=false; for4(x,y,(nx,ny)=>{ if(owner[idx(nx,ny)]!==t) edge=true; });
+        if (edge) edgeSet[t].add(idx(x,y));
+      }
+    }
+  }
+
+  // Annex neutral holes for TEAM (no water traversal; water not annexed; never converts opponent here)
+  function annexHoles(team){
+    const visited = new Uint8Array(W*H);
+    const qx = new Int32Array(W*H), qy = new Int32Array(W*H);
+    let qh=0, qt=0;
+
+    const canTraverse = i => (owner[i]===NONE && terrain[i]!==TERRAIN.WATER);
+
+    for (let x=0;x<W;x++){
+      const i0 = idx(x,0), i1 = idx(x,H-1);
+      if (canTraverse(i0)){ visited[i0]=1; qx[qt]=x; qy[qt]=0; qt++; }
+      if (canTraverse(i1)){ visited[i1]=1; qx[qt]=x; qy[qt]=H-1; qt++; }
+    }
+    for (let y=0;y<H;y++){
+      const i0 = idx(0,y), i1 = idx(W-1,y);
+      if (canTraverse(i0)){ visited[i0]=1; qx[qt]=0; qy[qt]=y; qt++; }
+      if (canTraverse(i1)){ visited[i1]=1; qx[qt]=W-1; qy[qt]=y; qt++; }
+    }
+
+    while (qh<qt){
+      const x=qx[qh], y=qy[qh]; qh++;
+      for4(x,y,(nx,ny)=>{
+        const i = idx(nx,ny);
+        if (visited[i]) return;
+        if (!canTraverse(i)) return;
+        visited[i]=1; qx[qt]=nx; qy[qt]=ny; qt++;
+      });
+    }
+
+    let changed=false;
+    for (let i=0;i<owner.length;i++){
+      if (owner[i]===NONE && terrain[i]!==TERRAIN.WATER && !visited[i]) { owner[i]=team; changed=true; }
+    }
+    if (changed) recomputeEdges();
+  }
+
+  // Coords
+  function screenToImage(px,py){ return { x: Math.floor((px - offsetX)/scale), y: Math.floor((py - offsetY)/scale) }; }
+
+  // Priority queue
+  class MinHeap{
+    constructor(){ this.a=[]; }
+    push(n){ this.a.push(n); this.bubble(this.a.length-1); }
+    bubble(i){ const a=this.a; while(i>0){ const p=(i-1)>>1; if(a[p].s <= a[i].s) break; [a[p],a[i]]=[a[i],a[p]]; i=p; } }
+    pop(){ const a=this.a; if(!a.length) return null; const r=a[0], v=a.pop(); if(a.length){ a[0]=v; this.sink(0);} return r; }
+    sink(i){ const a=this.a; for(;;){ let l=i*2+1,r=i*2+2,s=i; if(l<a.length&&a[l].s<a[s].s) s=l; if(r<a.length&&a[r].s<a[s].s) s=r; if(s===i) break; [a[i],a[s]]=[a[s],a[i]]; i=s; } }
+    get size(){ return this.a.length; }
+  }
+
+  function opposite(team){ return team===RED ? BLUE : RED; }
+
+  // Terrain-aware, defense-aware global push
+  function startGlobalPush(team, cx, cy, totalBudget, budgetPerFrame){
+    const heap = new MinHeap();
+    const seen = new Uint8Array(W*H);
+    const opp = opposite(team);
+
+    const trySeedNeighbor = (ex,ey,nx,ny) => {
+      if(!inB(nx,ny)) return;
+      const nid = idx(nx,ny);
+      if (seen[nid]) return;
+      const terr = terrain[nid];
+      if (terr===TERRAIN.WATER) return; // impassable
+      // allow neutral or opponent as frontier
+      const stepBase = BASE_TIME_COST[terr] || 1;
+      const extraDef = (owner[nid]===opp) ? (DEFENSE_POINTS[opp]|0) : 0;
+      const stepT = stepBase + extraDef;
+
+      const seedBias = Math.hypot(ex - cx, ey - cy);
+      const dx=cx-ex, dy=cy-ey, len=Math.hypot(dx,dy)||1, ux=dx/len, uy=dy/len;
+      const wx=nx-ex, wy=ny-ey, along=(wx*ux + wy*uy), perp=Math.abs(wx*uy - wy*ux);
+      const noise=((Math.sin(nid*12.9898)*43758.5453)%1);
+      const s = stepT + SEED_BIAS_LAMBDA*seedBias + (perp*0.15 - along*DIRECTION_BONUS) + NOISE_EPS*noise;
+
+      heap.push({x:nx,y:ny,s,seedBias,t:stepT});
+      seen[nid]=1;
+    };
+
+    edgeSet[team].forEach(id=>{
+      const ex=id%W, ey=(id/W)|0;
+      for4(ex,ey,(nx,ny)=> trySeedNeighbor(ex,ey,nx,ny));
+    });
+
+    growth = {
+      team, heap, seen, cx, cy,
+      remaining: totalBudget|0,             // budget points left
+      batch: Math.max(1, budgetPerFrame|0), // budget per frame
+      frames:0, maxFrames: 2500
+    };
+  }
+
+  function expandFrom(team, node, heap, seen, cx, cy){
+    const {x,y,seedBias,t} = node;
+    const opp = opposite(team);
+    for4(x,y,(nx,ny)=>{
+      if(!inB(nx,ny)) return;
+      const nid=idx(nx,ny);
+      if(seen[nid]) return;
+      const terr = terrain[nid];
+      if (terr===TERRAIN.WATER) return;
+
+      const stepBase = BASE_TIME_COST[terr] || 1;
+      const extraDef = (owner[nid]===opp) ? (DEFENSE_POINTS[opp]|0) : 0;
+      const stepT = stepBase + extraDef;
+
+      const dx=cx-x, dy=cy-y, len=Math.hypot(dx,dy)||1, ux=dx/len, uy=dy/len;
+      const wx=nx-x, wy=ny-y, along=(wx*ux + wy*uy), perp=Math.abs(wx*uy - wy*ux);
+      const noise=((Math.sin(nid*78.233)*15731.743)%1);
+
+      const s=(t + stepT) + SEED_BIAS_LAMBDA*seedBias + (perp*0.15 - along*DIRECTION_BONUS) + NOISE_EPS*noise;
+
+      heap.push({x:nx,y:ny,s,seedBias,t:t+stepT});
+      seen[nid]=1;
+    });
+  }
+
+  function stepGrowth(){
+    if(!growth) return false;
+    const {team, heap, seen, cx, cy} = growth;
+    const opp = opposite(team);
+
+    let changed=false;
+    let spentThisFrame = 0;
+    const frameBudget = Math.min(growth.batch, growth.remaining);
+
+    while (heap.size && growth.remaining > 0 && spentThisFrame < frameBudget){
+      const p = heap.pop();
+      const id = idx(p.x,p.y);
+
+      // must connect to same-team territory
+      let touches=false; for4(p.x,p.y,(nx,ny)=>{ if(owner[idx(nx,ny)]===team) touches=true; });
+      if (!touches){ expandFrom(team, p, heap, seen, cx, cy); continue; }
+
+      const terr = terrain[id];
+      if (terr===TERRAIN.WATER){
+        expandFrom(team, p, heap, seen, cx, cy);
+        continue;
+      }
+
+      // Budget cost to CAPTURE this tile:
+      const baseBudget = BASE_BUDGET_COST[terr] || 1;
+      const extraDefBudget = (owner[id]===opp) ? (DEFENSE_POINTS[opp]|0) : 0;
+      const tileBudgetCost = baseBudget + extraDefBudget;
+
+      // Only capture if we have enough per-frame & total budget
+      if (tileBudgetCost <= (frameBudget - spentThisFrame) && tileBudgetCost <= growth.remaining){
+        owner[id]=team;
+        growth.remaining -= tileBudgetCost;
+        spentThisFrame   += tileBudgetCost;
+        changed=true;
+        expandFrom(team, p, heap, seen, cx, cy);
+      } else {
+        // not enough budget this frame — retry later
+        heap.push(p);
+        break;
+      }
+    }
+
+    growth.frames++;
+    if (growth.remaining<=0 || !heap.size || growth.frames>=growth.maxFrames){
+      const finishedTeam = growth.team;
+      growth=null;
+      annexHoles(finishedTeam);
+    }
+    if (changed) recomputeEdges();
+    return changed;
+  }
+
+  // Render
+  function render(){
+    ctx.setTransform(1,0,0,1,0,0);
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+
+    const tx=Math.round(dpr*offsetX)/dpr, ty=Math.round(dpr*offsetY)/dpr;
+    ctx.setTransform(dpr*scale,0,0,dpr*scale,dpr*tx,dpr*ty);
+    ctx.imageSmoothingEnabled=false;
+    ctx.drawImage(img,0,0,W,H);
+
+    // interiors (semi)
+    drawTeamInterior(RED,  'rgba(255,48,48,0.28)');
+    drawTeamInterior(BLUE, 'rgba(48,144,255,0.28)');
+    // edges (solid)
+    drawTeamEdges(RED,  '#ff3030');
+    drawTeamEdges(BLUE, '#3090ff');
+  }
+  function drawTeamInterior(team, fill){
+    ctx.globalAlpha=1; ctx.fillStyle=fill;
+    for (let y=0;y<H;y++){
+      for (let x=0; x<W; x++){
+        const i=idx(x,y); if(owner[i]!==team) continue;
+        let interior=true; for4(x,y,(nx,ny)=>{ if(owner[idx(nx,ny)]!==team) interior=false; });
+        if (interior) ctx.fillRect(x,y,1,1);
+      }
+    }
+  }
+  function drawTeamEdges(team, color){
+    ctx.globalAlpha=1; ctx.fillStyle=color;
+    edgeSet[team].forEach(i=>{ const x=i%W, y=(i/W)|0; ctx.fillRect(x,y,1,1); });
+  }
+
+  function loop(){ stepGrowth(); render(); requestAnimationFrame(loop); }
+
+  // Input: pan / zoom / click
+  let isDragging=false, dragStart={x:0,y:0}, viewStart={x:0,y:0}, movedSinceDown=false;
+  canvas.addEventListener('mousedown',(e)=>{
+    isDragging=true; movedSinceDown=false;
+    dragStart.x=e.clientX; dragStart.y=e.clientY;
+    viewStart.x=offsetX; viewStart.y=offsetY;
+  });
+  window.addEventListener('mousemove',(e)=>{
+    if(!isDragging) return;
+    const dx=e.clientX-dragStart.x, dy=e.clientY-dragStart.y;
+    if(Math.abs(dx)>2 || Math.abs(dy)>2) movedSinceDown=true;
+    offsetX=viewStart.x+dx; offsetY=viewStart.y+dy;
+  });
+  window.addEventListener('mouseup',(e)=>{
+    if(!isDragging) return; isDragging=false;
+    if(!movedSinceDown){
+      const rect=canvas.getBoundingClientRect();
+      const sx=e.clientX-rect.left, sy=e.clientY-rect.top;
+      const {x:ix,y:iy}=screenToImage(sx,sy);
+      if(!inB(ix,iy)) return;
+      if(owner[idx(ix,iy)]===activeTeam) return; // must click outside your own territory
+
+      const budget = Math.round(ATTACK_POINTS[activeTeam] || 0);
+      startGlobalPush(activeTeam, ix, iy, budget, Math.round(BATCH_PER_FRAME));
+    }
+  });
+
+  canvas.addEventListener('wheel',(e)=>{
+    e.preventDefault();
+    handleResize(false);
+    const rect=canvas.getBoundingClientRect();
+    const sx=e.clientX-rect.left, sy=e.clientY-rect.top;
+    const ix=(sx-offsetX)/scale, iy=(sy-offsetY)/scale;
+    const dir=e.deltaY>0 ? 1/ZOOM_STEP : ZOOM_STEP;
+    const newScale=Math.max(MIN_SCALE, Math.min(MAX_SCALE, scale*dir));
+    offsetX = sx - ix*newScale;
+    offsetY = sy - iy*newScale;
+    scale = newScale;
+  }, {passive:false});
+
+  // Controls wiring
+  const el=id=>document.getElementById(id);
+  const sliders = [
+    // Attack points
+    ['atkRed','atkRedV', v => ATTACK_POINTS[RED]=+v, 0],
+    ['atkBlue','atkBlueV', v => ATTACK_POINTS[BLUE]=+v, 0],
+    // Defense points
+    ['defRed','defRedV', v => DEFENSE_POINTS[RED]=+v, 0],
+    ['defBlue','defBlueV', v => DEFENSE_POINTS[BLUE]=+v, 0],
+    // Engine
+    ['batchPerFrame','batchPerFrameV', v => BATCH_PER_FRAME=+v, 0],
+    ['seedBias','seedBiasV', v => SEED_BIAS_LAMBDA=+v, 2],
+    ['dirBonus','dirBonusV', v => DIRECTION_BONUS=+v, 2],
+    ['noise','noiseV', v => NOISE_EPS=+v, 3],
+  ];
+  for(const [sid,vid,setter,fixed] of sliders){
+    const s=el(sid), v=el(vid);
+    const update=()=>{ setter(s.value); v.textContent=(+s.value).toFixed(fixed); };
+    s.addEventListener('input', update); update();
+  }
+
+  // Team UI
+  const teamName=el('teamName'), teamSwatch=el('teamSwatch');
+  function refreshTeamUI(){
+    if(activeTeam===RED){ teamName.textContent='Red'; teamSwatch.className='swatch red'; }
+    else { teamName.textContent='Blue'; teamSwatch.className='swatch blue'; }
+  }
+  el('toggleTeamBtn').addEventListener('click', ()=>{ activeTeam=(activeTeam===RED)?BLUE:RED; refreshTeamUI(); });
+  refreshTeamUI();
+
+  // Buttons
+  el('resetBtn').addEventListener('click', ()=> resetTerritory());
+  el('defaultsBtn').addEventListener('click', ()=>{
+    const d={
+      atkRed:1200, atkBlue:1200, defRed:1, defBlue:1,
+      batchPerFrame:80, seedBias:0.35, dirBonus:0.25, noise:0.003
+    };
+    for(const k in d){ el(k).value=d[k]; }
+    for(const [sid] of sliders){ el(sid).dispatchEvent(new Event('input')); }
+  });
+
+  // Initial sizing
+  handleResize(false);
+})();
+</script>
+</body>
+</html>

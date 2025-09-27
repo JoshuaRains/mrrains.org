@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <title>Student — Pixel Territory</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <link rel="stylesheet" href="./css/main.css"/>
+  <!-- Firebase init -->
+  <!-- Firebase compat SDKs (CDN) -->
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
+
+<!-- Your initializer (pure JS) -->
+<script src="./js/firebase.js"></script>
+
+</head>
+<body>
+<div class="student-wrap">
+  <div class="map-wrap">
+    <div id="topLeftTeam" class="topLeft" style="display:none;"></div>
+    <div id="topRightCode" style="position:absolute;right:10px;top:10px;display:none;"></div>
+    <canvas id="studentCanvas"></canvas>
+  </div>
+
+  <!-- Bottom questions bar -->
+  <div class="question-bar" id="questionSection" style="display:flex;">
+    <div>
+      <div><strong id="questionText">Join or wait for game…</strong></div>
+      <div id="optionsContainer"></div>
+      <div class="hint" id="hint">After a correct answer: click the map above to attack (or place a city on challenge).</div>
+    </div>
+    <div style="margin-top:8px;">
+      <input id="gameCodeInput" placeholder="Game code"/>
+      <button id="joinGameBtn">Join</button>
+      <span id="errorMsg" style="color:#ff6b6b;"></span>
+    </div>
+  </div>
+</div>
+
+<script type="module" src="./js/student.js"></script>
+</body>
+</html>

@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Pixel Territory — V2.4 (Power-Scaled Speed + Cities)</title>
+<style>
+  :root { color-scheme: dark; --panel:#12161f; --panel2:#0f141d; --b:#1f2530; --txt:#e9eef4; }
+  html, body { height:100%; margin:0; background:#0e1116; color:var(--txt);
+    font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial; }
+  .app { height:100%; display:grid; grid-template-rows:auto 1fr; }
+  header { display:flex; align-items:center; justify-content:center; gap:12px;
+    padding:10px 12px; border-bottom:1px solid var(--b); text-align:center; }
+  .stage { position:relative; min-height:0; display:grid; place-items:center; padding:8px; }
+
+  canvas {
+    width:100%; height:100%; max-width:100vw; max-height:100vh; display:block;
+    image-rendering: pixelated; image-rendering: crisp-edges;
+    background:#0b0d12; border-radius:10px; outline:1px solid #222;
+  }
+  /* Right control panel (combat/engine) */
+  .panel {
+    position:absolute; top:14px; right:14px; z-index:5; width:420px; max-width:min(96vw, 440px);
+    background:linear-gradient(180deg,var(--panel),var(--panel2));
+    border:1px solid var(--b); border-radius:12px; padding:12px; box-shadow:0 10px 30px rgba(0,0,0,.35);
+    display:grid; gap:10px; user-select:none;
+  }
+  .row { display:grid; grid-template-columns:1fr auto; gap:8px; align-items:center; }
+  .row .v { font-variant-numeric:tabular-nums; opacity:.9; }
+  .slider { display:grid; gap:6px; }
+  .slider label { font-size:12px; opacity:.9; }
+  input[type="range"]{ width:100%; accent-color:#4ea0ff; }
+  .cols { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+  .btns { display:flex; gap:8px; justify-content:space-between; flex-wrap:wrap; }
+  button {
+    background:#182033; color:var(--txt); border:1px solid var(--b); border-radius:10px;
+    padding:6px 10px; cursor:pointer;
+  }
+  button:hover { filter:brightness(1.1); }
+  .tiny { font-size:11px; opacity:.8; }
+  .teamBadge { display:inline-flex; align-items:center; gap:8px; }
+  .swatch { width:14px; height:14px; border-radius:50%; border:1px solid #0006; }
+  .swatch.red { background:#ff3030; } .swatch.blue{ background:#3090ff; }
+  .legend { display:flex; gap:10px; align-items:center; flex-wrap:wrap; font-size:12px; opacity:.9; }
+  .chip { display:inline-flex; align-items:center; gap:6px; padding:2px 6px; border:1px solid var(--b); border-radius:8px; background:#0f141d; }
+  .box { width:14px; height:14px; border-radius:3px; border:1px solid #0006; }
+  .g { background:#6abe30; } .g2{background:#66c723;} .d{ background:#d9a066; } .w{ background:#639bff; }
+  .mtn{ background:#847e87; } .peak{ background:#ffffff; }
+
+  /* Left build panel */
+  .buildPanel {
+    position:absolute; top:14px; left:14px; z-index:6; width:180px; max-width:min(40vw, 180px);
+    background:linear-gradient(180deg,var(--panel),var(--panel2));
+    border:1px solid var(--b); border-radius:12px; padding:12px; box-shadow:0 10px 30px rgba(0,0,0,.35);
+    display:grid; gap:10px; user-select:none;
+  }
+  .buildTitle { font-size:13px; opacity:.85; }
+  .toolBtn { display:flex; align-items:center; gap:8px; }
+  .toolBtn > button { flex:1; }
+  .activeTool { outline:2px solid #4ea0ff; }
+
+  .stats { display:grid; gap:6px; font-size:12px; opacity:.95; }
+  .kv   { display:flex; justify-content:space-between; gap:8px; }
+</style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <strong>Pixel Territory — V2.4</strong>
+    <span class="tiny">Left: Place City • Space = switch team • Zoom: wheel • Pan: drag • Click to attack</span>
+  </header>
+
+  <div class="stage">
+    <canvas id="view"></canvas>
+
+    <!-- LEFT: build panel -->
+    <div class="buildPanel" id="buildPanel">
+      <div class="buildTitle">Build</div>
+      <div class="toolBtn"><button id="toolCityBtn">Place City</button></div>
+      <div class="toolBtn"><button id="toolNoneBtn" class="activeTool">Stop Placing</button></div>
+      <div class="stats" id="stats">
+        <div class="kv"><span>Red cities held</span><span id="redCities">0</span></div>
+        <div class="kv"><span>Blue cities held</span><span id="blueCities">0</span></div>
+        <div class="kv"><span>Red attack</span><span id="redAtk">200</span></div>
+        <div class="kv"><span>Blue attack</span><span id="blueAtk">200</span></div>
+      </div>
+    </div>
+
+    <!-- RIGHT: combat/engine panel -->
+    <div class="panel" id="panel">
+      <div class="row">
+        <div class="teamBadge">
+          <span>Active team:</span>
+          <span id="teamName">Red</span>
+          <span class="swatch red" id="teamSwatch"></span>
+        </div>
+        <button id="toggleTeamBtn" title="Switch team (Spacebar also toggles)">Switch Team</button>
+      </div>
+
+      <div class="legend">
+        <span class="chip"><span class="box g"></span>Grass (6abe30): t1 c1</span>
+        <span class="chip"><span class="box g2"></span>Grass2 (66c723): t1 c1</span>
+        <span class="chip"><span class="box d"></span>Desert (d9a066): t3 c3</span>
+        <span class="chip"><span class="box mtn"></span>Mountain (847e87): t5 c5</span>
+        <span class="chip"><span class="box w"></span>Water (639bff): impassable</span>
+        <span class="chip"><span class="box peak"></span>Peak (ffffff): impassable</span>
+      </div>
+
+      <div class="cols">
+        <div class="slider">
+          <label>Red Defense (0–5)</label>
+          <div class="row">
+            <input id="defRed" type="range" min="0" max="5" step="1" value="1">
+            <span class="v" id="defRedV">1</span>
+          </div>
+        </div>
+        <div class="slider">
+          <label>Blue Defense (0–5)</label>
+          <div class="row">
+            <input id="defBlue" type="range" min="0" max="5" step="1" value="1">
+            <span class="v" id="defBlueV">1</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="slider">
+        <label>Speed Factor (tiles/sec scale via per-frame quota)</label>
+        <div class="row">
+          <input id="speedFactor" type="range" min="0.01" max="2" step="0.01" value="0.01">
+<span class="v" id="speedFactorV">1.00×</span>
+        </div>
+      </div>
+
+      <div class="slider">
+        <label>Seed Bias λ (near-click edges go first)</label>
+        <div class="row">
+          <input id="seedBias" type="range" min="0" max="1" step="0.01" value="0.35">
+          <span class="v" id="seedBiasV">0.35</span>
+        </div>
+      </div>
+      <div class="slider">
+        <label>Direction Bonus</label>
+        <div class="row">
+          <input id="dirBonus" type="range" min="0" max="1" step="0.01" value="0.25">
+          <span class="v" id="dirBonusV">0.25</span>
+        </div>
+      </div>
+
+      <div class="btns">
+        <button id="resetBtn">Reset Territory</button>
+        <button id="defaultsBtn">Defaults</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(() => {
+  // ===== Map / assets =====
+  const MAP_SRC  = "./grass_map.png";
+  const CITY_SRC = "./city.png";
+
+  // Teams
+  const NONE=0, RED=1, BLUE=2;
+  const OPP = t => (t===RED?BLUE:RED);
+  let activeTeam = RED;
+
+  // Terrain types
+  const TERRAIN = { GRASS:0, GRASS2:1, WATER:2, DESERT:3, MOUNTAIN:4, PEAK:5 };
+  const GRASS1_RGB = [0x6a,0xbe,0x30];  // #6abe30
+  const GRASS2_RGB = [0x66,0xc7,0x23];  // #66c723
+  const WATER_RGB  = [0x63,0x9b,0xff];  // #639bff
+  const DESERT_RGB = [0xd9,0xa0,0x66];  // #d9a066
+  const MTN_RGB    = [0x84,0x7e,0x87];  // #847e87
+  const PEAK_RGB   = [0xff,0xff,0xff];  // #ffffff
+  const BASE_TIME_COST =   {[TERRAIN.GRASS]:1,[TERRAIN.GRASS2]:1,[TERRAIN.DESERT]:3,[TERRAIN.MOUNTAIN]:5,[TERRAIN.WATER]:Infinity,[TERRAIN.PEAK]:Infinity};
+  const BASE_BUDGET_COST = {[TERRAIN.GRASS]:1,[TERRAIN.GRASS2]:1,[TERRAIN.DESERT]:3,[TERRAIN.MOUNTAIN]:5,[TERRAIN.WATER]:Infinity,[TERRAIN.PEAK]:Infinity};
+  const isImpassable = t => (t===TERRAIN.WATER || t===TERRAIN.PEAK);
+
+  // Cities → attack power
+  const BASE_ATTACK = 200;
+  const CITY_BONUS  = 100;
+
+  // Defense
+  let DEFENSE_POINTS = { [RED]:1, [BLUE]:1 };
+
+  // Speed factor (per-frame quota multiplier)
+  let SPEED_FACTOR = 0.1;
+
+  // Determinism helpers
+  const FP = 1024;
+  const toFP = x => (x*FP)|0;
+  const hypotFP = (dx,dy) => toFP(Math.hypot(dx,dy));
+
+  // Camera
+  const MIN_SCALE=0.2, MAX_SCALE=12, ZOOM_STEP=1.15;
+
+  // Canvas
+  const canvas=document.getElementById('view');
+  const ctx=canvas.getContext('2d',{willReadFrequently:true, alpha:false});
+  ctx.imageSmoothingEnabled=false;
+
+  // View / DPR
+  let dpr=Math.max(1, window.devicePixelRatio||1);
+  let W=0, H=0, scale=1, offsetX=0, offsetY=0, initializedView=false;
+
+  // State
+  let owner; // Uint8 per cell
+  let edgeSet={ [RED]:new Set(), [BLUE]:new Set() };
+  let terrain=null;
+  let attacks=[]; let nextAttackId=1;
+  let seenByAttack;
+  // Structures
+  const TOOL_NONE=0, TOOL_CITY=1; let activeTool=TOOL_NONE;
+  let cities=[]; // [{x,y}]
+
+  // City sprites
+  const cityImg=new Image(); let cityReady=false, cityW=0, cityH=0, cityRedCanvas=null, cityBlueCanvas=null;
+  cityImg.onload=()=>{ cityReady=true; cityW=cityImg.naturalWidth||cityImg.width; cityH=cityImg.naturalHeight||cityImg.height;
+    cityRedCanvas  = tintSprite(cityImg, 'rgba(255,48,48,0.25)');
+cityBlueCanvas = tintSprite(cityImg, 'rgba(48,144,255,0.25)');
+  
+  
+  };
+  cityImg.src=CITY_SRC;
+  function tintSprite(img,color){ const c=document.createElement('canvas'); c.width=img.width; c.height=img.height;
+    const t=c.getContext('2d',{willReadFrequently:true}); t.imageSmoothingEnabled=false; t.drawImage(img,0,0); t.globalCompositeOperation='source-atop';
+    t.fillStyle=color; t.fillRect(0,0,c.width,c.height); t.globalCompositeOperation='source-over'; return c; }
+
+  // Global heap (deterministic)
+  class Heap{ constructor(){this.a=[];} less(i,j){const A=this.a[i],B=this.a[j]; if(A.s!==B.s)return A.s<B.s; if(A.aid!==B.aid)return A.aid<B.aid; if(A.y!==B.y)return A.y<B.y; return A.x<B.x;}
+    push(n){this.a.push(n); this.bub(this.a.length-1);} bub(i){const a=this.a; while(i>0){const p=(i-1)>>1; if(this.less(p,i))break; [a[p],a[i]]=[a[i],a[p]]; i=p;}}
+    pop(){const a=this.a; if(!a.length)return null; const r=a[0],v=a.pop(); if(a.length){a[0]=v; this.snk(0);} return r;}
+    snk(i){const a=this.a; for(;;){let l=i*2+1,r=i*2+2,s=i; if(l<a.length&&this.less(l,s))s=l; if(r<a.length&&this.less(r,s))s=r; if(s===i)break; [a[i],a[s]]=[a[s],a[i]]; i=s;}}
+    get size(){return this.a.length;} }
+  const heap=new Heap();
+
+  // Helpers
+  const idx=(x,y)=>x+y*W;
+  const inB=(x,y)=>x>=0&&y>=0&&x<W&&y<H;
+  const for4=(x,y,fn)=>{ if(x>0)fn(x-1,y); if(x<W-1)fn(x+1,y); if(y>0)fn(x,y-1); if(y<H-1)fn(x,y+1); };
+
+  // Terrain image
+  const img=new Image();
+  img.onload=()=>{ W=img.naturalWidth||img.width; H=img.naturalHeight||img.height;
+    terrain=readTerrain(img,W,H); owner=new Uint8Array(W*H);
+    seenByAttack=new Int32Array(W*H); for(let i=0;i<seenByAttack.length;i++) seenByAttack[i]=0;
+    seedTeams(); recomputeEdges(); handleResize(true); render(); loop(); };
+  img.src=MAP_SRC;
+
+  function readTerrain(image,w,h){
+    const c=document.createElement('canvas'); c.width=w; c.height=h;
+    const x=c.getContext('2d',{willReadFrequently:true}); x.imageSmoothingEnabled=false; x.drawImage(image,0,0,w,h);
+    const d=x.getImageData(0,0,w,h).data; const t=new Uint8Array(w*h);
+    for(let y=0;y<h;y++){ for(let x0=0;x0<w;x0++){ const p=(x0+y*w)*4,r=d[p],g=d[p+1],b=d[p+2];
+      if(r===GRASS1_RGB[0]&&g===GRASS1_RGB[1]&&b===GRASS1_RGB[2]) t[idx(x0,y)]=TERRAIN.GRASS;
+      else if(r===GRASS2_RGB[0]&&g===GRASS2_RGB[1]&&b===GRASS2_RGB[2]) t[idx(x0,y)]=TERRAIN.GRASS2;
+      else if(r===WATER_RGB[0] &&g===WATER_RGB[1] &&b===WATER_RGB[2])  t[idx(x0,y)]=TERRAIN.WATER;
+      else if(r===DESERT_RGB[0]&&g===DESERT_RGB[1]&&b===DESERT_RGB[2]) t[idx(x0,y)]=TERRAIN.DESERT;
+      else if(r===MTN_RGB[0]   &&g===MTN_RGB[1]   &&b===MTN_RGB[2])    t[idx(x0,y)]=TERRAIN.MOUNTAIN;
+      else if(r===PEAK_RGB[0]  &&g===PEAK_RGB[1]  &&b===PEAK_RGB[2])   t[idx(x0,y)]=TERRAIN.PEAK;
+      else t[idx(x0,y)]=TERRAIN.GRASS; } }
+    return t;
+  }
+
+  function seedTeams(){
+    owner.fill(0);
+    for(let y=H-10;y<H;y++) for(let x=0;x<10;x++) owner[idx(x,y)]=RED;
+    for(let y=0;y<10;y++)  for(let x=W-10;x<W;x++) owner[idx(x,y)]=BLUE;
+    heap.a.length=0; attacks.length=0; nextAttackId=1; cities=[];
+  }
+
+  function recomputeEdges(){
+    edgeSet[RED].clear(); edgeSet[BLUE].clear();
+    for(let y=0;y<H;y++){ for(let x=0;x<W;x++){ const t=owner[idx(x,y)];
+      if(t===NONE) continue; let edge=false; for4(x,y,(nx,ny)=>{ if(owner[idx(nx,ny)]!==t) edge=true; });
+      if(edge) edgeSet[t].add(idx(x,y)); } }
+  }
+
+  function annexHoles(team){
+    const visited=new Uint8Array(W*H); const qx=new Int32Array(W*H), qy=new Int32Array(W*H); let qh=0,qt=0;
+    const canTrav=i=> (owner[i]===NONE && !isImpassable(terrain[i]));
+    for(let x=0;x<W;x++){ let i0=idx(x,0), i1=idx(x,H-1);
+      if(canTrav(i0)){visited[i0]=1; qx[qt]=x; qy[qt]=0; qt++; }
+      if(canTrav(i1)){visited[i1]=1; qx[qt]=x; qy[qt]=H-1; qt++; } }
+    for(let y=0;y<H;y++){ let i0=idx(0,y), i1=idx(W-1,y);
+      if(canTrav(i0)){visited[i0]=1; qx[qt]=0; qy[qt]=y; qt++; }
+      if(canTrav(i1)){visited[i1]=1; qx[qt]=W-1; qy[qt]=y; qt++; } }
+    while(qh<qt){ const x=qx[qh], y=qy[qh]; qh++;
+      for4(x,y,(nx,ny)=>{ const ii=idx(nx,ny); if(visited[ii]||!canTrav(ii)) return; visited[ii]=1; qx[qt]=nx; qy[qt]=ny; qt++; }); }
+    let changed=false;
+    for(let i=0;i<owner.length;i++){ if(owner[i]===NONE && !isImpassable(terrain[i]) && !visited[i]){ owner[i]=team; changed=true; } }
+    if(changed) recomputeEdges();
+  }
+
+  function neighborScoreFP(curT_FP, seedBias_FP, ex,ey, nx,ny, cx,cy){
+    const dx=cx-ex, dy=cy-ey, len=Math.hypot(dx,dy)||1, ux=dx/len, uy=dy/len;
+    const wx=nx-ex, wy=ny-ey, along=(wx*ux + wy*uy), perp=Math.abs(wx*uy - wy*ux);
+    const dirFP=((toFP(perp)*toFP(0.15))/FP) - ((toFP(along)*toFP(DIRECTION_BONUS))/FP);
+    const seedTermFP=(toFP(SEED_BIAS_LAMBDA)*seedBias_FP)/FP;
+    return curT_FP + seedTermFP + dirFP;
+  }
+
+  // Attack power from cities (live each frame)
+  function teamCitiesHeld(team){ let n=0; for(const c of cities){ if(owner[idx(c.x,c.y)]===team) n++; } return n; }
+  function teamAttack(team){ return BASE_ATTACK + CITY_BONUS*teamCitiesHeld(team); }
+
+  // Attacks
+  function startAttack(team, cx, cy){
+    if(owner[idx(cx,cy)]===team) return;
+    const totalBudget = teamAttack(team)|0; // total pixels to take this click
+    const aid=nextAttackId++; attacks.push({id:aid, team, cx, cy, remaining: totalBudget, active:true});
+    edgeSet[team].forEach(id=>{
+      const ex=id%W, ey=(id/W)|0;
+      for4(ex,ey,(nx,ny)=>{
+        if(!inB(nx,ny)) return; const nid=idx(nx,ny); const terr=terrain[nid];
+        if(isImpassable(terr)) return; if(seenByAttack[nid]===aid) return;
+        const stepBase=BASE_TIME_COST[terr]||1; const extraDef=(owner[nid]===OPP(team))?(DEFENSE_POINTS[OPP(team)]|0):0;
+        const t_FP=toFP(stepBase+extraDef); const seedBias_FP=hypotFP(nx-cx, ny-cy);
+        const s=neighborScoreFP(t_FP, seedBias_FP, ex,ey, nx,ny, cx,cy);
+        heap.push({s,aid,x:nx,y:ny,t:t_FP,team,cx,cy,ex,ey}); seenByAttack[nid]=aid;
+      });
+    });
+  }
+
+  function expandFrom(node){
+    const {aid,x,y,team,cx,cy}=node;
+    for4(x,y,(nx,ny)=>{
+      if(!inB(nx,ny)) return; const nid=idx(nx,ny); const terr=terrain[nid];
+      if(isImpassable(terr)) return; if(seenByAttack[nid]===aid) return;
+      const stepBase=BASE_TIME_COST[terr]||1; const extraDef=(owner[nid]===OPP(team))?(DEFENSE_POINTS[OPP(team)]|0):0;
+      const t_FP=node.t + toFP(stepBase+extraDef); const seedBias_FP=hypotFP(nx-cx, ny-cy);
+      const s=neighborScoreFP(t_FP, seedBias_FP, x,y, nx,ny, cx,cy);
+      heap.push({s,aid,x:nx,y:ny,t:t_FP,team,cx,cy,ex:x,ey:y}); seenByAttack[nid]=aid;
+    });
+  }
+
+  // Per-frame quotas keyed by attack id
+  const MAX_NODE_POP_PER_FRAME = 20000;
+  function step(){
+    if(heap.size===0) return false;
+
+    // Compute this frame's quota per active attack based on CURRENT team attack power.
+    const quota = new Map(); // aid -> remaining points this frame
+    for(const a of attacks){ if(a.active){
+      // AFTER (inside step())
+const speed = Math.max(1, Math.floor(teamAttack(a.team) * SPEED_FACTOR * 0.30));
+quota.set(a.id, speed);
+
+    }}
+
+    let processed=0;
+
+    while(heap.size && processed<MAX_NODE_POP_PER_FRAME){
+      const node=heap.pop(); processed++;
+      const a=attacks.find(x=>x.id===node.aid && x.active);
+      if(!a) continue;
+
+      // If this attack has exhausted its frame quota, defer node to next frame
+      const q = quota.get(a.id) ?? 0;
+      if(q<=0){ heap.push(node); continue; }
+
+      const idCell=idx(node.x,node.y);
+
+      // must connect to same-team territory to capture
+      let touches=false; for4(node.x,node.y,(nx,ny)=>{ if(owner[idx(nx,ny)]===a.team) touches=true; });
+      if(!touches){ expandFrom(node); continue; }
+
+      const terr=terrain[idCell];
+      if(isImpassable(terr)){ expandFrom(node); continue; }
+
+      const baseBudget=BASE_BUDGET_COST[terr]||1;
+      const extraDef = (owner[idCell]===OPP(a.team)) ? (DEFENSE_POINTS[OPP(a.team)]|0) : 0;
+      const tileBudget = baseBudget + extraDef;
+
+      if(a.remaining < tileBudget){
+        a.active=false; annexHoles(a.team); continue;
+      }
+
+      // Capture the tile
+      owner[idCell]=a.team;
+      a.remaining -= tileBudget;
+
+      // Spend from this attack's frame quota; no-stall: if tileBudget > q, clamp to 0
+      const newQ = Math.max(0, q - tileBudget);
+      quota.set(a.id, newQ);
+
+      expandFrom(node);
+
+      if(a.remaining<=0){
+        a.active=false; annexHoles(a.team);
+      }
+    }
+
+    if(processed>0) recomputeEdges();
+    return processed>0;
+  }
+
+  // Rendering
+  function render(){
+    ctx.setTransform(1,0,0,1,0,0); ctx.clearRect(0,0,canvas.width,canvas.height);
+    const tx=Math.round(dpr*offsetX)/dpr, ty=Math.round(dpr*offsetY)/dpr;
+    ctx.setTransform(dpr*scale,0,0,dpr*scale,dpr*tx,dpr*ty); ctx.imageSmoothingEnabled=false;
+    ctx.drawImage(img,0,0,W,H);
+    drawTeamInterior(RED,'rgba(255,48,48,0.28)'); drawTeamInterior(BLUE,'rgba(48,144,255,0.28)');
+    drawTeamEdges(RED,'#ff3030'); drawTeamEdges(BLUE,'#3090ff');
+    drawCities();
+  }
+  function drawTeamInterior(team, fill){
+    ctx.globalAlpha=1; ctx.fillStyle=fill;
+    for(let y=0;y<H;y++){ for(let x=0;x<W;x++){ const i=idx(x,y); if(owner[i]!==team) continue;
+      let interior=true; for4(x,y,(nx,ny)=>{ if(owner[idx(nx,ny)]!==team) interior=false; });
+      if(interior) ctx.fillRect(x,y,1,1); } }
+  }
+  function drawTeamEdges(team,color){
+    ctx.globalAlpha=1; ctx.fillStyle=color;
+    edgeSet[team].forEach(i=>{ const x=i%W,y=(i/W)|0; ctx.fillRect(x,y,1,1); });
+  }
+  function drawCities(){
+    if(!cityReady) return; const offX=(cityW>>1), offY=(cityH>>1);
+    for(const c of cities){
+      const i=idx(c.x,c.y); const holder=owner[i];
+      let spr=cityImg; if(holder===RED) spr=cityRedCanvas; else if(holder===BLUE) spr=cityBlueCanvas;
+      ctx.drawImage(spr, c.x-offX, c.y-offY);
+    }
+  }
+
+  function loop(){ step(); render(); updateStats(); requestAnimationFrame(loop); }
+
+  // Input / tools / camera
+  let isDragging=false, dragStart={x:0,y:0}, viewStart={x:0,y:0}, moved=false;
+  function screenToImage(px,py){ return { x: Math.floor((px - offsetX)/scale), y: Math.floor((py - offsetY)/scale) }; }
+
+  canvas.addEventListener('mousedown',(e)=>{ isDragging=true; moved=false; dragStart.x=e.clientX; dragStart.y=e.clientY; viewStart.x=offsetX; viewStart.y=offsetY; });
+  window.addEventListener('mousemove',(e)=>{ if(!isDragging) return; const dx=e.clientX-dragStart.x, dy=e.clientY-dragStart.y; if(Math.abs(dx)>2||Math.abs(dy)>2) moved=true; offsetX=viewStart.x+dx; offsetY=viewStart.y+dy; });
+  window.addEventListener('mouseup',(e)=>{
+    if(!isDragging) return; isDragging=false;
+    if(!moved){
+      const rect=canvas.getBoundingClientRect(); const sx=e.clientX-rect.left, sy=e.clientY-rect.top;
+      const {x:ix,y:iy}=screenToImage(sx,sy); if(ix<0||iy<0||ix>=W||iy>=H) return;
+      if(activeTool===TOOL_CITY){ cities.push({x:ix,y:iy}); }
+      else { if(owner[idx(ix,iy)]!==activeTeam) startAttack(activeTeam, ix, iy); }
+    }
+  });
+  document.addEventListener('keydown',(e)=>{ if(e.code==='Space'){ e.preventDefault(); toggleTeam(); } });
+  canvas.addEventListener('wheel',(e)=>{
+    e.preventDefault(); handleResize(false);
+    const rect=canvas.getBoundingClientRect(); const sx=e.clientX-rect.left, sy=e.clientY-rect.top;
+    const ix=(sx-offsetX)/scale, iy=(sy-offsetY)/scale; const dir=e.deltaY>0?1/ZOOM_STEP:ZOOM_STEP;
+    const newScale=Math.max(MIN_SCALE, Math.min(MAX_SCALE, scale*dir));
+    offsetX = sx - ix*newScale; offsetY = sy - iy*newScale; scale=newScale;
+  }, {passive:false});
+
+  function handleResize(fit=false){
+    dpr=Math.max(1, window.devicePixelRatio||1);
+    const cssW=canvas.clientWidth, cssH=canvas.clientHeight;
+    if(canvas.width!==Math.round(cssW*dpr) || canvas.height!==Math.round(cssH*dpr)){
+      canvas.width=Math.round(cssW*dpr); canvas.height=Math.round(cssH*dpr);
+    }
+    if(fit || !initializedView){
+      if(W&&H){ scale=Math.min(cssW/W, cssH/H)*0.98; offsetX=(cssW-W*scale)*0.5; offsetY=(cssH-H*scale)*0.5; }
+      initializedView=true;
+    }
+    ctx.imageSmoothingEnabled=false;
+  }
+  window.addEventListener('resize',()=>handleResize(false));
+
+  // UI wiring
+  const el=id=>document.getElementById(id);
+  const sliders=[
+    ['defRed','defRedV', v=>DEFENSE_POINTS[RED]=+v, 0],
+    ['defBlue','defBlueV', v=>DEFENSE_POINTS[BLUE]=+v, 0],
+    ['seedBias','seedBiasV', v=>SEED_BIAS_LAMBDA=+v, 2],
+    ['dirBonus','dirBonusV', v=>DIRECTION_BONUS=+v, 2],
+  ];
+  for(const [sid,vid,setter,fix] of sliders){ const s=el(sid), v=el(vid); const up=()=>{ setter(s.value); v.textContent=(+s.value).toFixed(fix); };
+    s.addEventListener('input',up); up(); }
+  const speedS=el('speedFactor'), speedV=el('speedFactorV'); const upSpeed=()=>{ SPEED_FACTOR=+speedS.value; speedV.textContent=(+speedS.value).toFixed(2)+'×'; };
+  speedS.addEventListener('input',upSpeed); upSpeed();
+
+  // Build tools
+  const toolCityBtn=el('toolCityBtn'), toolNoneBtn=el('toolNoneBtn');
+  function setTool(t){ activeTool=t; toolCityBtn.classList.toggle('activeTool', t===TOOL_CITY); toolNoneBtn.classList.toggle('activeTool', t===TOOL_NONE); }
+  toolCityBtn.addEventListener('click',()=>setTool(TOOL_CITY));
+  toolNoneBtn.addEventListener('click',()=>setTool(TOOL_NONE));
+
+  // Team UI
+  const teamName=el('teamName'), teamSwatch=el('teamSwatch');
+  function refreshTeamUI(){ if(activeTeam===RED){ teamName.textContent='Red'; teamSwatch.className='swatch red'; } else { teamName.textContent='Blue'; teamSwatch.className='swatch blue'; } }
+  function toggleTeam(){ activeTeam=(activeTeam===RED)?BLUE:RED; refreshTeamUI(); }
+  el('toggleTeamBtn').addEventListener('click',toggleTeam); refreshTeamUI();
+
+  // Stats
+  const redCitiesEl=el('redCities'), blueCitiesEl=el('blueCities');
+  const redAtkEl=el('redAtk'), blueAtkEl=el('blueAtk');
+  function updateStats(){ const rc=teamCitiesHeld(RED), bc=teamCitiesHeld(BLUE);
+    redCitiesEl.textContent=rc; blueCitiesEl.textContent=bc;
+    redAtkEl.textContent=teamAttack(RED); blueAtkEl.textContent=teamAttack(BLUE); }
+
+  // Buttons
+  el('resetBtn').addEventListener('click',()=>{ seedTeams(); recomputeEdges(); heap.a.length=0; attacks.length=0; nextAttackId=1; for(let i=0;i<seenByAttack.length;i++) seenByAttack[i]=0; setTool(TOOL_NONE); });
+  el('defaultsBtn').addEventListener('click',()=>{ const d={defRed:1,defBlue:1,seedBias:0.35,dirBonus:0.25,speedFactor:0.40};
+    for(const k in d){ el(k).value=d[k]; } for(const [sid] of sliders){ el(sid).dispatchEvent(new Event('input')); } el('speedFactor').dispatchEvent(new Event('input')); });
+
+  // Start
+  handleResize(false); render(); loop();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <title>Teacher — Pixel Territory (Realtime)</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <link rel="stylesheet" href="./css/main.css"/>
+  <!-- Firebase init -->
+  <!-- Firebase compat SDKs (CDN) -->
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
+
+<!-- Your initializer (pure JS) -->
+<script src="./js/firebase.js"></script>
+
+</head>
+<body>
+<div class="wrap">
+  <aside>
+    <h2>Teacher</h2>
+    <div class="counts">
+      <div class="count"><div>Red</div><div id="redCount">0</div></div>
+      <div class="count"><div>Blue</div><div id="blueCount">0</div></div>
+    </div>
+    <div>Students Joined: <span id="studentCount">0</span></div>
+
+    <div style="margin-top:10px;">
+      <button id="createGameBtn">Create Game</button>
+      <span style="margin-left:8px;">Code: <strong id="gameCodeTxt">—</strong></span>
+    </div>
+
+    <label style="display:flex;gap:8px;align-items:center;margin-top:10px;">
+      <input type="checkbox" id="fourthModeToggle"> <strong>4th period mode</strong>
+    </label>
+
+    <div style="margin-top:12px;">
+      <label>Grid Size (legacy)</label>
+      <input id="gridSizeInput" type="number" min="5" max="50" value="15"/>
+    </div>
+
+    <div style="margin-top:12px;">
+      <h3>Questions</h3>
+      <textarea id="questionBox" placeholder="What is 2+2?|3|4|5|6|4"></textarea>
+      <div style="display:flex; gap:8px; margin-top:8px;">
+        <button id="startGameBtn">Start</button>
+        <button id="endGameBtn">End</button>
+        <button id="resetMapBtn">Reset Map</button>
+      </div>
+    </div>
+
+    <div style="margin-top:12px;">
+      <h3>Stats</h3>
+      <div class="kv"><span>Active team</span><span id="activeTeamTxt">Red</span></div>
+      <div class="kv"><span>Red cities</span><span id="redCities">0</span></div>
+      <div class="kv"><span>Blue cities</span><span id="blueCities">0</span></div>
+      <div class="kv"><span>Red attack</span><span id="redAtk">200</span></div>
+      <div class="kv"><span>Blue attack</span><span id="blueAtk">200</span></div>
+      <div class="kv"><span>Speed ×</span><span id="speedX">1.00</span></div>
+      <div class="kv"><span>Def Red</span><span id="defR">1</span></div>
+      <div class="kv"><span>Def Blue</span><span id="defB">1</span></div>
+    </div>
+  </aside>
+
+  <main>
+    <header>
+      <div><strong>Pixel Territory — Realtime</strong></div>
+      <div class="pill">state: <span id="stateTxt">idle</span></div>
+    </header>
+    <div class="stage">
+      <div class="topLeft" id="topLeftCode" style="display:none;"></div>
+      <div class="canvas-shell"><canvas id="view"></canvas></div>
+      <div class="panel">
+        <div class="muted">Zoom: wheel • Pan: drag • Click map to fire a test push (logs to DB)</div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script type="module" src="./js/teacher.js"></script>
+</body>
+</html>
