@@ -30,10 +30,12 @@
 
 	/* Layout: top progress, middle slides, floating controls */
 	.app{
-		min-height:100vh;
-		display:grid;
-		grid-template-rows: auto 1fr; /* controls are fixed (not in flow) */
-	}
+  min-height: 100vh;
+  display: grid;
+  grid-template-rows: auto 1fr;
+  position: relative;            /* NEW: so .controls can be absolute inside */
+}
+
 
 	/* ---------- Top progress bar ---------- */
 	.topbar{
@@ -140,15 +142,17 @@
 	.cp.last  .cp-label{ transform: translateX(-100%); left: 100%; }
 
 	/* ---------- Slides area (fills remaining space) ---------- */
-	.slides-area{
-		min-height: 0; /* allow child to grow in grid */
-		display:flex; align-items: stretch; justify-content: center;
-		padding:
-			6px
-			max(var(--topbar-pad-x), env(safe-area-inset-right))
-			96px   /* room for floating controls */
-			max(var(--topbar-pad-x), env(safe-area-inset-left));
-	}
+	/* Remove the extra bottom space that was saving room for fixed controls */
+.slides-area{
+  min-height: 0;
+  display: flex; align-items: stretch; justify-content: center;
+  padding:
+    6px
+    max(var(--topbar-pad-x), env(safe-area-inset-right))
+    6px                                       /* CHANGED from 96px to 6px */
+    max(var(--topbar-pad-x), env(safe-area-inset-left));
+}
+
 	/* EXACT style you provided */
 	.slides-frame{
 		width: min(100%);
@@ -161,14 +165,15 @@
 
 	/* ---------- Floating controls (centered, over slides) ---------- */
 	.controls{
-		position: fixed;
-		left: 50%;
-		transform: translateX(-50%);
-		bottom: max(16px, calc(env(safe-area-inset-bottom) + 12px));
-		display:flex; gap:12px; z-index: 50; /* hover over the iframe */
-		pointer-events: none;                 /* let clicks pass except buttons/inputs */
-		align-items: center;
-	}
+  position: absolute;                         /* CHANGED from fixed */
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: max(12px, env(safe-area-inset-bottom));
+  display: flex; gap: 12px;
+  z-index: 50;
+  pointer-events: none;                       /* keep: only buttons are clickable */
+  align-items: center;
+}
 	.btn{
 		pointer-events: auto;
 		background: var(--panel); color: var(--ink);
