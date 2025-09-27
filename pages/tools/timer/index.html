@@ -168,25 +168,40 @@
   position: absolute;                         /* CHANGED from fixed */
   left: 50%;
   transform: translateX(-50%);
-  bottom: max(12px, env(safe-area-inset-bottom));
+  bottom: max(9px);
   display: flex; gap: 12px;
   z-index: 50;
   pointer-events: none;                       /* keep: only buttons are clickable */
   align-items: center;
 }
-	.btn{
-		pointer-events: auto;
-		background: var(--panel); color: var(--ink);
-		border: 1px solid rgba(255,255,255,.08);
-		border-radius: 999px; padding: 12px 16px;
-		font-weight: 800; cursor: pointer; box-shadow: var(--shadow);
-	}
-	.btn:hover{ filter: brightness(1.05); }
-	.btn:active{ transform: translateY(1px); }
-	.btn-accent{
-		background: linear-gradient(180deg, #1a2a22, #132b1c);
-		border-color: rgba(54,194,105,.45);
-	}
+	.btn,
+.btn-accent{
+  pointer-events: auto;
+  background: #ffffff;
+  color: #2f2f2f;           /* dark gray */
+  border: none;
+  border-radius: 20px;       /* tweak or set to 0 if you want square */
+  padding: 8px 10px;
+  font-weight: 600;
+  font-size: 14px;
+  line-height: 1;
+  box-shadow: none;
+  cursor: pointer;
+  transition: none;         /* keep totally flat; remove if you want hover effects */
+}
+
+/* Keep the same look on hover/active/focus */
+.btn:hover,
+.btn:active,
+.btn:focus-visible,
+.btn-accent:hover,
+.btn-accent:active,
+.btn-accent:focus-visible{
+  background: #ffffff;
+  color: #2f2f2f;
+  box-shadow: none;
+  outline: none;
+}
 
 	/* Volume slider (styled) */
 	.vol{
@@ -201,15 +216,13 @@
 	.vol::-webkit-slider-thumb{
 		appearance: none;
 		width: 18px; height: 18px; border-radius: 50%;
-		background: var(--green);
-		box-shadow: 0 0 0 3px rgba(54,194,105,.18);
+		background: white;
 		cursor: pointer;
 	}
 	.vol::-moz-range-thumb{
 		width: 18px; height: 18px; border-radius: 50%;
-		background: var(--green);
+		background: white;
 		border: none; cursor: pointer;
-		box-shadow: 0 0 0 3px rgba(54,194,105,.18);
 	}
 
 	/* ---------- Config overlay ---------- */
@@ -244,7 +257,6 @@
 	}
 	input[type="number"]{ font-variant-numeric: tabular-nums; }
 	input:focus{ border-color: var(--green); box-shadow: 0 0 0 3px rgba(54,194,105,.12); }
-	.icon-btn{ height:44px; width:44px; border-radius:10px; border:1px solid #2a3445; background:#0f141e; color:var(--ink); display:grid; place-items:center; cursor:pointer; }
 	.add-btn{ padding:10px 14px; border-radius:10px; border:1px dashed #2a3445; background:#0f141e; color:var(--ink); cursor:pointer; }
 	.cfg-actions{ display:flex; gap:10px; justify-content:flex-end; }
 	.primary{ background:linear-gradient(180deg, #193524, #132b1c); border:1px solid rgba(54,194,105,.5); color:var(--ink); border-radius:12px; padding:12px 18px; font-weight:800; cursor:pointer; }
@@ -328,6 +340,7 @@ let totalMs = 0;
 let starts = [];   // start time (ms) for each section (label/checkpoint)
 let ends = [];     // end time (ms) for each section (up to next label or total)
 let lastChimedIndex = -1; // highest checkpoint index we've chimed for
+const EPS = 60; // tolerance so we don't miss edge crossings
 
 /* ---------- Elements ---------- */
 const overlay = document.getElementById('overlay');
@@ -486,48 +499,51 @@ function draw() {
   updateCompletionUI();
 }
 
-window.addEventListener('resize', () => draw());
+
+window.addEventListener('resize', draw);
+document.addEventListener('visibilitychange', () => { if(!document.hidden) draw(); });
 
 
 /* Play a chime whenever we pass a new checkpoint start time (skip the first) */
 function handleChimes(){
-	if(!sections.length) return;
-	let highest = -1;
-	for(let i=0;i<starts.length;i++){
-		if(elapsedMs >= starts[i]) highest = i; else break;
-	}
-	if(highest > lastChimedIndex){
-		// Skip sound for the very first checkpoint (index 0)
-		let firstToPlay = Math.max(1, lastChimedIndex + 1); // ensures we start at 1 or higher
-		for(let i = firstToPlay; i <= highest; i++){
-			setTimeout(()=>{ try { audioEl.currentTime = 0; audioEl.play(); } catch(e) {} }, (i-firstToPlay)*140);
-		}
-		lastChimedIndex = highest;
-	}
+  if(!sections.length) return;
+  let highest = -1;
+  for(let i=0;i<starts.length;i++){
+    if(elapsedMs + EPS >= starts[i]) highest = i; else break;   // <-- EPS
+  }
+  if(highest > lastChimedIndex){
+    let firstToPlay = Math.max(1, lastChimedIndex + 1); // skip index 0
+    for(let i = firstToPlay; i <= highest; i++){
+      setTimeout(()=>{ try { audioEl.currentTime = 0; audioEl.play(); } catch(e) {} }, (i-firstToPlay)*140);
+    }
+    lastChimedIndex = highest;
+  }
 }
+
 
 /* Active/completed states:
    active i where starts[i] <= elapsed < ends[i]
    checkpoint completed when elapsed >= starts[i]
 */
 function updateCompletionUI(initial=false){
-	if(!sections.length) return;
+  if(!sections.length) return;
 
-	let activeIndex = 0;
-	for(let i=0;i<sections.length;i++){
-		if(elapsedMs >= starts[i] && elapsedMs < ends[i]) { activeIndex = i; break; }
-		if(i === sections.length-1 && elapsedMs >= starts[i]) activeIndex = i;
-	}
+  let activeIndex = 0;
+  for(let i=0;i<sections.length;i++){
+    if(elapsedMs + EPS >= starts[i] && elapsedMs < ends[i] - EPS) { activeIndex = i; break; }  // EPS both sides
+    if(i === sections.length-1 && elapsedMs + EPS >= starts[i]) activeIndex = i;
+  }
 
-	[...checkLayer.children].forEach((cp, i)=>{
-		const completed = elapsedMs >= starts[i];
-		cp.classList.toggle('completed', completed);
-		const label = cp.querySelector('.cp-label');
-		label.classList.toggle('completed', elapsedMs >= ends[i]); // fully done = green label
-		label.classList.toggle('active', i === activeIndex && elapsedMs < ends[i]);
-		if(initial && i===0){ cp.classList.remove('completed'); }
-	});
+  [...checkLayer.children].forEach((cp, i)=>{
+    const completed = elapsedMs + EPS >= starts[i];           // <-- EPS
+    cp.classList.toggle('completed', completed);
+    const label = cp.querySelector('.cp-label');
+    label.classList.toggle('completed', elapsedMs + EPS >= ends[i]); // <-- EPS
+    label.classList.toggle('active', i === activeIndex && elapsedMs + EPS < ends[i]);
+    if(initial && i===0){ cp.classList.remove('completed'); }
+  });
 }
+
 
 /* ---------- Controls ---------- */
 function startTimer(resetElapsed=true){
