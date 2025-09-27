@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Class Timeline + Slides</title>
+<style>
+	:root{
+		color-scheme: dark;
+		--green: #36c269;
+		--green-weak: #2a9b53;
+		--ink: #e9eef4;
+		--panel: #141922;
+		--muted: #9aa6b2;
+		--shadow: 0 10px 30px rgba(0,0,0,.35);
+
+		--bar-h: 28px;           /* bar & dot diameter (keep all ends aligned) */
+		--topbar-pad-x: clamp(16px, 4vw, 48px);
+		--topbar-pad-top: 48px;  /* push bar down so top labels don’t clip */
+	}
+
+	*{ box-sizing: border-box; }
+	html,body{ height:100%; margin:0; }
+	body{
+		color: var(--ink);
+		font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+		background: url('../../assets/Machu_Picchu.jpg') center/cover no-repeat fixed;
+	}
+
+	/* Layout: top progress, middle slides, floating controls */
+	.app{
+		min-height:100vh;
+		display:grid;
+		grid-template-rows: auto 1fr; /* controls are fixed (not in flow) */
+	}
+
+	/* ---------- Top progress bar (moved slightly down) ---------- */
+	.topbar{
+		padding:
+			var(--topbar-pad-top)
+			max(var(--topbar-pad-x), env(safe-area-inset-right))
+			6px
+			max(var(--topbar-pad-x), env(safe-area-inset-left));
+	}
+	.progress-wrap{
+		position: relative;
+		height: max(88px, calc(var(--bar-h) * 3.1)); /* room for staggered labels */
+		width: 100%;
+		max-width: 1200px;
+		margin-inline: auto;
+	}
+
+	/* Track (no border to keep geometry exact) */
+	.progress-track{
+		position:absolute; left:0; right:0; top:50%;
+		transform: translateY(-50%);
+		height: var(--bar-h);
+		border-radius: var(--bar-h);
+		background: linear-gradient(180deg, #202735, #1a2130);
+		box-shadow: 0 0 0 1px #202838 inset; /* faux border */
+		overflow: visible;
+	}
+	/* Fill with perfectly rounded ends; cap’s CENTER stays exactly at progress */
+	.progress-fill{
+		position:absolute; left:0; top:50%;
+		transform: translateY(-50%);
+		height: var(--bar-h);
+		width:0%;
+		background: linear-gradient(90deg, var(--green-weak), var(--green));
+		border-radius: var(--bar-h);
+		transition: width .25s linear;
+	}
+	/* Use left:100% + translateX(-50%) so cap center == fill width */
+	.progress-fill::after{
+		content:"";
+		position:absolute; top:50%; left:100%;
+		transform: translate(-50%, -50%);
+		width: var(--bar-h); height: var(--bar-h);
+		border-radius: 50%;
+		background: var(--green);
+	}
+
+	/* Checkpoints & staggered labels */
+	.checklayer{ position:absolute; inset:0; pointer-events:none; }
+	.cp{ position:absolute; top:50%; transform: translate(-50%, -50%); }
+	.cp-dot{
+		width: var(--bar-h); height: var(--bar-h);
+		border-radius: 50%;
+		background: #101521;
+		box-shadow: 0 0 0 2px #39465a;  /* outline without changing size */
+		transition: background .25s ease, transform .3s ease, box-shadow .25s ease;
+	}
+	.cp.completed .cp-dot{
+		background: var(--green);
+		box-shadow: 0 0 0 0 var(--green);
+		animation: pop .35s ease;
+	}
+	@keyframes pop{ 0%{transform:scale(1)} 40%{transform:scale(1.25)} 100%{transform:scale(1)} }
+
+	.cp-label{
+		position:absolute; left:50%; transform: translateX(-50%);
+		white-space: nowrap;
+		font-weight: 800;
+		font-size: 1.25rem;          /* slightly smaller labels */
+		letter-spacing: .2px;
+		color: #c7d0da;
+		opacity: .98;
+		background: rgba(20,25,34,.55);
+		backdrop-filter: blur(6px);
+		border: 1px solid rgba(255,255,255,.08);
+		border-radius: 12px;
+		padding: 6px 12px;
+		pointer-events: auto;
+	}
+	.cp-label.top{ bottom: calc(100% + 8px); }
+	.cp-label.bottom{ top: calc(100% + 8px); }
+	.cp-label.active{ color: #ffffff; }
+	.cp-label.completed{ color: var(--green); }
+	.cp.first .cp-label{ transform: none; left: 0; }
+	.cp.last  .cp-label{ transform: translateX(-100%); left: 100%; }
+
+	/* ---------- Slides area (fills remaining space) ---------- */
+	.slides-area{
+		min-height: 0; /* allow child to grow in grid */
+		display:flex; align-items: stretch; justify-content: center;
+		padding:
+			6px
+			max(var(--topbar-pad-x), env(safe-area-inset-right))
+			96px   /* visual breathing room; buttons float anyway */
+			max(var(--topbar-pad-x), env(safe-area-inset-left));
+	}
+	.slides-frame{
+		width: min(100%);
+		height: 100%;
+		border: 0;
+		border-radius: 12px;
+		box-shadow: var(--shadow);
+		background: rgba(0,0,0,.15);
+	}
+
+	/* ---------- Floating controls (centered, over slides) ---------- */
+	.controls{
+		position: fixed;
+		left: 50%;
+		transform: translateX(-50%);
+		bottom: max(16px, calc(env(safe-area-inset-bottom) + 12px));
+		display:flex; gap:12px; z-index: 50; /* hover over the iframe */
+		pointer-events: none;                 /* let clicks pass except buttons/inputs */
+		align-items: center;
+	}
+	.btn{
+		pointer-events: auto;
+		background: var(--panel); color: var(--ink);
+		border: 1px solid rgba(255,255,255,.08);
+		border-radius: 999px; padding: 12px 16px;
+		font-weight: 800; cursor: pointer; box-shadow: var(--shadow);
+	}
+	.btn:hover{ filter: brightness(1.05); }
+	.btn:active{ transform: translateY(1px); }
+	.btn-accent{
+		background: linear-gradient(180deg, #1a2a22, #132b1c);
+		border-color: rgba(54,194,105,.45);
+	}
+
+	/* Volume slider (styled) */
+	.vol{
+		pointer-events: auto;
+		appearance: none;
+		height: 6px;
+		width: 160px;
+		border-radius: 999px;
+		background: #2b3444;
+		outline: none;
+	}
+	.vol::-webkit-slider-thumb{
+		appearance: none;
+		width: 18px; height: 18px; border-radius: 50%;
+		background: var(--green);
+		box-shadow: 0 0 0 3px rgba(54,194,105,.18);
+		cursor: pointer;
+	}
+	.vol::-moz-range-thumb{
+		width: 18px; height: 18px; border-radius: 50%;
+		background: var(--green);
+		border: none; cursor: pointer;
+		box-shadow: 0 0 0 3px rgba(54,194,105,.18);
+	}
+
+	/* ---------- Config overlay ---------- */
+	.overlay{
+		position: fixed; inset: 0; background: rgba(10,12,16,.6);
+		backdrop-filter: blur(6px);
+		display: none; align-items: center; justify-content: center;
+		padding: clamp(10px, 2vw, 24px);
+		z-index: 60; /* above everything */
+	}
+	.overlay.show{ display:flex; }
+	.cfg{
+		width: min(100%, 880px);
+		background: var(--panel);
+		border: 1px solid rgba(255,255,255,.08);
+		border-radius: 18px; box-shadow: var(--shadow);
+		padding: clamp(16px, 3vw, 28px);
+		display: grid; gap: 16px;
+	}
+	.rows{ display: grid; gap: 10px; max-height: min(60vh, 420px); overflow: auto; padding-right: 4px; }
+	.row{ display: grid; grid-template-columns: 1fr 120px 44px; gap: 10px; align-items: center; }
+	input[type="text"], input[type="number"]{
+		width: 100%; background:#0f141e; color:var(--ink);
+		border:1px solid #2a3445; border-radius:12px; padding:12px; font-size:15px;
+		outline:none; transition:border-color .2s ease, box-shadow .2s ease;
+	}
+	input[type="number"]{ font-variant-numeric: tabular-nums; }
+	input:focus{ border-color: var(--green); box-shadow: 0 0 0 3px rgba(54,194,105,.12); }
+	.icon-btn{ height:44px; width:44px; border-radius:10px; border:1px solid #2a3445; background:#0f141e; color:var(--ink); display:grid; place-items:center; cursor:pointer; }
+	.add-btn{ padding:10px 14px; border-radius:10px; border:1px dashed #2a3445; background:#0f141e; color:var(--ink); cursor:pointer; }
+	.cfg-actions{ display:flex; gap:10px; justify-content:flex-end; }
+	.primary{ background:linear-gradient(180deg, #193524, #132b1c); border:1px solid rgba(54,194,105,.5); color:var(--ink); border-radius:12px; padding:12px 18px; font-weight:800; cursor:pointer; }
+	.ghost{ background:transparent; border:1px solid #2a3445; color:var(--ink); border-radius:12px; padding:12px 18px; cursor:pointer; }
+
+	@media (max-width: 640px){
+		.progress-wrap{ height: max(96px, calc(var(--bar-h) * 3.4)); }
+		.cp-label{ font-size: 1.05rem; }
+		.vol{ width: 120px; }
+	}
+</style>
+</head>
+<body>
+<div class="app">
+	<!-- Top progress bar -->
+	<div class="topbar">
+		<div class="progress-wrap">
+			<div class="progress-track">
+				<div class="progress-fill" id="progressFill"></div>
+			</div>
+			<div class="checklayer" id="checkLayer" aria-hidden="true"></div>
+		</div>
+	</div>
+
+	<!-- Slides area fills remaining space -->
+	<div class="slides-area">
+		<iframe
+			class="slides-frame"
+			id="slidesFrame"
+			loading="lazy"
+			allow="autoplay; fullscreen; clipboard-write; encrypted-media; picture-in-picture; screen-wake-lock"
+			sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-presentation allow-downloads"
+			src="">
+		</iframe>
+	</div>
+
+	<!-- Centered floating controls (over slides) -->
+	<div class="controls">
+		<button class="btn" id="restartBtn">Restart</button>
+		<button class="btn btn-accent" id="toggleBtn">Start</button>
+		<input class="vol" id="vol" type="range" min="0" max="1" step="0.01" value="0.6" title="Volume" />
+	</div>
+</div>
+
+<!-- Config overlay (shows when stopped) -->
+<div class="overlay" id="overlay">
+	<div class="cfg">
+		<div class="rows" id="rows"></div>
+		<div style="display:flex; align-items:center; justify-content:space-between;">
+			<button class="add-btn" id="addRow">+ Add section</button>
+			<div style="color:var(--muted); font-size:.9rem;">Minutes can be decimals (e.g., 7.5)</div>
+		</div>
+		<div class="cfg-actions">
+			<button class="ghost" id="clearAll">Clear</button>
+			<button class="primary" id="startNow">Start</button>
+		</div>
+	</div>
+</div>
+
+<!-- Audio for checkpoint chime -->
+<audio id="ding" preload="auto" src="../../../assets/timer.mp3"></audio>
+
+<script>
+/* ---------- State ---------- */
+let sections = [];
+let running = false;
+let startTs = 0;
+let elapsedMs = 0;
+let rafId = null;
+
+let totalMs = 0;
+let starts = [];   // start time (ms) for each section (label/checkpoint)
+let ends = [];     // end time (ms) for each section (up to next label or total)
+let lastChimedIndex = -1; // highest checkpoint index we've chimed for
+
+/* ---------- Elements ---------- */
+const overlay = document.getElementById('overlay');
+const rowsEl = document.getElementById('rows');
+const addRowBtn = document.getElementById('addRow');
+const startNowBtn = document.getElementById('startNow');
+const clearAllBtn = document.getElementById('clearAll');
+const toggleBtn = document.getElementById('toggleBtn');
+const restartBtn = document.getElementById('restartBtn');
+
+const progressFill = document.getElementById('progressFill');
+const checkLayer = document.getElementById('checkLayer');
+
+const audioEl = document.getElementById('ding');
+const volEl = document.getElementById('vol');
+
+/* ---------- Persistence ---------- */
+const LS_KEY = 'classTimelineSections.v6';
+function saveConfig(){ localStorage.setItem(LS_KEY, JSON.stringify(sections)); }
+function loadConfig(){
+	try{
+		const raw = localStorage.getItem(LS_KEY);
+		if(raw){
+			const arr = JSON.parse(raw);
+			if(Array.isArray(arr)) sections = arr.filter(s => s && (s.name ?? '') !== '');
+		}
+	}catch{}
+	if(!sections.length){
+		sections = [
+			{ name: 'Warm-up', minutes: 5 },
+			{ name: 'Review', minutes: 10 },
+			{ name: 'New Content', minutes: 20 },
+			{ name: 'Practice', minutes: 15 },
+			{ name: 'Exit Ticket', minutes: 5 },
+		];
+	}
+}
+
+/* ---------- Time math ---------- */
+function computeTotals(){
+	totalMs = sections.reduce((sum, s) => sum + (Number(s.minutes)||0)*60000, 0);
+	starts = [];
+	ends = [];
+	let acc = 0;
+	for(let i=0;i<sections.length;i++){
+		starts.push(acc);                                 // label at BEGINNING of section
+		const len = (Number(sections[i].minutes)||0)*60000;
+		acc += len;
+		ends.push(i < sections.length-1 ? acc : totalMs); // to NEXT section (last to total)
+	}
+}
+
+/* ---------- Builders ---------- */
+function buildConfigRows(){
+	rowsEl.innerHTML = '';
+	sections.forEach((s,i)=>{
+		const row = document.createElement('div');
+		row.className = 'row';
+		row.innerHTML = `
+			<input type="text" placeholder="Section name" value="${s.name}">
+			<input type="number" step="0.5" min="0" placeholder="Minutes" value="${s.minutes}">
+			<button class="icon-btn" title="Remove">🗑️</button>
+		`;
+		const [nameInput, minInput, delBtn] = row.children;
+		nameInput.addEventListener('input', e => { s.name = e.target.value; saveConfig(); buildTimeline(); });
+		minInput.addEventListener('input', e => { s.minutes = e.target.value; saveConfig(); buildTimeline(); });
+		delBtn.addEventListener('click', ()=> { sections.splice(i,1); saveConfig(); buildConfigRows(); buildTimeline(); });
+		rowsEl.appendChild(row);
+	});
+}
+
+function buildTimeline(){
+	computeTotals();
+	checkLayer.innerHTML = '';
+	if(!sections.length || !totalMs) return;
+
+	// Percent positions for LABEL STARTS (first at 0%)
+	const percents = starts.map(ms => (ms/totalMs)*100);
+
+	sections.forEach((s,i)=>{
+		const cp = document.createElement('div');
+		cp.className = 'cp';
+		if(i===0) cp.classList.add('first');
+		if(i===sections.length-1) cp.classList.add('last');
+
+		const dot = document.createElement('div');
+		dot.className = 'cp-dot';
+		dot.dataset.index = i;
+
+		const label = document.createElement('div');
+		label.className = 'cp-label ' + (i % 2 === 0 ? 'top' : 'bottom');
+		label.textContent = s.name || 'Untitled';
+
+		cp.appendChild(dot);
+		cp.appendChild(label);
+		cp.style.left = `${percents[i]}%`;
+		checkLayer.appendChild(cp);
+	});
+
+	updateCompletionUI(true);
+}
+
+/* ---------- Audio ---------- */
+function setVolume(v){
+	audioEl.volume = Math.max(0, Math.min(1, v));
+}
+volEl.addEventListener('input', e => setVolume(parseFloat(e.target.value)));
+
+/* ---------- Run Loop ---------- */
+function update(){
+	if(!running) return;
+	const now = performance.now();
+	elapsedMs = Math.min(totalMs, (now - startTs));
+	draw();
+	if(elapsedMs >= totalMs){
+		stopTimer(false);
+		return;
+	}
+	rafId = requestAnimationFrame(update);
+}
+
+function draw(){
+	const ratio = totalMs ? (elapsedMs / totalMs) : 0;
+	progressFill.style.width = `${Math.max(0, Math.min(100, ratio*100))}%`;
+	handleChimes();
+	updateCompletionUI();
+}
+
+/* Play a chime whenever we pass a new checkpoint start time */
+function handleChimes(){
+	if(!sections.length) return;
+	let highest = -1;
+	for(let i=0;i<starts.length;i++){
+		if(elapsedMs >= starts[i]) highest = i; else break;
+	}
+	if(highest > lastChimedIndex){
+		// If we jumped past multiple checkpoints, chime once per missed (quickly)
+		let toPlay = Math.min(highest - lastChimedIndex, 4); // cap burst
+		let n = 0;
+		const playOnce = () => {
+			try { audioEl.currentTime = 0; audioEl.play(); } catch(e) {}
+			n++;
+			if(n < toPlay) setTimeout(playOnce, 140); // gentle stagger
+		};
+		playOnce();
+		lastChimedIndex = highest;
+	}
+}
+
+/* Active/completed states:
+   active i where starts[i] <= elapsed < ends[i]
+   checkpoint completed when elapsed >= starts[i]
+*/
+function updateCompletionUI(initial=false){
+	if(!sections.length) return;
+
+	let activeIndex = 0;
+	for(let i=0;i<sections.length;i++){
+		if(elapsedMs >= starts[i] && elapsedMs < ends[i]) { activeIndex = i; break; }
+		if(i === sections.length-1 && elapsedMs >= starts[i]) activeIndex = i;
+	}
+
+	[...checkLayer.children].forEach((cp, i)=>{
+		const completed = elapsedMs >= starts[i];
+		cp.classList.toggle('completed', completed);
+		const label = cp.querySelector('.cp-label');
+		label.classList.toggle('completed', elapsedMs >= ends[i]); // fully done = green label
+		label.classList.toggle('active', i === activeIndex && elapsedMs < ends[i]);
+		if(initial && i===0){ cp.classList.remove('completed'); }
+	});
+}
+
+/* ---------- Controls ---------- */
+function startTimer(resetElapsed=true){
+	if(!sections.length || !totalMs) return;
+	if(resetElapsed) elapsedMs = 0;
+	startTs = performance.now() - elapsedMs; // support resume
+	running = true;
+	lastChimedIndex = -1; // reset chime tracker
+	toggleBtn.textContent = 'Stop';
+	overlay.classList.remove('show');
+	cancelAnimationFrame(rafId);
+	rafId = requestAnimationFrame(update);
+}
+function stopTimer(showConfig=true){
+	running = false;
+	toggleBtn.textContent = 'Start';
+	cancelAnimationFrame(rafId);
+	if(showConfig) overlay.classList.add('show');
+}
+function restartTimer(){
+	elapsedMs = 0;
+	lastChimedIndex = -1;
+	startTimer(true);
+}
+
+/* ---------- Events ---------- */
+toggleBtn.addEventListener('click', () => running ? stopTimer(true) : (buildTimeline(), startTimer(true)));
+restartBtn.addEventListener('click', () => restartTimer());
+addRowBtn.addEventListener('click', () => { sections.push({ name:'', minutes:5 }); saveConfig(); buildConfigRows(); buildTimeline(); });
+startNowBtn.addEventListener('click', () => { buildTimeline(); startTimer(true); });
+clearAllBtn.addEventListener('click', () => { sections = []; saveConfig(); buildConfigRows(); buildTimeline(); });
+overlay.addEventListener('click', (e) => { if(e.target === overlay) overlay.classList.remove('show'); });
+
+/* ---------- Init ---------- */
+loadConfig();
+buildConfigRows();
+buildTimeline();
+stopTimer(true); // show config on load
+setVolume(parseFloat(volEl.value) || 0.6);
+
+/* ---------- Slides URL ----------
+   Many providers restrict “presenter mode” in iframes. Use their embed URL so
+   you can still navigate slides. For Google Slides: publish-to-web embed (…/embed?…).
+*/
+const slidesURL = "https://docs.google.com/presentation/d/e/2PACX-1vQ9TJHxeWUmGNt5GpnS8APC1z-Xqm6p566klrINLZ06zu68cjgyTONYmoeXkx6drqNKqSNkBfGBMjQn/pubembed?start=false&loop=false&delayms=3000";
+document.getElementById('slidesFrame').src = slidesURL;
+</script>
+</body>
+</html>
