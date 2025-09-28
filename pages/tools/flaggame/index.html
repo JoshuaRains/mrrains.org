@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Hoy es… — Banderas</title>
+<style>
+  :root { color-scheme: dark; }
+  * { box-sizing: border-box; }
+  html, body {
+    height: 100%;
+    margin: 0;
+    background: #0d0f12;
+    color: #e9eef4;
+    font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+  }
+  .wrap {
+    height: 100%;
+    display: grid;
+    grid-template-rows: 1fr auto;
+    place-items: center;
+    gap: 2rem;
+    padding: 6vh 4vw 4vh;
+    text-align: center;
+  }
+  .brand {
+    position: fixed;
+    top: 10px;
+    left: 14px;
+    font-weight: 800;
+    font-size: 14px;
+    letter-spacing: .06em;
+    opacity: .55;
+    user-select: none;
+  }
+  .swatch {
+    width: min(60vmin, 520px);
+    height: min(60vmin, 520px);
+    border-radius: 18px;
+    border: 6px solid #1f2733;
+    box-shadow: 0 10px 30px rgba(0,0,0,.45), inset 0 0 0 1px rgba(255,255,255,.06);
+    background: #111;
+    display: grid;
+    place-items: center;
+    transition: transform 120ms ease-out, background-color 160ms ease-out;
+    overflow: hidden;
+  }
+  .swatch.bump { transform: scale(1.015); }
+  .flag-img {
+    width: 86%;
+    height: 86%;
+    object-fit: contain;
+    image-rendering: auto;
+    filter: drop-shadow(0 2px 10px rgba(0,0,0,.35));
+    user-select: none;
+    -webkit-user-drag: none;
+  }
+  .prompt, .answer, .hint {
+    margin: .35em 0;
+    font-weight: 800;
+    letter-spacing: .02em;
+  }
+  .prompt { font-size: clamp(28px, 5.5vw, 64px); opacity: .95; }
+  .answer {
+    font-size: clamp(24px, 4.6vw, 48px);
+    opacity: 0;
+    transform: translateY(6px);
+    transition: opacity 180ms ease-out, transform 180ms ease-out;
+  }
+  .answer.revealed { opacity: 1; transform: translateY(0); }
+  .hint {
+    opacity: .7;
+    font-weight: 700;
+    font-size: clamp(14px, 1.8vw, 18px);
+  }
+  .kbd { border:1px solid #4a5568; border-radius:6px; padding:2px 8px; font-weight: 800; }
+  .fallback {
+    color: #9aa0a6; font-size: clamp(14px, 2.2vw, 18px); font-weight: 700;
+    text-wrap: balance; padding: 0 1rem; text-align: center;
+  }
+</style>
+</head>
+<body>
+  <div class="brand">Banderas</div>
+  <div class="wrap">
+    <main aria-live="polite">
+      <div id="swatch" class="swatch" aria-hidden="true">
+        <img id="flagImg" class="flag-img" alt="" />
+        <div id="fallback" class="fallback" hidden>Imagen no disponible</div>
+      </div>
+      <div id="prompt" class="prompt">Pulsa <span class="kbd">Espacio</span> para empezar</div>
+      <div id="answer" class="answer" aria-hidden="true"></div>
+    </main>
+    <div class="hint" id="hint">Espacio: mostrar bandera / revelar país</div>
+  </div>
+
+<script>
+(() => {
+  // Toggle this to include Puerto Rico (territorio)
+  const INCLUDE_PR = false;
+
+  // Country list: Spanish name + ISO 3166-1 alpha-2 code for the CDN
+  const BASE = "https://flagcdn.com"; // serves clean SVGs with CORS
+  const COUNTRIES = [
+    { n:"España",                 c:"es" },
+    { n:"México",                 c:"mx" },
+    { n:"Guatemala",              c:"gt" },
+    { n:"Honduras",               c:"hn" },
+    { n:"El Salvador",            c:"sv" },
+    { n:"Nicaragua",              c:"ni" },
+    { n:"Costa Rica",             c:"cr" },
+    { n:"Panamá",                 c:"pa" },
+    { n:"Cuba",                   c:"cu" },
+    { n:"República Dominicana",   c:"do" },
+    { n:"Colombia",               c:"co" },
+    { n:"Venezuela",              c:"ve" },
+    { n:"Ecuador",                c:"ec" },
+    { n:"Perú",                   c:"pe" },
+    { n:"Bolivia",                c:"bo" },
+    { n:"Paraguay",               c:"py" },
+    { n:"Chile",                  c:"cl" },
+    { n:"Argentina",              c:"ar" },
+    { n:"Uruguay",                c:"uy" },
+    { n:"Guinea Ecuatorial",      c:"gq" },
+    ...(INCLUDE_PR ? [{ n:"Puerto Rico", c:"pr" }] : [])
+  ];
+
+  const swatchEl = document.getElementById('swatch');
+  const imgEl    = document.getElementById('flagImg');
+  const fallbackEl = document.getElementById('fallback');
+  const promptEl = document.getElementById('prompt');
+  const answerEl = document.getElementById('answer');
+  const hintEl   = document.getElementById('hint');
+
+  let state = "idle"; // "idle" | "question" | "answer"
+  let lastIdx = null;
+  let current = null;
+
+  function randInt(n){ return Math.floor(Math.random()*n); }
+  function pickNewIndex() {
+    if (COUNTRIES.length < 2) return 0;
+    let idx;
+    do { idx = randInt(COUNTRIES.length); } while (idx === lastIdx);
+    lastIdx = idx;
+    return idx;
+  }
+
+  function instantHideAnswer() {
+    answerEl.style.transition = 'none';
+    answerEl.classList.remove('revealed');
+    answerEl.setAttribute('aria-hidden', 'true');
+    answerEl.style.opacity = '';
+    answerEl.style.transform = '';
+    void answerEl.offsetWidth;
+    answerEl.style.transition = '';
+  }
+
+  function setFlagSrc(code){
+    // FlagCDN SVG path uses lowercase ISO code
+    const url = `${BASE}/${code}.svg`;
+    imgEl.src = url;
+    imgEl.alt = ""; // purely decorative for now; prompt/answer carry the label
+  }
+
+  function newRound(){
+    instantHideAnswer();
+    const idx = pickNewIndex();
+    const { n:name, c:code } = COUNTRIES[idx];
+    current = { name, code };
+
+    // Visual pop
+    swatchEl.classList.remove('bump'); void swatchEl.offsetWidth; swatchEl.classList.add('bump');
+
+    // Reset fallback, load flag
+    fallbackEl.hidden = true;
+    imgEl.hidden = false;
+    setFlagSrc(code);
+
+    promptEl.textContent = "¿Qué país es?";
+    answerEl.textContent = name;
+
+    state = "question";
+    hintEl.textContent = "Espacio: revelar país";
+  }
+
+  function reveal(){
+    if (!current) return;
+    answerEl.classList.add('revealed');
+    answerEl.setAttribute('aria-hidden', 'false');
+    state = "answer";
+    hintEl.textContent = "Espacio: nueva bandera";
+  }
+
+  // Handle image failures gracefully
+  imgEl.addEventListener('error', () => {
+    imgEl.hidden = true;
+    fallbackEl.hidden = false;
+  });
+
+  function onSpace(e){
+    if (e.code === 'Space') {
+      e.preventDefault();
+      if (state === "idle" || state === "answer") newRound();
+      else if (state === "question") reveal();
+    }
+  }
+
+  window.addEventListener('keydown', onSpace, {passive:false});
+  window.addEventListener('click', () => {
+    if (state === "idle" || state === "answer") newRound();
+    else if (state === "question") reveal();
+  });
+})();
+</script>
+</body>
+</html>
