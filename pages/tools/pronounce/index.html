@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Hoy es… — Pronunciación</title>
+<style>
+  :root { color-scheme: dark; }
+  * { box-sizing: border-box; }
+  html, body {
+    height: 100%;
+    margin: 0;
+    background: #0d0f12;
+    color: #e9eef4;
+    font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+  }
+  .wrap {
+    height: 100%;
+    display: grid;
+    grid-template-rows: 1fr auto;
+    place-items: center;
+    gap: 2rem;
+    padding: 6vh 4vw 4vh;
+    text-align: center;
+  }
+  .brand {
+    position: fixed;
+    top: 10px;
+    left: 14px;
+    font-weight: 800;
+    font-size: 14px;
+    letter-spacing: .06em;
+    opacity: .55;
+    user-select: none;
+  }
+  .swatch {
+    width: min(60vmin, 620px);
+    height: min(60vmin, 520px);
+    border-radius: 18px;
+    border: 6px solid #1f2733;
+    box-shadow: 0 10px 30px rgba(0,0,0,.45), inset 0 0 0 1px rgba(255,255,255,.06);
+    background: #111;
+    display: grid;
+    place-items: center;
+    padding: clamp(12px, 3vmin, 24px);
+    transition: transform 120ms ease-out, background-color 160ms ease-out;
+    overflow: hidden;
+  }
+  .swatch.bump { transform: scale(1.015); }
+
+  .word {
+    font-weight: 900;
+    font-size: clamp(32px, 6.2vw, 64px);
+    letter-spacing: .01em;
+  }
+
+  .syllables {
+    margin-top: .35em;
+    font-size: clamp(22px, 3.8vw, 42px);
+    opacity: 0;
+    transform: translateY(6px);
+    transition: opacity 180ms ease-out, transform 180ms ease-out;
+    color: #c7d0da;
+    font-weight: 800;
+  }
+  .syllables.revealed { opacity: 1; transform: translateY(0); }
+
+  .prompt, .hint {
+    margin: .35em 0;
+    font-weight: 800;
+    letter-spacing: .02em;
+  }
+  .prompt { font-size: clamp(18px, 2.6vw, 26px); opacity: .9; }
+  .hint {
+    opacity: .7;
+    font-weight: 700;
+    font-size: clamp(14px, 1.8vw, 18px);
+  }
+  .kbd { border:1px solid #4a5568; border-radius:6px; padding:2px 8px; font-weight: 800; }
+
+  /* Red-highlight silent h (between vowels) */
+  .h-silent { color: #ff5252; font-weight: 900; }
+  .error { color:#ff6b6b; font-weight:700; }
+</style>
+</head>
+<body>
+  <div class="brand">Pronunciación</div>
+  <div class="wrap">
+    <main aria-live="polite">
+      <div id="swatch" class="swatch" aria-hidden="true">
+        <div id="word" class="word"></div>
+        <div id="sylls" class="syllables" aria-hidden="true"></div>
+      </div>
+      <div id="prompt" class="prompt">Pulsa <span class="kbd">Espacio</span> para empezar</div>
+    </main>
+    <div class="hint" id="hint">Espacio: mostrar palabra / revelar sílabas</div>
+  </div>
+
+<script>
+(() => {
+  const WORDS_URL = './words.json';
+
+  // UI elements
+  const swatchEl = document.getElementById('swatch');
+  const wordEl   = document.getElementById('word');
+  const syllsEl  = document.getElementById('sylls');
+  const promptEl = document.getElementById('prompt');
+  const hintEl   = document.getElementById('hint');
+
+  let state = "idle"; // "idle" | "question" | "answer"
+  let lastIdx = null;
+
+  // Fallback list (in case words.json can't be loaded)
+  let ITEMS = [
+    { word:"amigo", syllables:["a","mi","go"] },
+    { word:"prohibir", syllables:["pro","hi","bir"] },
+    { word:"vehículo", syllables:["ve","hí","cu","lo"] },
+    { word:"ahí", syllables:["a","hí"] },
+    { word:"pingüino", syllables:["pin","güi","no"] }
+  ];
+
+  async function loadWords(){
+    try {
+      const res = await fetch(WORDS_URL, { cache: "no-store" });
+      if (!res.ok) throw new Error(res.statusText);
+      const arr = await res.json();
+      // Accept either [{word, syllables:[...]}] or ["amigo", ...] (strings will be shown as single-syllable)
+      if (Array.isArray(arr) && arr.length){
+        ITEMS = arr.map(x => {
+          if (typeof x === 'string') return { word: x, syllables: [x] };
+          if (x && typeof x.word === 'string' && Array.isArray(x.syllables) && x.syllables.length){
+            return { word: x.word, syllables: x.syllables.map(String) };
+          }
+          return null;
+        }).filter(Boolean);
+      }
+    } catch (e){
+      console.warn("No se pudo cargar words.json; usando lista interna.", e);
+      promptEl.innerHTML = `Pulsa <span class="kbd">Espacio</span> para empezar <span class="error">(carga local)</span>`;
+    }
+  }
+
+  function randInt(n){ return Math.floor(Math.random()*n); }
+  function pickNewIndex() {
+    if (ITEMS.length < 2) return 0;
+    let idx;
+    do { idx = randInt(ITEMS.length); } while (idx === lastIdx);
+    lastIdx = idx;
+    return idx;
+  }
+
+  function instantHideSylls(){
+    syllsEl.style.transition = 'none';
+    syllsEl.classList.remove('revealed');
+    syllsEl.setAttribute('aria-hidden','true');
+    syllsEl.style.opacity = '';
+    syllsEl.style.transform = '';
+    void syllsEl.offsetWidth;
+    syllsEl.style.transition = '';
+  }
+
+  // Highlight any 'h' that sits between vowels (across or within syllables)
+  function highlightSilentH(displayWithBullets){
+    const isVowel = ch => /[AEIOUÁÉÍÓÚÜaeiouáéíóúü]/.test(ch);
+    const isSep   = ch => ch === ' ' || ch === '•';
+    const chars = [...displayWithBullets];
+    for (let i = 0; i < chars.length; i++){
+      if (chars[i] !== 'h' && chars[i] !== 'H') continue;
+
+      // find previous non-separator
+      let j = i - 1; while (j >= 0 && isSep(chars[j])) j--;
+      // find next non-separator
+      let k = i + 1; while (k < chars.length && isSep(chars[k])) k++;
+
+      if (j >= 0 && k < chars.length && isVowel(chars[j]) && isVowel(chars[k])){
+        // wrap this h in a span
+        const h = chars[i];
+        chars[i] = `\u0000${h}\u0001`; // mark to avoid interfering with indices
+      }
+    }
+    // Join and replace markers with span
+    return chars.join('')
+      .replace(/\u0000h\u0001/g, '<span class="h-silent">h</span>')
+      .replace(/\u0000H\u0001/g, '<span class="h-silent">H</span>');
+  }
+
+  function newRound(){
+    instantHideSylls();
+
+    const idx = pickNewIndex();
+    const { word, syllables } = ITEMS[idx];
+
+    swatchEl.classList.remove('bump'); void swatchEl.offsetWidth; swatchEl.classList.add('bump');
+
+    wordEl.textContent = word;
+
+    // Build "sílabas" string with bullets, then add red 'h' between vowels
+    const display = syllables.join(' • ');
+    const highlighted = highlightSilentH(display);
+    syllsEl.innerHTML = highlighted;
+
+    promptEl.textContent = "Pronúncialo.";
+    state = "question";
+    hintEl.textContent = "Espacio: mostrar sílabas";
+  }
+
+  function reveal(){
+    syllsEl.classList.add('revealed');
+    syllsEl.setAttribute('aria-hidden','false');
+    state = "answer";
+    hintEl.textContent = "Espacio: nueva palabra";
+  }
+
+  function onSpace(e){
+    if (e.code === 'Space') {
+      e.preventDefault();
+      if (state === "idle" || state === "answer") newRound();
+      else if (state === "question") reveal();
+    }
+  }
+
+  window.addEventListener('keydown', onSpace, {passive:false});
+  window.addEventListener('click', () => {
+    if (state === "idle" || state === "answer") newRound();
+    else if (state === "question") reveal();
+  });
+
+  // boot
+  loadWords();
+})();
+</script>
+</body>
+</html>
