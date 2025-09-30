@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Regular Verb Conjugation — Practice</title>
+<style>
+  :root{
+    --ink:#0e0f11; --muted:#575b64; --rule:#111;
+    --paper:#fff; --bg:#f4f6f8; --table:#d6dbe3;
+    --bar:#f9fafb; --barborder:#cbd5e1;
+  }
+  *{ box-sizing:border-box; }
+  html,body{ margin:0; padding:0; background:var(--bg); color:var(--ink); font-family: Georgia, "Times New Roman", Times, serif; }
+  .sheet{
+    width:8.5in; min-height:11in; margin:0 auto; background:var(--paper);
+    padding:0.6in 0.7in 2.2in; /* extra bottom for bar */
+    box-shadow:0 0 0.08in rgba(0,0,0,.08);
+  }
+  @page{ size:Letter; margin:0; }
+  @media print{
+    body{ background:#fff; }
+    .sheet{ box-shadow:none; padding-bottom:0.7in; }
+    .accent-bar{ display:none; }
+  }
+
+  h1{ text-align:center; margin:0; font-size:20pt; }
+  .sub{ text-align:center; color:var(--muted); margin-top:6px; margin-bottom:0.35in; font-weight:600; }
+  h2{ font-size:13pt; margin:0.18in 0 0.12in; border-bottom:1px solid var(--table); padding-bottom:6px; }
+
+  input.u{
+    appearance:none; -webkit-appearance:none;
+    background:transparent; border:none; outline:none;
+    border-bottom:2px solid var(--rule);
+    padding:2px 2px 1px; margin:0 2px;
+    font:inherit; color:var(--ink);
+    min-width:1.5in;
+  }
+  input.u::placeholder{ color:transparent; }
+  .u.s{ width:0.9in; } .u.m{ width:1.5in; } .u.l{ width:2.2in; }
+
+  .list{ display:grid; gap:10px; }
+  .row{ display:block; }
+  .block{ margin-bottom:0.28in; }
+
+  /* Accent bar */
+  .accent-bar{
+    position:fixed; bottom:0; left:0; right:0;
+    background:var(--bar); border-top:1px solid var(--barborder);
+    padding:8px; display:flex; justify-content:center; gap:8px;
+    z-index:1000;
+  }
+  .accent-bar button{
+    font-size:16pt; padding:4px 10px;
+    background:#fff; border:1px solid var(--barborder); border-radius:6px;
+    cursor:pointer; transition:background 0.15s;
+  }
+  .accent-bar button:hover{ background:#f1f5f9; }
+</style>
+</head>
+<body>
+<section class="sheet" id="sheet">
+  <h1>Regular Verb Conjugation — Practice</h1>
+  <div class="sub">Present tense. Fill in each blank. Some items ask for a subject pronoun, too.</div>
+
+  <h2>A. Conjugate the verb to match the subject.</h2>
+  <div class="block list">
+    <div class="row">Yo <input class="u m" /> español. (hablar)</div>
+    <div class="row">Tú <input class="u m" /> agua después de correr. (beber)</div>
+    <div class="row">Él <input class="u m" /> en una casa pequeña. (vivir)</div>
+    <div class="row">Nosotros <input class="u m" /> al parque los sábados. (caminar)</div>
+    <div class="row">Ustedes <input class="u m" /> mucho en clase. (escribir)</div>
+    <div class="row">Ellos <input class="u m" /> en la tienda del centro. (trabajar)</div>
+    <div class="row">Ella <input class="u m" /> libros por la noche. (leer)</div>
+    <div class="row">Nosotros <input class="u m" /> la puerta cuando hace frío. (abrir)</div>
+    <div class="row">Yo <input class="u m" /> para el examen de mañana. (estudiar)</div>
+    <div class="row">Ellas <input class="u m" /> rápidamente. (aprender)</div>
+    <div class="row">Tú <input class="u m" /> muchos correos. (recibir)</div>
+    <div class="row">Ustedes <input class="u m" /> la televisión por la tarde. (mirar)</div>
+  </div>
+
+  <h2>B. Write the correct subject pronoun and conjugate the verb.</h2>
+  <div class="block list">
+    <div class="row">María y yo: <input class="u s" placeholder="pronombre" /> <input class="u m" /> limonada en el almuerzo. (beber)</div>
+    <div class="row">Los estudiantes: <input class="u s" /> <input class="u m" /> cartas a sus amigos. (escribir)</div>
+    <div class="row">Mi padre: <input class="u s" /> <input class="u m" /> en la fábrica. (trabajar)</div>
+    <div class="row">Tú y Ana: <input class="u s" /> <input class="u m" /> novelas en casa. (leer)</div>
+    <div class="row">Carla: <input class="u s" /> <input class="u m" /> la ventana. (abrir)</div>
+    <div class="row">Juan y Pedro: <input class="u s" /> <input class="u m" /> para el examen de ciencias. (estudiar)</div>
+  </div>
+
+  <h2>C. Conjugate the verb (subjects beyond standard pronouns).</h2>
+  <div class="block list">
+    <div class="row">El chico <input class="u m" /> la guitarra. (tocar)</div>
+    <div class="row">La chica <input class="u m" /> la computadora en clase. (usar)</div>
+    <div class="row">Mi familia <input class="u m" /> en un apartamento. (vivir)</div>
+    <div class="row">Juan y Carla <input class="u m" /> por el parque. (caminar)</div>
+    <div class="row">La tienda <input class="u m" /> ropa barata. (vender)</div>
+    <div class="row">El equipo <input class="u m" /> cada día para mejorar. (trabajar)</div>
+  </div>
+
+  <h2>Extra Practice</h2>
+  <div class="block list">
+    <div class="row">Nosotros <input class="u m" /> con calma en clase. (responder)</div>
+    <div class="row">Tú <input class="u m" /> a la maestra con atención. (escuchar)</div>
+    <div class="row">La profesora <input class="u m" /> la lección. (enseñar)</div>
+    <div class="row">Ellos <input class="u m" /> a la reunión. (asistir)</div>
+    <div class="row">Yo <input class="u m" /> el problema de matemáticas. (comprender)</div>
+    <div class="row">Ustedes <input class="u m" /> cuando hace mucho frío. (sufrir)</div>
+    <div class="row">Ella <input class="u m" /> fotos en la excursión. (sacar)</div>
+    <div class="row">Yo <input class="u m" /> estudiar una hora cada día. (prometer)</div>
+    <div class="row">Ellos <input class="u m" /> no ver la película hoy. (decidir)</div>
+    <div class="row">Nosotros <input class="u m" /> el almuerzo con amigos. (compartir)</div>
+    <div class="row">Tú <input class="u m" /> todos los días para mejorar. (correr)</div>
+    <div class="row">Yo <input class="u m" /> practicar más. (deber)</div>
+  </div>
+</section>
+
+<!-- Accent bar -->
+<div class="accent-bar">
+  <button data-char="á">á</button>
+  <button data-char="é">é</button>
+  <button data-char="í">í</button>
+  <button data-char="ó">ó</button>
+  <button data-char="ú">ú</button>
+  <button data-char="ñ">ñ</button>
+  <button data-char="¡">¡</button>
+  <button data-char="¿">¿</button>
+  <button id="downloadBtn">⬇️ PDF</button>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<script>
+  let lastInput = null;
+  document.querySelectorAll("input.u").forEach(inp=>{
+    inp.addEventListener("focus", ()=> lastInput = inp);
+  });
+
+  document.querySelectorAll(".accent-bar button[data-char]").forEach(btn=>{
+    btn.addEventListener("click", e=>{
+      e.preventDefault();
+      if(lastInput){
+        const char = btn.getAttribute("data-char");
+        const start = lastInput.selectionStart;
+        const end = lastInput.selectionEnd;
+        const text = lastInput.value;
+        lastInput.value = text.slice(0,start) + char + text.slice(end);
+        lastInput.setSelectionRange(start+char.length,start+char.length);
+        lastInput.focus();
+      }
+    });
+  });
+
+  document.getElementById("downloadBtn").addEventListener("click", ()=>{
+    const element = document.getElementById("sheet");
+    const opt = {
+      margin:       0.3,
+      filename:     'regular-conjugation-practice.pdf',
+      image:        { type: 'jpeg', quality: 0.98 },
+      html2canvas:  { scale: 2 },
+      jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
+    };
+    html2pdf().set(opt).from(element).save();
+  });
+</script>
+</body>
+</html>

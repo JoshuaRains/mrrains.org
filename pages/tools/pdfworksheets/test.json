@@ -1,0 +1,14 @@
+{
+  "scale": 1.25,
+  "outputName": "worksheet-filled.pdf",
+  "fields": [
+    { "id": "student_name", "page": 1, "x": 72,  "y": 72,  "w": 260, "h": 30, "placeholder": "Nombre y apellido", "fontSize": 14 },
+    { "id": "class_period", "page": 1, "x": 360, "y": 72,  "w": 120, "h": 30, "placeholder": "Periodo", "fontSize": 14 },
+
+    { "id": "q1", "page": 1, "x": 72, "y": 160, "w": 440, "h": 30,  "placeholder": "Respuesta breve", "fontSize": 14 },
+    { "id": "q2", "page": 1, "x": 72, "y": 206, "w": 440, "h": 120, "multiline": true, "placeholder": "Respuesta larga…", "fontSize": 12, "lineHeight": 1.25 },
+
+    { "id": "p2_short", "page": 2, "x": 72, "y": 120, "w": 440, "h": 30, "placeholder": "Página 2 — breve", "fontSize": 14 },
+    { "id": "p2_long",  "page": 2, "x": 72, "y": 166, "w": 440, "h": 180, "multiline": true, "placeholder": "Página 2 — larga…", "fontSize": 12 }
+  ]
+}

@@ -1,0 +1,42 @@
+[
+  {
+    "term": "I like the book",
+    "translation": ["me gusta el libro"]
+  },
+  {
+    "term": "You (informal) like the apple",
+    "translation": ["te gusta la manzana"]
+  },
+  {
+    "term": "He likes the dog",
+    "translation": ["le gusta el perro"]
+  },
+  {
+    "term": "She likes the music",
+    "translation": ["le gusta la música"]
+  },
+  {
+    "term": "You (formal) like the class",
+    "translation": ["le gusta la clase"]
+  },
+  {
+    "term": "We like the tacos",
+    "translation": ["nos gustan los tacos"]
+  },
+  {
+    "term": "Y’all like the books",
+    "translation": ["os gustan los libros"]
+  },
+  {
+    "term": "They (masculine) like the movie",
+    "translation": ["les gusta la película"]
+  },
+  {
+    "term": "They (feminine) like the houses",
+    "translation": ["les gustan las casas"]
+  },
+  {
+    "term": "You all like the pencils",
+    "translation": ["les gustan los lápices"]
+  }
+]

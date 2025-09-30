@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Notes — Estar Conjugation (Fillable, Letter)</title>
+<style>
+  :root{
+    --ink:#101012;
+    --muted:#50535a;
+    --rule:#1c1f26;
+    --table:#c9ced6;
+  }
+  *{ box-sizing:border-box; }
+  html,body{ margin:0; padding:0; background:#f4f6f8; color:var(--ink); font-family: Georgia, "Times New Roman", Times, serif; }
+
+  /* Page frame (Letter) */
+  .sheet{
+    width:8.5in; min-height:11in;
+    margin:0 auto;
+    background:#fff;
+    padding:0.5in 0.6in 0.6in;
+    box-shadow:0 0 0.08in rgba(0,0,0,.08);
+  }
+  @page{ size:Letter; margin:0; }
+  @media print{
+    body{ background:#fff; }
+    .sheet{ box-shadow:none; }
+  }
+
+  /* Head */
+  .header{
+    display:flex; justify-content:space-between; align-items:center;
+    margin-bottom:0.28in;
+  }
+  .title{ font-weight:700; font-size:16pt; letter-spacing:.2px; }
+  .subtle{ color:var(--muted); font-weight:600; font-size:12pt; }
+
+  h2{
+    font-size:13pt; font-weight:700; margin:0.16in 0 0.12in;
+  }
+
+  /* Underlined input that looks like a blank */
+  input.u, .u{
+    appearance:none; -webkit-appearance:none;
+    background:transparent; border:none; outline:none;
+    border-bottom:2px solid var(--rule);
+    padding:2px 2px 1px; margin:0 2px;
+    font:inherit; color:var(--ink);
+    min-width:1.1in;
+  }
+  .u::placeholder{ color:transparent; }
+  .u.s{ width:0.9in; } .u.m{ width:1.5in; } .u.l{ width:2.1in; } .u.xl{ width:3in; } .u.full{ width:100%; }
+
+  /* Two-column body blocks */
+  .cols{
+    display:grid; grid-template-columns:1fr 1fr; gap:0.36in;
+  }
+
+  /* Improved chart/table */
+  table.clean{
+    width:100%; border-collapse:separate; border-spacing:0;
+    table-layout:fixed;
+    border:1px solid var(--table);
+    border-radius:10px; overflow:hidden;
+  }
+  .clean thead th{
+    font-weight:700; font-size:12pt; padding:8px 10px;
+    background:#f2f4f7; border-bottom:1px solid var(--table);
+    text-align:left;
+  }
+  .clean tbody td{
+    border-bottom:1px solid var(--table);
+    padding:10px;
+    vertical-align:middle;
+  }
+  .clean tbody tr:last-child td{ border-bottom:none; }
+  .label{
+    color:var(--ink); font-weight:600;
+    white-space:nowrap;
+  }
+  .g{ display:grid; grid-template-columns:auto 1fr; gap:10px; align-items:baseline; }
+  .row{ display:flex; gap:0.25in; align-items:baseline; margin:6px 0; }
+  .num{ color:var(--muted); font-weight:600; width:0.28in; text-align:right; padding-right:6px; }
+
+  /* Spacing helpers */
+  .block{ margin-bottom:0.28in; }
+  .tight .row{ margin:2px 0; }
+  .sep{ height:1px; background:linear-gradient(90deg, transparent, #d9dde3, transparent); margin:0.28in 0; }
+</style>
+</head>
+<body>
+
+<!-- PAGE 1 -->
+<section class="sheet">
+  <header class="header">
+    <div class="title">Guided Notes</div>
+    <div class="subtle">Pronouns · Estar · Conjugation</div>
+  </header>
+
+  <h2>Subject Pronouns (Reference & Practice)</h2>
+  <!-- Redesigned chart: clear rows, roomy inputs, prints neatly -->
+  <div class="block">
+    <table class="clean">
+      <colgroup>
+        <col style="width:2.2in" />
+        <col style="width:auto" />
+        <col style="width:auto" />
+      </colgroup>
+      <thead>
+        <tr>
+          <th>English prompt</th>
+          <th>Write the pronoun in Spanish</th>
+          <th>Write the English word used in class</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="label">I</td>
+          <td><input class="u full" /></td>
+          <td><input class="u full" /></td>
+        </tr>
+        <tr>
+          <td class="label">We</td>
+          <td><input class="u full" /></td>
+          <td><input class="u full" /></td>
+        </tr>
+        <tr>
+          <td class="label">We (f)</td>
+          <td><input class="u full" /></td>
+          <td><input class="u full" /></td>
+        </tr>
+        <tr>
+          <td class="label">You</td>
+          <td><input class="u full" /></td>
+          <td><input class="u full" /></td>
+        </tr>
+        <tr>
+          <td class="label">Y’all</td>
+          <td><input class="u full" /></td>
+          <td><input class="u full" /></td>
+        </tr>
+        <tr>
+          <td class="label">He</td>
+          <td><input class="u full" /></td>
+          <td><input class="u full" /></td>
+        </tr>
+        <tr>
+          <td class="label">She</td>
+          <td><input class="u full" /></td>
+          <td><input class="u full" /></td>
+        </tr>
+        <tr>
+          <td class="label">They</td>
+          <td><input class="u full" /></td>
+          <td><input class="u full" /></td>
+        </tr>
+        <tr>
+          <td class="label">They (f)</td>
+          <td><input class="u full" /></td>
+          <td><input class="u full" /></td>
+        </tr>
+        <tr>
+          <td class="label">You (formal)</td>
+          <td><input class="u full" /></td>
+          <td><input class="u full" /></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="cols">
+    <div class="block">
+      <h2>What pronouns would you use? (English)</h2>
+      <div>
+        <div class="g"><div class="num">1.</div><div>The boy → <input class="u l" /></div></div>
+        <div class="g"><div class="num">2.</div><div>The girl → <input class="u l" /></div></div>
+        <div class="g"><div class="num">3.</div><div>My sister and I → <input class="u l" /></div></div>
+        <div class="g"><div class="num">4.</div><div>My mom → <input class="u l" /></div></div>
+        <div class="g"><div class="num">5.</div><div>You and John → <input class="u l" /></div></div>
+        <div class="g"><div class="num">6.</div><div>Your friends → <input class="u l" /></div></div>
+        <div class="g"><div class="num">7.</div><div>You and your friends → <input class="u l" /></div></div>
+        <div class="g"><div class="num">8.</div><div>Sarah and Bella → <input class="u l" /></div></div>
+        <div class="g"><div class="num">9.</div><div>My teacher and I → <input class="u l" /></div></div>
+        <div class="g"><div class="num">10.</div><div>The boys → <input class="u l" /></div></div>
+        <div class="g"><div class="num">11.</div><div>Emily and I → <input class="u l" /></div></div>
+      </div>
+    </div>
+
+    <div class="block">
+      <h2>¿Qué pronombres usarías? (Español)</h2>
+      <div>
+        <div class="g"><div class="num">1.</div><div>El chico → <input class="u l" /></div></div>
+        <div class="g"><div class="num">2.</div><div>La chica → <input class="u l" /></div></div>
+        <div class="g"><div class="num">3.</div><div>Mi hermana y yo → <input class="u l" /></div></div>
+        <div class="g"><div class="num">4.</div><div>Mi mamá → <input class="u l" /></div></div>
+        <div class="g"><div class="num">5.</div><div>Tú y Juan → <input class="u l" /></div></div>
+        <div class="g"><div class="num">6.</div><div>Tus amigos → <input class="u l" /></div></div>
+        <div class="g"><div class="num">7.</div><div>Tú y tus amigos → <input class="u l" /></div></div>
+        <div class="g"><div class="num">8.</div><div>Sara y Bella → <input class="u l" /></div></div>
+        <div class="g"><div class="num">9.</div><div>Mi profesor y yo → <input class="u l" /></div></div>
+        <div class="g"><div class="num">10.</div><div>Los chicos → <input class="u l" /></div></div>
+        <div class="g"><div class="num">11.</div><div>Emilia y yo → <input class="u l" /></div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="sep"></div>
+
+  <h2>Estar overview (P.L.A.C.E.)</h2>
+  <div class="block" style="max-width:7.2in; line-height:1.35;">
+    <p style="margin:0 0 6px;"><strong>Estar</strong> means “to be” for temporary/changeable situations. Use <strong>P.L.A.C.E.</strong></p>
+    <p style="margin:0;">P = Position · L = Location · A = Action (right now) · C = Condition · E = Emotion</p>
+  </div>
+</section>
+
+<!-- PAGE 2 -->
+<section class="sheet">
+  <header class="header">
+    <div class="title">Guided Notes</div>
+    <div class="subtle">Pronouns · Estar · Conjugation</div>
+  </header>
+
+  <h2>Conjugations of <em>estar</em></h2>
+  <div class="cols block">
+    <div class="row"><span class="label" style="min-width:1.2in;">I am</span> <input class="u xl" /></div>
+    <div class="row"><span class="label" style="min-width:1.2in;">We are</span> <input class="u xl" /></div>
+    <div class="row"><span class="label" style="min-width:1.2in;">You are</span> <input class="u xl" /></div>
+    <div class="row"><span class="label" style="min-width:1.2in;">Y’all are</span> <input class="u xl" /></div>
+    <div class="row"><span class="label" style="min-width:1.2in;">He is</span> <input class="u xl" /></div>
+    <div class="row"><span class="label" style="min-width:1.2in;">She is</span> <input class="u xl" /></div>
+    <div class="row"><span class="label" style="min-width:1.2in;">They are</span> <input class="u xl" /></div>
+  </div>
+
+  <h2>Fill in the blank with the correct form of <em>estar</em>:</h2>
+  <div class="block">
+    <div class="g"><div class="num">1.</div><div>Yo <input class="u m" /> en la escuela.</div></div>
+    <div class="g"><div class="num">2.</div><div>Tú <input class="u m" /> muy contento hoy.</div></div>
+    <div class="g"><div class="num">3.</div><div>Él <input class="u m" /> en la casa de su amigo.</div></div>
+    <div class="g"><div class="num">4.</div><div>Nosotros <input class="u m" /> cansados después de correr.</div></div>
+    <div class="g"><div class="num">5.</div><div>Ellas <input class="u m" /> felices con la noticia.</div></div>
+    <div class="g"><div class="num">6.</div><div>Usted <input class="u m" /> en la oficina, ¿verdad?</div></div>
+    <div class="g"><div class="num">7.</div><div>Ellos <input class="u m" /> en la biblioteca estudiando.</div></div>
+    <div class="g"><div class="num">8.</div><div>Yo <input class="u m" /> enfermo hoy.</div></div>
+    <div class="g"><div class="num">9.</div><div>Tú <input class="u m" /> en el restaurante con tu familia.</div></div>
+    <div class="g"><div class="num">10.</div><div>Ella <input class="u m" /> triste porque perdió su libro.</div></div>
+    <div class="g"><div class="num">11.</div><div>Nosotros <input class="u m" /> listos para el examen.</div></div>
+    <div class="g"><div class="num">12.</div><div>Ellos <input class="u m" /> en el cine viendo una película.</div></div>
+  </div>
+
+  <div class="sep"></div>
+
+  <h2>Fill the missing subject pronoun or form of <em>estar</em>:</h2>
+  <div>
+    <div class="g"><div class="num">1.</div><div>¿Cómo <input class="u m" /> usted hoy?</div></div>
+    <div class="g"><div class="num">2.</div><div>¿Cómo <input class="u m" /> tú?</div></div>
+    <div class="g"><div class="num">3.</div><div>Yo <input class="u m" /> bien, gracias.</div></div>
+    <div class="g"><div class="num">4.</div><div>Nosotros <input class="u m" /> cansados.</div></div>
+    <div class="g"><div class="num">5.</div><div>¿Cómo <input class="u m" /> ella?</div></div>
+    <div class="g"><div class="num">6.</div><div>Ellos <input class="u m" /> felices.</div></div>
+    <div class="g"><div class="num">7.</div><div>Tú <input class="u m" /> enfermo.</div></div>
+    <div class="g"><div class="num">8.</div><div>¿Cómo <input class="u m" /> ellas esta tarde?</div></div>
+    <div class="g"><div class="num">9.</div><div>Nosotros <input class="u m" /> muy bien.</div></div>
+    <div class="g"><div class="num">10.</div><div>¿Cómo <input class="u m" /> Juan?</div></div>
+    <div class="g"><div class="num">11.</div><div>Yo <input class="u m" /> emocionado.</div></div>
+  </div>
+</section>
+
+</body>
+</html>

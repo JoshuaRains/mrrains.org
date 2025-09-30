@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Gustar Practice — Translation</title>
+<style>
+  :root{
+    --ink:#0e0f11;
+    --muted:#575b64;
+    --rule:#111;
+    --paper:#fff;
+    --bg:#f4f6f8;
+    --table:#d6dbe3;
+    --bar:#f9fafb;
+    --barborder:#cbd5e1;
+  }
+  *{ box-sizing:border-box; }
+  html,body{ margin:0; padding:0; background:var(--bg); color:var(--ink); font-family: Georgia, "Times New Roman", Times, serif; }
+  .sheet{
+    width:8.5in; min-height:11in; margin:0 auto; background:var(--paper);
+    padding:0.6in 0.7in 2.2in; /* extra bottom so bar doesn't cover content */
+    box-shadow:0 0 0.08in rgba(0,0,0,.08);
+  }
+  @page{ size:Letter; margin:0; }
+  @media print{
+    body{ background:#fff; }
+    .sheet{ box-shadow:none; padding-bottom:0.7in; }
+    .accent-bar{ display:none; }
+  }
+
+  h1{ text-align:center; margin:0; font-size:20pt; }
+  .sub{ text-align:center; color:var(--muted); margin-top:6px; margin-bottom:0.35in; font-weight:600; }
+  h2{ font-size:13pt; margin:0.18in 0 0.12in; border-bottom:1px solid var(--table); padding-bottom:6px; }
+
+  .list{ display:grid; gap:10px; }
+  .row{ display:block; }
+  input.u{
+    appearance:none; -webkit-appearance:none;
+    background:transparent; border:none; outline:none;
+    border-bottom:2px solid var(--rule);
+    padding:2px 2px 1px; margin:0 2px;
+    font:inherit; color:var(--ink);
+    min-width:2.8in;
+  }
+  input.u::placeholder{ color:transparent; }
+
+  /* Accent bar */
+  .accent-bar{
+    position:fixed; bottom:0; left:0; right:0;
+    background:var(--bar); border-top:1px solid var(--barborder);
+    padding:8px; display:flex; justify-content:center; gap:8px;
+    z-index:1000;
+  }
+  .accent-bar button{
+    font-size:16pt; padding:4px 10px;
+    background:#fff; border:1px solid var(--barborder); border-radius:6px;
+    cursor:pointer; transition:background 0.15s;
+  }
+  .accent-bar button:hover{ background:#f1f5f9; }
+</style>
+</head>
+<body>
+<section class="sheet" id="sheet">
+  <h1>Gustar Practice</h1>
+  <div class="sub">Translate each English sentence into Spanish.</div>
+
+  <h2>A. Use <em>me</em>, <em>te</em>, or <em>le</em>.</h2>
+  <div class="list">
+    <div class="row">I like to talk in class. → <input class="u" /></div>
+    <div class="row">You (informal) like to eat pizza. → <input class="u" /></div>
+    <div class="row">He likes to live in the city. → <input class="u" /></div>
+    <div class="row">She likes to walk to school. → <input class="u" /></div>
+    <div class="row">You (formal) like to drink water (agua). → <input class="u" /></div>
+    <div class="row">I like to write stories. → <input class="u" /></div>
+    <div class="row">You (informal) like to work in the library. → <input class="u" /></div>
+    <div class="row">He likes to read books. → <input class="u" /></div>
+    <div class="row">She likes to study Spanish. → <input class="u" /></div>
+    <div class="row">I like to run in the park. → <input class="u" /></div>
+  </div>
+
+  <h2>B. Use <em>nos</em>, <em>les</em>, and a little <em>os</em>.</h2>
+  <div class="list">
+    <div class="row">We like to learn quickly. → <input class="u" /></div>
+    <div class="row">We like to receive gifts. → <input class="u" /></div>
+    <div class="row">They like to watch movies. → <input class="u" /></div>
+    <div class="row">They like to share food. → <input class="u" /></div>
+    <div class="row">They like to attend class. → <input class="u" /></div>
+    <div class="row">Y’all (Spain) like to listen to music. → <input class="u" /></div>
+    <div class="row">We like to answer (responder a) the questions. → <input class="u" /></div>
+    <div class="row">They like to teach children. → <input class="u" /></div>
+    <div class="row">We like to understand the homework. → <input class="u" /></div>
+    <div class="row">They like to take photos (fotos). → <input class="u" /></div>
+  </div>
+</section>
+
+<!-- Accent bar -->
+<div class="accent-bar">
+  <button data-char="á">á</button>
+  <button data-char="é">é</button>
+  <button data-char="í">í</button>
+  <button data-char="ó">ó</button>
+  <button data-char="ú">ú</button>
+  <button data-char="ñ">ñ</button>
+  <button data-char="¡">¡</button>
+  <button data-char="¿">¿</button>
+  <button id="downloadBtn">⬇️ PDF</button>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<script>
+  // Track last focused input
+  let lastInput = null;
+  document.querySelectorAll("input.u").forEach(inp=>{
+    inp.addEventListener("focus", ()=> lastInput = inp);
+  });
+
+  // Accent buttons insert characters
+  document.querySelectorAll(".accent-bar button[data-char]").forEach(btn=>{
+    btn.addEventListener("click", e=>{
+      e.preventDefault();
+      if(lastInput){
+        const char = btn.getAttribute("data-char");
+        const start = lastInput.selectionStart;
+        const end = lastInput.selectionEnd;
+        const text = lastInput.value;
+        lastInput.value = text.slice(0,start) + char + text.slice(end);
+        lastInput.setSelectionRange(start+char.length,start+char.length);
+        lastInput.focus();
+      }
+    });
+  });
+
+  // Download PDF
+  document.getElementById("downloadBtn").addEventListener("click", ()=>{
+    const element = document.getElementById("sheet");
+    const opt = {
+      margin:       0.3,
+      filename:     'gustar-practice.pdf',
+      image:        { type: 'jpeg', quality: 0.98 },
+      html2canvas:  { scale: 2 },
+      jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
+    };
+    html2pdf().set(opt).from(element).save();
+  });
+</script>
+</body>
+</html>
