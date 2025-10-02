@@ -1,0 +1,98 @@
+[
+  {
+    "term": "hablar",
+    "translation": ["to speak", "to talk"]
+  },
+  {
+    "term": "comer",
+    "translation": ["to eat"]
+  },
+  {
+    "term": "vivir",
+    "translation": ["to live"]
+  },
+  {
+    "term": "caminar",
+    "translation": ["to walk"]
+  },
+  {
+    "term": "beber",
+    "translation": ["to drink"]
+  },
+  {
+    "term": "escribir",
+    "translation": ["to write"]
+  },
+  {
+    "term": "trabajar",
+    "translation": ["to work"]
+  },
+  {
+    "term": "leer",
+    "translation": ["to read"]
+  },
+  {
+    "term": "abrir",
+    "translation": ["to open"]
+  },
+  {
+    "term": "estudiar",
+    "translation": ["to study"]
+  },
+  {
+    "term": "aprender",
+    "translation": ["to learn"]
+  },
+  {
+    "term": "recibir",
+    "translation": ["to receive"]
+  },
+  {
+    "term": "mirar",
+    "translation": ["to watch", "to look at", "to look"]
+  },
+  {
+    "term": "correr",
+    "translation": ["to run"]
+  },
+  {
+    "term": "compartir",
+    "translation": ["to share"]
+  },
+  {
+    "term": "usar",
+    "translation": ["to use"]
+  },
+  {
+    "term": "responder",
+    "translation": ["to answer", "to respond"]
+  },
+  {
+    "term": "decidir",
+    "translation": ["to decide"]
+  },
+  {
+    "term": "escuchar",
+    "translation": ["to listen"]
+  },
+  {
+    "term": "comprender",
+    "translation": ["to understand", "to comprehend"]
+  },
+  {
+    "term": "sufrir",
+    "translation": ["to suffer"]
+  },
+  {
+    "term": "enseñar",
+    "translation": ["to teach"]
+  },
+  {
+    "term": "prometer",
+    "translation": ["to promise"]
+  },
+  {
+    "term": "permitir",
+    "translation": ["to allow", "to permit"]
+  }
+]
