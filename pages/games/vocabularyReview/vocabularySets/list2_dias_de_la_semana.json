@@ -1,0 +1,79 @@
+[
+  {
+    "term": "¿Cuándo?",
+    "translation": [
+      "When?",
+      "When?."
+    ]
+  },
+  {
+    "term": "¿Qué día es hoy?",
+    "translation": [
+      "What day is it?",
+      "What day is it?."
+    ]
+  },
+  {
+    "term": "Hoy es...",
+    "translation": [
+      "Today is...",
+      "Today is.."
+    ]
+  },
+  {
+    "term": "la semana",
+    "translation": [
+      "Week",
+      "Week."
+    ]
+  },
+  {
+    "term": "lunes",
+    "translation": [
+      "Monday",
+      "Monday."
+    ]
+  },
+  {
+    "term": "martes",
+    "translation": [
+      "Tuesday",
+      "Tuesday."
+    ]
+  },
+  {
+    "term": "miércoles",
+    "translation": [
+      "Wednesday",
+      "Wednesday."
+    ]
+  },
+  {
+    "term": "jueves",
+    "translation": [
+      "Thursday",
+      "Thursday."
+    ]
+  },
+  {
+    "term": "viernes",
+    "translation": [
+      "Friday",
+      "Friday."
+    ]
+  },
+  {
+    "term": "sábado",
+    "translation": [
+      "Saturday",
+      "Saturday."
+    ]
+  },
+  {
+    "term": "domingo",
+    "translation": [
+      "Sunday",
+      "Sunday."
+    ]
+  }
+]

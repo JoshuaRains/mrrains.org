@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Regular Verbs • Listening Side</title>
+  <style>
+    /* Page + print setup */
+    @page { size: Letter portrait; margin: 0.5in; }
+    :root{
+      --ink: #111;
+      --muted: #444;
+      --rule: #222;
+    }
+    *{ box-sizing: border-box; }
+    html,body{ height:100%; }
+    body{
+      margin:0; background:#fff; color:var(--ink);
+      font-family: "Times New Roman", Georgia, serif;
+      -webkit-print-color-adjust: exact; print-color-adjust: exact;
+    }
+    .page{ max-width: 8.5in; margin: 0 auto; padding: 0.5in; }
+
+    /* Header */
+    .header{ display:flex; justify-content:space-between; align-items:flex-end; gap:12px; }
+    .title{ font-size: 20pt; font-weight:700; letter-spacing: .2px; }
+    .subtitle{ font-size: 14pt; font-weight:700; }
+    .rule{ height:1px; background:var(--rule); margin: 10px 0 12px; }
+
+    /* Instructions */
+    .instructions{ font-size: 12pt; line-height:1.35; margin: 0 0 14px; }
+
+    /* Two-column layout */
+    .columns{ display:grid; grid-template-columns: 1fr 1fr; gap: 24px; align-items:start; }
+
+    /* Left column: numbered audio prompts */
+    .items{ list-style:none; margin:0; padding:0; counter-reset: q; }
+    .items li{ display:flex; align-items:center; gap:8px; padding:2px 0; }
+    .items .num{ width: 2ch; text-align:right; font-weight:700; }
+    .items audio{ width:100%; max-width:100%; }
+
+    /* Add a bit of breathing room every five */
+    .items li.group{ margin-top: 6px; }
+
+    /* Right column: letter bank */
+    .bank{ display:block; font-size: 12pt; }
+    .sect{ break-inside: avoid; margin-bottom: 12px; }
+    .sect h3{ margin:0 0 6px; font-size: 12pt; font-weight:700; }
+    .alpha{ list-style-type: upper-alpha; padding-left: 22px; margin:0; }
+    .alpha li{ margin:2px 0; }
+
+    /* Print helpers */
+    @media print{
+      audio{ display:none; }
+      .audio-print{ display:inline-block; width:100%; height:18px; border:1px solid #000; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <div class="header">
+      <div class="title">Regular Verbs Quiz</div>
+      <div class="subtitle">Regular Verbs – Listening Side</div>
+    </div>
+    <div class="rule"></div>
+
+    <p class="instructions">
+      Press play on each audio sample (1–20). Students may listen as many times as needed. They will attempt to select the correct translation of each audio sample from the list on the right. <b> not every letter will be used.</b>
+    </p>
+
+    <div class="columns">
+      <!-- LEFT: 1–20 audio players -->
+      <ol class="items">
+  <li><span class="num">1.</span><audio controls preload="none" src="./pages/tools/record_quiz_audio/regularverbs/RegularVerbs1.mp3"></audio><span class="audio-print" aria-hidden="true"></span></li>
+  <li><span class="num">2.</span><audio controls preload="none" src="./pages/tools/record_quiz_audio/regularverbs/RegularVerbs2.mp3"></audio><span class="audio-print" aria-hidden="true"></span></li>
+  <li><span class="num">3.</span><audio controls preload="none" src="./pages/tools/record_quiz_audio/regularverbs/RegularVerbs3.mp3"></audio><span class="audio-print" aria-hidden="true"></span></li>
+  <li><span class="num">4.</span><audio controls preload="none" src="./pages/tools/record_quiz_audio/regularverbs/RegularVerbs4.mp3"></audio><span class="audio-print" aria-hidden="true"></span></li>
+  <li><span class="num">5.</span><audio controls preload="none" src="./pages/tools/record_quiz_audio/regularverbs/RegularVerbs5.mp3"></audio><span class="audio-print" aria-hidden="true"></span></li>
+  <li class="group"><span class="num">6.</span><audio controls preload="none" src="./pages/tools/record_quiz_audio/regularverbs/RegularVerbs6.mp3"></audio><span class="audio-print" aria-hidden="true"></span></li>
+  <li><span class="num">7.</span><audio controls preload="none" src="./pages/tools/record_quiz_audio/regularverbs/RegularVerbs7.mp3"></audio><span class="audio-print" aria-hidden="true"></span></li>
+  <li><span class="num">8.</span><audio controls preload="none" src="./pages/tools/record_quiz_audio/regularverbs/RegularVerbs8.mp3"></audio><span class="audio-print" aria-hidden="true"></span></li>
+  <li><span class="num">9.</span><audio controls preload="none" src="./pages/tools/record_quiz_audio/regularverbs/RegularVerbs9.mp3"></audio><span class="audio-print" aria-hidden="true"></span></li>
+  <li><span class="num">10.</span><audio controls preload="none" src="./pages/tools/record_quiz_audio/regularverbs/RegularVerbs10.mp3"></audio><span class="audio-print" aria-hidden="true"></span></li>
+  <li class="group"><span class="num">11.</span><audio controls preload="none" src="./pages/tools/record_quiz_audio/regularverbs/RegularVerbs11.mp3"></audio><span class="audio-print" aria-hidden="true"></span></li>
+  <li><span class="num">12.</span><audio controls preload="none" src="./pages/tools/record_quiz_audio/regularverbs/RegularVerbs12.mp3"></audio><span class="audio-print" aria-hidden="true"></span></li>
+  <li><span class="num">13.</span><audio controls preload="none" src="./pages/tools/record_quiz_audio/regularverbs/RegularVerbs13.mp3"></audio><span class="audio-print" aria-hidden="true"></span></li>
+  <li><span class="num">14.</span><audio controls preload="none" src="./pages/tools/record_quiz_audio/regularverbs/RegularVerbs14.mp3"></audio><span class="audio-print" aria-hidden="true"></span></li>
+  <li><span class="num">15.</span><audio controls preload="none" src="./pages/tools/record_quiz_audio/regularverbs/RegularVerbs15.mp3"></audio><span class="audio-print" aria-hidden="true"></span></li>
+  <li class="group"><span class="num">16.</span><audio controls preload="none" src="./pages/tools/record_quiz_audio/regularverbs/RegularVerbs16.mp3"></audio><span class="audio-print" aria-hidden="true"></span></li>
+  <li><span class="num">17.</span><audio controls preload="none" src="./pages/tools/record_quiz_audio/regularverbs/RegularVerbs17.mp3"></audio><span class="audio-print" aria-hidden="true"></span></li>
+  <li><span class="num">18.</span><audio controls preload="none" src="./pages/tools/record_quiz_audio/regularverbs/RegularVerbs18.mp3"></audio><span class="audio-print" aria-hidden="true"></span></li>
+  <li><span class="num">19.</span><audio controls preload="none" src="./pages/tools/record_quiz_audio/regularverbs/RegularVerbs19.mp3"></audio><span class="audio-print" aria-hidden="true"></span></li>
+  <li><span class="num">20.</span><audio controls preload="none" src="./pages/tools/record_quiz_audio/regularverbs/RegularVerbs20.mp3"></audio><span class="audio-print" aria-hidden="true"></span></li>
+</ol>
+
+
+      <!-- RIGHT: Letter bank -->
+      <div class="bank">
+        <section class="sect">
+          <h3>Yo</h3>
+          <ol class="alpha">
+            <li>I speak</li>
+            <li>I eat</li>
+            <li>I live</li>
+            <li>I write</li>
+            <li>I listen</li>
+          </ol>
+        </section>
+
+        <section class="sect">
+          <h3>Tú</h3>
+          <ol class="alpha" start="6">
+            <li>You (informal) speak</li>
+            <li>You (informal) eat</li>
+            <li>You (informal) live</li>
+            <li>You (informal) write</li>
+            <li>You (informal) listen</li>
+          </ol>
+        </section>
+
+        <section class="sect">
+          <h3>Él / Ella / Usted</h3>
+          <ol class="alpha" start="11">
+            <li>He/She/You (formal) speaks</li>
+            <li>He/She/You (formal) eats</li>
+            <li>He/She/You (formal) lives</li>
+            <li>He/She/You (formal) writes</li>
+            <li>He/She/You (formal) listens</li>
+          </ol>
+        </section>
+
+        <section class="sect">
+          <h3>Nosotros</h3>
+          <ol class="alpha" start="16">
+            <li>We speak</li>
+            <li>We eat</li>
+            <li>We live</li>
+            <li>We write</li>
+            <li>We listen</li>
+          </ol>
+        </section>
+
+        <section class="sect">
+          <h3>Ellos / Ustedes</h3>
+          <ol class="alpha" start="21">
+            <li>They/You all speak</li>
+            <li>They/You all eat</li>
+            <li>They/You all live</li>
+            <li>They/You all write</li>
+            <li>They/You all listen</li>
+          </ol>
+        </section>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

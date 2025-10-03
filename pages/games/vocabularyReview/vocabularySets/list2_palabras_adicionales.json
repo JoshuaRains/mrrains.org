@@ -1,0 +1,39 @@
+[
+  {
+    "term": "¿Adónde?",
+    "translation": [
+      "Where (to)?",
+      "Where (to)?."
+    ]
+  },
+  {
+    "term": "ahora",
+    "translation": [
+      "Now",
+      "Now."
+    ]
+  },
+  {
+    "term": "¿Cuál? ¿Cuáles?",
+    "translation": [
+      "Which?; Which one(s)?",
+      "Which?; Which one(s)?.",
+      "Which?",
+      "Which?."
+    ]
+  },
+  {
+    "term": "¿Por qué?",
+    "translation": [
+      "Why?",
+      "Why?."
+    ]
+  },
+  {
+    "term": "porque",
+    "translation": [
+      "Because",
+      "Because."
+    ]
+  }
+]

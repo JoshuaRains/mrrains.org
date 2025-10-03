@@ -1,0 +1,39 @@
+[
+  {
+    "term": "el/la artista",
+    "translation": [
+      "artist",
+      "artist."
+    ]
+  },
+  {
+    "term": "el/la doctor(a), el/la médico/a",
+    "translation": [
+      "doctor",
+      "doctor.",
+      "physician",
+      "physician."
+    ]
+  },
+  {
+    "term": "el/la ingeniero/a",
+    "translation": [
+      "engineer",
+      "engineer."
+    ]
+  },
+  {
+    "term": "el/la periodista",
+    "translation": [
+      "journalist",
+      "journalist."
+    ]
+  },
+  {
+    "term": "el/la programador(a)",
+    "translation": [
+      "computer programmer",
+      "computer programmer."
+    ]
+  }
+]

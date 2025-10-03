@@ -1,0 +1,113 @@
+[
+  {
+    "term": "el/la abuelo/a",
+    "translation": [
+      "grandfather",
+      "grandfather.",
+      "grandmother",
+      "grandmother."
+    ]
+  },
+  {
+    "term": "los abuelos",
+    "translation": [
+      "grandparents",
+      "grandparents."
+    ]
+  },
+  {
+    "term": "el apellido",
+    "translation": [
+      "last name",
+      "last name."
+    ]
+  },
+  {
+    "term": "el/la bisabuelo/a",
+    "translation": [
+      "great-grandfather",
+      "great-grandfather.",
+      "great-grandmother",
+      "great-grandmother."
+    ]
+  },
+  {
+    "term": "el/la cuñado/a",
+    "translation": [
+      "brother-in-law",
+      "brother-in-law.",
+      "sister-in-law",
+      "sister-in-law."
+    ]
+  },
+  {
+    "term": "el/la esposo/a",
+    "translation": [
+      "husband",
+      "husband.",
+      "wife",
+      "wife.",
+      "spouse",
+      "spouse."
+    ]
+  },
+  {
+    "term": "la familia",
+    "translation": [
+      "family",
+      "family."
+    ]
+  },
+  {
+    "term": "el/la gemelo/a",
+    "translation": [
+      "twin",
+      "twin."
+    ]
+  },
+  {
+    "term": "el/la hermanastro/a",
+    "translation": [
+      "stepbrother",
+      "stepbrother.",
+      "stepsister",
+      "stepsister."
+    ]
+  },
+  {
+    "term": "el/la hermano/a",
+    "translation": [
+      "brother",
+      "brother.",
+      "sister",
+      "sister."
+    ]
+  },
+  {
+    "term": "el/la hijastro/a",
+    "translation": [
+      "stepson",
+      "stepson.",
+      "stepdaughter",
+      "stepdaughter."
+    ]
+  },
+  {
+    "term": "el/la hijo/a",
+    "translation": [
+      "son",
+      "son.",
+      "daughter",
+      "daughter."
+    ]
+  },
+  {
+    "term": "los hijos",
+    "translation": [
+      "children",
+      "children.",
+      "sons and daughters",
+      "sons and daughters."
+    ]
+  }
+]

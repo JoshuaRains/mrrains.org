@@ -1,0 +1,50 @@
+[
+  {
+    "term": "el/la amigo/a",
+    "translation": [
+      "friend",
+      "friend."
+    ]
+  },
+  {
+    "term": "la gente",
+    "translation": [
+      "people",
+      "people."
+    ]
+  },
+  {
+    "term": "el/la muchacho/a",
+    "translation": [
+      "boy",
+      "boy.",
+      "girl",
+      "girl."
+    ]
+  },
+  {
+    "term": "el/la niño/a",
+    "translation": [
+      "child",
+      "child."
+    ]
+  },
+  {
+    "term": "el/la novio/a",
+    "translation": [
+      "boyfriend",
+      "boyfriend.",
+      "girlfriend",
+      "girlfriend.",
+      "fiancé(e)",
+      "fiancé(e)."
+    ]
+  },
+  {
+    "term": "la persona",
+    "translation": [
+      "person",
+      "person."
+    ]
+  }
+]
