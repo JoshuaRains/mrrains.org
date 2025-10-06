@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Lyrics Player</title>
+<style>
+	:root{
+		/* MrRains green theme */
+		--bg-top: #517860;
+		--bg-bottom: #5c8a6d;
+		--card: #ffffff;
+		--ink: #0f1612;
+		--muted: #44564a;
+		--line: #dfe8e2;
+		--accent: #4c7f67;         /* deep green */
+		--accent-strong: #2e5c49;  /* darker stripe */
+		--hi-bg: #c9f0df;          /* light highlight fill */
+	}
+
+	*{box-sizing:border-box}
+	html,body{height:100%}
+	body{
+		margin:0;
+		background: linear-gradient(to bottom, var(--bg-top), var(--bg-bottom));
+		font-family: system-ui, -apple-system, Segoe UI, Roboto, Inter, Arial, sans-serif;
+		color: var(--ink);
+	}
+
+	.app{
+		max-width: 1100px;
+		margin: clamp(8px, 3vw, 28px) auto;
+		background: var(--card);
+		border-radius: 16px;
+		border: 1px solid var(--line);
+		box-shadow: 0 10px 30px rgba(0,0,0,.15);
+		overflow: hidden;
+	}
+
+	header{
+		padding: 18px 22px 12px;
+		border-bottom: 1px solid var(--line);
+		display: grid;
+		grid-template-columns: 1fr auto;
+		gap: 12px;
+		align-items: end;
+	}
+	h1{
+		font-size: clamp(20px, 2.2vw, 28px);
+		line-height: 1.2;
+		margin: 0 0 4px 0;
+	}
+	.sub{color: var(--muted); font-size: clamp(12px, 1.5vw, 14px)}
+
+	.player{
+		padding: 14px 22px;
+		border-bottom: 1px solid var(--line);
+	}
+	audio{width:100%}
+
+	/* Lyrics list */
+	.lyrics{
+		max-height: 72vh;
+		overflow: auto;
+		scroll-behavior: smooth; /* smooth programmatic scroll */
+		padding: 6px 0;
+	}
+
+	.line{
+		padding: 16px 22px;
+		font-size: clamp(20px, 2.2vw, 26px); /* BIGGER */
+		line-height: 1.35;
+		border-bottom: 1px dashed var(--line);
+		cursor: pointer;
+		transition: background .15s ease, box-shadow .15s ease, transform .15s ease;
+		will-change: transform;
+	}
+	.line:last-child{border-bottom: none}
+	.line:hover{
+		background: #f6faf8;
+	}
+	.line.active{
+		/* Stronger highlight */
+		background:
+			linear-gradient(90deg, rgba(46,92,73,.12), rgba(46,92,73,0) 70%),
+			var(--hi-bg);
+		box-shadow:
+			inset 4px 0 0 0 var(--accent-strong),
+			inset 0 0 0 1px rgba(46,92,73,.25);
+		transform: translateZ(0) scale(1.005);
+	}
+
+	/* Footer/info */
+	.info{
+		display:flex; justify-content:space-between; align-items:center; gap:10px;
+		padding: 10px 18px; color: var(--muted); font-size: 14px;
+		border-top: 1px solid var(--line);
+	}
+
+	/* Keyboard focus */
+	.line:focus{
+		outline: 3px solid var(--accent);
+		outline-offset: 2px;
+		border-radius: 6px;
+	}
+
+	/* Respect reduced-motion */
+	@media (prefers-reduced-motion: reduce){
+		.lyrics{scroll-behavior: auto}
+		.line{transition: none}
+	}
+</style>
+</head>
+<body>
+<div class="app" id="app">
+	<header>
+		<div>
+			<h1 id="title">Loading…</h1>
+			<div class="sub" id="artist">—</div>
+		</div>
+		<div class="sub" id="status">Fetching JSON…</div>
+	</header>
+
+	<section class="player">
+		<audio id="audio" controls preload="metadata"></audio>
+	</section>
+
+	<section id="lyrics" class="lyrics" aria-label="Lyrics"></section>
+
+	<div class="info">
+		<span id="segmentInfo">Click a line to play that segment. Press ↓ to jump to the next line.</span>
+		<span id="timeInfo">0:00</span>
+	</div>
+</div>
+
+<script>
+(() => {
+	const params = new URLSearchParams(location.search);
+	const jsonPath = params.get('data'); // e.g., lyrics.html?data=lyrics_demo.json
+
+	const statusEl = document.getElementById('status');
+	const titleEl = document.getElementById('title');
+	const artistEl = document.getElementById('artist');
+	const audio = document.getElementById('audio');
+	const lyricsEl = document.getElementById('lyrics');
+	const segmentInfo = document.getElementById('segmentInfo');
+	const timeInfo = document.getElementById('timeInfo');
+
+	let data = null;
+	let activeIndex = -1;
+	let segmentEnd = null;
+	let rAF = null;
+
+	if (!jsonPath) {
+		statusEl.textContent = 'Missing ?data=… in the URL';
+		titleEl.textContent = 'No JSON specified';
+		artistEl.textContent = 'Add ?data=lyrics_demo.json';
+	} else {
+		loadJSON(jsonPath);
+	}
+
+	async function loadJSON(url){
+		try{
+			statusEl.textContent = `Loading ${url}…`;
+			const res = await fetch(url, { cache: 'no-store' });
+			if(!res.ok) throw new Error(`HTTP ${res.status}`);
+			const json = await res.json();
+			setup(json);
+			statusEl.textContent = `Loaded ${url}`;
+		}catch(err){
+			console.error(err);
+			statusEl.textContent = `Failed to load ${url}`;
+			titleEl.textContent = 'Error loading lyrics';
+			artistEl.textContent = 'Check the file path';
+		}
+	}
+
+	function setup(json){
+		data = json;
+		titleEl.textContent = data.title || 'Untitled';
+		artistEl.textContent = data.artist || 'Unknown Artist';
+		if (data.audio) audio.src = data.audio;
+
+		lyricsEl.innerHTML = '';
+		activeIndex = -1;
+		segmentEnd = null;
+
+		data.lines.forEach((line, i) => {
+			const div = document.createElement('div');
+			div.className = 'line';
+			div.tabIndex = 0;
+			div.dataset.index = i;
+			div.dataset.start = Number(line.start);
+			div.dataset.end = Number(line.end);
+			div.title = `${fmt(line.start)} → ${fmt(line.end)}`;
+			div.textContent = line.text || '';
+
+			div.addEventListener('click', () => playSegment(i));
+			div.addEventListener('keydown', (e) => {
+				if (e.key === 'Enter' || e.key === ' ') {
+					e.preventDefault();
+					playSegment(i);
+				}
+			});
+
+			lyricsEl.appendChild(div);
+		});
+
+		document.addEventListener('keydown', (e) => {
+			if (e.code === 'ArrowDown') {
+				e.preventDefault();
+				jumpToNextLine();
+			}
+		});
+
+		cancelAnimationFrame(rAF);
+		const loop = () => {
+			const t = audio.currentTime || 0;
+
+			// End single-line segment playback
+			if (segmentEnd != null && t >= segmentEnd - 0.02) {
+				audio.pause();
+				segmentEnd = null;
+				segmentInfo.textContent = 'Click a line to play that segment. Press ↓ to jump.';
+			}
+
+			// Update active line
+			const idx = findLineIndexForTime(t, data.lines);
+			if (idx !== activeIndex) {
+				setActiveLine(idx);
+				if (idx !== -1) centerLine(idx); // <— center autoscroll
+			}
+
+			timeInfo.textContent = fmt(t);
+			rAF = requestAnimationFrame(loop);
+		};
+		rAF = requestAnimationFrame(loop);
+	}
+
+	function playSegment(i){
+		if (!data || !data.lines?.[i]) return;
+		const { start, end } = data.lines[i];
+		segmentEnd = end;
+		segmentInfo.textContent = `Segment: ${fmt(start)}–${fmt(end)}`;
+		audio.currentTime = start + 0.001;
+		audio.play().catch(()=>{});
+		setActiveLine(i);
+		centerLine(i);
+	}
+
+	function jumpToNextLine(){
+		if (!data || !data.lines?.length) return;
+		const t = audio.currentTime || 0;
+		const next = data.lines.find(l => l.start > t + 0.02);
+		if (next){
+			segmentEnd = null;
+			segmentInfo.textContent = 'Playing full track';
+			audio.currentTime = next.start + 0.001;
+			audio.play().catch(()=>{});
+		}
+	}
+
+	function findLineIndexForTime(t, lines){
+		for (let i = 0; i < lines.length; i++){
+			if (t >= lines[i].start && t < lines[i].end) return i;
+		}
+		return -1;
+	}
+
+	function setActiveLine(idx){
+		if (idx === activeIndex) return;
+		if (activeIndex !== -1) {
+			const old = lyricsEl.querySelector(`.line[data-index="${activeIndex}"]`);
+			if (old) old.classList.remove('active');
+		}
+		activeIndex = idx;
+		if (idx !== -1) {
+			const cur = lyricsEl.querySelector(`.line[data-index="${idx}"]`);
+			if (cur) cur.classList.add('active');
+		}
+	}
+
+	// Center the given line in the scroll container (clamped near edges)
+	function centerLine(idx){
+		const parent = lyricsEl;
+		const el = lyricsEl.querySelector(`.line[data-index="${idx}"]`);
+		if (!el) return;
+
+		const target = el.offsetTop - (parent.clientHeight / 2) + (el.offsetHeight / 2);
+		const maxScroll = Math.max(0, parent.scrollHeight - parent.clientHeight);
+		const clamped = Math.max(0, Math.min(target, maxScroll));
+
+		parent.scrollTo({ top: clamped, behavior: 'smooth' });
+	}
+
+	function fmt(s){
+		const m = Math.floor(s / 60);
+		const sec = Math.floor(s % 60).toString().padStart(2, '0');
+		return `${m}:${sec}`;
+	}
+})();
+</script>
+</body>
+</html>

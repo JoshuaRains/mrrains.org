@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Ser vs Estar – Review Game</title>
+  <style>
+    :root{
+      --ink:#0f172a;
+      --bg1:#517860;
+      --bg2:#5c8a6d;
+      --card:#ffffff;
+      --panel-dark:#cfe0d8;
+      --muted:#19452f;
+      --accent:#4f8a6a;
+      --accent-weak:#bfe0cf;
+      --accent-strong:#2e7256;
+      --shadow: 0 16px 35px rgba(0,0,0,.10);
+      --key-glow: 0 0 0 6px rgba(79,138,106,.25), 0 6px 18px rgba(0,0,0,.18);
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      color:var(--ink);
+      background:linear-gradient(to bottom, var(--bg1), var(--bg2));
+      background-attachment: fixed;
+      overflow:hidden;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Noto Sans, Ubuntu, Cantarell, 'Helvetica Neue', Arial;
+    }
+
+    .wrap{max-width:none; width:100%; margin:12px auto; padding:0 12px;}
+
+    header{
+      display:flex; align-items:center; justify-content:space-between;
+      gap:12px; margin-bottom:12px;
+    }
+    .title{ font-weight:800; letter-spacing:.3px; font-size:clamp(20px,3vw,28px); color:#f7fff9; }
+    .sub{color:#e8fff3; font-size:14px}
+    .controls{display:flex; gap:8px; flex-wrap:wrap}
+    button{appearance:none; border:0; background:#0f172a; color:#fff; padding:10px 14px; border-radius:10px; font-weight:700; cursor:pointer; box-shadow:var(--shadow)}
+    button.ghost{background:#fff; color:#0f172a; border:1px solid #e5e7eb}
+    button:disabled{opacity:.5; cursor:not-allowed}
+
+    .board{
+      display:grid;
+      grid-template-columns: 0.3fr 0.4fr 0.3fr;
+      gap:16px;
+      width:100%;
+      height:80vh;
+    }
+
+    .card{
+      background:var(--card); border-radius:18px; box-shadow:var(--shadow);
+      padding:18px; display:flex; flex-direction:column; overflow:hidden;
+    }
+    .col{
+      background:var(--panel-dark); border-radius:18px; box-shadow:var(--shadow);
+      padding:16px; display:flex; flex-direction:column; overflow:hidden;
+      outline:1px solid rgba(0,0,0,.03);
+    }
+
+    .prompt{flex:1; display:grid; place-items:center; text-align:center; padding:4px;}
+    .prompt .en{font-size:clamp(40px,5.8vw,72px); font-weight:800; color:#0e2d20;}
+    .prompt .es{font-size:clamp(36px,5.2vw,64px); margin-top:12px; color:var(--accent); font-weight:800; display:none}
+    .prompt.revealed .es{display:block}
+
+    .col header{
+      display:flex; align-items:baseline; justify-content:space-between;
+      padding:10px 2px 12px 6px; border-bottom:1px solid rgba(0,0,0,.06);
+      margin: -8px -16px 8px -16px; padding-left:16px; padding-right:16px;
+      background:linear-gradient(180deg, rgba(255,255,255,.18), rgba(255,255,255,0));
+      backdrop-filter: saturate(1.1);
+    }
+    .col h2{margin:0; font-size:32px; color:#0e2d20}
+    .col .muted{color:#0e2d20; opacity:.8}
+    .forms{padding:0 2px 6px 2px; display:flex; flex-wrap:wrap; gap:10px; font-size:20px; color:var(--muted)}
+
+    .acronym{display:grid; grid-template-columns: 78px 1fr; row-gap:0; column-gap:0; margin:0 -16px; padding:0 0;}
+    .row{display:contents}
+    .key{
+      display:flex; align-items:center; justify-content:center;
+      font-weight:900; font-size:36px;
+      border-top:1px solid rgba(0,0,0,.06); padding:18px 0;
+      color:#0e2d20;
+      background:linear-gradient(180deg, rgba(255,255,255,.15), rgba(255,255,255,0));
+      transition: transform .15s ease;
+    }
+    .val{
+      border-top:1px solid rgba(0,0,0,.06); padding:20px 20px; font-size:35px;
+      color:#0e2d20; position:relative; isolation:isolate;
+      transition: background .15s ease, box-shadow .15s ease;
+    }
+
+    .ser{ background:linear-gradient(180deg, rgba(255,255,255,.35), rgba(255,255,255,.08)), var(--panel-dark); }
+    .estar{ background:linear-gradient(180deg, rgba(255,255,255,.35), rgba(255,255,255,.08)), var(--panel-dark); }
+
+    .val.highlight{
+      background: linear-gradient(90deg, #1e76db 0%, rgba(255,255,255,0) 100%);
+      box-shadow: inset 4px 0 0 0 #013d80;
+      color: #fbfbfb;
+      font-weight: bold;
+    }
+
+    .key.pop{
+      transform: scale(1.06);
+    }
+
+    .legend{
+      padding:12px 16px; color:#0e2d20; opacity:.9; font-size:18px;
+      border-top:1px dashed rgba(0,0,0,.12); margin:8px -16px 0 -16px;
+      background:linear-gradient(180deg, rgba(255,255,255,.2), rgba(255,255,255,0));
+    }
+
+    @media (max-width: 920px){
+      .board{ grid-template-columns: 1fr; height:78vh; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div>
+        <div class="title">Ser vs Estar — Flip-Reveal</div>
+        <div class="sub">Press <b>Space</b> to reveal; press Space again to jump to a random card. Use ← / → to navigate.</div>
+      </div>
+      <div class="controls">
+        <button id="btnPrev" class="ghost">◀ Prev</button>
+        <button id="btnReveal">Reveal</button>
+        <button id="btnNext" class="ghost">Next ▶</button>
+        <button id="btnShuffle" class="ghost">Shuffle</button>
+      </div>
+    </header>
+
+    <div id="board" class="board">
+      <section class="col ser" id="serCol">
+        <header>
+          <h2>Ser</h2>
+          <div class="muted">soy • eres • es • somos • sois • son</div>
+        </header>
+        <div class="acronym" id="serTable">
+          <div class="row"><div class="key">D</div><div class="val" data-key="Description">Description</div></div>
+          <div class="row"><div class="key">O</div><div class="val" data-key="Occupation">Occupation</div></div>
+          <div class="row"><div class="key">C</div><div class="val" data-key="Characteristic">Characteristic</div></div>
+          <div class="row"><div class="key">T</div><div class="val" data-key="Time">Time/Date/Day</div></div>
+          <div class="row"><div class="key">O</div><div class="val" data-key="Origin">Origin/Nationality</div></div>
+          <div class="row"><div class="key">R</div><div class="val" data-key="Relationship">Relationship/Ownership</div></div>
+        </div>
+        <div class="legend">DOCTOR → <b>D</b>escription, <b>O</b>ccupation, <b>C</b>haracteristic, <b>T</b>ime, <b>O</b>rigin, <b>R</b>elationship</div>
+      </section>
+
+      <section class="card" id="card">
+        <div class="prompt" id="prompt">
+          <div>
+            <div class="en" id="en">Loading…</div>
+            <div class="es" id="es"></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="col estar" id="estarCol">
+        <header>
+          <h2>Estar</h2>
+          <div class="muted">estoy • estás • está • estamos • estáis • están</div>
+        </header>
+        <div class="acronym" id="estarTable">
+          <div class="row"><div class="key">P</div><div class="val" data-key="Position">Position</div></div>
+          <div class="row"><div class="key">L</div><div class="val" data-key="Location">Location</div></div>
+          <div class="row"><div class="key">A</div><div class="val" data-key="Action">Action (–ing)</div></div>
+          <div class="row"><div class="key">C</div><div class="val" data-key="Condition">Condition</div></div>
+          <div class="row"><div class="key">E</div><div class="val" data-key="Emotion">Emotion</div></div>
+        </div>
+        <div class="legend">PLACE → <b>P</b>osition, <b>L</b>ocation, <b>A</b>ction, <b>C</b>ondition, <b>E</b>motion</div>
+      </section>
+    </div>
+  </div>
+
+  <script>
+    const PHRASES_URL = './phrases.json';
+    const FALLBACK = [
+      { en:"I am a teacher.", es:"Soy profesor.", verb:"ser", reason:"Occupation" },
+      { en:"They are tall.", es:"Ellos son altos.", verb:"ser", reason:"Characteristic" },
+      { en:"It is Monday.", es:"Es lunes.", verb:"ser", reason:"Time" },
+      { en:"We are from Mexico.", es:"Somos de México.", verb:"ser", reason:"Origin" },
+      { en:"That is my backpack.", es:"Esa es mi mochila.", verb:"ser", reason:"Relationship" },
+      { en:"The soup is hot (right now).", es:"La sopa está caliente.", verb:"estar", reason:"Condition" },
+      { en:"I am in the library.", es:"Estoy en la biblioteca.", verb:"estar", reason:"Location" },
+      { en:"She is sitting.", es:"Ella está sentada.", verb:"estar", reason:"Position" },
+      { en:"We are studying.", es:"Estamos estudiando.", verb:"estar", reason:"Action" },
+      { en:"Are you (informal) sad?", es:"¿Estás triste?", verb:"estar", reason:"Emotion" }
+    ];
+
+    let deck = [];
+    let i = 0;
+    let revealed = false;
+
+    const enEl = document.getElementById('en');
+    const esEl = document.getElementById('es');
+    const promptEl = document.getElementById('prompt');
+
+    const btnPrev = document.getElementById('btnPrev');
+    const btnNext = document.getElementById('btnNext');
+    const btnReveal = document.getElementById('btnReveal');
+    const btnShuffle = document.getElementById('btnShuffle');
+
+    const serTable = document.getElementById('serTable');
+    const estarTable = document.getElementById('estarTable');
+
+    function $all(parent, sel){ return Array.from(parent.querySelectorAll(sel)); }
+
+    function clearHighlights(){
+      $all(document, '.val').forEach(el=>el.classList.remove('highlight'));
+      $all(document, '.key').forEach(el=>el.classList.remove('pop'));
+    }
+
+    function highlight(verb, reason){
+      clearHighlights();
+      const table = verb === 'ser' ? serTable : estarTable;
+      const val = $all(table, '.val').find(v => (v.dataset.key||'').toLowerCase() === (reason||'').toLowerCase());
+      if(val){
+        val.classList.add('highlight');
+        const key = val.previousElementSibling;
+        if(key && key.classList.contains('key')) key.classList.add('pop');
+      }
+    }
+
+    function render(){
+      if(!deck.length){ enEl.textContent='No items'; esEl.textContent=''; return; }
+      const card = deck[i];
+      enEl.textContent = card.en;
+      esEl.textContent = card.es;
+      promptEl.classList.toggle('revealed', revealed);
+      if(revealed){ highlight(card.verb, card.reason); }
+      else{ clearHighlights(); }
+      btnPrev.disabled = i===0;
+      btnNext.disabled = i===deck.length-1;
+    }
+
+    function reveal(){ revealed = !revealed; render(); }
+    function next(){ if(i < deck.length-1){ i++; revealed=false; render(); } }
+    function prev(){ if(i>0){ i--; revealed=false; render(); } }
+
+    function jumpRandom(){
+      if(!deck.length) return;
+      if(deck.length===1){ revealed=false; render(); return; }
+      let k=i; while(k===i){ k=Math.floor(Math.random()*deck.length); }
+      i=k; revealed=false; render();
+    }
+
+    function shuffle(){
+      for(let j=deck.length-1;j>0;j--){
+        const k=Math.floor(Math.random()*(j+1));
+        [deck[j],deck[k]]=[deck[k],deck[j]];
+      }
+      i=0; revealed=false; render();
+    }
+
+    document.getElementById('card').addEventListener('click', reveal);
+    btnReveal.addEventListener('click', reveal);
+    btnNext.addEventListener('click', next);
+    btnPrev.addEventListener('click', prev);
+    btnShuffle.addEventListener('click', shuffle);
+
+    window.addEventListener('keydown', e=>{
+      if(e.code==='Space'){ e.preventDefault(); if(revealed){ jumpRandom(); } else { reveal(); } }
+      if(e.key==='ArrowRight'){ next(); }
+      if(e.key==='ArrowLeft'){ prev(); }
+    });
+
+    async function boot(){
+      try{
+        const res = await fetch(PHRASES_URL,{cache:'no-store'});
+        if(!res.ok) throw new Error('Fetch failed');
+        const data = await res.json();
+        deck = Array.isArray(data)?data:FALLBACK;
+      }catch(err){
+        console.warn('Using fallback data:', err);
+        deck = FALLBACK;
+      }
+      render();
+    }
+    boot();
+  </script>
+</body>
+</html>

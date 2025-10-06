@@ -1,0 +1,62 @@
+[
+  { "en": "I am a student.", "es": "Soy estudiante.", "verb": "ser", "reason": "Occupation" },
+  { "en": "She is a doctor.", "es": "Ella es doctora.", "verb": "ser", "reason": "Occupation" },
+  { "en": "He is an artist.", "es": "Él es artista.", "verb": "ser", "reason": "Occupation" },
+  { "en": "We are teachers.", "es": "Somos profesores.", "verb": "ser", "reason": "Occupation" },
+
+  { "en": "They are intelligent.", "es": "Ellos son inteligentes.", "verb": "ser", "reason": "Characteristic" },
+  { "en": "My friend is friendly.", "es": "Mi amigo es amable.", "verb": "ser", "reason": "Characteristic" },
+  { "en": "The movie is excellent.", "es": "La película es excelente.", "verb": "ser", "reason": "Description" },
+  { "en": "The museum is important.", "es": "El museo es importante.", "verb": "ser", "reason": "Description" },
+
+  { "en": "It is Monday.", "es": "Es lunes.", "verb": "ser", "reason": "Time" },
+  { "en": "It is three o’clock.", "es": "Son las tres.", "verb": "ser", "reason": "Time" },
+  { "en": "Today is October 5th.", "es": "Hoy es el cinco de octubre.", "verb": "ser", "reason": "Time" },
+  { "en": "It is morning.", "es": "Es la mañana.", "verb": "ser", "reason": "Time" },
+
+  { "en": "I am from the United States.", "es": "Soy de Estados Unidos.", "verb": "ser", "reason": "Origin" },
+  { "en": "She is from Mexico.", "es": "Ella es de México.", "verb": "ser", "reason": "Origin" },
+  { "en": "We are from Spain.", "es": "Somos de España.", "verb": "ser", "reason": "Origin" },
+  { "en": "My parents are from Peru.", "es": "Mis padres son de Perú.", "verb": "ser", "reason": "Origin" },
+
+  { "en": "That is my backpack.", "es": "Esa es mi mochila.", "verb": "ser", "reason": "Relationship" },
+  { "en": "It is my phone.", "es": "Es mi teléfono.", "verb": "ser", "reason": "Relationship" },
+  { "en": "They are my books.", "es": "Son mis libros.", "verb": "ser", "reason": "Relationship" },
+  { "en": "She is my cousin.", "es": "Ella es mi prima.", "verb": "ser", "reason": "Relationship" },
+
+  { "en": "I am at school.", "es": "Estoy en la escuela.", "verb": "estar", "reason": "Location" },
+  { "en": "We are in Spanish class.", "es": "Estamos en la clase de español.", "verb": "estar", "reason": "Location" },
+  { "en": "He is at the hospital.", "es": "Él está en el hospital.", "verb": "estar", "reason": "Location" },
+  { "en": "They are at the restaurant.", "es": "Ellos están en el restaurante.", "verb": "estar", "reason": "Location" },
+  { "en": "The book is on the table.", "es": "El libro está sobre la mesa.", "verb": "estar", "reason": "Location" },
+
+  { "en": "I am sitting.", "es": "Estoy sentado.", "verb": "estar", "reason": "Position" },
+  { "en": "She is standing.", "es": "Ella está de pie.", "verb": "estar", "reason": "Position" },
+  { "en": "The baby is lying down.", "es": "El bebé está acostado.", "verb": "estar", "reason": "Position" },
+
+  { "en": "We are studying.", "es": "Estamos estudiando.", "verb": "estar", "reason": "Action" },
+  { "en": "I am listening to music.", "es": "Estoy escuchando música.", "verb": "estar", "reason": "Action" },
+  { "en": "They are practicing soccer.", "es": "Ellos están practicando fútbol.", "verb": "estar", "reason": "Action" },
+  { "en": "She is talking with her family.", "es": "Ella está hablando con su familia.", "verb": "estar", "reason": "Action" },
+  { "en": "We are reading a chapter.", "es": "Estamos leyendo un capítulo.", "verb": "estar", "reason": "Action" },
+
+  { "en": "I am tired today.", "es": "Estoy cansado hoy.", "verb": "estar", "reason": "Condition" },
+  { "en": "The soup is hot right now.", "es": "La sopa está caliente ahora.", "verb": "estar", "reason": "Condition" },
+  { "en": "The door is open.", "es": "La puerta está abierta.", "verb": "estar", "reason": "Condition" },
+  { "en": "The classroom is cold today.", "es": "El salón está frío hoy.", "verb": "estar", "reason": "Condition" },
+
+  { "en": "I am nervous before the quiz.", "es": "Estoy nervioso antes del examen corto.", "verb": "estar", "reason": "Emotion" },
+  { "en": "She is content.", "es": "Ella está contenta.", "verb": "estar", "reason": "Emotion" },
+  { "en": "We are excited.", "es": "Estamos emocionados.", "verb": "estar", "reason": "Emotion" },
+  { "en": "They are calm.", "es": "Ellos están tranquilos.", "verb": "estar", "reason": "Emotion" },
+
+  { "en": "The cafeteria is popular.", "es": "La cafetería es popular.", "verb": "ser", "reason": "Description" },
+  { "en": "The park is fantastic.", "es": "El parque es fantástico.", "verb": "ser", "reason": "Description" },
+  { "en": "My brother is athletic.", "es": "Mi hermano es atlético.", "verb": "ser", "reason": "Characteristic" },
+  { "en": "Our class is interesting.", "es": "Nuestra clase es interesante.", "verb": "ser", "reason": "Description" },
+
+  { "en": "I am at the gym.", "es": "Estoy en el gimnasio.", "verb": "estar", "reason": "Location" },
+  { "en": "She is at the library.", "es": "Ella está en la biblioteca.", "verb": "estar", "reason": "Location" },
+  { "en": "We are at home.", "es": "Estamos en casa.", "verb": "estar", "reason": "Location" },
+  { "en": "They are in the apartment.", "es": "Ellos están en el apartamento.", "verb": "estar", "reason": "Location" }
+]

@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Lyrics Timestamp Maker</title>
+<style>
+	:root{
+		/* Green theme */
+		--bg-top: #517860;
+		--bg-bottom: #5c8a6d;
+		--card: #ffffff;
+		--ink: #0f1612;
+		--muted: #44564a;
+		--line: #dfe8e2;
+		--accent: #4c7f67;
+		--accent-strong: #2e5c49;
+		--hi-bg: #c9f0df;
+	}
+
+	*{box-sizing:border-box}
+	html,body{height:100%}
+	body{
+		margin:0;
+		background: linear-gradient(to bottom, var(--bg-top), var(--bg-bottom));
+		font-family: system-ui, -apple-system, Segoe UI, Roboto, Inter, Arial, sans-serif;
+		color: var(--ink);
+	}
+
+	.app{
+		max-width: 1200px;
+		margin: clamp(10px, 4vw, 30px) auto;
+		background: var(--card);
+		border-radius: 16px;
+		border: 1px solid var(--line);
+		box-shadow: 0 12px 30px rgba(0,0,0,.15);
+		overflow: hidden;
+	}
+
+	header{
+		padding: 16px 18px 10px;
+		border-bottom: 1px solid var(--line);
+		display: grid;
+		grid-template-columns: 1fr auto;
+		gap: 12px;
+		align-items: end;
+	}
+	h1{ font-size: clamp(20px, 2.2vw, 28px); line-height:1.2; margin:0 0 4px 0; }
+	.sub{ color: var(--muted); font-size: 13px }
+
+	.grid{ display:grid; gap:18px; padding:16px; grid-template-columns: 360px 1fr; }
+	@media (max-width: 980px){ .grid{grid-template-columns: 1fr} }
+
+	.card{ border:1px solid var(--line); border-radius:12px; overflow:hidden; background:#fff; }
+
+	.section-head{ background:#f5faf7; border-bottom:1px solid var(--line); padding:10px 14px; font-weight:600; }
+	.block{ padding:12px 14px }
+	.row{ display:flex; gap:10px; flex-wrap:wrap; align-items:center }
+	.row > *{ flex:0 0 auto }
+
+	label.input{ display:flex; flex-direction:column; gap:6px; font-size:13px; color:var(--muted); }
+	input[type="text"]{ font-size:14px; padding:8px 10px; border:1px solid var(--line); border-radius:10px; }
+	select{ font-size:14px; padding:8px 10px; border:1px solid var(--line); border-radius:10px; background:#fff; }
+	textarea{
+		width:100%; min-height:160px; font-size:14px; padding:10px 12px;
+		border:1px solid var(--line); border-radius:10px; resize:vertical;
+		font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+	}
+
+	.btn{
+		background:#1d232b; color:#fff; border:1px solid #0000; padding:8px 12px;
+		border-radius:10px; cursor:pointer; font-size:14px;
+	}
+	.btn:hover{filter:brightness(1.07)}
+	.btn:active{transform:translateY(1px)}
+	.btn-ghost{ background:#fff; color:var(--ink); border:1px solid var(--line); }
+	.btn-accent{ background:var(--accent); color:#0b1315; border-color:transparent; }
+	.kbd{ font-family:ui-monospace,monospace; background:#eef6f1; border:1px solid var(--line); padding:1px 6px; border-radius:6px; font-size:12px }
+
+	video{ width:100%; max-height:48vh; background:#000; border-radius:10px }
+
+	/* Lyrics list */
+	.lyrics{ max-height: 60vh; overflow:auto; scroll-behavior:smooth; padding:6px 0; }
+	.line{
+		padding: 14px 18px;
+		font-size: clamp(18px, 2.1vw, 24px);
+		line-height: 1.35;
+		border-bottom: 1px dashed var(--line);
+		display:flex; gap:10px; align-items:baseline;
+		cursor: pointer;
+	}
+	.line:last-child{ border-bottom:none }
+	.idx{ color:#90a79a; width:32px; text-align:right; flex:0 0 auto }
+	.txt{ flex:1 1 auto }
+	.stamp{ flex:0 0 auto; font-size:12px; color:#5e7468; min-width:120px; text-align:right; }
+
+	.line.current{
+		background:
+			linear-gradient(90deg, rgba(46,92,73,.12), rgba(46,92,73,0) 70%),
+			#e9f7ef;
+		box-shadow:
+			inset 4px 0 0 0 var(--accent-strong),
+			inset 0 0 0 1px rgba(46,92,73,.25);
+	}
+
+	.footer{ border-top:1px solid var(--line); padding:10px 14px; color:var(--muted); font-size:12px }
+	hr{ border:none; border-top:1px solid var(--line); margin:12px 0 }
+</style>
+</head>
+<body>
+<div class="app">
+	<header>
+		<div>
+			<h1>Lyrics Timestamp Maker</h1>
+			<div class="sub">
+				Paste lyrics → Load media → Press <span class="kbd">Mark</span> or <span class="kbd">↓</span> line by line.
+				Click a line to preview its segment. Use <span class="kbd">0.5×</span> for easier marking.
+			</div>
+		</div>
+		<div class="sub" id="status">Ready</div>
+	</header>
+
+	<div class="grid">
+		<!-- Left: Setup -->
+		<div class="card">
+			<div class="section-head">Setup</div>
+			<div class="block">
+				<div class="row" style="align-items:flex-start">
+					<label class="input" style="flex:1 1 260px">
+						<span>Media URL (direct MP3/MP4/OGG with CORS)</span>
+						<input id="mediaUrl" type="text" placeholder="https://example.com/audio.mp3" />
+					</label>
+					<button id="setUrlBtn" class="btn btn-ghost">Use URL</button>
+				</div>
+				<div class="row" style="margin-top:6px">
+					<input id="mediaFile" type="file" accept="audio/*,video/*" />
+					<button id="useFileBtn" class="btn btn-ghost">Use File</button>
+					<button id="playBtn" class="btn btn-accent">Play</button>
+					<button id="pauseBtn" class="btn btn-ghost">Pause</button>
+				</div>
+
+				<!-- Speed controls -->
+				<div class="row" style="margin-top:6px">
+					<button id="halfBtn" class="btn btn-ghost" title="Set speed to 0.5×">0.5×</button>
+					<button id="normBtn" class="btn btn-ghost" title="Set speed to 1.0×">1.0×</button>
+					<label class="input">
+						<span>Playback Rate</span>
+						<select id="rateSelect">
+							<option value="0.5">0.5×</option>
+							<option value="0.75">0.75×</option>
+							<option value="1" selected>1.0×</option>
+							<option value="1.25">1.25×</option>
+							<option value="1.5">1.5×</option>
+						</select>
+					</label>
+				</div>
+
+				<video id="player" controls preload="metadata"></video>
+			</div>
+		</div>
+
+		<!-- Right: Lyrics & Actions -->
+		<div class="card">
+			<div class="section-head">Lyrics</div>
+			<div class="block">
+				<label class="input">
+					<span>Paste lyrics (one line per line). Blank lines are skipped.</span>
+					<textarea id="lyricsInput" placeholder="Line 1&#10;Line 2&#10;Line 3"></textarea>
+				</label>
+				<div class="row" style="margin-top:8px">
+					<button id="loadLinesBtn" class="btn btn-ghost">Load Lines</button>
+					<button id="clearBtn" class="btn btn-ghost">Clear</button>
+					<span class="sub" id="lineCount">0 lines</span>
+				</div>
+			</div>
+
+			<div class="section-head">Marking</div>
+			<div class="block">
+				<div class="row" style="margin-bottom:8px">
+					<button id="markBtn" class="btn btn-accent">Mark (↓)</button>
+					<button id="undoBtn" class="btn btn-ghost">Undo</button>
+					<button id="finishBtn" class="btn btn-ghost" title="Set last unclosed line's end to media duration">Finish Last to End</button>
+				</div>
+				<div id="lyricsList" class="lyrics" aria-label="Lines"></div>
+			</div>
+
+			<div class="section-head">JSON</div>
+			<div class="block">
+				<textarea id="jsonOut" readonly style="min-height:180px"></textarea>
+				<div class="row" style="margin-top:8px">
+					<button id="copyBtn" class="btn btn-ghost">Copy JSON</button>
+					<button id="downloadBtn" class="btn btn-ghost">Download JSON</button>
+				</div>
+			</div>
+
+			<div class="footer">
+				Tips: Press <span class="kbd">↓</span> to mark quickly. Click a line to preview its segment (auto-stops at end).
+			</div>
+		</div>
+	</div>
+</div>
+
+<script>
+(() => {
+	// Elements
+	const mediaUrlEl = document.getElementById('mediaUrl');
+	const setUrlBtn = document.getElementById('setUrlBtn');
+	const mediaFileEl = document.getElementById('mediaFile');
+	const useFileBtn = document.getElementById('useFileBtn');
+	const player = document.getElementById('player');
+	const playBtn = document.getElementById('playBtn');
+	const pauseBtn = document.getElementById('pauseBtn');
+
+	const rateSelect = document.getElementById('rateSelect');
+	const halfBtn = document.getElementById('halfBtn');
+	const normBtn = document.getElementById('normBtn');
+
+	const lyricsInput = document.getElementById('lyricsInput');
+	const loadLinesBtn = document.getElementById('loadLinesBtn');
+	const clearBtn = document.getElementById('clearBtn');
+	const lyricsList = document.getElementById('lyricsList');
+	const lineCount = document.getElementById('lineCount');
+
+	const markBtn = document.getElementById('markBtn');
+	const undoBtn = document.getElementById('undoBtn');
+	const finishBtn = document.getElementById('finishBtn');
+
+	const jsonOut = document.getElementById('jsonOut');
+	const copyBtn = document.getElementById('copyBtn');
+	const downloadBtn = document.getElementById('downloadBtn');
+
+	const statusEl = document.getElementById('status');
+
+	// State
+	let lines = [];               // [{ text, start, end }]
+	let currentLine = 0;
+	let lastTimestamp = 0;
+	let segmentEnd = null;        // number | null (when previewing a line)
+	let rafId = null;
+
+	// Helpers
+	function fmt(n){ return Number(n || 0).toFixed(2); }
+	function clamp(v, min, max){ return Math.max(min, Math.min(max, v)); }
+	function setStatus(msg){ statusEl.textContent = msg; }
+
+	// Robust “center current line” based on geometry (works even after reflows)
+	function centerToIndex(i, smooth = true){
+		const parent = lyricsList;
+		const el = parent.querySelector(`.line[data-index="${i}"]`);
+		if (!el) return;
+
+		// Use rAF to ensure DOM is laid out before measuring & scrolling
+		requestAnimationFrame(() => {
+			const pr = parent.getBoundingClientRect();
+			const er = el.getBoundingClientRect();
+			const currentScroll = parent.scrollTop;
+
+			const delta = (er.top - pr.top) - (pr.height/2 - er.height/2);
+			let target = currentScroll + delta;
+
+			const max = Math.max(0, parent.scrollHeight - parent.clientHeight);
+			target = clamp(target, 0, max);
+
+			parent.scrollTo({ top: target, behavior: smooth ? 'smooth' : 'auto' });
+		});
+	}
+
+	function buildJSON(){
+		const data = {
+			title: "Song Title",
+			artist: "Artist",
+			audio: player.src || (mediaUrlEl.value || "dummy.mp3"),
+			lines: lines.map(l => ({
+				text: l.text,
+				start: Number(l.start || 0),
+				end: Number(l.end || 0)
+			}))
+		};
+		jsonOut.value = JSON.stringify(data, null, 2);
+	}
+
+	function renderList(){
+		// Build once, then center after layout
+		lyricsList.innerHTML = '';
+		lines.forEach((l, i) => {
+			const row = document.createElement('div');
+			row.className = 'line' + (i === currentLine ? ' current' : '');
+			row.dataset.index = i;
+
+			const idx = document.createElement('div');
+			idx.className = 'idx';
+			idx.textContent = (i+1) + '.';
+
+			const txt = document.createElement('div');
+			txt.className = 'txt';
+			txt.textContent = l.text;
+
+			const stamp = document.createElement('div');
+			stamp.className = 'stamp';
+			const hasTimes = l.start != null && l.end != null && l.end > l.start;
+			stamp.textContent = hasTimes ? `${fmt(l.start)} → ${fmt(l.end)}` : '—';
+
+			row.appendChild(idx);
+			row.appendChild(txt);
+			row.appendChild(stamp);
+
+			// CLICK TO PREVIEW THIS LINE'S SEGMENT & move pointer
+			row.addEventListener('click', () => {
+				currentLine = i;     // move pointer to clicked line
+				if (l.end > l.start){
+					segmentEnd = l.end;
+					player.currentTime = l.start + 0.001;
+					player.play().catch(()=>{});
+					setStatus(`Preview: line ${i+1} (${fmt(l.start)}–${fmt(l.end)})`);
+				} else {
+					setStatus(`Line ${i+1} has no valid end yet`);
+				}
+				// Update classes without rebuilding whole list:
+				updateCurrentHighlight();
+				centerToIndex(currentLine);
+				buildJSON();
+			});
+
+			lyricsList.appendChild(row);
+		});
+
+		// Center on current after rendering
+		centerToIndex(currentLine, false);
+		buildJSON();
+	}
+
+	function updateCurrentHighlight(){
+		const prev = lyricsList.querySelector('.line.current');
+		if (prev) prev.classList.remove('current');
+		const cur = lyricsList.querySelector(`.line[data-index="${currentLine}"]`);
+		if (cur) cur.classList.add('current');
+	}
+
+	// Media controls
+	function setRate(v){
+		const rate = Number(v) || 1;
+		player.playbackRate = rate;
+		setStatus(`Speed: ${rate.toFixed(2)}×`);
+	}
+	setUrlBtn.addEventListener('click', () => {
+		const url = mediaUrlEl.value.trim();
+		if (!url) return;
+		player.src = url;
+		player.playbackRate = Number(rateSelect.value || 1);
+		player.play().catch(()=>{});
+		setStatus('Using media URL');
+		buildJSON();
+	});
+	useFileBtn.addEventListener('click', () => {
+		const f = mediaFileEl.files && mediaFileEl.files[0];
+		if (!f) return;
+		player.src = URL.createObjectURL(f);
+		player.playbackRate = Number(rateSelect.value || 1);
+		player.play().catch(()=>{});
+		setStatus(`Using file: ${f.name}`);
+		buildJSON();
+	});
+	playBtn.addEventListener('click', () => player.play());
+	pauseBtn.addEventListener('click', () => player.pause());
+	halfBtn.addEventListener('click', () => setRate(0.5));
+	normBtn.addEventListener('click', () => setRate(1));
+	rateSelect.addEventListener('change', (e) => setRate(e.target.value));
+
+	// Load & clear lines
+	loadLinesBtn.addEventListener('click', () => {
+		const raw = lyricsInput.value.split('\n').map(s => s.trim());
+		const filtered = raw.filter(s => s.length > 0);
+		lines = filtered.map(text => ({ text, start: 0, end: 0 }));
+		currentLine = 0;
+		lastTimestamp = 0;
+		lineCount.textContent = `${lines.length} lines`;
+		renderList();
+		setStatus('Lines loaded');
+	});
+	clearBtn.addEventListener('click', () => {
+		lyricsInput.value = '';
+		lines = [];
+		currentLine = 0;
+		lastTimestamp = 0;
+		lineCount.textContent = `0 lines`;
+		renderList();
+		setStatus('Cleared');
+	});
+
+	// Mark / Undo / Finish
+	function mark(){
+		if (!lines.length) { setStatus('No lines loaded'); return; }
+		if (currentLine >= lines.length) { setStatus('All lines are already marked'); return; }
+
+		const now = player.currentTime || 0;
+		lines[currentLine].start = lastTimestamp;
+		lines[currentLine].end = now;
+
+		lastTimestamp = now;
+		currentLine++;
+
+		// Update highlight & scroll without fully rebuilding the DOM
+		updateTimestampsDisplay();
+		updateCurrentHighlight();
+		centerToIndex(currentLine);
+
+		if (currentLine >= lines.length) {
+			setStatus('Finished marking (use "Finish Last to End" if needed).');
+		} else {
+			setStatus(`Marked line ${currentLine} — next is ${currentLine+1}`);
+		}
+		buildJSON();
+	}
+	function updateTimestampsDisplay(){
+		lines.forEach((l, i) => {
+			const node = lyricsList.querySelector(`.line[data-index="${i}"] .stamp`);
+			if (node){
+				const hasTimes = l.start != null && l.end != null && l.end > l.start;
+				node.textContent = hasTimes ? `${fmt(l.start)} → ${fmt(l.end)}` : '—';
+			}
+		});
+	}
+	function undo(){
+		if (currentLine <= 0) return;
+		currentLine--;
+		const prevStart = lines[currentLine].start;
+		const prevEnd = lines[currentLine].end;
+		lines[currentLine].start = 0;
+		lines[currentLine].end = 0;
+		lastTimestamp = prevStart || 0;
+		if (prevEnd != null) player.currentTime = prevEnd;
+
+		updateTimestampsDisplay();
+		updateCurrentHighlight();
+		centerToIndex(currentLine);
+
+		setStatus(`Undid line ${currentLine+1}`);
+		buildJSON();
+	}
+	function finishLastToEnd(){
+		if (!lines.length) return;
+		let idx = currentLine < lines.length ? currentLine : lines.length - 1;
+		if (lines[idx].start == null) lines[idx].start = lastTimestamp || 0;
+		lines[idx].end = player.duration || player.currentTime || lines[idx].start;
+		currentLine = Math.max(currentLine, idx + 1);
+		lastTimestamp = lines[idx].end;
+
+		updateTimestampsDisplay();
+		updateCurrentHighlight();
+		centerToIndex(currentLine);
+
+		setStatus(`Finished line ${idx+1} to media end`);
+		buildJSON();
+	}
+
+	markBtn.addEventListener('click', mark);
+	undoBtn.addEventListener('click', undo);
+	finishBtn.addEventListener('click', finishLastToEnd);
+
+	// Keyboard: Down arrow marks timestamps quickly
+	document.addEventListener('keydown', (e) => {
+		if (e.code === 'ArrowDown') {
+			e.preventDefault();
+			mark();
+		}
+	});
+
+	// Auto-pause when previewing a segment and reaching its end
+	function loop(){
+		if (segmentEnd != null){
+			const t = player.currentTime || 0;
+			if (t >= segmentEnd - 0.02){
+				player.pause();
+				segmentEnd = null;
+			}
+		}
+		rafId = requestAnimationFrame(loop);
+	}
+	rafId = requestAnimationFrame(loop);
+
+	// JSON stays in sync with media src + changes
+	player.addEventListener('loadedmetadata', buildJSON);
+	player.addEventListener('ratechange', buildJSON);
+
+	// Initial setup
+	buildJSON();
+})();
+</script>
+</body>
+</html>

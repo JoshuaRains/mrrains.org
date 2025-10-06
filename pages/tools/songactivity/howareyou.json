@@ -1,0 +1,377 @@
+{
+  "title": "How are you?",
+  "artist": "Tiktok",
+  "audio": "./howareyou.mp3",
+  "lines": [
+    {
+      "text": "How are you",
+      "start": 0,
+      "end": 1.727525
+    },
+    {
+      "text": "¿Cómo estás?",
+      "start": 1.727525,
+      "end": 2.644859
+    },
+    {
+      "text": "I am fine",
+      "start": 2.644859,
+      "end": 4.297451
+    },
+    {
+      "text": "Estoy bien",
+      "start": 4.297451,
+      "end": 5.24803
+    },
+    {
+      "text": "Thank you",
+      "start": 5.24803,
+      "end": 7.004675
+    },
+    {
+      "text": "Gracias",
+      "start": 7.004675,
+      "end": 7.897842
+    },
+    {
+      "text": "You are welcome",
+      "start": 7.897842,
+      "end": 9.483951
+    },
+    {
+      "text": "De nada",
+      "start": 9.483951,
+      "end": 10.602794
+    },
+    {
+      "text": "Excuse me",
+      "start": 10.602794,
+      "end": 12.182633
+    },
+    {
+      "text": "Disculpe",
+      "start": 12.182633,
+      "end": 13.162564
+    },
+    {
+      "text": "Sorry",
+      "start": 13.162564,
+      "end": 14.651424
+    },
+    {
+      "text": "Lo siento",
+      "start": 14.651424,
+      "end": 15.738999
+    },
+    {
+      "text": "I don't know",
+      "start": 15.738999,
+      "end": 17.419866
+    },
+    {
+      "text": "No sé",
+      "start": 17.419866,
+      "end": 18.2109
+    },
+    {
+      "text": "I like it",
+      "start": 18.2109,
+      "end": 19.855289
+    },
+    {
+      "text": "Me gusta",
+      "start": 19.855289,
+      "end": 20.928028
+    },
+    {
+      "text": "I love you",
+      "start": 20.928028,
+      "end": 22.382649
+    },
+    {
+      "text": "Te amo",
+      "start": 22.382649,
+      "end": 23.360495
+    },
+    {
+      "text": "I need help",
+      "start": 23.360495,
+      "end": 25.006084
+    },
+    {
+      "text": "Necesito ayuda",
+      "start": 25.006084,
+      "end": 25.973306
+    },
+    {
+      "text": "Come here",
+      "start": 25.973306,
+      "end": 27.466413
+    },
+    {
+      "text": "Ven aquí",
+      "start": 27.466413,
+      "end": 28.538986
+    },
+    {
+      "text": "Go away",
+      "start": 28.538986,
+      "end": 30.250901
+    },
+    {
+      "text": "Retírate",
+      "start": 30.250901,
+      "end": 31.470847
+    },
+    {
+      "text": "What is this?",
+      "start": 31.470847,
+      "end": 32.717252
+    },
+    {
+      "text": "¿Qué es esto?",
+      "start": 32.717252,
+      "end": 33.99542
+    },
+    {
+      "text": "Who are you?",
+      "start": 33.99542,
+      "end": 35.316981
+    },
+    {
+      "text": "¿Quién eres?",
+      "start": 35.316981,
+      "end": 36.592922
+    },
+    {
+      "text": "Where is it?",
+      "start": 36.592922,
+      "end": 38.196634
+    },
+    {
+      "text": "¿Dónde está?",
+      "start": 38.196634,
+      "end": 39.074135
+    },
+    {
+      "text": "I am hungry",
+      "start": 39.074135,
+      "end": 40.408638
+    },
+    {
+      "text": "Tengo hambre",
+      "start": 40.408638,
+      "end": 41.832018
+    },
+    {
+      "text": "I am tired",
+      "start": 41.832018,
+      "end": 43.069209
+    },
+    {
+      "text": "Estoy cansado/cansada",
+      "start": 43.069209,
+      "end": 44.416003
+    },
+    {
+      "text": "Be careful",
+      "start": 44.416003,
+      "end": 45.612851
+    },
+    {
+      "text": "Ten cuidado",
+      "start": 45.612851,
+      "end": 46.755411
+    },
+    {
+      "text": "Good morning",
+      "start": 46.755411,
+      "end": 48.169146
+    },
+    {
+      "text": "Buenos días",
+      "start": 48.169146,
+      "end": 49.410437
+    },
+    {
+      "text": "Good night",
+      "start": 49.410437,
+      "end": 50.771117
+    },
+    {
+      "text": "Buenas noches",
+      "start": 50.771117,
+      "end": 52.183197
+    },
+    {
+      "text": "See you later",
+      "start": 52.183197,
+      "end": 53.347536
+    },
+    {
+      "text": "Hasta luego",
+      "start": 53.347536,
+      "end": 54.908466
+    },
+    {
+      "text": "I am ready",
+      "start": 54.908466,
+      "end": 56.50219
+    },
+    {
+      "text": "Estoy listo/lista",
+      "start": 56.50219,
+      "end": 57.522646
+    },
+    {
+      "text": "I am busy",
+      "start": 57.522646,
+      "end": 58.986009
+    },
+    {
+      "text": "Estoy ocupado/ocupada",
+      "start": 58.986009,
+      "end": 60.092468
+    },
+    {
+      "text": "Take care",
+      "start": 60.092468,
+      "end": 61.925795
+    },
+    {
+      "text": "Cuídate",
+      "start": 61.925795,
+      "end": 62.971207
+    },
+    {
+      "text": "Wait a minute",
+      "start": 62.971207,
+      "end": 63.864202
+    },
+    {
+      "text": "Espera un minuto",
+      "start": 63.864202,
+      "end": 65.849707
+    },
+    {
+      "text": "It’s mine",
+      "start": 65.849707,
+      "end": 67.111539
+    },
+    {
+      "text": "Es mío",
+      "start": 67.111539,
+      "end": 68.330025
+    },
+    {
+      "text": "I am cold",
+      "start": 68.692949,
+      "end": 70
+    },
+    {
+      "text": "Tengo frío",
+      "start": 70,
+      "end": 70.808019
+    },
+    {
+      "text": "I am hot",
+      "start": 70.862515,
+      "end": 72.059051
+    },
+    {
+      "text": "Tengo calor",
+      "start": 72.059051,
+      "end": 73.186043
+    },
+    {
+      "text": "That’s funny",
+      "start": 73.186043,
+      "end": 74.743162
+    },
+    {
+      "text": "Eso es gracioso",
+      "start": 74.743162,
+      "end": 75.872856
+    },
+    {
+      "text": "I see",
+      "start": 75.872856,
+      "end": 77.353154
+    },
+    {
+      "text": "Ya veo",
+      "start": 77.353154,
+      "end": 78.59017
+    },
+    {
+      "text": "I miss you",
+      "start": 78.59017,
+      "end": 79.83074
+    },
+    {
+      "text": "Te extraño",
+      "start": 79.83074,
+      "end": 81.063682
+    },
+    {
+      "text": "Let me try",
+      "start": 81.063682,
+      "end": 82.034417
+    },
+    {
+      "text": "Déjame intentar",
+      "start": 82.034417,
+      "end": 85.413843
+    },
+    {
+      "text": "It’s easy",
+      "start": 85.413843,
+      "end": 86.495264
+    },
+    {
+      "text": "Es fácil",
+      "start": 86.495264,
+      "end": 87.462802
+    },
+    {
+      "text": "I’m learning",
+      "start": 87.462802,
+      "end": 89.810181
+    },
+    {
+      "text": "Estoy aprendiendo",
+      "start": 89.810181,
+      "end": 91.411933
+    },
+    {
+      "text": "Can I help?",
+      "start": 91.411933,
+      "end": 92.619285
+    },
+    {
+      "text": "¿Puedo ayudar?",
+      "start": 92.619285,
+      "end": 93.665973
+    },
+    {
+      "text": "I am happy",
+      "start": 93.665973,
+      "end": 94.937692
+    },
+    {
+      "text": "Estoy feliz",
+      "start": 94.937692,
+      "end": 96.116291
+    },
+    {
+      "text": "It’s difficult",
+      "start": 96.116291,
+      "end": 97.95059
+    },
+    {
+      "text": "Es difícil",
+      "start": 97.95059,
+      "end": 99.006267
+    }
+  ]
+}

@@ -243,6 +243,23 @@
         background: linear-gradient(to right, #a3299f, #eb02dc); /* Bright pink gradient for "assignment_add" */
     }
 
+    /* Material Symbols sizing (so it matches your Material Icons) */
+.material-symbols-outlined {
+	font-variation-settings:
+		'FILL' 0,
+		'wght' 400,
+		'GRAD' 0,
+		'opsz' 24;
+	font-size: 24px;   /* match your .material-icons rule */
+	line-height: 1;
+}
+
+/* New pink gradient for "music" activities */
+.activity-icon.music_note {
+	background: linear-gradient(to right, #FF6FB1, #FF3D7F); /* vibrant pinks */
+}
+
+
     .flower-container {
       position: relative; /* Ensure it is positioned absolutely */
       width: 100%; /* Match the width of the game area */
@@ -539,6 +556,7 @@ image-rendering: -webkit-optimize-contrast;
           <button class="game-item" onclick="location.href='./pages/tools/clockgame'"><img src="assets/vector_icons/clockgame.svg" alt="time game"><p>Time Game</p></button>
           <button class="game-item" onclick="location.href='./pages/tools/flaggame'"><img src="assets/vector_icons/flaggame.svg" alt="flags"><p>Flag Game</p></button>
           <button class="game-item" onclick="location.href='./pages/tools/pronounce'"><img src="assets/vector_icons/pronounce.svg" alt="flags"><p>Pronounce</p></button>
+          <button class="game-item" onclick="location.href='./pages/tools/serestarpractice'"><img src="assets/vector_icons/pronounce.svg" alt="flags"><p>ser estar</p></button>
 
 
 
@@ -604,24 +622,18 @@ image-rendering: -webkit-optimize-contrast;
 <br>
 <br>
 
-<p class="activity-topic"><b style="color: #FFD700;">Study for the quiz!!!</b></p>
-<button class="activity-button" onclick="window.open('./pages/games/vocabularyReview/index.html?set=verbs1', '_blank')">
-              <div class="activity-item">
-                <div class="activity-icon model_training">
-                  <span class="material-icons">model_training</span>
-                </div>
-                <div class="activity-text">Study the meanings of the verbs </div>
-              </div>
-            </button>
+<p class="activity-topic">Week: 9</p>
 
-            <button class="activity-button" onclick="window.open('./pages/games/vocabularyReview/index.html?set=regularendings', '_blank')">
-              <div class="activity-item">
-                <div class="activity-icon model_training">
-                  <span class="material-icons">model_training</span>
-                </div>
-                <div class="activity-text">Study the endings </div>
-              </div>
-            </button>
+<button class="activity-button" onclick="window.open('./pages/tools/songactivity/index.html?data=howareyou.json','_blank')">
+  
+  <div class="activity-item">
+    <div class="activity-icon music_note">
+      <span class="material-symbols-outlined">music_note</span>
+    </div>
+    <div class="activity-text">Listening: Lyrics Highlighter</div>
+  </div>
+</button>
+
 
 <p class="activity-topic">Week 8:</p>
 
