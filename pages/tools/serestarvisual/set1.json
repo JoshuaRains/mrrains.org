@@ -1,0 +1,93 @@
+[
+  { "english": "I am from Spain.", "spanish": "Yo [VERB] de España.", "part": "Origin", "verb": "ser", "conjugated": "soy" },
+  { "english": "You (informal) are from Mexico.", "spanish": "Tú [VERB] de México.", "part": "Origin", "verb": "ser", "conjugated": "eres" },
+  { "english": "He is from Argentina.", "spanish": "Él [VERB] de Argentina.", "part": "Origin", "verb": "ser", "conjugated": "es" },
+  { "english": "She is from Colombia.", "spanish": "Ella [VERB] de Colombia.", "part": "Origin", "verb": "ser", "conjugated": "es" },
+  { "english": "We are from the United States.", "spanish": "Nosotros [VERB] de los Estados Unidos.", "part": "Origin", "verb": "ser", "conjugated": "somos" },
+  { "english": "You all (Spain) are from Peru.", "spanish": "Vosotros [VERB] de Perú.", "part": "Origin", "verb": "ser", "conjugated": "sois" },
+  { "english": "They are from Chile.", "spanish": "Ellos [VERB] de Chile.", "part": "Origin", "verb": "ser", "conjugated": "son" },
+
+  { "english": "It is one o'clock.", "spanish": "[VERB] la una.", "part": "Time/Date", "verb": "ser", "conjugated": "Es" },
+  { "english": "It is two o'clock.", "spanish": "[VERB] las dos.", "part": "Time/Date", "verb": "ser", "conjugated": "Son" },
+  { "english": "Today is Monday.", "spanish": "Hoy [VERB] lunes.", "part": "Time/Date", "verb": "ser", "conjugated": "es" },
+  { "english": "Tomorrow is Friday.", "spanish": "Mañana [VERB] viernes.", "part": "Time/Date", "verb": "ser", "conjugated": "es" },
+  { "english": "It is September 10th.", "spanish": "[VERB] el diez de septiembre.", "part": "Time/Date", "verb": "ser", "conjugated": "Es" },
+
+  { "english": "She is my sister.", "spanish": "Ella [VERB] mi hermana.", "part": "Relationship", "verb": "ser", "conjugated": "es" },
+  { "english": "He is my friend.", "spanish": "Él [VERB] mi amigo.", "part": "Relationship", "verb": "ser", "conjugated": "es" },
+  { "english": "We are classmates.", "spanish": "Nosotros [VERB] compañeros de clase.", "part": "Relationship", "verb": "ser", "conjugated": "somos" },
+  { "english": "They are brothers.", "spanish": "Ellos [VERB] hermanos.", "part": "Relationship", "verb": "ser", "conjugated": "son" },
+  { "english": "You (formal) are my teacher.", "spanish": "Usted [VERB] mi profesor.", "part": "Relationship", "verb": "ser", "conjugated": "es" },
+
+  { "english": "I am a student.", "spanish": "Yo [VERB] estudiante.", "part": "Occupation", "verb": "ser", "conjugated": "soy" },
+  { "english": "She is a doctor.", "spanish": "Ella [VERB] doctora.", "part": "Occupation", "verb": "ser", "conjugated": "es" },
+  { "english": "He is a chef.", "spanish": "Él [VERB] cocinero.", "part": "Occupation", "verb": "ser", "conjugated": "es" },
+  { "english": "We are teachers.", "spanish": "Nosotros [VERB] profesores.", "part": "Occupation", "verb": "ser", "conjugated": "somos" },
+  { "english": "They are artists.", "spanish": "Ellas [VERB] artistas.", "part": "Occupation", "verb": "ser", "conjugated": "son" },
+
+  { "english": "The book is new.", "spanish": "El libro [VERB] nuevo.", "part": "Characteristic", "verb": "ser", "conjugated": "es" },
+  { "english": "The house is big.", "spanish": "La casa [VERB] grande.", "part": "Characteristic", "verb": "ser", "conjugated": "es" },
+  { "english": "The students are intelligent.", "spanish": "Los estudiantes [VERB] inteligentes.", "part": "Characteristic", "verb": "ser", "conjugated": "son" },
+  { "english": "The class is easy.", "spanish": "La clase [VERB] fácil.", "part": "Characteristic", "verb": "ser", "conjugated": "es" },
+  { "english": "My parents are strict.", "spanish": "Mis padres [VERB] estrictos.", "part": "Characteristic", "verb": "ser", "conjugated": "son" },
+
+  { "english": "The keys are on the table.", "spanish": "Las llaves [VERB] en la mesa.", "part": "Position", "verb": "estar", "conjugated": "están" },
+  { "english": "The cat is under the chair.", "spanish": "El gato [VERB] debajo de la silla.", "part": "Position", "verb": "estar", "conjugated": "está" },
+  { "english": "The backpack is next to the desk.", "spanish": "La mochila [VERB] al lado del escritorio.", "part": "Position", "verb": "estar", "conjugated": "está" },
+  { "english": "The phone is in my pocket.", "spanish": "El teléfono [VERB] en mi bolsillo.", "part": "Position", "verb": "estar", "conjugated": "está" },
+  { "english": "The shoes are on the floor.", "spanish": "Los zapatos [VERB] en el piso.", "part": "Position", "verb": "estar", "conjugated": "están" },
+
+  { "english": "I am at the library.", "spanish": "Yo [VERB] en la biblioteca.", "part": "Location", "verb": "estar", "conjugated": "estoy" },
+  { "english": "You (informal) are at home.", "spanish": "Tú [VERB] en casa.", "part": "Location", "verb": "estar", "conjugated": "estás" },
+  { "english": "He is at school.", "spanish": "Él [VERB] en la escuela.", "part": "Location", "verb": "estar", "conjugated": "está" },
+  { "english": "We are in the cafeteria.", "spanish": "Nosotros [VERB] en la cafetería.", "part": "Location", "verb": "estar", "conjugated": "estamos" },
+  { "english": "They are at the park.", "spanish": "Ellos [VERB] en el parque.", "part": "Location", "verb": "estar", "conjugated": "están" },
+
+  { "english": "I am tired.", "spanish": "Yo [VERB] cansado.", "part": "Condition", "verb": "estar", "conjugated": "estoy" },
+  { "english": "She is sick.", "spanish": "Ella [VERB] enferma.", "part": "Condition", "verb": "estar", "conjugated": "está" },
+  { "english": "He is busy.", "spanish": "Él [VERB] ocupado.", "part": "Condition", "verb": "estar", "conjugated": "está" },
+  { "english": "We are ready.", "spanish": "Nosotros [VERB] listos.", "part": "Condition", "verb": "estar", "conjugated": "estamos" },
+  { "english": "The windows are open.", "spanish": "Las ventanas [VERB] abiertas.", "part": "Condition", "verb": "estar", "conjugated": "están" },
+
+  { "english": "I am happy today.", "spanish": "Yo [VERB] contento hoy.", "part": "Emotion", "verb": "estar", "conjugated": "estoy" },
+  { "english": "You (informal) are nervous.", "spanish": "Tú [VERB] nervioso.", "part": "Emotion", "verb": "estar", "conjugated": "estás" },
+  { "english": "She is sad.", "spanish": "Ella [VERB] triste.", "part": "Emotion", "verb": "estar", "conjugated": "está" },
+  { "english": "We are excited.", "spanish": "Nosotros [VERB] emocionados.", "part": "Emotion", "verb": "estar", "conjugated": "estamos" },
+  { "english": "They are angry.", "spanish": "Ellos [VERB] enojados.", "part": "Emotion", "verb": "estar", "conjugated": "están" },
+
+  { "english": "My brother is tall.", "spanish": "Mi hermano [VERB] alto.", "part": "Characteristic", "verb": "ser", "conjugated": "es" },
+  { "english": "The river is long.", "spanish": "El río [VERB] largo.", "part": "Characteristic", "verb": "ser", "conjugated": "es" },
+  { "english": "The mountains are beautiful.", "spanish": "Las montañas [VERB] hermosas.", "part": "Characteristic", "verb": "ser", "conjugated": "son" },
+  { "english": "My parents are generous.", "spanish": "Mis padres [VERB] generosos.", "part": "Characteristic", "verb": "ser", "conjugated": "son" },
+  { "english": "This problem is easy.", "spanish": "Este problema [VERB] fácil.", "part": "Characteristic", "verb": "ser", "conjugated": "es" },
+
+  { "english": "The pencil is on the desk.", "spanish": "El lápiz [VERB] sobre el escritorio.", "part": "Position", "verb": "estar", "conjugated": "está" },
+  { "english": "The chairs are in the classroom.", "spanish": "Las sillas [VERB] en el salón de clase.", "part": "Location", "verb": "estar", "conjugated": "están" },
+  { "english": "The door is closed.", "spanish": "La puerta [VERB] cerrada.", "part": "Condition", "verb": "estar", "conjugated": "está" },
+  { "english": "The soup is hot.", "spanish": "La sopa [VERB] caliente.", "part": "Condition", "verb": "estar", "conjugated": "está" },
+  { "english": "The children are calm.", "spanish": "Los niños [VERB] tranquilos.", "part": "Emotion", "verb": "estar", "conjugated": "están" },
+
+  { "english": "Maria is a nurse.", "spanish": "María [VERB] enfermera.", "part": "Occupation", "verb": "ser", "conjugated": "es" },
+  { "english": "Juan is an engineer.", "spanish": "Juan [VERB] ingeniero.", "part": "Occupation", "verb": "ser", "conjugated": "es" },
+  { "english": "They are musicians.", "spanish": "Ellos [VERB] músicos.", "part": "Occupation", "verb": "ser", "conjugated": "son" },
+  { "english": "We are writers.", "spanish": "Nosotros [VERB] escritores.", "part": "Occupation", "verb": "ser", "conjugated": "somos" },
+  { "english": "You (formal) are the principal.", "spanish": "Usted [VERB] el director.", "part": "Occupation", "verb": "ser", "conjugated": "es" },
+
+  { "english": "I am studying right now.", "spanish": "Yo [VERB] estudiando ahora.", "part": "Action", "verb": "estar", "conjugated": "estoy" },
+  { "english": "She is reading in the library.", "spanish": "Ella [VERB] leyendo en la biblioteca.", "part": "Action", "verb": "estar", "conjugated": "está" },
+  { "english": "We are writing in class.", "spanish": "Nosotros [VERB] escribiendo en clase.", "part": "Action", "verb": "estar", "conjugated": "estamos" },
+  { "english": "They are talking on the phone.", "spanish": "Ellos [VERB] hablando por teléfono.", "part": "Action", "verb": "estar", "conjugated": "están" },
+  { "english": "You (informal) are eating now.", "spanish": "Tú [VERB] comiendo ahora.", "part": "Action", "verb": "estar", "conjugated": "estás" },
+
+  { "english": "The sky is blue.", "spanish": "El cielo [VERB] azul.", "part": "Characteristic", "verb": "ser", "conjugated": "es" },
+  { "english": "The city is big.", "spanish": "La ciudad [VERB] grande.", "part": "Characteristic", "verb": "ser", "conjugated": "es" },
+  { "english": "My grandparents are kind.", "spanish": "Mis abuelos [VERB] amables.", "part": "Characteristic", "verb": "ser", "conjugated": "son" },
+  { "english": "The movie is interesting.", "spanish": "La película [VERB] interesante.", "part": "Characteristic", "verb": "ser", "conjugated": "es" },
+  { "english": "The streets are narrow.", "spanish": "Las calles [VERB] estrechas.", "part": "Characteristic", "verb": "ser", "conjugated": "son" },
+
+  { "english": "I am in the classroom.", "spanish": "Yo [VERB] en el salón.", "part": "Location", "verb": "estar", "conjugated": "estoy" },
+  { "english": "You (plural, Spain) are in the gym.", "spanish": "Vosotros [VERB] en el gimnasio.", "part": "Location", "verb": "estar", "conjugated": "estáis" },
+  { "english": "She is next to the window.", "spanish": "Ella [VERB] al lado de la ventana.", "part": "Position", "verb": "estar", "conjugated": "está" },
+  { "english": "The notebook is inside the backpack.", "spanish": "El cuaderno [VERB] dentro de la mochila.", "part": "Position", "verb": "estar", "conjugated": "está" },
+  { "english": "The marker is between the books.", "spanish": "El marcador [VERB] entre los libros.", "part": "Position", "verb": "estar", "conjugated": "está" }
+]

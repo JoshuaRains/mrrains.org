@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Presente Progresivo — Pasos de Conversión</title>
+<style>
+  :root { color-scheme: dark; }
+  * { box-sizing: border-box; }
+  html, body {
+    height: 100%;
+    margin: 0;
+    background: #0d0f12;
+    color: #e9eef4;
+    font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+  }
+  .wrap {
+    min-height: 100%;
+    display: grid;
+    place-items: center;
+    padding: 6vh 4vw 6vh;
+    text-align: center;
+  }
+  main { max-width: 1100px; }
+  .line { margin: .35em 0; }
+  .eng { font-size: clamp(20px, 3.6vw, 34px); opacity: .95; font-weight: 800; letter-spacing: .01em; }
+  .spa { font-size: clamp(28px, 5vw, 56px); font-weight: 800; letter-spacing: .01em; }
+
+  /* Underline blanks */
+  .blank {
+    display: inline-block;
+    border-bottom: 3px solid #4a5568;
+    line-height: 0.95;
+    vertical-align: baseline;
+    min-width: 3.5ch;             /* keeps a modest width before content */
+  }
+
+  /* Reveal helpers */
+  .slot { color: transparent; transition: color 160ms ease-out; }
+  .slot.visible { color: #e9eef4; }
+
+  /* For the gerund build steps */
+  .inline { display: inline-block; }
+  .ending-red { color: #ff5a5a; font-weight: 800; }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <main aria-live="polite">
+      <div id="eng" class="line eng">Press Space to start</div>
+      <div id="spa" class="line spa">—</div>
+    </main>
+  </div>
+
+<script>
+(() => {
+  // ======= Data / helpers =======
+  const ESTAR = {
+    yo: "estoy",
+    tú: "estás",
+    él: "está", ella: "está", usted: "está",
+    nosotros: "estamos", nosotras: "estamos",
+    vosotros: "estáis", vosotras: "estáis",
+    ellos: "están", ellas: "están", ustedes: "están"
+  };
+
+  // Only regular gerunds per your scope
+  function makeGerundEnding(inf) {
+    if (inf.endsWith("ar")) return "ando";
+    return "iendo"; // for -er / -ir
+  }
+
+  function splitStem(inf) {
+    if (inf.length < 3) return { stem: inf, end2: "" };
+    return { stem: inf.slice(0, -2), end2: inf.slice(-2) };
+  }
+
+  function escapeHtml(s) {
+    return String(s)
+      .replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")
+      .replace(/"/g,"&quot;").replace(/'/g,"&#039;");
+  }
+
+  // Sentence template always: [SUBJ] [ESTAR] [GERUND].
+  function buildSpanishTemplate(subj) {
+    return `${escapeHtml(subj)} <span class="blank"><span id="estarSlot" class="slot"></span></span> <span class="blank"><span id="gerSlot"></span></span>.`;
+  }
+
+  // Default items (regular verbs only; no pronouns/objects)
+  const FALLBACK = [
+    { english: "We are studying.",        pronoun: "nosotros",  subj: "Nosotros",  infinitive: "estudiar" },
+    { english: "She is talking.",         pronoun: "ella",      subj: "Ella",      infinitive: "hablar" },
+    { english: "I am writing.",           pronoun: "yo",        subj: "Yo",        infinitive: "escribir" },
+    { english: "They are running.",       pronoun: "ellos",     subj: "Ellos",     infinitive: "correr" },
+    { english: "You (informal) are listening.", pronoun: "tú",  subj: "Tú",        infinitive: "escuchar" },
+    { english: "He is eating.",           pronoun: "él",        subj: "Él",        infinitive: "comer" },
+    { english: "They (fem.) are living.", pronoun: "ellas",     subj: "Ellas",     infinitive: "vivir" },
+    { english: "You all are watching.",   pronoun: "ustedes",   subj: "Ustedes",   infinitive: "mirar" },
+    { english: "I am walking.",           pronoun: "yo",        subj: "Yo",        infinitive: "caminar" },
+    { english: "We are working.",         pronoun: "nosotros",  subj: "Nosotros",  infinitive: "trabajar" }
+  ];
+
+  // URL params: optional set file (same fields as FALLBACK)
+  const params = new URLSearchParams(location.search);
+  const jsonParam = params.get('json');
+  const setParam  = params.get('set');
+  const sourceUrl = jsonParam || (setParam ? `./${setParam}.json` : null);
+
+  // ======= DOM refs =======
+  const engEl = document.getElementById('eng');
+  const spaEl = document.getElementById('spa');
+
+  // ======= State machine =======
+  // idle -> stage1 (both blanks)
+  // -> stage2 (fill ESTAR)
+  // -> stage3 (show infinitive with last 2 letters red in ger slot)
+  // -> stage4 (remove the last 2 letters; show stem only)
+  // -> stage5 (add gerund ending)
+  // -> stage1 (new item)
+  let state = "idle";
+  let items = [];
+  let current = null;
+  let lastIndex = -1;
+
+  (async function init(){
+    try {
+      if (sourceUrl) {
+        const res = await fetch(sourceUrl, { cache: "no-store" });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const data = await res.json();
+        if (Array.isArray(data) && data.length) {
+          items = data;
+        } else throw new Error("JSON unexpected/empty");
+      } else {
+        items = FALLBACK;
+      }
+    } catch(err) {
+      console.warn("Using fallback items:", err);
+      items = FALLBACK;
+    }
+    engEl.textContent = "Pulsa Espacio para empezar";
+    spaEl.textContent = "—";
+  })();
+
+  function chooseItem() {
+    if (!items.length) return null;
+    let i;
+    do { i = Math.floor(Math.random() * items.length); } while (items.length > 1 && i === lastIndex);
+    lastIndex = i;
+    return items[i];
+  }
+
+  function startRound() {
+    current = chooseItem();
+    if (!current) return;
+
+    const estarForm = ESTAR[current.pronoun] || "";
+    const { stem, end2 } = splitStem(current.infinitive);
+    const gerEnd = makeGerundEnding(current.infinitive);
+
+    // Cache for steps
+    current._estarForm = estarForm;
+    current._stem = stem;
+    current._end2 = end2;
+    current._gerEnd = gerEnd;
+
+    // 1) Show English + Spanish with two blanks
+    engEl.textContent = current.english;
+    spaEl.innerHTML = buildSpanishTemplate(current.subj);
+
+    // Ensure blanks are empty/hidden
+    const estarSlot = document.getElementById('estarSlot');
+    const gerSlot   = document.getElementById('gerSlot');
+    if (estarSlot) {
+      estarSlot.textContent = current._estarForm; // reserve width
+      estarSlot.classList.remove('visible');      // hidden initially
+    }
+    if (gerSlot) {
+      // Reserve a bit of width to reduce shifting; keep empty first
+      gerSlot.textContent = "";
+    }
+
+    state = "stage1";
+  }
+
+  function fillEstar() {
+    const estarSlot = document.getElementById('estarSlot');
+    if (estarSlot) estarSlot.classList.add('visible');
+    state = "stage2";
+  }
+
+  function showInfinitiveWithRed() {
+    const gerSlot = document.getElementById('gerSlot');
+    if (!gerSlot) return;
+    const inf = escapeHtml(current.infinitive);
+    const red2 = escapeHtml(current._end2);
+    const before = escapeHtml(current._stem);
+    gerSlot.innerHTML = `<span class="inline">${before}<span class="ending-red">${red2}</span></span>`;
+    state = "stage3";
+  }
+
+  function removeLastTwoLetters() {
+    const gerSlot = document.getElementById('gerSlot');
+    if (!gerSlot) return;
+    // Show only the stem
+    gerSlot.innerHTML = `<span class="inline">${escapeHtml(current._stem)}</span>`;
+    state = "stage4";
+  }
+
+  function addGerundEnding() {
+    const gerSlot = document.getElementById('gerSlot');
+    if (!gerSlot) return;
+    // Show stem + proper gerund ending
+    const stem = escapeHtml(current._stem);
+    const gend = escapeHtml(current._gerEnd);
+    gerSlot.innerHTML = `<span class="inline">${stem}${gend}</span>`;
+    state = "stage5";
+  }
+
+  function advance() {
+    if (state === "idle") { startRound(); return; }
+    if (state === "stage1") { fillEstar(); return; }
+    if (state === "stage2") { showInfinitiveWithRed(); return; }
+    if (state === "stage3") { removeLastTwoLetters(); return; }
+    if (state === "stage4") { addGerundEnding(); return; }
+    if (state === "stage5") { startRound(); return; }
+  }
+
+  // Controls
+  function onSpace(e){
+    if (e.code === 'Space') {
+      e.preventDefault();
+      advance();
+    }
+  }
+  window.addEventListener('keydown', onSpace, { passive:false });
+
+  // Optional: click anywhere to advance (except selecting text)
+  window.addEventListener('click', () => advance());
+})();
+</script>
+</body>
+</html>

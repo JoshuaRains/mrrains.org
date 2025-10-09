@@ -99,52 +99,6 @@
       "Video",
       "Clip."
     ]
-  },
-  {
-    "term": "ser",
-    "translation": [
-      "To be.",
-      "To be",
-      "Be."
-    ]
-  },
-  {
-    "term": "Encantado/a.",
-    "translation": [
-      "Delighted.",
-      "Pleased to meet you.",
-      "Nice to meet you.",
-      "Glad to meet you.",
-      "Delighted to meet you."
-    ]
-  },
-  {
-    "term": "Igualmente.",
-    "translation": [
-      "Likewise.",
-      "Same here.",
-      "Me too.",
-      "You too.",
-      "Likewise"
-    ]
-  },
-  {
-    "term": "El gusto es mío.",
-    "translation": [
-      "The pleasure is mine.",
-      "My pleasure.",
-      "The pleasure's mine.",
-      "It's my pleasure."
-    ]
-  },
-  {
-    "term": "Mucho gusto.",
-    "translation": [
-      "Pleased to meet you.",
-      "Nice to meet you.",
-      "It's a pleasure.",
-      "Glad to meet you.",
-      "Delighted to meet you."
-    ]
   }
+ 
 ]

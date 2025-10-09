@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Subject → Pronoun — Reveal Game</title>
+<style>
+  :root { color-scheme: dark; }
+  * { box-sizing: border-box; }
+  html, body { height: 100%; margin: 0; background: #0d0f12; color: #e9eef4; font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial; }
+
+  .page { min-height: 100%; display: grid; grid-template-rows: 1fr auto; }
+  .wrap { height: 100%; display: grid; place-items: center; padding: 8vh 4vw 2vh; text-align: center; gap: 1.2rem; }
+
+  .brand { position: fixed; top: 10px; left: 14px; font-weight: 800; font-size: 14px; letter-spacing: .06em; opacity: .55; user-select: none; }
+
+  main { max-width: 1000px; }
+  .prompt { margin: .35em 0; font-weight: 800; letter-spacing: .02em; font-size: clamp(18px, 2.6vw, 24px); opacity: .95; }
+
+  .spanish { font-weight: 900; letter-spacing: .01em; font-size: clamp(48px, 10vw, 140px); line-height: 1; }
+
+  /* Reveal behavior (matches your numbers app exactly) */
+  .answer {
+    font-size: clamp(28px, 5vw, 56px);
+    opacity: 0;
+    transform: translateY(6px);
+    transition: opacity 180ms ease-out, transform 180ms ease-out;
+  }
+  .answer.revealed { opacity: 1; transform: translateY(0); }
+
+  .footer {
+    position: sticky; bottom: 0;
+    background: rgba(13,15,18,0.9); backdrop-filter: blur(4px);
+    border-top: 1px solid #334155; padding: 10px 14px;
+    display: flex; justify-content: center; gap: 10px;
+  }
+  button.meta-btn {
+    background:#16202a; color:#e9eef4; border:1px solid #334155; border-radius:10px;
+    font-weight:800; padding:10px 14px; cursor:pointer;
+  }
+  button.meta-btn:active { transform: translateY(1px); }
+</style>
+</head>
+<body>
+  <div class="brand">SUBJECT → PRONOUN — REVEAL</div>
+
+  <div class="page">
+    <div class="wrap">
+      <main aria-live="polite">
+        <div id="prompt" class="prompt">Press <span style="border:1px solid #4a5568;border-radius:6px;padding:2px 8px;font-weight:800;">Space</span> to begin</div>
+        <div id="spanish" class="spanish">—</div>
+        <div id="english" class="answer" aria-hidden="true">—</div>
+      </main>
+    </div>
+
+    <footer class="footer">
+      <button id="advanceBtn" class="meta-btn" title="Advance (Space)">Advance (Space)</button>
+      <button id="skipBtn" class="meta-btn" title="Skip to another subject">Skip</button>
+    </footer>
+  </div>
+
+<script>
+(() => {
+  // Variety toggle: ?spain=1 prefers "vosotros" where natural; default uses "ustedes".
+  const spainMode = new URLSearchParams(location.search).get('spain') === '1';
+
+  // Dataset: Spanish subject phrase -> target pronoun (Spanish).
+  // You can extend freely; some items include a Spain-specific alternative.
+  const ITEMS = [
+    // Singular people
+    { subj: "Juan", pron: "él" },
+    { subj: "María", pron: "ella" },
+    { subj: "el niño", pron: "él" },
+    { subj: "la niña", pron: "ella" },
+    { subj: "el profesor", pron: "él" },
+    { subj: "la profesora", pron: "ella" },
+    { subj: "el estudiante", pron: "él" },
+    { subj: "la estudiante", pron: "ella" },
+    { subj: "el amigo", pron: "él" },
+    { subj: "la amiga", pron: "ella" },
+    { subj: "el padre", pron: "él" },
+    { subj: "la madre", pron: "ella" },
+    { subj: "el hermano", pron: "él" },
+    { subj: "la hermana", pron: "ella" },
+    { subj: "el gato", pron: "él" },
+    { subj: "la gata", pron: "ella" },
+    // Speaker + others
+    { subj: "tú y yo", pron: "nosotros" },
+    { subj: "usted y yo", pron: "nosotros" },
+    { subj: "María y yo", pron: "nosotros" }, // could be nosotras; we default to nosotros
+    { subj: "Ana y yo", pron: "nosotros" },
+
+    // You + others (defaults: LA = ustedes, Spain = vosotros)
+    { subj: "tú y Juan", pron: "ustedes", pron_spain: "vosotros" },
+    { subj: "tú y Ana", pron: "ustedes", pron_spain: "vosotros" },
+    { subj: "usted y Ana", pron: "ustedes", pron_spain: "vosotros" },
+    { subj: "ustedes", pron: "ustedes", pron_spain: "vosotros" }, // reveal shows class variety
+   
+
+    // Groups of names
+    { subj: "Juan y María", pron: "ellos" },
+    { subj: "Ana y Carla", pron: "ellas" },
+    { subj: "Luis y Pedro", pron: "ellos" },
+    { subj: "María y sus amigas", pron: "ellas" },
+    { subj: "Juan y sus amigos", pron: "ellos" },
+
+    // Mixed groups including a noun
+    { subj: "Juan y su amiga", pron: "ellos" },
+    { subj: "María y su hermano", pron: "ellos" },
+
+    // Objects / things (match Spanish grammatical gender/number)
+    { subj: "el libro", pron: "él" },
+    { subj: "la mesa", pron: "ella" },
+    { subj: "los cuadernos", pron: "ellos" },
+    { subj: "las sillas", pron: "ellas" },
+    { subj: "el teléfono", pron: "él" },
+    { subj: "las ventanas", pron: "ellas" },
+    { subj: "el coche", pron: "él" },
+    { subj: "la bicicleta", pron: "ella" },
+    { subj: "los coches", pron: "ellos" },
+    { subj: "las bicicletas", pron: "ellas" },
+
+    // Places / abstract subjects
+    { subj: "la ciudad", pron: "ella" },
+    { subj: "el equipo", pron: "él" },      // as a unit (grammatical masculine)
+    { subj: "las familias", pron: "ellas" },
+    { subj: "la comunidad", pron: "ella" },
+    { subj: "el país", pron: "él" },
+    { subj: "la universidad", pron: "ella" },
+
+    // Standard subject pronouns themselves
+   
+  ];
+
+  const promptEl  = document.getElementById('prompt');
+  const subjEl    = document.getElementById('spanish');
+  const answerEl  = document.getElementById('english');
+  const advanceEl = document.getElementById('advanceBtn');
+  const skipEl    = document.getElementById('skipBtn');
+
+  // States: "idle" | "question" | "answer"
+  let state = "idle";
+  let lastIndex = -1;
+  let current = null;
+
+  function pick() {
+    let i;
+    do { i = Math.floor(Math.random() * ITEMS.length); } while (ITEMS.length > 1 && i === lastIndex);
+    lastIndex = i;
+    return ITEMS[i];
+  }
+
+  // Prevent early flash: identical instant-hide technique
+  function instantHideAnswer() {
+    answerEl.style.transition = 'none';
+    answerEl.classList.remove('revealed');
+    answerEl.setAttribute('aria-hidden', 'true');
+    answerEl.style.opacity = '';
+    answerEl.style.transform = '';
+    void answerEl.offsetWidth; // reflow
+    answerEl.style.transition = '';
+  }
+
+  function formatPron(item) {
+    // Prefer Spain variant if available and spainMode is on
+    if (spainMode && item.pron_spain) return item.pron_spain;
+    return item.pron;
+  }
+
+  function newRound() {
+    instantHideAnswer();
+
+    current = pick();
+    subjEl.textContent  = current.subj;
+    answerEl.textContent = formatPron(current);
+
+    promptEl.textContent = "Press Space to reveal the pronoun";
+    state = "question";
+  }
+
+  function reveal() {
+    if (!current) return;
+    answerEl.classList.add('revealed');
+    answerEl.setAttribute('aria-hidden', 'false');
+    promptEl.textContent = "Press Space for a new subject";
+    state = "answer";
+  }
+
+  function onSpace(e) {
+    if (e.code === 'Space') {
+      e.preventDefault();
+      if (state === "idle" || state === "answer") newRound();
+      else if (state === "question") reveal();
+    }
+  }
+
+  function advance() {
+    if (state === "idle" || state === "answer") newRound();
+    else if (state === "question") reveal();
+  }
+
+  function skip() { newRound(); }
+
+  window.addEventListener('keydown', onSpace, { passive: false });
+  window.addEventListener('click', (e) => {
+    if (e.target.closest('button')) return;
+    advance();
+  });
+  advanceEl.addEventListener('click', advance);
+  skipEl.addEventListener('click', skip);
+
+  // Optional autostart: ?autostart=1
+  if (new URLSearchParams(location.search).get('autostart') === '1') {
+    newRound();
+  }
+})();
+</script>
+</body>
+</html>
