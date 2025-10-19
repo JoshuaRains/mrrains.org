@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Fill-in Verbs — (ir / tener + selected)</title>
+<style>
+  :root { color-scheme: dark; }
+  * { box-sizing: border-box; }
+  html, body {
+    height: 100%;
+    margin: 0;
+    background: #0d0f12;
+    color: #e9eef4;
+    font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+  }
+
+  .wrap {
+    min-height: 100%;
+    display: grid;
+    grid-template-rows: 1fr auto;
+    gap: 2rem;
+    padding: 6vh 4vw 4vh;
+  }
+
+  main {
+    max-width: 1100px;
+    margin: 0 auto;
+    text-align: center;
+  }
+
+  .brand {
+    position: fixed;
+    top: 10px;
+    left: 14px;
+    font-weight: 800;
+    font-size: 14px;
+    letter-spacing: .06em;
+    opacity: .55;
+    user-select: none;
+  }
+
+  .line { margin: .35em 0; }
+  .title { font-weight: 900; letter-spacing: .03em; opacity: .85; }
+  .title.big { font-size: clamp(24px, 4vw, 44px); }
+  .spa   { font-size: clamp(28px, 5vw, 56px); font-weight: 800; letter-spacing: .01em; }
+
+  /* Underline blanks */
+  .blank {
+    display: inline-block;
+    border-bottom: 3px solid #4a5568;
+    line-height: 0.95;
+    vertical-align: baseline;
+    min-width: 4ch;
+    padding: 0 .1ch;
+  }
+
+  .slot { color: transparent; transition: color 160ms ease-out; }
+  .slot.visible { color: #e9eef4; }
+
+  /* Controls bar */
+  .controls {
+    position: sticky;
+    bottom: 0;
+    left: 0;
+    background: linear-gradient(180deg, rgba(13,15,18,0) 0%, rgba(13,15,18,0.9) 40%, #0d0f12 100%);
+    padding: 1rem .5rem 1.25rem;
+    display: grid;
+    place-items: center;
+    gap: .65rem;
+  }
+  .btnrow {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .5rem;
+    justify-content: center;
+  }
+  button {
+    background: #1f2937;
+    border: 1px solid #334155;
+    color: #e9eef4;
+    padding: .65rem .9rem;
+    border-radius: 12px;
+    font-weight: 800;
+    letter-spacing: .02em;
+    cursor: pointer;
+  }
+  button:disabled { opacity: .5; cursor: not-allowed; }
+  .kbd { border:1px solid #4a5568; border-radius:6px; padding:2px 8px; font-weight: 800; }
+
+  /* Counters */
+  .meta {
+    display: flex; gap: .8rem; flex-wrap: wrap; justify-content: center;
+    font-size: 13px; opacity: .7;
+  }
+  .pill { border:1px solid #334155; border-radius:999px; padding:.15rem .6rem; }
+
+  /* Dialogs */
+  dialog {
+    border: 1px solid #334155;
+    border-radius: 16px;
+    background: #0e1318;
+    color: #e9eef4;
+    max-width: min(1000px, 92vw);
+    width: 92vw;
+    padding: 0;
+  }
+  .dlg-head {
+    padding: .9rem 1rem;
+    border-bottom: 1px solid #223041;
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .dlg-title { font-weight: 900; letter-spacing:.02em; }
+  .dlg-body {
+    max-height: min(70vh, 700px);
+    overflow: auto;
+    padding: 1rem;
+  }
+  .qcard {
+    border: 1px solid #223041; border-radius: 12px; padding: .75rem .9rem; margin-bottom: .7rem;
+    background: #0b0f14;
+  }
+  .qidx { opacity:.6; font-size: 12px; margin-bottom: .25rem; }
+  .qtext { font-size: clamp(16px, 2.4vw, 24px); font-weight: 800; }
+  .close-x { background: transparent; border:1px solid #334155; border-radius:999px; padding:.25rem .6rem; }
+
+  /* End banner */
+  .end {
+    margin-top: 1.25rem;
+    font-size: clamp(18px, 3vw, 26px);
+    opacity: .85;
+  }
+</style>
+</head>
+<body>
+  <div class="brand"></div>
+
+  <div class="wrap">
+    <main aria-live="polite">
+      <div class="line title big" id="title">Press <span class="kbd">Space</span> to start</div>
+      <div class="line spa" id="spa">—</div>
+      <div class="meta">
+        <div class="pill" id="counter">0 / 0</div>
+        <div class="pill" id="remaining">0 remaining</div>
+      </div>
+      <div class="end" id="endMsg" hidden>End of deck! Click “Restart” to shuffle and begin again.</div>
+    </main>
+
+    <div class="controls">
+      <div class="btnrow">
+        <button id="prevBtn"  title="Previous (←)">⟵ Previous</button>
+        <button id="revealBtn" title="Reveal the blank (Space)">Reveal</button>
+        <button id="nextBtn"  title="Next (→)">Next ⟶</button>
+      </div>
+      <div class="btnrow">
+        <button id="histBlankBtn" title="Open history without answers">History (no answers)</button>
+        <button id="histFilledBtn" title="Open history with answers">History (with answers)</button>
+        <button id="restartBtn"  title="Restart random deck">Restart</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- History Dialog -->
+  <dialog id="histDialog">
+    <div class="dlg-head">
+      <div class="dlg-title" id="histTitle">History</div>
+      <button class="close-x" id="closeHist">Close</button>
+    </div>
+    <div class="dlg-body" id="histBody"></div>
+  </dialog>
+
+<script>
+(() => {
+  // ================== DATA (36 items) ==================
+  // Token [BLANK] marks the missing verb. 'ans' is the present-tense answer.
+  // 'verb' shows the infinitive students must form (top title).
+  const BASE = [
+    // --- ALL IR FORMS (6) ---
+    {verb:"ir", es:"Yo [BLANK] al parque.",            ans:"voy"},
+    {verb:"ir", es:"Tú [BLANK] a la biblioteca.",      ans:"vas"},
+    {verb:"ir", es:"Él [BLANK] al cine.",              ans:"va"},
+    {verb:"ir", es:"Nosotros [BLANK] al gimnasio.",    ans:"vamos"},
+    {verb:"ir", es:"Vosotros [BLANK] al museo.",       ans:"vais"},
+    {verb:"ir", es:"Ustedes [BLANK] a la tienda.",     ans:"van"},
+
+    // --- ALL TENER FORMS (6) ---
+    {verb:"tener", es:"Yo [BLANK] un cuaderno.",            ans:"tengo"},
+    {verb:"tener", es:"Tú [BLANK] tarea.",                  ans:"tienes"},
+    {verb:"tener", es:"Ella [BLANK] una pregunta.",         ans:"tiene"},
+    {verb:"tener", es:"Nosotros [BLANK] hambre.",           ans:"tenemos"},
+    {verb:"tener", es:"Vosotros [BLANK] un examen.",        ans:"tenéis"},
+    {verb:"tener", es:"Ustedes [BLANK] clases hoy.",        ans:"tienen"},
+
+    // --- 24 from the provided list (no others) ---
+    {verb:"hablar",     es:"Yo [BLANK] con mi amigo.",          ans:"hablo"},
+    {verb:"comer",      es:"Ellos [BLANK] pizza.",              ans:"comen"},
+    {verb:"vivir",      es:"Nosotros [BLANK] en una casa.",     ans:"vivimos"},
+    {verb:"caminar",    es:"Tú [BLANK] a la escuela.",          ans:"caminas"},
+    {verb:"beber",      es:"Ella [BLANK] agua.",                ans:"bebe"},
+    {verb:"escribir",   es:"Ustedes [BLANK] en el cuaderno.",   ans:"escriben"},
+    {verb:"trabajar",   es:"Mi padre [BLANK] en una oficina.",  ans:"trabaja"},
+    {verb:"leer",       es:"Vosotros [BLANK] un libro.",        ans:"leéis"},
+    {verb:"abrir",      es:"La tienda [BLANK] a las ocho.",     ans:"abre"},
+    {verb:"estudiar",   es:"Nosotros [BLANK] para el examen.",  ans:"estudiamos"},
+    {verb:"aprender",   es:"Ellas [BLANK] español.",            ans:"aprenden"},
+    {verb:"recibir",    es:"Yo [BLANK] un regalo.",             ans:"recibo"},
+    {verb:"mirar",      es:"Tú [BLANK] la televisión.",         ans:"miras"},
+    {verb:"vender",     es:"La tienda [BLANK] zapatos.",        ans:"vende"},
+    {verb:"compartir",  es:"Nosotros [BLANK] la pizza.",        ans:"compartimos"},
+    {verb:"usar",       es:"Ustedes [BLANK] la computadora.",   ans:"usan"},
+    {verb:"correr",     es:"Él [BLANK] en el parque.",          ans:"corre"},
+    {verb:"decidir",    es:"Ellos [BLANK] qué comer.",          ans:"deciden"},
+    {verb:"escuchar",   es:"Yo [BLANK] música.",                ans:"escucho"},
+    {verb:"responder",  es:"La clase [BLANK] al profesor.",     ans:"responde"},
+    {verb:"asistir",    es:"Nosotros [BLANK] a la reunión.",    ans:"asistimos"},
+    {verb:"enseñar",    es:"La profesora [BLANK] historia.",    ans:"enseña"},
+    {verb:"comprender", es:"Vosotros [BLANK] la lección.",      ans:"comprendéis"},
+    {verb:"sufrir",     es:"Ella [BLANK] mucho frío.",          ans:"sufre"},
+  ];
+
+  // ================== ELEMENTS ==================
+  const titleEl = document.getElementById('title');
+  const spaEl   = document.getElementById('spa');
+  const counterEl   = document.getElementById('counter');
+  const remainingEl = document.getElementById('remaining');
+  const endMsgEl    = document.getElementById('endMsg');
+
+  const prevBtn   = document.getElementById('prevBtn');
+  const nextBtn   = document.getElementById('nextBtn');
+  const revealBtn = document.getElementById('revealBtn');
+  const restartBtn= document.getElementById('restartBtn');
+
+  const histBlankBtn = document.getElementById('histBlankBtn');
+  const histFilledBtn= document.getElementById('histFilledBtn');
+  const histDialog   = document.getElementById('histDialog');
+  const histTitle    = document.getElementById('histTitle');
+  const histBody     = document.getElementById('histBody');
+  const closeHist    = document.getElementById('closeHist');
+
+  // ================== STATE ==================
+  let deck = [];            // shuffled indices
+  let items = [...BASE];    // data
+  let idx = -1;             // current index into deck
+  let revealed = false;     // is current answer revealed?
+
+  // ================== HELPERS ==================
+  function shuffle(a) {
+    for (let i=a.length-1; i>0; i--) {
+      const j = Math.floor(Math.random()*(i+1));
+      [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+  }
+
+  function escapeHtml(s) {
+    return String(s)
+      .replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")
+      .replace(/"/g,"&quot;").replace(/'/g,"&#039;");
+  }
+
+  function renderSentence(es, ans, showAnswer) {
+    const safe = escapeHtml(es);
+    const fill = showAnswer ? `<span class="slot visible">${escapeHtml(ans)}</span>`
+                            : `<span class="slot" id="slot">${escapeHtml(ans)}</span>`;
+    return safe.replace("[BLANK]", `<span class="blank">${fill}</span>`);
+  }
+
+  function updateCounters() {
+    const total = deck.length;
+    const cur = idx >= 0 && idx < total ? idx+1 : 0;
+    const remaining = Math.max(0, total - cur);
+    counterEl.textContent = `${cur} / ${total}`;
+    remainingEl.textContent = `${remaining} remaining`;
+  }
+
+  function setEndState() {
+    endMsgEl.hidden = false;
+    spaEl.innerHTML = "—";
+    titleEl.textContent = "No more questions.";
+    revealBtn.disabled = true;
+    nextBtn.disabled   = true;
+  }
+
+  function setUIForCurrent() {
+    endMsgEl.hidden = true;
+    revealBtn.disabled = revealed;
+    prevBtn.disabled = (idx <= 0);
+    nextBtn.disabled = (idx >= deck.length - 1);
+  }
+
+  // ================== FLOW ==================
+function start() {
+  // Shuffle ALL 36 items so the entire deck is random each run
+  deck = shuffle([...Array(items.length).keys()]);
+  idx = -1;
+  revealed = false;
+  titleEl.innerHTML = 'Press <span class="kbd">Space</span> to start';
+  spaEl.innerHTML = "—";
+  endMsgEl.hidden = true;
+  next(); // jump to the first
+}
+
+
+  function show(i) {
+    const item = items[i];
+    titleEl.textContent = item.verb;
+    spaEl.innerHTML = renderSentence(item.es, item.ans, false);
+    revealed = false;
+    setUIForCurrent();
+    updateCounters();
+  }
+
+  function reveal() {
+    if (idx < 0 || idx >= deck.length) return;
+    if (revealed) return;
+    const item = items[deck[idx]];
+    spaEl.innerHTML = renderSentence(item.es, item.ans, true);
+    revealed = true;
+    setUIForCurrent();
+  }
+
+  function next() {
+    if (idx >= deck.length - 1) {
+      setEndState();
+      updateCounters();
+      return;
+    }
+    idx++;
+    show(deck[idx]);
+  }
+
+  function prev() {
+    if (idx <= 0) return;
+    idx--;
+    show(deck[idx]);
+  }
+
+  // ================== HISTORY DIALOG ==================
+  function openHistory(filled=false) {
+    histTitle.textContent = filled ? "History — with answers" : "History — no answers";
+    histBody.innerHTML = "";
+    let shownCount = idx + 1; // only what we've already seen
+    for (let k = 0; k < shownCount; k++) {
+      const i = deck[k];
+      const it = items[i];
+      const card = document.createElement('div');
+      card.className = 'qcard';
+      const idxEl = document.createElement('div');
+      idxEl.className = 'qidx';
+      idxEl.textContent = `#${k+1} — ${it.verb}`;
+      const txtEl = document.createElement('div');
+      txtEl.className = 'qtext';
+      txtEl.innerHTML = renderSentence(it.es, it.ans, filled);
+      card.appendChild(idxEl);
+      card.appendChild(txtEl);
+      histBody.appendChild(card);
+    }
+    if (shownCount === 0) {
+      histBody.innerHTML = '<div class="qcard"><div class="qtext">No questions in history yet.</div></div>';
+    }
+    histDialog.showModal();
+  }
+
+  // ================== EVENTS ==================
+  prevBtn.addEventListener('click', prev);
+  nextBtn.addEventListener('click', next);
+  revealBtn.addEventListener('click', reveal);
+  restartBtn.addEventListener('click', start);
+  histBlankBtn.addEventListener('click', () => openHistory(false));
+  histFilledBtn.addEventListener('click', () => openHistory(true));
+  closeHist.addEventListener('click', () => histDialog.close());
+
+  // Keyboard
+  window.addEventListener('keydown', (e) => {
+    if (histDialog.open) return; // ignore while dialog open
+    if (e.code === 'Space') {
+      e.preventDefault();
+      if (!revealed) reveal();
+      else next();
+    } else if (e.code === 'ArrowRight') {
+      e.preventDefault(); next();
+    } else if (e.code === 'ArrowLeft') {
+      e.preventDefault(); prev();
+    }
+  }, {passive:false});
+
+  // Click anywhere to toggle reveal/next (ignore controls/dialog)
+  window.addEventListener('click', (e) => {
+    const isInteractive = e.target.closest('button,dialog,.controls');
+    if (isInteractive) return;
+    if (!revealed) reveal();
+    else next();
+  });
+
+  // ================== INIT ==================
+  // First Space press starts
+  const starter = (e) => {
+    if (e.code === 'Space') {
+      e.preventDefault();
+      window.removeEventListener('keydown', starter, {passive:false});
+      start();
+    }
+  };
+  window.addEventListener('keydown', starter, {passive:false});
+})();
+</script>
+</body>
+</html>

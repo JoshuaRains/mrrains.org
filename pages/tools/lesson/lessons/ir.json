@@ -1,0 +1,74 @@
+{
+  "title": "Spanish: IR (to go) • Basics",
+  "acceptNoAccents": true,
+  "steps": [
+    {
+      "type": "matching",
+      "prompt": "Match the subject to the correct form of IR",
+      "pairs": [
+        ["yo", "voy"],
+        ["tú", "vas"],
+        ["él / ella / usted", "va"],
+        ["nosotros", "vamos"],
+        ["ellos / ustedes", "van"]
+      ]
+    },
+    {
+      "type": "typing",
+      "prompt": "Type in Spanish: I go to school",
+      "answers": ["voy a la escuela", "yo voy a la escuela"]
+    },
+    {
+      "type": "typing",
+      "prompt": "Type in Spanish: You go to the park",
+      "answers": ["vas al parque", "tú vas al parque"]
+    },
+    {
+      "type": "typing",
+      "prompt": "Type in Spanish: He goes home",
+      "answers": ["va a casa", "él va a casa"]
+    },
+    {
+      "type": "typing",
+      "prompt": "Type in Spanish: We go to the movies",
+      "answers": ["vamos al cine", "nosotros vamos al cine"]
+    },
+    {
+      "type": "typing",
+      "prompt": "Type in Spanish: They go to class",
+      "answers": ["van a clase", "ellos van a clase", "ustedes van a clase"]
+    },
+    {
+      "type": "tiles",
+      "prompt": "Build the sentence: I go to school",
+      "tiles": ["yo", "voy", "vas", "a", "la", "escuela", "al", "casa"],
+      "answers": [
+        ["voy", "a", "la", "escuela"],
+        ["yo", "voy", "a", "la", "escuela"]
+      ]
+    },
+    {
+      "type": "tiles",
+      "prompt": "Build the sentence: We go to the park",
+      "tiles": ["nosotros", "vamos", "voy", "al", "parque", "la", "escuela"],
+      "answers": [
+        ["vamos", "al", "parque"],
+        ["nosotros", "vamos", "al", "parque"]
+      ]
+    },
+    {
+      "type": "tiles",
+      "prompt": "Build the sentence: She goes to the store",
+      "tiles": ["ella", "va", "voy", "a", "la", "tienda", "al", "parque"],
+      "answers": [
+        ["va", "a", "la", "tienda"],
+        ["ella", "va", "a", "la", "tienda"]
+      ]
+    },
+    {
+      "type": "typing",
+      "prompt": "Type in Spanish: We go to the library",
+      "answers": ["vamos a la biblioteca", "nosotros vamos a la biblioteca"]
+    }
+  ]
+}

@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="en" translate="no">
+<head>
+  <meta charset="UTF-8" />
+  <title>Printable Bingo Sheet PDF Generator</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <!-- jsPDF (CDN) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <style>
+    :root { color-scheme: light; }
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0;
+      padding: 0;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Noto Sans", sans-serif;
+      background: #f6f7f9;
+      color: #0d0f12;
+    }
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 5;
+      background: #ffffff;
+      border-bottom: 1px solid #e5e7eb;
+    }
+    .wrap {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 16px clamp(12px, 3vw, 24px);
+    }
+    h1 {
+      margin: 0 0 8px 0;
+      font-weight: 750;
+      letter-spacing: .3px;
+      font-size: clamp(20px, 3.2vw, 28px);
+    }
+    .config {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+    @media (min-width: 900px) {
+      .config {
+        grid-template-columns: 360px 1fr;
+        align-items: start;
+      }
+    }
+    .card {
+      background: #ffffff;
+      border: 1px solid #e5e7eb;
+      border-radius: 12px;
+      box-shadow: 0 1px 0 rgba(16,24,40,.02);
+      overflow: hidden;
+    }
+    .card > .head {
+      padding: 10px 14px;
+      background: linear-gradient(to right, #f0f4f8, #ffffff);
+      border-bottom: 1px solid #eef2f6;
+      font-weight: 600;
+    }
+    .card > .body {
+      padding: 12px 14px 14px 14px;
+    }
+    label {
+      display: block;
+      font-size: 13px;
+      color: #334155;
+      margin-bottom: 6px;
+      font-weight: 600;
+    }
+    input[type="number"], input[type="text"] {
+      width: 120px;
+      padding: 10px 12px;
+      border-radius: 10px;
+      border: 1px solid #cbd5e1;
+      font-size: 15px;
+      background: #fff;
+    }
+    textarea {
+      width: 100%;
+      min-height: 220px;
+      padding: 10px 12px;
+      border-radius: 10px;
+      border: 1px solid #cbd5e1;
+      font-size: 14px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+      resize: vertical;
+      background: #fff;
+      white-space: pre;
+    }
+    .hint {
+      font-size: 12px;
+      color: #64748b;
+      margin-top: 6px;
+      line-height: 1.4;
+    }
+    .controls {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      align-items: center;
+      margin-top: 4px;
+    }
+    button {
+      appearance: none;
+      border: 0;
+      border-radius: 12px;
+      padding: 12px 16px;
+      font-weight: 700;
+      letter-spacing: .2px;
+      cursor: pointer;
+      background: #0f172a;
+      color: white;
+      transition: transform .06s ease, box-shadow .06s ease, opacity .2s ease;
+      box-shadow: 0 8px 20px rgba(2,8,23,.12);
+    }
+    button.secondary {
+      background: #e2e8f0;
+      color: #0f172a;
+      box-shadow: none;
+      font-weight: 600;
+    }
+    button:active { transform: translateY(1px); }
+    .small {
+      font-size: 12px;
+      color: #475569;
+      margin-left: 6px;
+    }
+    .footer {
+      margin-top: 12px;
+      font-size: 12px;
+      color: #64748b;
+    }
+    .error {
+      display: none;
+      margin-top: 10px;
+      color: #b91c1c;
+      background: #fee2e2;
+      border: 1px solid #fecaca;
+      padding: 8px 10px;
+      border-radius: 8px;
+      font-size: 13px;
+    }
+    .row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+    @media (max-width: 640px) {
+      .row { grid-template-columns: 1fr; }
+    }
+    .muted {
+      color: #475569;
+      font-weight: 500;
+    }
+    .previewNote {
+      padding: 10px 12px;
+      background: #f8fafc;
+      border: 1px dashed #cbd5e1;
+      border-radius: 10px;
+      font-size: 13px;
+      color: #334155;
+    }
+    .inline {
+      display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="wrap">
+      <h1>Printable Bingo PDF — 4 Cards per Page</h1>
+      <div class="config">
+        <div class="card">
+          <div class="head">Settings</div>
+          <div class="body">
+            <label for="count">Total bingo sheets to generate (cards, not pages)</label>
+            <input id="count" type="number" min="1" step="1" value="24" />
+            <div class="hint">Pages contain 4 cards each. Example: 24 cards → 6 pages.</div>
+
+            <div style="margin-top:12px">
+              <label for="grid">Squares per side (grid size)</label>
+              <div class="inline">
+                <input id="grid" type="number" min="3" max="12" step="1" value="5" />
+                <span class="small">A value of 5 creates a 5×5 card; 6 → 6×6, etc.</span>
+              </div>
+              <div class="hint">
+                You must provide at least <strong id="needed">25</strong> words for a <span id="gridLabel">5×5</span> card.
+              </div>
+            </div>
+
+            <div class="controls" style="margin-top:14px">
+              <button id="generate">Generate PDF</button>
+              <button id="loadSample" class="secondary">Load 25-word sample</button>
+              <span class="small">(The PDF will download automatically)</span>
+            </div>
+            <div id="error" class="error"></div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="head">Words (paste JSON array or one word per line)</div>
+          <div class="body">
+            <textarea id="words" placeholder='Examples:
+["libro","lápiz","cuaderno","mochila","puerta","pared", ...]
+— or —
+libro
+lápiz
+cuaderno
+mochila
+puerta
+pared
+...'></textarea>
+            <div class="hint">
+              The generator uses exactly <span id="needText">25</span> words: if you paste more, only the first that many are used; if you paste fewer, you’ll see an error.
+            </div>
+            <div style="margin-top:10px" class="previewNote">
+              Tip for printing: Choose “US Letter, Portrait, No scaling, Narrow margins” when saving to PDF if your browser prompts for print options.
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="footer">All drawing is vector-based for crisp, ink-friendly prints.</div>
+    </div>
+  </header>
+
+  <script>
+    // Utility: parse words from textarea content (JSON array or newline list)
+    function parseWords(raw) {
+      if (!raw) return [];
+      // Try JSON first
+      try {
+        const arr = JSON.parse(raw);
+        if (Array.isArray(arr)) {
+          return arr.map(x => String(x).trim()).filter(Boolean);
+        }
+      } catch {}
+      // Fallback: split by new lines
+      return raw.split(/\r?\n/).map(x => x.trim()).filter(Boolean);
+    }
+
+    // Shuffle (Fisher–Yates)
+    function shuffleInPlace(arr, rng=Math.random) {
+      for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(rng() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+      }
+      return arr;
+    }
+
+    // Fit text (reduce font size if needed) to maxWidth
+    function fitTextToWidth(doc, text, baseFontSize, maxWidth) {
+      let size = baseFontSize;
+      while (size > 6) {
+        doc.setFontSize(size);
+        const w = doc.getTextWidth(text);
+        if (w <= maxWidth) return size;
+        size -= 0.5;
+      }
+      return 6;
+    }
+
+    // Draw a single bingo card into a defined rectangle on the page
+    function drawCard(doc, opts) {
+      const {
+        x, y, w, h, words, grid, showTitle = true,
+        borderColor = [0,0,0], lineWidth = 0.6
+      } = opts;
+
+      doc.setDrawColor(...borderColor);
+      doc.setLineWidth(lineWidth);
+
+      // Reserve a little top area for title if desired
+      const pad = 6; // outer padding
+      const titleH = showTitle ? 10 : 0;
+      const innerX = x + pad;
+      const innerY = y + pad + titleH;
+      const innerW = w - pad*2;
+      const innerH = h - pad*2 - titleH;
+
+      if (showTitle) {
+        doc.setFont("helvetica","bold");
+        doc.setFontSize(12);
+        doc.text("BINGO", x + w/2, y + pad + 6, { align: "center", baseline: "middle" });
+        doc.setFont("helvetica","normal");
+      }
+
+      // Draw outer card border
+      doc.rect(x, y, w, h);
+
+      // Compute square size for a grid×grid matrix centered in inner box
+      const cellSize = Math.min(innerW / grid, innerH / grid);
+      const gridW = cellSize * grid;
+      const gridH = cellSize * grid;
+      const gx = innerX + (innerW - gridW) / 2;
+      const gy = innerY + (innerH - gridH) / 2;
+
+      // Draw grid
+      for (let r = 0; r <= grid; r++) {
+        const yy = gy + r * cellSize;
+        doc.line(gx, yy, gx + gridW, yy);
+      }
+      for (let c = 0; c <= grid; c++) {
+        const xx = gx + c * cellSize;
+        doc.line(xx, gy, xx, gy + gridH);
+      }
+
+      // Place words
+      const marginInsideCell = 2; // padding
+      const maxTextWidth = cellSize - marginInsideCell*2;
+      const baseFont = 10;
+
+      doc.setFont("helvetica", "normal");
+
+      for (let i = 0; i < grid * grid; i++) {
+        const r = Math.floor(i / grid);
+        const c = i % grid;
+        const cx = gx + c * cellSize;
+        const cy = gy + r * cellSize;
+        const centerX = cx + cellSize / 2;
+        const centerY = cy + cellSize / 2;
+
+        const word = String(words[i] ?? "").trim();
+        const fontSize = fitTextToWidth(doc, word, baseFont, maxTextWidth);
+
+        doc.setFontSize(fontSize);
+        doc.text(word, centerX, centerY + fontSize*0.12, { align: "center", baseline: "middle", maxWidth: maxTextWidth });
+      }
+    }
+
+    // Lay out four cards per letter page (portrait)
+    function layoutFour(doc, cards, drawCardOpts) {
+      const pageW = doc.internal.pageSize.getWidth();
+      const pageH = doc.internal.pageSize.getHeight();
+
+      const outerMargin = 28; // ~0.39"
+      const gutter = 16;
+
+      const availableW = pageW - outerMargin*2 - gutter;
+      const availableH = pageH - outerMargin*2 - gutter;
+      const cardW = availableW / 2;
+      const cardH = availableH / 2;
+
+      const positions = [
+        { x: outerMargin,                y: outerMargin },
+        { x: outerMargin + cardW+gutter, y: outerMargin },
+        { x: outerMargin,                y: outerMargin + cardH+gutter },
+        { x: outerMargin + cardW+gutter, y: outerMargin + cardH+gutter }
+      ];
+
+      for (let i = 0; i < 4; i++) {
+        if (!cards[i]) break;
+        drawCard(doc, { x: positions[i].x, y: positions[i].y, w: cardW, h: cardH, ...drawCardOpts, words: cards[i] });
+      }
+    }
+
+    // Main generate function
+    async function generatePDF() {
+      const errorEl = document.getElementById("error");
+      errorEl.style.display = "none";
+      errorEl.textContent = "";
+
+      const count = Math.max(1, parseInt(document.getElementById("count").value || "0", 10));
+      let grid = parseInt(document.getElementById("grid").value || "5", 10);
+      if (isNaN(grid) || grid < 3) grid = 3;
+      if (grid > 12) grid = 12;
+
+      const raw = document.getElementById("words").value;
+      let words = parseWords(raw);
+
+      const needed = grid * grid;
+      if (words.length < needed) {
+        errorEl.textContent = `Not enough words. For a ${grid}×${grid} card you need at least ${needed} words. You provided ${words.length}.`;
+        errorEl.style.display = "block";
+        return;
+      }
+      // Use exactly needed words
+      words = words.slice(0, needed);
+
+      // Prepare unique shuffles for each card
+      const cardWords = [];
+      for (let i = 0; i < count; i++) {
+        const shuffled = shuffleInPlace([...words]);
+        cardWords.push(shuffled);
+      }
+
+      // Create PDF
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF({ unit: "pt", format: "letter", compress: true, hotfixes: ["px_scaling"] });
+
+      function footer(pageNum, totalPages) {
+        doc.setFontSize(8);
+        doc.setTextColor(80);
+        doc.text(`Page ${pageNum} / ${totalPages}`, doc.internal.pageSize.getWidth() - 50, doc.internal.pageSize.getHeight() - 10, { align: "right" });
+        doc.setTextColor(0);
+      }
+
+      const totalPages = Math.ceil(cardWords.length / 4);
+
+      for (let p = 0; p < totalPages; p++) {
+        if (p > 0) doc.addPage();
+        const slice = cardWords.slice(p*4, p*4 + 4);
+        layoutFour(doc, slice, { grid, showTitle: true });
+        footer(p+1, totalPages);
+      }
+
+      const stamp = new Date().toISOString().slice(0,19).replace(/[:T]/g,'-');
+      const fileName = `bingo_${grid}x${grid}_${cardWords.length}cards_${stamp}.pdf`;
+      doc.save(fileName);
+    }
+
+    // Sample words (25 classroom nouns)
+    const SAMPLE_25 = [
+      "libro","lápiz","bolígrafo","cuaderno","mochila",
+      "papel","silla","mesa","puerta","ventana",
+      "pizarra","borrador","marcador","regla","tijeras",
+      "pegamento","grapadora","carpeta","computadora","reloj",
+      "estudiante","maestro","clase","tarea","diccionario"
+    ];
+
+    // Wire up UI
+    const gridInput = document.getElementById("grid");
+    const neededSpan = document.getElementById("needed");
+    const gridLabel = document.getElementById("gridLabel");
+    const needText = document.getElementById("needText");
+
+    function updateNeeded() {
+      let g = parseInt(gridInput.value || "5", 10);
+      if (isNaN(g) || g < 3) g = 3;
+      if (g > 12) g = 12;
+      const n = g * g;
+      neededSpan.textContent = String(n);
+      needText.textContent = String(n);
+      gridLabel.textContent = `${g}×${g}`;
+    }
+    gridInput.addEventListener("input", updateNeeded);
+    updateNeeded();
+
+    document.getElementById("generate").addEventListener("click", generatePDF);
+    document.getElementById("loadSample").addEventListener("click", () => {
+      const wordsEl = document.getElementById("words");
+      gridInput.value = 5; // matches the sample (25 words)
+      updateNeeded();
+      wordsEl.value = SAMPLE_25.join("\n");
+    });
+
+    // Convenience: preload sample for quick try
+    document.getElementById("words").value = SAMPLE_25.join("\n");
+  </script>
+</body>
+</html>

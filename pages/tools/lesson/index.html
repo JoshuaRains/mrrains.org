@@ -1,0 +1,624 @@
+<!DOCTYPE html>
+<html lang="en" translate="no">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Lesson</title>
+<style>
+  :root{
+    /* Green theme */
+    --bg-top:#517860;
+    --bg-bot:#5c8a6d;
+
+    --topbar:#e6f1eb;       /* light green top bar */
+    --surface:#ffffff;
+    --ink:#0f172a;
+    --muted:#19452f;
+
+    --accent:#58cc02;       /* action green */
+    --accent-soft:#cfe0d8;  /* soft green panel */
+
+    --error:#ff4b4b;
+    --error-soft:#ffe1e1;
+
+    --tile:#f1f5f9;
+    --tile-ink:#0f172a;
+    --tile-selected:#e2f3ff;
+    --tile-correct:#dcfce7;
+    --tile-wrong:#fee2e2;
+
+    --border:#dfece5;
+    --radius-xl:22px;
+    --radius:16px;
+    --shadow:0 10px 24px rgba(0,0,0,.08), 0 2px 6px rgba(0,0,0,.05);
+
+    /* Fixed stage based on viewport */
+    --stage-w: clamp(320px, 72vw, 980px);
+    --stage-h: clamp(420px, 54vw, 720px);
+  }
+
+  *{ box-sizing:border-box }
+  html,body{ height:100% }
+  body{
+    margin:0;
+    color:var(--ink);
+    background: linear-gradient(to bottom, var(--bg-top), var(--bg-bot));
+    font-family: ui-sans-serif, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+  }
+
+  .wrap{ min-height:100%; display:grid; grid-template-rows:auto 1fr; }
+
+  /* Top bar */
+  .topbar{
+    position:sticky; top:0; z-index:10;
+    background:var(--topbar);
+    border-bottom:1px solid var(--border);
+  }
+  .header-row{
+    display:flex; align-items:center; justify-content:space-between;
+    gap:16px; padding:14px 20px 10px;
+    max-width: min(1100px, 92vw); margin:0 auto;
+  }
+  .h-left{ font-weight:900; letter-spacing:.2px; color:#143825; }
+
+  .progress-rail{ width:100%; display:flex; justify-content:center; padding:0 20px 16px; }
+  .progress-wrap{ width:min(980px, 92vw); display:flex; align-items:center; gap:12px; }
+  .progress-pill{
+    flex:1; height:22px; /* thicker */
+    background:#d5eadf;
+    border-radius:999px; position:relative; overflow:hidden;
+  }
+  .progress-fill{
+    position:absolute; top:0; left:0; height:100%; width:0%;
+    background: #58cc02; /* solid green */
+    border-radius:999px; transition:width .35s ease;
+  }
+
+  /* Stage */
+  .stage-wrap{ display:grid; place-items:center; padding:24px; }
+  .stage{
+    width:var(--stage-w);
+    height:var(--stage-h);
+    background:var(--surface);
+    border-radius:var(--radius-xl);
+    box-shadow:var(--shadow);
+    padding:28px 26px;
+    display:flex; flex-direction:column; overflow:hidden;
+  }
+
+  .prompt{ display:flex; align-items:center; gap:12px; font-weight:900; font-size:22px; line-height:1.2; margin-bottom:8px; }
+  .subtitle{ color:var(--muted); font-size:14px; margin:2px 0 14px; }
+
+  /* Scrollable content to keep frame fixed */
+  .content{ flex:1; overflow:auto; padding-right:4px; }
+
+  /* Tiles + answer area */
+  .answer-area{
+    border:2px dashed #e2e8f0;
+    border-radius:16px; padding:14px; min-height:62px;
+    display:flex; flex-wrap:wrap; gap:10px; align-items:center; background:#fafcff;
+  }
+  .bank{ margin-top:16px; display:flex; flex-wrap:wrap; gap:10px; }
+  .tile{
+    background:var(--tile); color:var(--tile-ink);
+    border:1px solid #e2e8f0; border-radius:14px;
+    padding:10px 14px; font-weight:800; letter-spacing:.2px;
+    box-shadow:0 2px 6px rgba(0,0,0,.06);
+    cursor:pointer; user-select:none;
+    transition:transform .05s ease, background .15s, border-color .15s;
+  }
+  .tile:active{ transform:scale(.98) }
+  .tile.selected{ background:var(--tile-selected); border-color:#bfdbfe; }
+  .tile.correct{ background:var(--tile-correct); border-color:#86efac; }
+  .tile.wrong{ background:var(--tile-wrong); border-color:#fecaca; }
+
+  /* Matching (no animations) */
+  .match-grid{ display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+  .col{ display:flex; flex-direction:column; gap:10px; }
+  .match-card{
+    background:#f3f8f5; border:1px solid var(--border);
+    border-radius:14px; padding:12px 14px; font-weight:800; cursor:pointer;
+    box-shadow:0 2px 6px rgba(0,0,0,.06);
+    transition:opacity .15s, background .15s, border-color .15s;
+  }
+  .match-card.selected{ background:#e4f0ea; border-color:#b7d7c8; }
+  .match-card.paired{ opacity:.55; pointer-events:none; }
+
+  /* Typing */
+  .type-wrap{ display:flex; flex-direction:column; gap:10px; }
+  .type-input{
+    width:100%; font-size:18px; padding:14px 16px;
+    border-radius:14px; border:2px solid #e2e8f0; outline:0; background:#fff;
+  }
+  .type-input:focus{ border-color:#cbd5e1; }
+  .accents{ display:flex; flex-wrap:wrap; gap:8px; margin-top:2px; }
+  .acc-btn{
+    border:1px solid #e2e8f0; background:#f8fafc; border-radius:12px;
+    padding:8px 10px; font-weight:800; cursor:pointer; box-shadow:0 2px 6px rgba(0,0,0,.06);
+  }
+  .helper{ color:#335d48; font-size:13px; margin-top:2px; }
+
+  /* Feedback + footer */
+  .feedback{
+    margin-top:12px; padding:12px 14px; border-radius:14px; font-weight:800; display:none;
+  }
+  .feedback.show{ display:block }
+  .feedback.ok{ background:var(--tile-correct); color:#0f5132; border:1px solid #86efac; }
+  .feedback.bad{ background:var(--error-soft); color:#7c1313; border:1px solid #ffb4b4; }
+
+  .footer{ padding-top:12px; display:flex; gap:12px; align-items:center; justify-content:flex-end; }
+  .btn{
+    appearance:none; border:0; outline:0;
+    padding:12px 18px; border-radius:14px; font-weight:900; letter-spacing:.2px;
+    cursor:pointer; box-shadow:0 2px 6px rgba(0,0,0,.06);
+    transition:transform .06s ease, opacity .15s ease, background .15s ease;
+  }
+  .btn:active{ transform:translateY(1px) }
+  .btn-primary{ background:var(--accent); color:white; }
+  .btn-primary:disabled{ opacity:.5; cursor:not-allowed; }
+
+  /* Finished screen */
+  .finished{ width:100%; height:100%; display:grid; place-items:center; text-align:center; padding:18px; }
+  .finish-card{ max-width:520px; margin:0 auto; }
+  .trophy{ font-size:64px; line-height:1; margin-bottom:8px }
+  .finish-title{ font-size:28px; font-weight:900; margin:8px 0 6px; color:#143825;}
+  .finish-sub{ color:#2a5f45; font-weight:600; }
+
+  /* Hints for tiles/typing */
+  .hint{
+    margin-top:12px; background:#f6faf7; border:1px dashed #c7e7d0; padding:10px; border-radius:12px;
+    color:#2b5440; font-weight:700; font-size:14px;
+  }
+  .ghost-row{ margin-top:8px; display:flex; flex-wrap:wrap; gap:8px; }
+  .ghost-tile{
+    padding:8px 12px; border-radius:12px; border:1px dashed #b9d9c3;
+    background:#e9f6ee; color:#2b5440; font-weight:800; font-size:13px;
+  }
+
+  @media (max-width:680px){
+    .stage{ padding:20px }
+    .match-grid{ grid-template-columns:1fr; }
+  }
+
+  /* Print styles for results */
+  @media print{
+    body{ background:#fff !important; }
+    .stage{ box-shadow:none !important; }
+  }
+</style>
+</head>
+<body>
+  <div class="wrap" id="appRoot">
+    <div class="topbar">
+      <div class="header-row">
+        <div class="h-left" id="skillTitle">Lesson</div>
+      </div>
+      <div class="progress-rail">
+        <div class="progress-wrap">
+          <div class="progress-pill"><div class="progress-fill" id="progressFill"></div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="stage-wrap">
+      <div class="stage" id="stage">
+        <div class="prompt"><span id="promptText">Prompt</span></div>
+        <div class="subtitle" id="subtitleText"></div>
+
+        <div class="content" id="contentArea"></div>
+
+        <div class="feedback" id="feedback"></div>
+        <div class="footer" id="footer"></div>
+      </div>
+    </div>
+  </div>
+
+<script>
+/* -------------------- DEMO fallback -------------------- */
+const DEMO = {
+  title: "Demo",
+  acceptNoAccents: true,
+  steps: [
+    { type:"typing", prompt:"Type: hello", answers:["hello"] }
+  ]
+};
+
+/* -------------------- Load config: ?set= or ?config= -------------------- */
+async function loadConfig() {
+  const sp = new URLSearchParams(location.search);
+
+  // 1) ?set=ir  -> fetch ./lessons/ir.json
+  const set = sp.get("set");
+  if (set) {
+    try {
+      const url = new URL(`./lessons/${encodeURIComponent(set)}.json`, location.href).toString();
+      const res = await fetch(url, { cache: "no-store" });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      return await res.json();
+    } catch (err) {
+      console.error("Failed to load set:", err);
+      alert(`Could not load lesson set "${set}" from ./lessons/${set}.json`);
+    }
+  }
+
+  // 2) ?config=... (URI-encoded JSON or Base64 JSON or raw JSON)
+  const raw = sp.get("config");
+  if (raw) {
+    try { return JSON.parse(decodeURIComponent(raw)); } catch(e){}
+    try { return JSON.parse(atob(raw)); } catch(e){}
+    try { return JSON.parse(raw); } catch(e){}
+  }
+
+  // 3) Fallback
+  return DEMO;
+}
+
+/* -------------------- Helpers -------------------- */
+const $ = (s, r=document)=>r.querySelector(s);
+const $$ = (s, r=document)=>[...r.querySelectorAll(s)];
+function normalizeText(s, ignoreAccents=false){
+  if(typeof s!=="string") return "";
+  let t = s.trim().toLowerCase().replace(/\s+/g,' ');
+  if(ignoreAccents) t = t.normalize("NFD").replace(/\p{Diacritic}/gu,"");
+  return t;
+}
+function arraysEqualCI(a,b){
+  if(a.length!==b.length) return false;
+  for(let i=0;i<a.length;i++){
+    if(normalizeText(String(a[i]))!==normalizeText(String(b[i]))) return false;
+  }
+  return true;
+}
+function anyArrayMatchesCI(candidate, targets){
+  return targets.some(t => arraysEqualCI(candidate, t));
+}
+function shuffle(a){ const x=a.slice(); for(let i=x.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [x[i],x[j]]=[x[j],x[i]];} return x; }
+function escapeHtml(s){ return String(s).replace(/[&<>"']/g, m=>({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[m])); }
+function fmt(dt){ try { return new Intl.DateTimeFormat(undefined,{dateStyle:"medium",timeStyle:"short"}).format(dt); } catch(e){ return dt.toLocaleString(); } }
+
+/* -------------------- App -------------------- */
+(async () => {
+  const BASE = await loadConfig();
+
+  /* State */
+  const ORIGINAL = BASE.steps.map((s,i)=>({ ...s, __id:i }));
+  let queue = ORIGINAL.map(s=>({...s}));
+  const totalUnique = ORIGINAL.length;
+
+  const completedIds = new Set();
+  // Store attempts required on the FIRST successful run only. Null = unset.
+  let attempts = {}; ORIGINAL.forEach(s=> attempts[s.__id]=null);
+
+  let current=null, hadWrongThisRound=false;
+
+  // Per-showing counters (reset each time we pop a new item from queue)
+  let showAttempts = 0;     // Tiles/Typing: number of Check presses this showing
+  let showMismatches = 0;   // Matching: number of incorrect pair tries this showing
+
+  const ACCENTS = ["á","é","í","ó","ú","ü","ñ","¿","¡"];
+  const promptText=$("#promptText"), subtitleText=$("#subtitleText"), contentArea=$("#contentArea");
+  const feedback=$("#feedback"), footer=$("#footer"), progressFill=$("#progressFill"), skillTitle=$("#skillTitle");
+  skillTitle.textContent = BASE.title || "Lesson";
+
+  const startedAt = new Date(); let finishedAt=null;
+
+  /* Progress & UI helpers */
+  function updateProgress(){ progressFill.style.width = Math.round((completedIds.size/totalUnique)*100) + "%"; }
+  function setFeedback(ok, msg){ feedback.className = "feedback show " + (ok ? "ok":"bad"); feedback.textContent = msg; }
+  function clearFeedback(){ feedback.className="feedback"; feedback.textContent=""; }
+
+  let primaryBtnRef=null;
+  function setFooterPrimary(label, onClick, disabled=false, isContinue=false){
+    footer.innerHTML="";
+    const b=document.createElement("button");
+    b.className="btn btn-primary"; b.textContent=label; b.disabled=!!disabled;
+    b.dataset.continue = isContinue ? "1" : "";
+    b.addEventListener("click", ()=>{ onClick && onClick(); });
+    footer.appendChild(b); primaryBtnRef=b; return b;
+  }
+
+  /* Enter triggers Continue when present */
+  document.addEventListener("keydown",(e)=>{
+    if(e.key==="Enter" && primaryBtnRef && primaryBtnRef.dataset.continue==="1" && !primaryBtnRef.disabled){
+      e.preventDefault(); primaryBtnRef.click();
+    }
+  });
+
+  /* Queue control */
+  function nextFromQueue(){
+    if(queue.length===0){ renderFinished(); return; }
+    current=queue.shift(); hadWrongThisRound=false;
+    showAttempts = 0;      // reset per showing
+    showMismatches = 0;    // reset per showing
+    renderStep();
+  }
+  function markCompletedAndAdvance(){
+    if(!completedIds.has(current.__id)){ completedIds.add(current.__id); updateProgress(); }
+    nextFromQueue();
+  }
+  function requeueCurrentAndAdvance(){ queue.push({...current}); nextFromQueue(); }
+
+  /* Rendering */
+  function renderStep(){
+    clearFeedback(); footer.innerHTML=""; contentArea.innerHTML="";
+    if(!current){ renderFinished(); return; }
+    promptText.textContent = current.prompt || ""; subtitleText.textContent="";
+    if(current.type==="tiles") renderTiles(current);
+    else if(current.type==="matching") renderMatching(current);
+    else if(current.type==="typing") renderTyping(current);
+    else { subtitleText.textContent="This question type is not recognized."; setFooterPrimary("Continue",()=>nextFromQueue(),false,true); }
+  }
+
+  /* Tiles */
+  function renderTiles(step){
+    subtitleText.textContent="Tap words to build the sentence. Tap again to return them to the bank.";
+
+    const answer=document.createElement("div"); answer.className="answer-area";
+    const bank=document.createElement("div"); bank.className="bank";
+    contentArea.appendChild(answer); contentArea.appendChild(bank);
+
+    // hint container (shows the correct order after a wrong attempt)
+    const hint = document.createElement("div");
+    hint.className = "hint";
+    hint.style.display = "none";
+    hint.innerHTML = `<div>One correct answer:</div><div class="ghost-row" id="ghostRow"></div>`;
+    contentArea.appendChild(hint);
+    const ghostRow = hint.querySelector("#ghostRow");
+
+    const tiles=step.tiles?step.tiles.slice():[];
+    const targets = Array.isArray(step.answers)&&step.answers.length ? step.answers.map(a=>a.slice()) : [ (step.answer||[]).slice() ];
+    let chosen=[];
+
+    function makeTile(text){
+      const el=document.createElement("div"); el.className="tile"; el.textContent=text;
+      el.addEventListener("click", ()=>{
+        if(el.parentElement===bank){ bank.removeChild(el); answer.appendChild(el); chosen.push(text); }
+        else{ answer.removeChild(el); bank.appendChild(el); const i=chosen.indexOf(text); if(i>-1) chosen.splice(i,1); }
+        el.classList.remove("wrong","correct","selected"); setPrimaryDisabled();
+      });
+      return el;
+    }
+    shuffle(tiles).forEach(w=>bank.appendChild(makeTile(w)));
+
+    const primaryBtn = setFooterPrimary("Check", onCheck, true, false);
+    function setPrimaryDisabled(){ primaryBtn.disabled = chosen.length===0; }
+
+    function showTilesHint(exampleArr){
+      ghostRow.innerHTML = "";
+      exampleArr.forEach(w => {
+        const g = document.createElement("span");
+        g.className = "ghost-tile";
+        g.textContent = w;
+        ghostRow.appendChild(g);
+      });
+      hint.style.display = "block";
+    }
+
+    function onCheck(){
+      showAttempts += 1;
+
+      const ok = anyArrayMatchesCI(chosen, targets);
+      if(ok){
+        $$(".tile",answer).forEach(t=>t.classList.add("correct"));
+
+        // Record attempts only the first time this item is solved
+        if (attempts[current.__id] == null) attempts[current.__id] = showAttempts;
+
+        if(hadWrongThisRound){
+          setFeedback(true,"Correct! We’ll revisit this later.");
+          setFooterPrimary("Continue",()=>requeueCurrentAndAdvance(),false,true);
+        }else{
+          setFeedback(true,"Correct!");
+          setFooterPrimary("Continue",()=>markCompletedAndAdvance(),false,true);
+        }
+      }else{
+        hadWrongThisRound=true;
+        $$(".tile",answer).forEach(t=>t.classList.add("wrong"));
+        setFeedback(false,"Not quite. Fix it and press Check again.");
+        // show first valid solution as hint (do not rearrange tiles)
+        showTilesHint(targets[0] || []);
+        // subtle pulse (matching has no animations)
+        answer.style.transform="scale(0.98)"; setTimeout(()=>{ answer.style.transform="scale(1)"; },140);
+        setTimeout(()=>$$(".tile.wrong",answer).forEach(t=>t.classList.remove("wrong")),260);
+      }
+    }
+  }
+
+  /* Matching (no animations) */
+  function renderMatching(step){
+    subtitleText.textContent="Tap one on the left, then its match on the right.";
+
+    const grid=document.createElement("div"); grid.className="match-grid";
+    const leftCol=document.createElement("div"); leftCol.className="col";
+    const rightCol=document.createElement("div"); rightCol.className="col";
+    grid.appendChild(leftCol); grid.appendChild(rightCol); contentArea.appendChild(grid);
+
+    const pairs=step.pairs?step.pairs.slice():[];
+    const L=pairs.map(p=>p[0]), R=pairs.map(p=>p[1]);
+    const Ls=shuffle(L), Rs=shuffle(R);
+
+    let selectedLeft=null, selectedRight=null, matched=0;
+
+    function makeCard(text, side){
+      const el=document.createElement("div"); el.className="match-card"; el.textContent=text; el.tabIndex=0;
+      el.addEventListener("click", ()=>{
+        if(el.classList.contains("paired")) return;
+        if(side==="L"){ if(selectedLeft && selectedLeft!==el) selectedLeft.classList.remove("selected"); selectedLeft=el; el.classList.toggle("selected"); }
+        else { if(selectedRight && selectedRight!==el) selectedRight.classList.remove("selected"); selectedRight=el; el.classList.toggle("selected"); }
+
+        if(selectedLeft && selectedRight){
+          const a=selectedLeft.textContent, b=selectedRight.textContent;
+          const isPair = pairs.some(([x,y])=> normalizeText(x)===normalizeText(a) && normalizeText(y)===normalizeText(b));
+          if(isPair){
+            [selectedLeft, selectedRight].forEach(e=>{
+              e.classList.remove("selected"); e.classList.add("paired"); e.style.background="var(--tile-correct)";
+            });
+            matched++; selectedLeft=null; selectedRight=null;
+
+            if(matched===pairs.length){
+              // Record mismatches+1 only the first time it's solved
+              if (attempts[current.__id] == null) attempts[current.__id] = showMismatches + 1;
+              setFeedback(true,"Great! All matched.");
+              setFooterPrimary("Continue",()=>markCompletedAndAdvance(),false,true);
+            }
+          }else{
+            showMismatches += 1; // count a wrong pair attempt on this showing
+            setFeedback(false, `"${a}" does not match "${b}". Keep trying.`);
+            // clear selections; NO animation
+            setTimeout(()=>{ selectedLeft?.classList.remove("selected"); selectedRight?.classList.remove("selected"); selectedLeft=null; selectedRight=null; }, 150);
+          }
+        }
+      });
+      return el;
+    }
+
+    Ls.forEach(t=>leftCol.appendChild(makeCard(t,"L")));
+    Rs.forEach(t=>rightCol.appendChild(makeCard(t,"R")));
+  }
+
+  /* Typing */
+  function renderTyping(step){
+    subtitleText.textContent="Type your answer. Use the accent buttons if needed, then press Check.";
+
+    const wrap=document.createElement("div"); wrap.className="type-wrap";
+    const input=document.createElement("input"); input.className="type-input"; input.type="text";
+    input.placeholder=step.placeholder||"Type your answer";
+
+    const accents=document.createElement("div"); accents.className="accents";
+    ["á","é","í","ó","ú","ü","ñ","¿","¡"].forEach(ch=>{
+      const btn=document.createElement("button"); btn.className="acc-btn"; btn.type="button"; btn.textContent=ch;
+      btn.addEventListener("click", ()=>{
+        if(input.readOnly) return;
+        const start=input.selectionStart??input.value.length, end=input.selectionEnd??input.value.length;
+        input.value = input.value.slice(0,start) + ch + input.value.slice(end);
+        const pos=start+ch.length; input.setSelectionRange(pos,pos);
+        input.dispatchEvent(new Event("input")); input.focus();
+      });
+      accents.appendChild(btn);
+    });
+
+    // space for showing a canonical correct answer when wrong
+    const helper=document.createElement("div"); helper.className="helper"; helper.textContent="Press Enter or tap Check.";
+    const hint = document.createElement("div"); hint.className="hint"; hint.style.display="none";
+    hint.innerHTML = `<div>One correct answer:</div><div class="ghost-row" id="ghostText"></div>`;
+
+    wrap.appendChild(input); wrap.appendChild(accents); wrap.appendChild(helper); contentArea.appendChild(wrap); contentArea.appendChild(hint);
+    const ghostText = hint.querySelector("#ghostText");
+
+    const primaryBtn=setFooterPrimary("Check", check, true, false);
+    input.addEventListener("input", ()=>{ primaryBtn.disabled = input.value.trim().length===0 || input.readOnly; });
+    input.addEventListener("keydown",(e)=>{ if(e.key==="Enter" && !primaryBtn.disabled){ e.preventDefault(); check(); } });
+    setTimeout(()=>input.focus(),0);
+
+    function showTypingHint(ans){
+      ghostText.textContent = ans;
+      hint.style.display = "block";
+    }
+
+    function check(){
+      showAttempts += 1;
+
+      const wantList = Array.isArray(step.answers) && step.answers.length ? step.answers.slice() : (step.answer ? [step.answer] : []);
+      const got=input.value??""; const ignoreAccents=!!BASE.acceptNoAccents||!!step.acceptNoAccents;
+      const ok = wantList.some(w=> normalizeText(got,ignoreAccents)===normalizeText(String(w),ignoreAccents));
+
+      if(ok){
+        input.readOnly=true;
+
+        // Record attempts only the first time this item is solved
+        if (attempts[current.__id] == null) attempts[current.__id] = showAttempts;
+
+        if(hadWrongThisRound){
+          setFeedback(true,"Correct! We’ll revisit this later.");
+          setFooterPrimary("Continue",()=>requeueCurrentAndAdvance(),false,true);
+        }else{
+          setFeedback(true,"Correct!");
+          setFooterPrimary("Continue",()=>markCompletedAndAdvance(),false,true);
+        }
+      }else{
+        hadWrongThisRound=true;
+        const canonical = String(wantList[0]||"");
+        setFeedback(false, `Not quite. Fix it and press Check again.`);
+        showTypingHint(canonical);
+        // subtle pulse
+        input.style.transform="scale(0.98)"; setTimeout(()=>{ input.style.transform="scale(1)"; },140);
+        primaryBtn.textContent="Check"; primaryBtn.disabled=input.value.trim().length===0;
+      }
+    }
+  }
+
+  /* Finish + Results */
+  function renderFinished(){
+    finishedAt=new Date();
+    progressFill.style.width="100%";
+    promptText.textContent=""; subtitleText.textContent="";
+    contentArea.innerHTML = `
+      <div class="finished">
+        <div class="finish-card">
+          <div class="trophy">🏆</div>
+          <div class="finish-title">Lesson Complete!</div>
+          <div class="finish-sub">Download your results and submit them.</div>
+          <div style="margin-top:18px;">
+            <button class="btn btn-primary" id="downloadBtn">Download Results</button>
+            <button class="btn" id="restartBtn" style="margin-left:8px;">Restart Lesson</button>
+          </div>
+        </div>
+      </div>`;
+    clearFeedback(); footer.innerHTML="";
+    $("#restartBtn").addEventListener("click", ()=>{
+      queue = ORIGINAL.map(s=>({...s}));
+      completedIds.clear();
+      attempts = {}; ORIGINAL.forEach(s=> attempts[s.__id]=null);
+      updateProgress(); nextFromQueue();
+    });
+    $("#downloadBtn").addEventListener("click", showResultsAndPrint);
+  }
+
+  function showResultsAndPrint(){
+    const title=BASE.title||"Lesson Results"; document.title=title;
+    const rows = ORIGINAL.map(s=>{
+      const tries = attempts[s.__id] == null ? 0 : attempts[s.__id];
+      return `
+        <tr>
+          <td>${escapeHtml(s.prompt||"(untitled)")}</td>
+          <td>${escapeHtml(s.type)}</td>
+          <td style="text-align:center">${tries}</td>
+        </tr>`;
+    }).join("");
+
+    const html=`
+    <div class="results-root">
+      <div class="results-card">
+        <h1 class="res-title">${escapeHtml(title)}</h1>
+        <div class="res-sub">${escapeHtml(fmt(startedAt))} → ${escapeHtml(fmt(finishedAt||new Date()))}</div>
+        <table class="res-table">
+          <thead><tr><th>Question</th><th>Type</th><th>Attempts</th></tr></thead>
+          <tbody>${rows}</tbody>
+        </table>
+        <div class="res-note">Generated on ${escapeHtml(fmt(new Date()))}</div>
+      </div>
+    </div>
+    <style>
+      body{ margin:0; background:#fff; font-family: ui-sans-serif,-apple-system,Segoe UI,Roboto,Helvetica,Arial; color:#111827; }
+      .results-root{ min-height:100vh; display:grid; place-items:center; padding:24px; }
+      .results-card{ width:min(900px,94vw); background:#fff; border:1px solid #e5e7eb; border-radius:16px; box-shadow:0 8px 24px rgba(0,0,0,.06); padding:28px; }
+      .res-title{ margin:0 0 6px; font-size:28px; font-weight:900; }
+      .res-sub{ color:#6b7280; margin-bottom:18px; }
+      .res-table{ width:100%; border-collapse:collapse; }
+      .res-table th,.res-table td{ border-bottom:1px solid #e5e7eb; padding:12px 10px; vertical-align:top; }
+      .res-table th{ text-align:left; background:#f9fafb; font-weight:800; }
+      .res-note{ color:#6b7280; margin-top:14px; font-size:12px; }
+      @media print{ .results-card{ box-shadow:none; border:0; } .res-table th,.res-table td{ border-bottom:1px solid #ddd; } }
+    </style>`;
+    document.body.innerHTML=html;
+    setTimeout(()=>window.print(),200);
+  }
+
+  /* Start; progress counts unique items completed */
+  updateProgress();
+  nextFromQueue();
+
+})();
+</script>
+</body>
+</html>
