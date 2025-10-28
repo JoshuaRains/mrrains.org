@@ -1,0 +1,27 @@
+{
+  "id": "c9-possessives",
+  "title": "C.9 – Possessive Adjectives",
+  "acceptNoAccents": true,
+  "steps": [
+    {"type":"tiles","prompt":"Build: my book","tiles":["mi","libro","mis","tu","tus","su","sus","nuestro","vuestro"],"answers":[["mi","libro"]]},
+    {"type":"tiles","prompt":"Build: my books","tiles":["mis","libros","mi","tus","sus","nuestros","vuestros"],"answers":[["mis","libros"]]},
+    {"type":"tiles","prompt":"Build: your (informal) pencil","tiles":["tu","lápiz","tus","mi","mis","su","sus","vuestro"],"answers":[["tu","lápiz"]]},
+    {"type":"tiles","prompt":"Build: your (informal) notebooks","tiles":["tus","cuadernos","tu","mis","sus","vuestros","nuestros"],"answers":[["tus","cuadernos"]]},
+    {"type":"tiles","prompt":"Build: his backpack","tiles":["su","mochila","sus","mi","tu","nuestra","vuestra"],"answers":[["su","mochila"]]},
+    {"type":"tiles","prompt":"Build: their backpacks","tiles":["sus","mochilas","su","mis","tus","nuestras","vuestras"],"answers":[["sus","mochilas"]]},
+    {"type":"tiles","prompt":"Build: our teacher (masc.)","tiles":["nuestro","profesor","nuestra","su","vuestro","sus"],"answers":[["nuestro","profesor"]]},
+    {"type":"tiles","prompt":"Build: our teacher (fem.)","tiles":["nuestra","profesora","nuestro","su","vuestra","sus"],"answers":[["nuestra","profesora"]]},
+    {"type":"tiles","prompt":"Build: our notebooks","tiles":["nuestros","cuadernos","nuestras","sus","vuestros","mis"],"answers":[["nuestros","cuadernos"]]},
+    {"type":"tiles","prompt":"Build: our classes","tiles":["nuestras","clases","nuestros","sus","vuestras","mis"],"answers":[["nuestras","clases"]]},
+    {"type":"tiles","prompt":"Build: y’all (Spain) book","tiles":["vuestro","libro","vuestra","nuestro","su","sus"],"answers":[["vuestro","libro"]]},
+    {"type":"tiles","prompt":"Build: y’all (Spain) books","tiles":["vuestros","libros","vuestras","nuestros","sus","mis"],"answers":[["vuestros","libros"]]},
+    {"type":"tiles","prompt":"Build: y’all (Spain) class","tiles":["vuestra","clase","vuestro","nuestra","su","sus"],"answers":[["vuestra","clase"]]},
+    {"type":"tiles","prompt":"Build: y’all (Spain) classes","tiles":["vuestras","clases","vuestros","nuestras","sus","mis"],"answers":[["vuestras","clases"]]},
+    {"type":"tiles","prompt":"Build: your (formal) homework","tiles":["su","tarea","sus","tu","tus","nuestra"],"answers":[["su","tarea"]]},
+    {"type":"tiles","prompt":"Build: your (formal) grades (plural)","tiles":["sus","notas","su","tus","vuestras","nuestras"],"answers":[["sus","notas"]]},
+    {"type":"tiles","prompt":"Build: their house","tiles":["su","casa","sus","mi","nuestra","vuestra"],"answers":[["su","casa"]]},
+    {"type":"tiles","prompt":"Build: their houses","tiles":["sus","casas","su","mis","nuestras","vuestras"],"answers":[["sus","casas"]]},
+    {"type":"tiles","prompt":"Build: my pens","tiles":["mis","bolígrafos","mi","tus","sus","nuestros"],"answers":[["mis","bolígrafos"]]},
+    {"type":"tiles","prompt":"Build: your (informal) notebook","tiles":["tu","cuaderno","tus","mi","su","vuestro"],"answers":[["tu","cuaderno"]]}
+  ]
+}

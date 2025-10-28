@@ -1,0 +1,287 @@
+{
+  "id": "c5-regular-conjugation",
+  "title": "C.5 – Regular Conjugation",
+  "acceptNoAccents": true,
+  "steps": [
+    {
+      "type": "typing",
+      "prompt": "Fill the blank: Yo ________ (hablar).",
+      "answers": ["hablo"]
+    },
+    {
+      "type": "typing",
+      "prompt": "Fill the blank: Tú ________ (comer).",
+      "answers": ["comes"]
+    },
+    {
+      "type": "typing",
+      "prompt": "Fill the blank: Él ________ (vivir).",
+      "answers": ["vive"]
+    },
+    {
+      "type": "typing",
+      "prompt": "Fill the blank: Nosotros ________ (estudiar).",
+      "answers": ["estudiamos"]
+    },
+    {
+      "type": "typing",
+      "prompt": "Fill the blank: Y’all (ustedes) ________ (trabajar).",
+      "answers": ["trabajan"]
+    },
+    {
+      "type": "typing",
+      "prompt": "Fill the blank: Ella ________ (leer).",
+      "answers": ["lee"]
+    },
+    {
+      "type": "typing",
+      "prompt": "Fill the blank: Vosotros ________ (mirar).",
+      "answers": ["miráis"]
+    },
+    {
+      "type": "typing",
+      "prompt": "Fill the blank: Ellos ________ (correr).",
+      "answers": ["corren"]
+    },
+    {
+      "type": "typing",
+      "prompt": "Fill the blank: Yo ________ (beber).",
+      "answers": ["bebo"]
+    },
+    {
+      "type": "typing",
+      "prompt": "Fill the blank: Tú ________ (escribir).",
+      "answers": ["escribes"]
+    },
+    {
+      "type": "typing",
+      "prompt": "Fill the blank: Nosotros ________ (abrir).",
+      "answers": ["abrimos"]
+    },
+    {
+      "type": "typing",
+      "prompt": "Fill the blank: Ustedes ________ (usar).",
+      "answers": ["usan"]
+    },
+
+    {
+      "type": "tiles",
+      "prompt": "Build the sentence:",
+      "tiles": ["Yo", "hablo", "español", "hablas", "hablamos", "habláis", "habla", "hablan"],
+      "answers": [["Yo", "hablo", "español"]]
+    },
+    {
+      "type": "tiles",
+      "prompt": "Build the sentence:",
+      "tiles": ["Tú", "comes", "pizza", "como", "comemos", "coméis", "come", "comen"],
+      "answers": [["Tú", "comes", "pizza"]]
+    },
+    {
+      "type": "tiles",
+      "prompt": "Build the sentence:",
+      "tiles": ["Él", "vive", "en", "Tennessee", "vivo", "vives", "vivimos", "vivís", "viven"],
+      "answers": [["Él", "vive", "en", "Tennessee"]]
+    },
+    {
+      "type": "tiles",
+      "prompt": "Build the sentence:",
+      "tiles": ["Nosotros", "estudiamos", "mucho", "estudio", "estudias", "estudia", "estudiáis", "estudian"],
+      "answers": [["Nosotros", "estudiamos", "mucho"]]
+    },
+    {
+      "type": "tiles",
+      "prompt": "Build the sentence:",
+      "tiles": ["Ustedes", "trabajan", "hoy", "trabajo", "trabajas", "trabaja", "trabajamos", "trabajáis"],
+      "answers": [["Ustedes", "trabajan", "hoy"]]
+    },
+    {
+      "type": "tiles",
+      "prompt": "Build the sentence:",
+      "tiles": ["Ella", "lee", "un", "libro", "leo", "lees", "leemos", "leéis", "leen"],
+      "answers": [["Ella", "lee", "un", "libro"]]
+    },
+    {
+      "type": "tiles",
+      "prompt": "Build the sentence:",
+      "tiles": ["Vosotros", "miráis", "la", "tele", "miro", "miras", "mira", "miramos", "miran"],
+      "answers": [["Vosotros", "miráis", "la", "tele"]]
+    },
+    {
+      "type": "tiles",
+      "prompt": "Build the sentence:",
+      "tiles": ["Ellos", "corren", "en", "el", "parque", "corro", "corres", "corre", "corremos", "corréis"],
+      "answers": [["Ellos", "corren", "en", "el", "parque"]]
+    },
+    {
+      "type": "tiles",
+      "prompt": "Build the sentence:",
+      "tiles": ["Yo", "bebo", "agua", "bebes", "bebe", "bebemos", "bebéis", "beben"],
+      "answers": [["Yo", "bebo", "agua"]]
+    },
+    {
+      "type": "tiles",
+      "prompt": "Build the sentence:",
+      "tiles": ["Tú", "escribes", "la", "tarea", "escribo", "escribe", "escribimos", "escribís", "escriben"],
+      "answers": [["Tú", "escribes", "la", "tarea"]]
+    },
+    {
+      "type": "tiles",
+      "prompt": "Build the sentence:",
+      "tiles": ["Nosotros", "abrimos", "la", "puerta", "abro", "abres", "abre", "abrís", "abren"],
+      "answers": [["Nosotros", "abrimos", "la", "puerta"]]
+    },
+    {
+      "type": "tiles",
+      "prompt": "Build the sentence:",
+      "tiles": ["Ustedes", "usan", "el", "cuaderno", "uso", "usas", "usa", "usamos", "usáis"],
+      "answers": [["Ustedes", "usan", "el", "cuaderno"]]
+    },
+
+    {
+      "type": "grid",
+      "prompt": "Select the correct present form of hablar for: yo",
+      "width": 2,
+      "height": 3,
+      "values": ["hablo", "hablamos", "hablas", "habláis", "habla", "hablan"],
+      "answer": [0]
+    },
+    {
+      "type": "grid",
+      "prompt": "Select the correct present form of hablar for: nosotros",
+      "width": 2,
+      "height": 3,
+      "values": ["hablo", "hablamos", "hablas", "habláis", "habla", "hablan"],
+      "answer": [1]
+    },
+    {
+      "type": "grid",
+      "prompt": "Select the correct present form of hablar for: tú",
+      "width": 2,
+      "height": 3,
+      "values": ["hablo", "hablamos", "hablas", "habláis", "habla", "hablan"],
+      "answer": [2]
+    },
+    {
+      "type": "grid",
+      "prompt": "Select the correct present form of hablar for: vosotros",
+      "width": 2,
+      "height": 3,
+      "values": ["hablo", "hablamos", "hablas", "habláis", "habla", "hablan"],
+      "answer": [3]
+    },
+    {
+      "type": "grid",
+      "prompt": "Select the correct present form of hablar for: él/ella/usted",
+      "width": 2,
+      "height": 3,
+      "values": ["hablo", "hablamos", "hablas", "habláis", "habla", "hablan"],
+      "answer": [4]
+    },
+    {
+      "type": "grid",
+      "prompt": "Select the correct present form of hablar for: ustedes/ellos/ellas",
+      "width": 2,
+      "height": 3,
+      "values": ["hablo", "hablamos", "hablas", "habláis", "habla", "hablan"],
+      "answer": [5]
+    },
+
+    {
+      "type": "grid",
+      "prompt": "Select the correct present form of comer for: yo",
+      "width": 2,
+      "height": 3,
+      "values": ["como", "comemos", "comes", "coméis", "come", "comen"],
+      "answer": [0]
+    },
+    {
+      "type": "grid",
+      "prompt": "Select the correct present form of comer for: nosotros",
+      "width": 2,
+      "height": 3,
+      "values": ["como", "comemos", "comes", "coméis", "come", "comen"],
+      "answer": [1]
+    },
+    {
+      "type": "grid",
+      "prompt": "Select the correct present form of comer for: tú",
+      "width": 2,
+      "height": 3,
+      "values": ["como", "comemos", "comes", "coméis", "come", "comen"],
+      "answer": [2]
+    },
+    {
+      "type": "grid",
+      "prompt": "Select the correct present form of comer for: vosotros",
+      "width": 2,
+      "height": 3,
+      "values": ["como", "comemos", "comes", "coméis", "come", "comen"],
+      "answer": [3]
+    },
+    {
+      "type": "grid",
+      "prompt": "Select the correct present form of comer for: él/ella/usted",
+      "width": 2,
+      "height": 3,
+      "values": ["como", "comemos", "comes", "coméis", "come", "comen"],
+      "answer": [4]
+    },
+    {
+      "type": "grid",
+      "prompt": "Select the correct present form of comer for: ustedes/ellos/ellas",
+      "width": 2,
+      "height": 3,
+      "values": ["como", "comemos", "comes", "coméis", "come", "comen"],
+      "answer": [5]
+    },
+
+    {
+      "type": "grid",
+      "prompt": "Select the correct present form of vivir for: yo",
+      "width": 2,
+      "height": 3,
+      "values": ["vivo", "vivimos", "vives", "vivís", "vive", "viven"],
+      "answer": [0]
+    },
+    {
+      "type": "grid",
+      "prompt": "Select the correct present form of vivir for: nosotros",
+      "width": 2,
+      "height": 3,
+      "values": ["vivo", "vivimos", "vives", "vivís", "vive", "viven"],
+      "answer": [1]
+    },
+    {
+      "type": "grid",
+      "prompt": "Select the correct present form of vivir for: tú",
+      "width": 2,
+      "height": 3,
+      "values": ["vivo", "vivimos", "vives", "vivís", "vive", "viven"],
+      "answer": [2]
+    },
+    {
+      "type": "grid",
+      "prompt": "Select the correct present form of vivir for: vosotros",
+      "width": 2,
+      "height": 3,
+      "values": ["vivo", "vivimos", "vives", "vivís", "vive", "viven"],
+      "answer": [3]
+    },
+    {
+      "type": "grid",
+      "prompt": "Select the correct present form of vivir for: él/ella/usted",
+      "width": 2,
+      "height": 3,
+      "values": ["vivo", "vivimos", "vives", "vivís", "vive", "viven"],
+      "answer": [4]
+    },
+    {
+      "type": "grid",
+      "prompt": "Select the correct present form of vivir for: ustedes/ellos/ellas",
+      "width": 2,
+      "height": 3,
+      "values": ["vivo", "vivimos", "vives", "vivís", "vive", "viven"],
+      "answer": [5]
+    }
+  ]
+}

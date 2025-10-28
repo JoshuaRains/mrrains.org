@@ -1,0 +1,93 @@
+{
+  "id": "c15-ir-a-futuro",
+  "title": "C.15 – Near Future (ir + a + infinitive)",
+  "acceptNoAccents": true,
+  "steps": [
+    {
+      "type": "matching",
+      "prompt": "Match the subject to the correct 'ir a' chunk.",
+      "pairs": [
+        ["yo","voy a"],
+        ["tú","vas a"],
+        ["él/ella/usted","va a"],
+        ["nosotros","vamos a"],
+        ["y’all (ustedes)","van a"],
+        ["ellos/ellas","van a"]
+      ]
+    },
+
+    { "type": "typing", "prompt": "Fill the blank with 'ir a': Yo ________ estudiar.", "answers": ["voy a"] },
+    { "type": "typing", "prompt": "Fill the blank with 'ir a': Tú ________ leer.", "answers": ["vas a"] },
+    { "type": "typing", "prompt": "Fill the blank with 'ir a': Él ________ escribir.", "answers": ["va a"] },
+    { "type": "typing", "prompt": "Fill the blank with 'ir a': Nosotros ________ trabajar.", "answers": ["vamos a"] },
+    { "type": "typing", "prompt": "Fill the blank with 'ir a': Ustedes ________ correr.", "answers": ["van a"] },
+    { "type": "typing", "prompt": "Fill the blank with 'ir a': Ellos ________ usar la computadora.", "answers": ["van a"] },
+
+    { "type": "typing", "prompt": "Fill the blank with the infinitive (to study): Yo voy a ________.", "answers": ["estudiar"] },
+    { "type": "typing", "prompt": "Fill the blank with the infinitive (to read): Tú vas a ________.", "answers": ["leer"] },
+    { "type": "typing", "prompt": "Fill the blank with the infinitive (to write): Él va a ________.", "answers": ["escribir"] },
+    { "type": "typing", "prompt": "Fill the blank with the infinitive (to work): Nosotros vamos a ________.", "answers": ["trabajar"] },
+    { "type": "typing", "prompt": "Fill the blank with the infinitive (to run): Ustedes van a ________.", "answers": ["correr"] },
+    { "type": "typing", "prompt": "Fill the blank with the infinitive (to use): Ellos van a ________ la computadora.", "answers": ["usar"] },
+
+    { "type": "tiles", "prompt": "Build: I am going to study.", "tiles": ["Voy","a","estudiar","Vas","Va","Vamos","Van"], "answers": [["Voy","a","estudiar"]] },
+    { "type": "tiles", "prompt": "Build: You (informal) are going to read.", "tiles": ["Vas","a","leer","Voy","Va","Vamos","Van"], "answers": [["Vas","a","leer"]] },
+    { "type": "tiles", "prompt": "Build: He is going to write.", "tiles": ["Va","a","escribir","Voy","Vas","Van"], "answers": [["Va","a","escribir"]] },
+    { "type": "tiles", "prompt": "Build: We are going to work.", "tiles": ["Vamos","a","trabajar","Va","Vas","Van"], "answers": [["Vamos","a","trabajar"]] },
+    { "type": "tiles", "prompt": "Build: Y’all are going to listen.", "tiles": ["Van","a","escuchar","Vamos","Va","Vas"], "answers": [["Van","a","escuchar"]] },
+    { "type": "tiles", "prompt": "Build: They are going to run.", "tiles": ["Van","a","correr","Voy","Vamos","Vas"], "answers": [["Van","a","correr"]] },
+
+    {
+      "type": "grid",
+      "prompt": "Select the correct 'ir a' start for: yo",
+      "width": 2,
+      "height": 3,
+      "values": ["voy a","vamos a","vas a","vais a","va a","van a"],
+      "answer": [0]
+    },
+    {
+      "type": "grid",
+      "prompt": "Select the correct 'ir a' start for: nosotros",
+      "width": 2,
+      "height": 3,
+      "values": ["voy a","vamos a","vas a","vais a","va a","van a"],
+      "answer": [1]
+    },
+    {
+      "type": "grid",
+      "prompt": "Select the correct 'ir a' start for: tú",
+      "width": 2,
+      "height": 3,
+      "values": ["voy a","vamos a","vas a","vais a","va a","van a"],
+      "answer": [2]
+    },
+    {
+      "type": "grid",
+      "prompt": "Select the correct 'ir a' start for: él/ella/usted",
+      "width": 2,
+      "height": 3,
+      "values": ["voy a","vamos a","vas a","vais a","va a","van a"],
+      "answer": [4]
+    },
+    {
+      "type": "grid",
+      "prompt": "Select the correct 'ir a' start for: ustedes/ellos/ellas",
+      "width": 2,
+      "height": 3,
+      "values": ["voy a","vamos a","vas a","vais a","va a","van a"],
+      "answer": [5]
+    },
+
+    {
+      "type": "matching",
+      "prompt": "Match the Spanish near-future to English.",
+      "pairs": [
+        ["Voy a leer.","I am going to read."],
+        ["Vas a estudiar.","You are going to study."],
+        ["Va a correr.","He/She is going to run."],
+        ["Vamos a escribir.","We are going to write."],
+        ["Van a practicar.","They are going to practice."]
+      ]
+    }
+  ]
+}

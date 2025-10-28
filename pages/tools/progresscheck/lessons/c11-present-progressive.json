@@ -1,0 +1,41 @@
+{
+  "id": "c13-present-progressive",
+  "title": "C.13 – Present Progressive",
+  "acceptNoAccents": true,
+  "steps": [
+    { "type": "typing", "prompt": "Fill the blank with the correct form of estar: Yo ________ hablando.", "answers": ["estoy"] },
+    { "type": "typing", "prompt": "Fill the blank with the correct form of estar: Tú ________ estudiando.", "answers": ["estás"] },
+    { "type": "typing", "prompt": "Fill the blank with the correct form of estar: Él ________ corriendo.", "answers": ["está"] },
+    { "type": "typing", "prompt": "Fill the blank with the correct form of estar: Nosotros ________ escribiendo.", "answers": ["estamos"] },
+    { "type": "typing", "prompt": "Fill the blank with the correct form of estar: Ustedes ________ mirando.", "answers": ["están"] },
+    { "type": "typing", "prompt": "Fill the blank with the correct form of estar: Ellas ________ trabajando.", "answers": ["están"] },
+
+    { "type": "typing", "prompt": "Fill the blank with the gerund: Yo estoy ________. (hablar)", "answers": ["hablando"] },
+    { "type": "typing", "prompt": "Fill the blank with the gerund: Tú estás ________. (beber)", "answers": ["bebiendo"] },
+    { "type": "typing", "prompt": "Fill the blank with the gerund: Él está ________. (abrir)", "answers": ["abriendo"] },
+    { "type": "typing", "prompt": "Fill the blank with the gerund: Nosotros estamos ________. (aprender)", "answers": ["aprendiendo"] },
+    { "type": "typing", "prompt": "Fill the blank with the gerund: Ustedes están ________. (recibir)", "answers": ["recibiendo"] },
+    { "type": "typing", "prompt": "Fill the blank with the gerund: Ellos están ________. (usar)", "answers": ["usando"] },
+
+    { "type": "typing", "prompt": "Fill the blank with the correct form of estar: Tú ________ caminando.", "answers": ["estás"] },
+    { "type": "typing", "prompt": "Fill the blank with the gerund: Ella está ________. (escribir)", "answers": ["escribiendo"] },
+    { "type": "typing", "prompt": "Fill the blank with the correct form of estar: Nosotros ________ respondiendo.", "answers": ["estamos"] },
+    { "type": "typing", "prompt": "Fill the blank with the gerund: Ustedes están ________. (sufrir)", "answers": ["sufriendo"] },
+    { "type": "typing", "prompt": "Fill the blank with the correct form of estar: Él ________ comiendo.", "answers": ["está"] },
+    { "type": "typing", "prompt": "Fill the blank with the gerund: Ellas están ________. (vivir)", "answers": ["viviendo"] },
+
+    { "type": "tiles", "prompt": "Build: I am talking.", "tiles": ["Yo", "estoy", "hablando", "estás", "está", "habliendo", "caminiendo", "tú"], "answers": [["Yo", "estoy", "hablando"], ["estoy", "hablando"]] },
+    { "type": "tiles", "prompt": "Build: You (informal) are studying.", "tiles": ["Tú", "estás", "estudiando", "estoy", "está", "estudian", "estudiendo", "Ustedes"], "answers": [["Tú", "estás", "estudiando"], ["estás", "estudiando"]] },
+    { "type": "tiles", "prompt": "Build: He is running.", "tiles": ["Él", "está", "corriendo", "estás", "estoy", "corrando", "corriando", "Nosotros"], "answers": [["Él", "está", "corriendo"], ["está", "corriendo"]] },
+    { "type": "tiles", "prompt": "Build: We are writing.", "tiles": ["Nosotros", "estamos", "escribiendo", "está", "están", "escribando", "Ustedes"], "answers": [["Nosotros", "estamos", "escribiendo"], ["estamos", "escribiendo"]] },
+    { "type": "tiles", "prompt": "Build: Y’all are listening.", "tiles": ["Ustedes", "están", "escuchando", "estoy", "está", "escuchiendo", "Tú"], "answers": [["Ustedes", "están", "escuchando"], ["están", "escuchando"]] },
+    { "type": "tiles", "prompt": "Build: They are working.", "tiles": ["Ellos", "están", "trabajando", "está", "estás", "trabajiendo", "Yo"], "answers": [["Ellos", "están", "trabajando"], ["están", "trabajando"]] },
+
+    { "type": "tiles", "prompt": "Build: We are learning.", "tiles": ["Nosotros", "estamos", "aprendiendo", "está", "estás", "aprendiando", "Ustedes"], "answers": [["Nosotros", "estamos", "aprendiendo"], ["estamos", "aprendiendo"]] },
+    { "type": "tiles", "prompt": "Build: She is writing.", "tiles": ["Ella", "está", "escribiendo", "están", "estás", "escribando", "Nosotros"], "answers": [["Ella", "está", "escribiendo"], ["está", "escribiendo"]] },
+    { "type": "tiles", "prompt": "Build: You (plural) are opening the door.", "tiles": ["Ustedes", "están", "abriendo", "la", "puerta", "estamos", "abriando", "Él"], "answers": [["Ustedes", "están", "abriendo", "la", "puerta"], ["están", "abriendo", "la", "puerta"]] },
+    { "type": "tiles", "prompt": "Build: I am using the computer.", "tiles": ["Yo", "estoy", "usando", "la", "computadora", "está", "usiendo", "Tú"], "answers": [["Yo", "estoy", "usando", "la", "computadora"], ["estoy", "usando", "la", "computadora"]] },
+    { "type": "tiles", "prompt": "Build: They are answering.", "tiles": ["Ellos", "están", "respondiendo", "está", "estoy", "respondiando", "Nosotros"], "answers": [["Ellos", "están", "respondiendo"], ["están", "respondiendo"]] },
+    { "type": "tiles", "prompt": "Build: You (informal) are walking.", "tiles": ["Tú", "estás", "caminando", "está", "estoy", "caminiendo", "Ustedes"], "answers": [["Tú", "estás", "caminando"], ["estás", "caminando"]] }
+  ]
+}

@@ -1,0 +1,127 @@
+{
+  "id": "c7-gustar",
+  "title": "C.7 – Gustar",
+  "acceptNoAccents": true,
+  "steps": [
+    {
+      "type": "tiles",
+      "prompt": "Build: I like the class.",
+      "tiles": ["Me", "gusta", "la", "clase", "gustan", "les", "encanta"],
+      "answers": [["Me", "gusta", "la", "clase"]]
+    },
+    {
+      "type": "tiles",
+      "prompt": "Build: You (informal) like to study.",
+      "tiles": ["Te", "gusta", "estudiar", "gustan", "le", "encanta"],
+      "answers": [["Te", "gusta", "estudiar"]]
+    },
+    {
+      "type": "tiles",
+      "prompt": "Build: He likes tacos.",
+      "tiles": ["Le", "gustan", "los", "tacos", "gusta", "me", "encanta"],
+      "answers": [["Le", "gustan", "los", "tacos"]]
+    },
+    {
+      "type": "tiles",
+      "prompt": "Build: She likes pizza.",
+      "tiles": ["Le", "gusta", "la", "pizza", "gustan", "te", "encanta"],
+      "answers": [["Le", "gusta", "la", "pizza"]]
+    },
+    {
+      "type": "tiles",
+      "prompt": "Build: We like to run.",
+      "tiles": ["Nos", "gusta", "correr", "gustan", "les", "encanta"],
+      "answers": [["Nos", "gusta", "correr"]]
+    },
+    {
+      "type": "tiles",
+      "prompt": "Build: We like the books.",
+      "tiles": ["Nos", "gustan", "los", "libros", "gusta", "le", "encanta"],
+      "answers": [["Nos", "gustan", "los", "libros"]]
+    },
+    {
+      "type": "tiles",
+      "prompt": "Build: Y’all like to read.",
+      "tiles": ["Les", "gusta", "leer", "gustan", "os", "encanta"],
+      "answers": [["Les", "gusta", "leer"]]
+    },
+    {
+      "type": "tiles",
+      "prompt": "Build: Y’all like the classes.",
+      "tiles": ["Les", "gustan", "las", "clases", "gusta", "vos", "encanta"],
+      "answers": [["Les", "gustan", "las", "clases"]]
+    },
+    {
+      "type": "tiles",
+      "prompt": "Build: They like soccer.",
+      "tiles": ["Les", "gusta", "el", "fútbol", "gustan", "me", "encanta"],
+      "answers": [["Les", "gusta", "el", "fútbol"]]
+    },
+    {
+      "type": "tiles",
+      "prompt": "Build: They like the movies.",
+      "tiles": ["Les", "gustan", "las", "películas", "gusta", "te", "encanta"],
+      "answers": [["Les", "gustan", "las", "películas"]]
+    },
+    {
+      "type": "tiles",
+      "prompt": "Build: I don’t like homework.",
+      "tiles": ["No", "me", "gusta", "la", "tarea", "gustan", "encanta"],
+      "answers": [["No", "me", "gusta", "la", "tarea"]]
+    },
+    {
+      "type": "tiles",
+      "prompt": "Build: You (informal) don’t like vegetables.",
+      "tiles": ["No", "te", "gustan", "las", "verduras", "gusta", "encanta"],
+      "answers": [["No", "te", "gustan", "las", "verduras"]]
+    },
+    {
+      "type": "tiles",
+      "prompt": "Build: He doesn’t like to write.",
+      "tiles": ["No", "le", "gusta", "escribir", "gustan", "nos", "encanta"],
+      "answers": [["No", "le", "gusta", "escribir"]]
+    },
+    {
+      "type": "tiles",
+      "prompt": "Build: She doesn’t like the tests.",
+      "tiles": ["No", "le", "gustan", "los", "exámenes", "gusta", "te", "encanta"],
+      "answers": [["No", "le", "gustan", "los", "exámenes"]]
+    },
+    {
+      "type": "tiles",
+      "prompt": "Build: We don’t like to run.",
+      "tiles": ["No", "nos", "gusta", "correr", "gustan", "les", "encanta"],
+      "answers": [["No", "nos", "gusta", "correr"]]
+    },
+    {
+      "type": "tiles",
+      "prompt": "Build: We don’t like the quizzes.",
+      "tiles": ["No", "nos", "gustan", "los", "cuestionarios", "gusta", "encanta"],
+      "answers": [["No", "nos", "gustan", "los", "cuestionarios"]]
+    },
+    {
+      "type": "tiles",
+      "prompt": "Build: Y’all don’t like to study.",
+      "tiles": ["No", "les", "gusta", "estudiar", "gustan", "os", "encanta"],
+      "answers": [["No", "les", "gusta", "estudiar"]]
+    },
+    {
+      "type": "tiles",
+      "prompt": "Build: Y’all don’t like the books.",
+      "tiles": ["No", "les", "gustan", "los", "libros", "gusta", "vos", "encanta"],
+      "answers": [["No", "les", "gustan", "los", "libros"]]
+    },
+    {
+      "type": "tiles",
+      "prompt": "Build: They don’t like to read.",
+      "tiles": ["No", "les", "gusta", "leer", "gustan", "me", "encanta"],
+      "answers": [["No", "les", "gusta", "leer"]]
+    },
+    {
+      "type": "tiles",
+      "prompt": "Build: They don’t like the classes.",
+      "tiles": ["No", "les", "gustan", "las", "clases", "gusta", "te", "encanta"],
+      "answers": [["No", "les", "gustan", "las", "clases"]]
+    }
+  ]
+}

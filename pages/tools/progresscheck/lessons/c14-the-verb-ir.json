@@ -1,0 +1,30 @@
+{
+  "id": "c14-ir",
+  "title": "C.14 – The verb Ir",
+  "acceptNoAccents": true,
+  "steps": [
+    {"type":"matching","prompt":"Match the subject to the correct form of ir.","pairs":[["yo","voy"],["tú","vas"],["él/ella/usted","va"],["nosotros","vamos"],["y’all (ustedes)","van"],["ellos/ellas","van"]]},
+    {"type":"matching","prompt":"Match the Spanish to English.","pairs":[["Voy al parque.","I go to the park."],["Vas a la escuela.","You go to school."],["Va a clase.","He/She goes to class."],["Vamos a casa.","We go home."],["Van a la biblioteca.","They go to the library."]]},
+
+    {"type":"typing","prompt":"Fill the blank: Yo ________ (ir).","answers":["voy"]},
+    {"type":"typing","prompt":"Fill the blank: Tú ________ (ir).","answers":["vas"]},
+    {"type":"typing","prompt":"Fill the blank: Él ________ (ir).","answers":["va"]},
+    {"type":"typing","prompt":"Fill the blank: Nosotros ________ (ir).","answers":["vamos"]},
+    {"type":"typing","prompt":"Fill the blank: Ustedes ________ (ir).","answers":["van"]},
+    {"type":"typing","prompt":"Fill the blank: Ellas ________ (ir).","answers":["van"]},
+
+    {"type":"tiles","prompt":"Build: I go to school.","tiles":["Voy","a","la","escuela","Vas","Vamos","van"],"answers":[["Voy","a","la","escuela"]]},
+    {"type":"tiles","prompt":"Build: You (informal) go to the library.","tiles":["Vas","a","la","biblioteca","Voy","Va","Van"],"answers":[["Vas","a","la","biblioteca"]]},
+    {"type":"tiles","prompt":"Build: He goes to class.","tiles":["Va","a","la","clase","Voy","Vas","Van"],"answers":[["Va","a","la","clase"]]},
+    {"type":"tiles","prompt":"Build: We go to the gym.","tiles":["Vamos","al","gimnasio","Va","Vas","Van"],"answers":[["Vamos","al","gimnasio"]]},
+    {"type":"tiles","prompt":"Build: Y’all go to the cafeteria.","tiles":["Van","a","la","cafetería","Vamos","Vas","Va"],"answers":[["Van","a","la","cafetería"]]},
+    {"type":"tiles","prompt":"Build: They go to the park.","tiles":["Van","al","parque","Voy","Vamos","Vas"],"answers":[["Van","al","parque"]]},
+
+    {"type":"grid","prompt":"Select the correct present form of ir for: yo","width":2,"height":3,"values":["voy","vamos","vas","vais","va","van"],"answer":[0]},
+    {"type":"grid","prompt":"Select the correct present form of ir for: nosotros","width":2,"height":3,"values":["voy","vamos","vas","vais","va","van"],"answer":[1]},
+    {"type":"grid","prompt":"Select the correct present form of ir for: tú","width":2,"height":3,"values":["voy","vamos","vas","vais","va","van"],"answer":[2]},
+    {"type":"grid","prompt":"Select the correct present form of ir for: él/ella/usted","width":2,"height":3,"values":["voy","vamos","vas","vais","va","van"],"answer":[4]},
+    {"type":"grid","prompt":"Select the correct present form of ir for: ustedes/ellos/ellas","width":2,"height":3,"values":["voy","vamos","vas","vais","va","van"],"answer":[5]}
+
+  ]
+}

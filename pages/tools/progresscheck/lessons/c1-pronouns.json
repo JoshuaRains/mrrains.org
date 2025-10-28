@@ -1,0 +1,147 @@
+{
+  "id": "c1-pronouns",
+  "title": "C.1 – Pronouns",
+  "acceptNoAccents": true,
+  "steps": [
+    {
+      "type": "matching",
+      "prompt": "Match the English subject to the Spanish pronoun.",
+      "pairs": [
+        ["I", "yo"],
+        ["you (informal)", "tú"],
+        ["you (formal)", "usted"],
+        ["we", "nosotros"],
+        ["y’all (informal)", "vosotros"],
+        ["y’all (formal)", "ustedes"]
+      ]
+    },
+    {
+      "type": "matching",
+      "prompt": "Match the English subject to the Spanish pronoun.",
+      "pairs": [
+        ["he", "él"],
+        ["she", "ella"],
+        ["they (masculine)", "ellos"],
+        ["they (feminine)", "ellas"],
+        ["you (formal)", "usted"],
+        ["y’all (formal)", "ustedes"]
+      ]
+    },
+    {
+      "type": "matching",
+      "prompt": "Match the English subject to the Spanish pronoun.",
+      "pairs": [
+        ["I", "yo"],
+        ["we", "nosotros"],
+        ["you (informal)", "tú"],
+        ["y’all (informal)", "vosotros"],
+        ["they (masculine)", "ellos"],
+        ["they (feminine)", "ellas"]
+      ]
+    },
+    {
+      "type": "grid",
+      "prompt": "Select the Spanish pronoun for: I",
+      "width": 2,
+      "height": 5,
+      "values": ["yo", "nosotros", "tú", "vosotros", "usted", "ustedes", "él", "ellos", "ella", "ellas"],
+      "answer": [0]
+    },
+    {
+      "type": "grid",
+      "prompt": "Select the Spanish pronoun for: you (informal)",
+      "width": 2,
+      "height": 5,
+      "values": ["yo", "nosotros", "tú", "vosotros", "usted", "ustedes", "él", "ellos", "ella", "ellas"],
+      "answer": [2]
+    },
+    {
+      "type": "grid",
+      "prompt": "Select the Spanish pronoun for: you (formal)",
+      "width": 2,
+      "height": 5,
+      "values": ["yo", "nosotros", "tú", "vosotros", "usted", "ustedes", "él", "ellos", "ella", "ellas"],
+      "answer": [4]
+    },
+    {
+      "type": "grid",
+      "prompt": "Select the Spanish pronoun for: we",
+      "width": 2,
+      "height": 5,
+      "values": ["yo", "nosotros", "tú", "vosotros", "usted", "ustedes", "él", "ellos", "ella", "ellas"],
+      "answer": [1]
+    },
+    {
+      "type": "grid",
+      "prompt": "Select the Spanish pronron for: y’all (informal)",
+      "width": 2,
+      "height": 5,
+      "values": ["yo", "nosotros", "tú", "vosotros", "usted", "ustedes", "él", "ellos", "ella", "ellas"],
+      "answer": [3]
+    },
+    {
+      "type": "grid",
+      "prompt": "Select the Spanish pronoun for: y’all (formal)",
+      "width": 2,
+      "height": 5,
+      "values": ["yo", "nosotros", "tú", "vosotros", "usted", "ustedes", "él", "ellos", "ella", "ellas"],
+      "answer": [5]
+    },
+    {
+      "type": "grid",
+      "prompt": "Select the Spanish pronoun for: he",
+      "width": 2,
+      "height": 5,
+      "values": ["yo", "nosotros", "tú", "vosotros", "usted", "ustedes", "él", "ellos", "ella", "ellas"],
+      "answer": [6]
+    },
+    {
+      "type": "grid",
+      "prompt": "Select the Spanish pronoun for: she",
+      "width": 2,
+      "height": 5,
+      "values": ["yo", "nosotros", "tú", "vosotros", "usted", "ustedes", "él", "ellos", "ella", "ellas"],
+      "answer": [8]
+    },
+    {
+      "type": "grid",
+      "prompt": "Select the Spanish pronoun for: they (masculine)",
+      "width": 2,
+      "height": 5,
+      "values": ["yo", "nosotros", "tú", "vosotros", "usted", "ustedes", "él", "ellos", "ella", "ellas"],
+      "answer": [7]
+    },
+    {
+      "type": "grid",
+      "prompt": "Select the Spanish pronoun for: they (feminine)",
+      "width": 2,
+      "height": 5,
+      "values": ["yo", "nosotros", "tú", "vosotros", "usted", "ustedes", "él", "ellos", "ella", "ellas"],
+      "answer": [9]
+    },
+    {
+      "type": "grid",
+      "prompt": "Select the Spanish pronouns for: they",
+      "width": 2,
+      "height": 5,
+      "values": ["yo", "nosotros", "tú", "vosotros", "usted", "ustedes", "él", "ellos", "ella", "ellas"],
+      "answer": [7, 9]
+    },
+    {
+      "type": "grid",
+      "prompt": "Select the Spanish pronouns for: yall",
+      "width": 2,
+      "height": 5,
+      "values": ["yo", "nosotros", "tú", "vosotros", "usted", "ustedes", "él", "ellos", "ella", "ellas"],
+      "answer": [3, 5]
+    },
+    {
+      "type": "grid",
+      "prompt": "Select the Spanish pronouns for: you",
+      "width": 2,
+      "height": 5,
+      "values": ["yo", "nosotros", "tú", "vosotros", "usted", "ustedes", "él", "ellos", "ella", "ellas"],
+      "answer": [2, 4]
+    }
+  ]
+}

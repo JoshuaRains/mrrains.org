@@ -1,0 +1,271 @@
+{
+  "id": "c6-conjugation-with-subjects",
+  "title": "C.6 – Conjugation with Different Subjects",
+  "acceptNoAccents": true,
+  "steps": [
+    {
+      "type": "grid",
+      "prompt": "Which pronoun do we use to conjugate for: tú y yo?",
+      "width": 2,
+      "height": 3,
+      "values": ["yo","nosotros","tú","vosotros","él/ella/usted","ustedes/ellos/ellas"],
+      "answer": [1]
+    },
+    {
+      "type": "grid",
+      "prompt": "Which pronoun do we use to conjugate for: Juan y yo?",
+      "width": 2,
+      "height": 3,
+      "values": ["yo","nosotros","tú","vosotros","él/ella/usted","ustedes/ellos/ellas"],
+      "answer": [1]
+    },
+    {
+      "type": "grid",
+      "prompt": "Which pronoun do we use to conjugate for: Ana y yo?",
+      "width": 2,
+      "height": 3,
+      "values": ["yo","nosotros","tú","vosotros","él/ella/usted","ustedes/ellos/ellas"],
+      "answer": [1]
+    },
+    {
+      "type": "grid",
+      "prompt": "Which pronoun do we use to conjugate for: Mi amigo y yo?",
+      "width": 2,
+      "height": 3,
+      "values": ["yo","nosotros","tú","vosotros","él/ella/usted","ustedes/ellos/ellas"],
+      "answer": [1]
+    },
+    {
+      "type": "grid",
+      "prompt": "Which pronoun do we use to conjugate for: Nosotros?",
+      "width": 2,
+      "height": 3,
+      "values": ["yo","nosotros","tú","vosotros","él/ella/usted","ustedes/ellos/ellas"],
+      "answer": [1]
+    },
+
+    {
+      "type": "grid",
+      "prompt": "Which pronoun do we use to conjugate for: Tú?",
+      "width": 2,
+      "height": 3,
+      "values": ["yo","nosotros","tú","vosotros","él/ella/usted","ustedes/ellos/ellas"],
+      "answer": [2]
+    },
+    {
+      "type": "grid",
+      "prompt": "Which pronoun do we use to conjugate for: Ustedes?",
+      "width": 2,
+      "height": 3,
+      "values": ["yo","nosotros","tú","vosotros","él/ella/usted","ustedes/ellos/ellas"],
+      "answer": [5]
+    },
+    {
+      "type": "grid",
+      "prompt": "Which pronoun do we use to conjugate for: Ellos?",
+      "width": 2,
+      "height": 3,
+      "values": ["yo","nosotros","tú","vosotros","él/ella/usted","ustedes/ellos/ellas"],
+      "answer": [5]
+    },
+    {
+      "type": "grid",
+      "prompt": "Which pronoun do we use to conjugate for: Ellas?",
+      "width": 2,
+      "height": 3,
+      "values": ["yo","nosotros","tú","vosotros","él/ella/usted","ustedes/ellos/ellas"],
+      "answer": [5]
+    },
+
+    {
+      "type": "grid",
+      "prompt": "Which pronoun do we use to conjugate for: Juan y Ana?",
+      "width": 2,
+      "height": 3,
+      "values": ["yo","nosotros","tú","vosotros","él/ella/usted","ustedes/ellos/ellas"],
+      "answer": [5]
+    },
+    {
+      "type": "grid",
+      "prompt": "Which pronoun do we use to conjugate for: Ana y Marta?",
+      "width": 2,
+      "height": 3,
+      "values": ["yo","nosotros","tú","vosotros","él/ella/usted","ustedes/ellos/ellas"],
+      "answer": [5]
+    },
+
+    {
+      "type": "grid",
+      "prompt": "Which pronoun do we use to conjugate for: Juan?",
+      "width": 2,
+      "height": 3,
+      "values": ["yo","nosotros","tú","vosotros","él/ella/usted","ustedes/ellos/ellas"],
+      "answer": [4]
+    },
+    {
+      "type": "grid",
+      "prompt": "Which pronoun do we use to conjugate for: Ana?",
+      "width": 2,
+      "height": 3,
+      "values": ["yo","nosotros","tú","vosotros","él/ella/usted","ustedes/ellos/ellas"],
+      "answer": [4]
+    },
+    {
+      "type": "grid",
+      "prompt": "Which pronoun do we use to conjugate for: Usted?",
+      "width": 2,
+      "height": 3,
+      "values": ["yo","nosotros","tú","vosotros","él/ella/usted","ustedes/ellos/ellas"],
+      "answer": [4]
+    },
+
+    {
+      "type": "grid",
+      "prompt": "Which pronoun do we use to conjugate for: La profesora?",
+      "width": 2,
+      "height": 3,
+      "values": ["yo","nosotros","tú","vosotros","él/ella/usted","ustedes/ellos/ellas"],
+      "answer": [4]
+    },
+    {
+      "type": "grid",
+      "prompt": "Which pronoun do we use to conjugate for: El profesor?",
+      "width": 2,
+      "height": 3,
+      "values": ["yo","nosotros","tú","vosotros","él/ella/usted","ustedes/ellos/ellas"],
+      "answer": [4]
+    },
+    {
+      "type": "grid",
+      "prompt": "Which pronoun do we use to conjugate for: La clase?",
+      "width": 2,
+      "height": 3,
+      "values": ["yo","nosotros","tú","vosotros","él/ella/usted","ustedes/ellos/ellas"],
+      "answer": [4]
+    },
+    {
+      "type": "grid",
+      "prompt": "Which pronoun do we use to conjugate for: Mi familia?",
+      "width": 2,
+      "height": 3,
+      "values": ["yo","nosotros","tú","vosotros","él/ella/usted","ustedes/ellos/ellas"],
+      "answer": [4]
+    },
+
+    {
+      "type": "grid",
+      "prompt": "Which pronoun do we use to conjugate for: Los estudiantes?",
+      "width": 2,
+      "height": 3,
+      "values": ["yo","nosotros","tú","vosotros","él/ella/usted","ustedes/ellos/ellas"],
+      "answer": [5]
+    },
+    {
+      "type": "grid",
+      "prompt": "Which pronoun do we use to conjugate for: Mis padres?",
+      "width": 2,
+      "height": 3,
+      "values": ["yo","nosotros","tú","vosotros","él/ella/usted","ustedes/ellos/ellas"],
+      "answer": [5]
+    },
+
+    {
+      "type": "grid",
+      "prompt": "Which pronoun do we use to conjugate for: Tú y tu amigo (Latin America)?",
+      "width": 2,
+      "height": 3,
+      "values": ["yo","nosotros","tú","vosotros","él/ella/usted","ustedes/ellos/ellas"],
+      "answer": [5]
+    },
+    {
+      "type": "grid",
+      "prompt": "Which pronoun do we use to conjugate for: Tú y tu amiga (Spain)?",
+      "width": 2,
+      "height": 3,
+      "values": ["yo","nosotros","tú","vosotros","él/ella/usted","ustedes/ellos/ellas"],
+      "answer": [3]
+    },
+    {
+      "type": "grid",
+      "prompt": "Which pronoun do we use to conjugate for: Tú y tu amigo (Spain)?",
+      "width": 2,
+      "height": 3,
+      "values": ["yo","nosotros","tú","vosotros","él/ella/usted","ustedes/ellos/ellas"],
+      "answer": [3]
+    },
+    {
+      "type": "grid",
+      "prompt": "Which pronoun do we use to conjugate for: Vosotros (Spain)?",
+      "width": 2,
+      "height": 3,
+      "values": ["yo","nosotros","tú","vosotros","él/ella/usted","ustedes/ellos/ellas"],
+      "answer": [3]
+    },
+
+    {
+      "type": "grid",
+      "prompt": "Which pronoun do we use to conjugate for: Usted y tú?",
+      "width": 2,
+      "height": 3,
+      "values": ["yo","nosotros","tú","vosotros","él/ella/usted","ustedes/ellos/ellas"],
+      "answer": [5]
+    },
+    {
+      "type": "grid",
+      "prompt": "Which pronoun do we use to conjugate for: Carlos y usted?",
+      "width": 2,
+      "height": 3,
+      "values": ["yo","nosotros","tú","vosotros","él/ella/usted","ustedes/ellos/ellas"],
+      "answer": [5]
+    },
+
+    {
+      "type": "grid",
+      "prompt": "Which pronoun do we use to conjugate for: Mis amigos y yo?",
+      "width": 2,
+      "height": 3,
+      "values": ["yo","nosotros","tú","vosotros","él/ella/usted","ustedes/ellos/ellas"],
+      "answer": [1]
+    },
+    {
+      "type": "grid",
+      "prompt": "Which pronoun do we use to conjugate for: El perro y el gato?",
+      "width": 2,
+      "height": 3,
+      "values": ["yo","nosotros","tú","vosotros","él/ella/usted","ustedes/ellos/ellas"],
+      "answer": [5]
+    },
+    {
+      "type": "grid",
+      "prompt": "Which pronoun do we use to conjugate for: La maestra y los estudiantes?",
+      "width": 2,
+      "height": 3,
+      "values": ["yo","nosotros","tú","vosotros","él/ella/usted","ustedes/ellos/ellas"],
+      "answer": [5]
+    },
+    {
+      "type": "grid",
+      "prompt": "Which pronoun do we use to conjugate for: Mi hermano?",
+      "width": 2,
+      "height": 3,
+      "values": ["yo","nosotros","tú","vosotros","él/ella/usted","ustedes/ellos/ellas"],
+      "answer": [4]
+    },
+    {
+      "type": "grid",
+      "prompt": "Which pronoun do we use to conjugate for: Tus abuelos?",
+      "width": 2,
+      "height": 3,
+      "values": ["yo","nosotros","tú","vosotros","él/ella/usted","ustedes/ellos/ellas"],
+      "answer": [5]
+    },
+    {
+      "type": "grid",
+      "prompt": "Which pronoun do we use to conjugate for: El equipo?",
+      "width": 2,
+      "height": 3,
+      "values": ["yo","nosotros","tú","vosotros","él/ella/usted","ustedes/ellos/ellas"],
+      "answer": [4]
+    }
+  ]
+}

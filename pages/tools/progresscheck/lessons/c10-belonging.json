@@ -1,0 +1,127 @@
+{
+  "id": "c10-belonging",
+  "title": "C.10 – Belonging",
+  "acceptNoAccents": true,
+  "steps": [
+    {
+      "type": "tiles",
+      "prompt": "Build: Maria's book",
+      "tiles": ["El", "libro", "de", "María", "la", "los", "las"],
+      "answers": [["El", "libro", "de", "María"]]
+    },
+    {
+      "type": "tiles",
+      "prompt": "Build: Juan's notebook",
+      "tiles": ["El", "cuaderno", "de", "Juan", "la", "los", "las"],
+      "answers": [["El", "cuaderno", "de", "Juan"]]
+    },
+    {
+      "type": "tiles",
+      "prompt": "Build: Ana's backpack",
+      "tiles": ["La", "mochila", "de", "Ana", "el", "los", "las"],
+      "answers": [["La", "mochila", "de", "Ana"]]
+    },
+    {
+      "type": "tiles",
+      "prompt": "Build: Carlos's keys",
+      "tiles": ["Las", "llaves", "de", "Carlos", "el", "la", "los"],
+      "answers": [["Las", "llaves", "de", "Carlos"]]
+    },
+    {
+      "type": "tiles",
+      "prompt": "Build: the teacher's papers (masc.)",
+      "tiles": ["Los", "papeles", "del", "profesor", "de", "la", "las"],
+      "answers": [["Los", "papeles", "del", "profesor"]]
+    },
+    {
+      "type": "tiles",
+      "prompt": "Build: the teacher's papers (fem.)",
+      "tiles": ["Los", "papeles", "de", "la", "profesora", "el", "las"],
+      "answers": [["Los", "papeles", "de", "la", "profesora"]]
+    },
+    {
+      "type": "tiles",
+      "prompt": "Build: the student's pen (sing.)",
+      "tiles": ["El", "bolígrafo", "del", "estudiante", "de", "la", "los"],
+      "answers": [["El", "bolígrafo", "del", "estudiante"]]
+    },
+    {
+      "type": "tiles",
+      "prompt": "Build: the students' pens",
+      "tiles": ["Los", "bolígrafos", "de", "los", "estudiantes", "el", "la"],
+      "answers": [["Los", "bolígrafos", "de", "los", "estudiantes"]]
+    },
+    {
+      "type": "tiles",
+      "prompt": "Build: the school's classroom",
+      "tiles": ["El", "salón", "de", "la", "escuela", "los", "las"],
+      "answers": [["El", "salón", "de", "la", "escuela"]]
+    },
+    {
+      "type": "tiles",
+      "prompt": "Build: the principal's office (fem.)",
+      "tiles": ["La", "oficina", "de", "la", "directora", "el", "los"],
+      "answers": [["La", "oficina", "de", "la", "directora"]]
+    },
+    {
+      "type": "tiles",
+      "prompt": "Build: Mr. Gómez's desk",
+      "tiles": ["El", "escritorio", "del", "señor", "Gómez", "de", "la"],
+      "answers": [["El", "escritorio", "del", "señor", "Gómez"]]
+    },
+    {
+      "type": "tiles",
+      "prompt": "Build: the girl's homework",
+      "tiles": ["La", "tarea", "de", "la", "chica", "el", "los"],
+      "answers": [["La", "tarea", "de", "la", "chica"]]
+    },
+    {
+      "type": "tiles",
+      "prompt": "Build: the boys' backpacks",
+      "tiles": ["Las", "mochilas", "de", "los", "chicos", "el", "la"],
+      "answers": [["Las", "mochilas", "de", "los", "chicos"]]
+    },
+    {
+      "type": "tiles",
+      "prompt": "Build: Pedro's phone",
+      "tiles": ["El", "teléfono", "de", "Pedro", "la", "los", "las"],
+      "answers": [["El", "teléfono", "de", "Pedro"]]
+    },
+    {
+      "type": "tiles",
+      "prompt": "Build: Sofía's computer",
+      "tiles": ["La", "computadora", "de", "Sofía", "el", "los", "las"],
+      "answers": [["La", "computadora", "de", "Sofía"]]
+    },
+    {
+      "type": "tiles",
+      "prompt": "Build: the school's books",
+      "tiles": ["Los", "libros", "de", "la", "escuela", "el", "las"],
+      "answers": [["Los", "libros", "de", "la", "escuela"]]
+    },
+    {
+      "type": "tiles",
+      "prompt": "Build: the team's coach",
+      "tiles": ["El", "entrenador", "del", "equipo", "de", "la", "las"],
+      "answers": [["El", "entrenador", "del", "equipo"]]
+    },
+    {
+      "type": "tiles",
+      "prompt": "Build: the family's house",
+      "tiles": ["La", "casa", "de", "la", "familia", "el", "los"],
+      "answers": [["La", "casa", "de", "la", "familia"]]
+    },
+    {
+      "type": "tiles",
+      "prompt": "Build: the teacher's pen (masc.)",
+      "tiles": ["El", "bolígrafo", "del", "profesor", "de", "la", "las"],
+      "answers": [["El", "bolígrafo", "del", "profesor"]]
+    },
+    {
+      "type": "tiles",
+      "prompt": "Build: the teacher's pen (fem.)",
+      "tiles": ["El", "bolígrafo", "de", "la", "profesora", "los", "las"],
+      "answers": [["El", "bolígrafo", "de", "la", "profesora"]]
+    }
+  ]
+}

@@ -1,0 +1,103 @@
+{
+  "id": "c2-definite-articles",
+  "title": "C.2 – Definite Articles",
+  "acceptNoAccents": true,
+  "steps": [
+    {
+      "type": "matching",
+      "prompt": "Match each English description to the definite article in Spanish.",
+      "pairs": [
+        ["the — masculine, singular", "el"],
+        ["the — feminine, singular", "la"],
+        ["the — masculine, plural", "los"],
+        ["the — feminine, plural", "las"]
+      ]
+    },
+    {
+      "type": "matching",
+      "prompt": "Match ‘the’ to the correct form by number and gender.",
+      "pairs": [
+        ["the (masculine, singular)", "el"],
+        ["the (feminine, singular)", "la"],
+        ["the (masculine, plural)", "los"],
+        ["the (feminine, plural)", "las"]
+      ]
+    },
+    {
+      "type": "matching",
+      "prompt": "Match the usage to the correct Spanish ‘the’.",
+      "pairs": [
+        ["the — used with a single masculine noun", "el"],
+        ["the — used with a single feminine noun", "la"],
+        ["the — used with masculine plural nouns", "los"],
+        ["the — used with feminine plural nouns", "las"]
+      ]
+    },
+
+    {
+      "type": "grid",
+      "prompt": "Select the Spanish word for ‘the’ that is masculine, singular.",
+      "width": 2,
+      "height": 2,
+      "values": ["el", "la", "los", "las"],
+      "answer": [0]
+    },
+    {
+      "type": "grid",
+      "prompt": "Select the Spanish word for ‘the’ that is feminine, singular.",
+      "width": 2,
+      "height": 2,
+      "values": ["el", "la", "los", "las"],
+      "answer": [1]
+    },
+    {
+      "type": "grid",
+      "prompt": "Select the Spanish word for ‘the’ that is masculine, plural.",
+      "width": 2,
+      "height": 2,
+      "values": ["el", "la", "los", "las"],
+      "answer": [2]
+    },
+    {
+      "type": "grid",
+      "prompt": "Select the Spanish word for ‘the’ that is feminine, plural.",
+      "width": 2,
+      "height": 2,
+      "values": ["el", "la", "los", "las"],
+      "answer": [3]
+    },
+
+    {
+      "type": "grid",
+      "prompt": "Select the Spanish words for ‘the’ that are plural.",
+      "width": 2,
+      "height": 2,
+      "values": ["el", "la", "los", "las"],
+      "answer": [2, 3]
+    },
+    {
+      "type": "grid",
+      "prompt": "Select the Spanish words for ‘the’ that are singular.",
+      "width": 2,
+      "height": 2,
+      "values": ["el", "la", "los", "las"],
+      "answer": [0, 1]
+    },
+    {
+      "type": "grid",
+      "prompt": "Select the Spanish words for ‘the’ that are masculine.",
+      "width": 2,
+      "height": 2,
+      "values": ["el", "la", "los", "las"],
+      "answer": [0, 2]
+    },
+    {
+      "type": "grid",
+      "prompt": "Select the Spanish words for ‘the’ that are feminine.",
+      "width": 2,
+      "height": 2,
+      "values": ["el", "la", "los", "las"],
+      "answer": [1, 3]
+    }
+  ]
+}

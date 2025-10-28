@@ -1,0 +1,103 @@
+{
+  "id": "c3-indefinite-articles",
+  "title": "C.3 – Indefinite Articles",
+  "acceptNoAccents": true,
+  "steps": [
+    {
+      "type": "matching",
+      "prompt": "Match each English description to the indefinite article in Spanish.",
+      "pairs": [
+        ["a / an — masculine, singular", "un"],
+        ["a / an — feminine, singular", "una"],
+        ["some — masculine, plural", "unos"],
+        ["some — feminine, plural", "unas"]
+      ]
+    },
+    {
+      "type": "matching",
+      "prompt": "Match ‘a/an/some’ to the correct form by number and gender.",
+      "pairs": [
+        ["a/an (masculine, singular)", "un"],
+        ["a/an (feminine, singular)", "una"],
+        ["some (masculine, plural)", "unos"],
+        ["some (feminine, plural)", "unas"]
+      ]
+    },
+    {
+      "type": "matching",
+      "prompt": "Match the usage to the correct Spanish indefinite article.",
+      "pairs": [
+        ["used with a single masculine noun (a/an)", "un"],
+        ["used with a single feminine noun (a/an)", "una"],
+        ["used with masculine plural nouns (some)", "unos"],
+        ["used with feminine plural nouns (some)", "unas"]
+      ]
+    },
+
+    {
+      "type": "grid",
+      "prompt": "Select the Spanish word meaning a/an that is masculine, singular.",
+      "width": 2,
+      "height": 2,
+      "values": ["un", "una", "unos", "unas"],
+      "answer": [0]
+    },
+    {
+      "type": "grid",
+      "prompt": "Select the Spanish word meaning a/an that is feminine, singular.",
+      "width": 2,
+      "height": 2,
+      "values": ["un", "una", "unos", "unas"],
+      "answer": [1]
+    },
+    {
+      "type": "grid",
+      "prompt": "Select the Spanish word meaning some that is masculine, plural.",
+      "width": 2,
+      "height": 2,
+      "values": ["un", "una", "unos", "unas"],
+      "answer": [2]
+    },
+    {
+      "type": "grid",
+      "prompt": "Select the Spanish word meaning some that is feminine, plural.",
+      "width": 2,
+      "height": 2,
+      "values": ["un", "una", "unos", "unas"],
+      "answer": [3]
+    },
+
+    {
+      "type": "grid",
+      "prompt": "Select the Spanish words that are plural forms.",
+      "width": 2,
+      "height": 2,
+      "values": ["un", "una", "unos", "unas"],
+      "answer": [2, 3]
+    },
+    {
+      "type": "grid",
+      "prompt": "Select the Spanish words that are singular forms.",
+      "width": 2,
+      "height": 2,
+      "values": ["un", "una", "unos", "unas"],
+      "answer": [0, 1]
+    },
+    {
+      "type": "grid",
+      "prompt": "Select the Spanish words that are masculine forms.",
+      "width": 2,
+      "height": 2,
+      "values": ["un", "una", "unos", "unas"],
+      "answer": [0, 2]
+    },
+    {
+      "type": "grid",
+      "prompt": "Select the Spanish words that are feminine forms.",
+      "width": 2,
+      "height": 2,
+      "values": ["un", "una", "unos", "unas"],
+      "answer": [1, 3]
+    }
+  ]
+}

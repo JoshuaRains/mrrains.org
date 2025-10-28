@@ -1,0 +1,231 @@
+{
+  "id": "c4-verb-meanings",
+  "title": "C.4 – Verb Meanings",
+  "acceptNoAccents": true,
+  "steps": [
+    {
+      "type": "matching",
+      "prompt": "Match each Spanish verb to its English meaning.",
+      "pairs": [
+        ["hablar", "to talk / to speak"],
+        ["comer", "to eat"],
+        ["vivir", "to live"],
+        ["caminar", "to walk"],
+        ["beber", "to drink"],
+        ["escribir", "to write"],
+        ["trabajar", "to work"],
+        ["leer", "to read"]
+      ]
+    },
+    {
+      "type": "matching",
+      "prompt": "Match each Spanish verb to its English meaning.",
+      "pairs": [
+        ["abrir", "to open"],
+        ["estudiar", "to study"],
+        ["aprender", "to learn"],
+        ["recibir", "to receive"],
+        ["mirar", "to look at / to watch"],
+        ["correr", "to run"],
+        ["compartir", "to share"],
+        ["usar", "to use"]
+      ]
+    },
+    {
+      "type": "matching",
+      "prompt": "Match each Spanish verb to its English meaning.",
+      "pairs": [
+        ["responder", "to answer / to respond"],
+        ["decidir", "to decide"],
+        ["escuchar", "to listen"],
+        ["comprender", "to understand"],
+        ["sufrir", "to suffer"],
+        ["enseñar", "to teach"],
+        ["prometer", "to promise"],
+        ["permitir", "to allow / to permit"]
+      ]
+    },
+
+    {
+      "type": "typing",
+      "prompt": "Type the English meaning of “hablar”. Start with “to …”.",
+      "answers": ["to talk", "to speak"]
+    },
+    {
+      "type": "typing",
+      "prompt": "Type the English meaning of “comer”. Start with “to …”.",
+      "answers": ["to eat"]
+    },
+    {
+      "type": "typing",
+      "prompt": "Type the English meaning of “vivir”. Start with “to …”.",
+      "answers": ["to live"]
+    },
+    {
+      "type": "typing",
+      "prompt": "Type the English meaning of “caminar”. Start with “to …”.",
+      "answers": ["to walk"]
+    },
+    {
+      "type": "typing",
+      "prompt": "Type the English meaning of “beber”. Start with “to …”.",
+      "answers": ["to drink"]
+    },
+    {
+      "type": "typing",
+      "prompt": "Type the English meaning of “escribir”. Start with “to …”.",
+      "answers": ["to write"]
+    },
+    {
+      "type": "typing",
+      "prompt": "Type the English meaning of “trabajar”. Start with “to …”.",
+      "answers": ["to work"]
+    },
+    {
+      "type": "typing",
+      "prompt": "Type the English meaning of “leer”. Start with “to …”.",
+      "answers": ["to read"]
+    },
+    {
+      "type": "typing",
+      "prompt": "Type the English meaning of “abrir”. Start with “to …”.",
+      "answers": ["to open"]
+    },
+    {
+      "type": "typing",
+      "prompt": "Type the English meaning of “estudiar”. Start with “to …”.",
+      "answers": ["to study"]
+    },
+    {
+      "type": "typing",
+      "prompt": "Type the English meaning of “aprender”. Start with “to …”.",
+      "answers": ["to learn"]
+    },
+    {
+      "type": "typing",
+      "prompt": "Type the English meaning of “recibir”. Start with “to …”.",
+      "answers": ["to receive"]
+    },
+    {
+      "type": "typing",
+      "prompt": "Type the English meaning of “mirar”. Start with “to …”.",
+      "answers": ["to look at", "to watch"]
+    },
+    {
+      "type": "typing",
+      "prompt": "Type the English meaning of “correr”. Start with “to …”.",
+      "answers": ["to run"]
+    },
+    {
+      "type": "typing",
+      "prompt": "Type the English meaning of “compartir”. Start with “to …”.",
+      "answers": ["to share"]
+    },
+    {
+      "type": "typing",
+      "prompt": "Type the English meaning of “usar”. Start with “to …”.",
+      "answers": ["to use"]
+    },
+    {
+      "type": "typing",
+      "prompt": "Type the English meaning of “responder”. Start with “to …”.",
+      "answers": ["to answer", "to respond"]
+    },
+    {
+      "type": "typing",
+      "prompt": "Type the English meaning of “decidir”. Start with “to …”.",
+      "answers": ["to decide"]
+    },
+    {
+      "type": "typing",
+      "prompt": "Type the English meaning of “escuchar”. Start with “to …”.",
+      "answers": ["to listen"]
+    },
+    {
+      "type": "typing",
+      "prompt": "Type the English meaning of “comprender”. Start with “to …”.",
+      "answers": ["to understand"]
+    },
+    {
+      "type": "typing",
+      "prompt": "Type the English meaning of “sufrir”. Start with “to …”.",
+      "answers": ["to suffer"]
+    },
+    {
+      "type": "typing",
+      "prompt": "Type the English meaning of “enseñar”. Start with “to …”.",
+      "answers": ["to teach"]
+    },
+    {
+      "type": "typing",
+      "prompt": "Type the English meaning of “prometer”. Start with “to …”.",
+      "answers": ["to promise"]
+    },
+    {
+      "type": "typing",
+      "prompt": "Type the English meaning of “permitir”. Start with “to …”.",
+      "answers": ["to allow", "to permit"]
+    },
+
+    {
+      "type": "tiles",
+      "prompt": "Select the correct meaning of “hablar”. Move one tile to the answer box.",
+      "tiles": ["to talk", "to eat", "to write", "to read"],
+      "answers": [["to talk"]]
+    },
+    {
+      "type": "tiles",
+      "prompt": "Select the correct meaning of “mirar”. Move one tile to the answer box.",
+      "tiles": ["to watch", "to run", "to drink", "to decide"],
+      "answers": [["to watch"]]
+    },
+    {
+      "type": "tiles",
+      "prompt": "Select the correct meaning of “responder”. Move one tile to the answer box.",
+      "tiles": ["to answer", "to open", "to suffer", "to use"],
+      "answers": [["to answer"]]
+    },
+    {
+      "type": "tiles",
+      "prompt": "Select the correct meaning of “comprender”. Move one tile to the answer box.",
+      "tiles": ["to understand", "to share", "to study", "to walk"],
+      "answers": [["to understand"]]
+    },
+    {
+      "type": "tiles",
+      "prompt": "Select the correct meaning of “permitir”. Move one tile to the answer box.",
+      "tiles": ["to allow", "to live", "to teach", "to listen"],
+      "answers": [["to allow"]]
+    },
+    {
+      "type": "tiles",
+      "prompt": "Select the correct meaning of “prometer”. Move one tile to the answer box.",
+      "tiles": ["to promise", "to learn", "to read", "to drink"],
+      "answers": [["to promise"]]
+    },
+    {
+      "type": "tiles",
+      "prompt": "Select the correct meaning of “compartir”. Move one tile to the answer box.",
+      "tiles": ["to share", "to run", "to speak", "to permit"],
+      "answers": [["to share"]]
+    },
+    {
+      "type": "tiles",
+      "prompt": "Select the correct meaning of “usar”. Move one tile to the answer box.",
+      "tiles": ["to use", "to write", "to receive", "to watch"],
+      "answers": [["to use"]]
+    },
+    {
+      "type": "tiles",
+      "prompt": "Select the correct meaning of “escuchar”. Move one tile to the answer box.",
+      "tiles": ["to listen", "to eat", "to decide", "to work"],
+      "answers": [["to listen"]]
+    },
+    {
+      "type": "tiles",
+      "prompt": "Select the correct meaning of “abrir”. Move one tile to the answer box.",
+      "tiles": ["to open", "to study", "to answer", "to read"],
+      "answers": [["to open"]]
+    }
+  ]
+}

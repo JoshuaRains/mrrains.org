@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en" translate="no">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Class Scoreboard</title>
+  <style>
+    :root{
+      --bg-top:#4f7a62; --bg-bot:#5d8b6f;
+      --panel:#ffffff; --ink:#0f172a; --muted:#295341;
+      --accent:#58cc02; --border:#dfece5; --radius:18px;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%;margin:0}
+    body{
+      color:var(--ink);
+      background:linear-gradient(to bottom,var(--bg-top),var(--bg-bot));
+      font-family: ui-sans-serif,-apple-system,Segoe UI,Roboto,Helvetica,Arial;
+      display:grid; place-items:center; padding:24px;
+    }
+    .card{
+      width:min(980px,94vw); background:#fff; border:1px solid var(--border);
+      border-radius:var(--radius); box-shadow:0 10px 24px rgba(0,0,0,.08), 0 2px 6px rgba(0,0,0,.05);
+      padding:20px;
+    }
+    h1{margin:0 0 4px}
+    .muted{color:var(--muted)}
+
+    .chart{
+      position:relative; height:380px; display:flex; gap:18px; align-items:end; padding:20px 12px 12px;
+      border-radius:16px; background:#f6faf7; border:1px solid #e2efe6; margin-top:16px;
+    }
+    .bar{
+      flex:1; display:flex; flex-direction:column; align-items:center; justify-content:flex-end; gap:8px;
+    }
+    .bar .fill{
+      width:10%; max-width:220px; min-width:80px;
+      border-radius:14px; background:linear-gradient(180deg,#7fdc4a,#58cc02); box-shadow:inset 0 0 0 2px rgba(0,0,0,.04);
+      height:10px; transition:height .35s ease;
+    }
+    .bar .label{font-weight:900}
+    .bar .sub{font-size:12px; color:#37654e; text-align:center}
+    .gridlines{
+      position:absolute; inset:0; pointer-events:none;
+      background:
+        linear-gradient(to top, rgba(0,0,0,.06) 1px, transparent 1px) repeat-y;
+      background-size: 100% 64px;
+      border-radius:16px;
+    }
+
+    /* Login Modal */
+    .modal{
+      position:fixed; inset:0; display:none; align-items:center; justify-content:center; background:rgba(0,0,0,.6); z-index:9999;
+    }
+    .modal .inner{
+      width:min(420px,92vw); background:#fff; border-radius:16px; padding:20px; box-shadow:0 10px 24px rgba(0,0,0,.18);
+    }
+    .modal h2{ margin:0 0 10px; color:#103b28 }
+    .modal input{
+      width:100%; font:inherit; padding:12px 14px; border-radius:12px; border:1px solid #cfe0d8; outline:0; margin:8px 0 12px;
+    }
+    .btn{
+      appearance:none;border:0;outline:0;padding:12px 16px;border-radius:12px;font-weight:900;background:var(--accent);color:#fff;cursor:pointer;
+      box-shadow:0 2px 6px rgba(0,0,0,.06)
+    }
+    .err{ color:#b71c1c; min-height:1.2em; font-weight:700 }
+  </style>
+</head>
+<body>
+  <!-- Sign-in modal -->
+  <div id="loginModal" class="modal" aria-modal="true" role="dialog">
+    <div class="inner">
+      <h2>Enter Class Password</h2>
+      <input id="loginPassword" type="password" autocomplete="current-password" placeholder="Class password" />
+      <button id="loginButton" class="btn">Sign In</button>
+      <div id="loginError" class="err"></div>
+    </div>
+  </div>
+
+  <div class="card" id="card" style="visibility:hidden">
+    <h1>Live Scoreboard</h1>
+    <div class="muted">average correct answers per student.</div>
+
+    <div class="chart" id="chart">
+      <div class="gridlines"></div>
+
+      <div class="bar" data-class="1st">
+        <div class="fill" style="height:10px;"></div>
+        <div class="label">1st Period</div>
+        <div class="sub" id="sub-1st">—</div>
+      </div>
+
+      <div class="bar" data-class="3rd">
+        <div class="fill" style="height:10px;"></div>
+        <div class="label">3rd Period</div>
+        <div class="sub" id="sub-3rd">—</div>
+      </div>
+
+      <div class="bar" data-class="4th">
+        <div class="fill" style="height:10px;"></div>
+        <div class="label">4th Period</div>
+        <div class="sub" id="sub-4th">—</div>
+      </div>
+    </div>
+  </div>
+
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/11.8.1/firebase-app.js';
+import { getDatabase, ref, onValue } from 'https://www.gstatic.com/firebasejs/11.8.1/firebase-database.js';
+import { getAuth, signInWithEmailAndPassword, setPersistence, inMemoryPersistence } from 'https://www.gstatic.com/firebasejs/11.8.1/firebase-auth.js';
+
+// SAME CONFIG
+const firebaseConfig = {
+  apiKey: "AIzaSyBBxUdOHCB1fJI9mZgYHJ0HCg6p_8R_1-s",
+  authDomain: "interactive-whiteboard-8bc1e.firebaseapp.com",
+  projectId: "interactive-whiteboard-8bc1e",
+  storageBucket: "interactive-whiteboard-8bc1e.firebasestorage.app",
+  messagingSenderId: "403793324386",
+  appId: "1:403793324386:web:c5f8da9579cd97f935a43b"
+};
+const SHARED_EMAIL = "classroom@myapp.com";
+
+const CLASS_SIZE = { '1st': 18, '3rd': 24, '4th': 18 }; // edit here
+
+const app = initializeApp(firebaseConfig);
+const db  = getDatabase(app);
+const auth = getAuth(app);
+await setPersistence(auth, inMemoryPersistence);
+
+// login modal
+const loginModal    = document.getElementById('loginModal');
+const loginPassword = document.getElementById('loginPassword');
+const loginButton   = document.getElementById('loginButton');
+const loginError    = document.getElementById('loginError');
+const card          = document.getElementById('card');
+
+loginModal.style.display = 'flex';
+loginPassword.focus();
+loginButton.onclick = tryLogin;
+loginPassword.onkeydown = e => { if(e.key==='Enter') tryLogin(); };
+
+function tryLogin(){
+  const pass = loginPassword.value.trim();
+  loginError.textContent = '';
+  if(!pass){ loginError.textContent = "Please enter the password."; return; }
+  loginButton.disabled = true;
+  signInWithEmailAndPassword(auth, SHARED_EMAIL, pass)
+    .then(()=>{
+      loginModal.style.display = 'none';
+      card.style.visibility = 'visible';
+      startScoreboard();
+    })
+    .catch(()=>{
+      loginError.textContent = "Incorrect password. Try again.";
+      loginButton.disabled = false;
+    });
+}
+
+/* =========================
+   Auto-scaling scoreboard
+   ========================= */
+const perCapitaByClass = { '1st': 0, '3rd': 0, '4th': 0 }; // cache latest values
+
+function startScoreboard(){
+  const map = {
+    '1st': ref(db, 'class_points/period1/users'),
+    '3rd': ref(db, 'class_points/period3/users'),
+    '4th': ref(db, 'class_points/period4/users'),
+  };
+
+  Object.entries(map).forEach(([cls, usersRef])=>{
+    onValue(usersRef, snap => {
+      const users = snap.val() || {};
+      // sum per-user correct
+      let total = 0;
+      Object.values(users).forEach(u => { total += Number(u.correct || 0); });
+
+      const size = CLASS_SIZE[cls] || 1;
+      const perCapita = total / size;
+
+      perCapitaByClass[cls] = perCapita;         // update cache
+      updateSub(cls, perCapita, total, size);    // update subtext for this class
+      renderBars();                               // re-render all bars together
+    });
+  });
+}
+
+function renderBars(){
+  const maxHeight = 300;    // px of drawable height above the 10px floor
+  const HEADROOM = 1.1;     // 10% breathing room so tallest bar doesn't touch the top
+
+  const values = Object.values(perCapitaByClass);
+  const maxVal = values.length ? Math.max(...values) : 0;
+  const domainMax = Math.max(1, maxVal * HEADROOM); // avoid divide-by-zero & keep sane domain
+
+  ['1st','3rd','4th'].forEach(cls=>{
+    const v = perCapitaByClass[cls] || 0;
+    const pct = Math.max(0, Math.min(1, v / domainMax));
+    const h = 10 + Math.round(pct * maxHeight);  // keep your 10px floor
+    const bar = document.querySelector(`.bar[data-class="${cls}"] .fill`);
+    if (bar) bar.style.height = `${h}px`;
+  });
+}
+
+function updateSub(cls, perCapita, total, size){
+  const sub = document.getElementById(`sub-${cls}`);
+  if (sub) sub.textContent = `Total: ${total} • Class size: ${size} • Avg: ${perCapita.toFixed(2)}`;
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,54 @@
+{
+	"world": {
+		"width": 1600,
+		"height": 1200,
+		"bgColor": "#23303a"
+	},
+	"player": {
+		"layer": 50,
+		"x": 200,
+		"y": 200,
+		"speed": 120,
+		"defaultAnim": "idleDown",
+		"animations": {
+			"idleDown": { "frames": ["./assets/playerDown.png"], "fps": 1 },
+			"idleUp":   { "frames": ["./assets/playerUp.png"], "fps": 1 },
+			"idleLeft": { "frames": ["./assets/playerLeft.png"], "fps": 1 },
+			"idleRight":{"frames": ["./assets/playerRight.png"], "fps": 1 },
+
+			"walkDown": { "frames": ["./assets/player.png","./assets/playerDown.png"], "fps": 2 },
+			"walkUp":   { "frames": ["./assets/player.png","./assets/playerUp.png"], "fps": 2 },
+			"walkLeft": { "frames": ["./assets/player.png","./assets/playerLeft.png"], "fps": 8 },
+			"walkRight":{"frames": ["./assets/player.png","./assets/playerRight.png"], "fps": 8 }
+		}
+	},
+	"objects": [
+		{
+			"id": "ground-box",
+			"textureType": "static",
+			"layer": 0,
+			"src": "./assets/building1.png",
+			"x": 350,
+			"y": 240,
+			"collides": false
+		},
+		{
+			"id": "crate-loop",
+			"textureType": "loop",
+			"layer": 10,
+			"textures": ["./assets/box.png", "./assets/box.png"],
+			"x": 500,
+			"y": 380,
+			"collides": true
+		},
+		{
+			"id": "sign-static",
+			"textureType": "static",
+			"layer": 20,
+			"src": "./assets/box.png",
+			"x": 800,
+			"y": 300,
+			"collides": true
+		}
+	]
+}

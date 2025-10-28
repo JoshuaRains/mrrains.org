@@ -1,0 +1,127 @@
+{
+  "id": "c8-ser-vs-estar",
+  "title": "C.8 – Ser vs Estar (Build the Sentence)",
+  "acceptNoAccents": true,
+  "steps": [
+    {
+      "type": "tiles",
+      "prompt": "Build: I am a student.",
+      "tiles": ["Yo", "soy", "estudiante", "estoy", "somos", "tiene"],
+      "answers": [["Yo", "soy", "estudiante"], ["soy", "estudiante"]]
+    },
+    {
+      "type": "tiles",
+      "prompt": "Build: She is my friend.",
+      "tiles": ["Ella", "es", "mi", "amiga", "está", "son"],
+      "answers": [["Ella", "es", "mi", "amiga"]]
+    },
+    {
+      "type": "tiles",
+      "prompt": "Build: We are from Tennessee.",
+      "tiles": ["Nosotros", "somos", "de", "Tennessee", "estamos", "soy"],
+      "answers": [["Nosotros", "somos", "de", "Tennessee"], ["Somos", "de", "Tennessee"]]
+    },
+    {
+      "type": "tiles",
+      "prompt": "Build: Today is Monday.",
+      "tiles": ["Hoy", "es", "lunes", "está", "son", "tiene"],
+      "answers": [["Hoy", "es", "lunes"]]
+    },
+    {
+      "type": "tiles",
+      "prompt": "Build: They are tall.",
+      "tiles": ["Ellos", "son", "altos", "están", "somos", "eres"],
+      "answers": [["Ellos", "son", "altos"]]
+    },
+    {
+      "type": "tiles",
+      "prompt": "Build: The class is in the cafeteria.",
+      "tiles": ["La", "clase", "está", "en", "la", "cafetería", "es", "son"],
+      "answers": [["La", "clase", "está", "en", "la", "cafetería"]]
+    },
+    {
+      "type": "tiles",
+      "prompt": "Build: I am in Spanish class.",
+      "tiles": ["Estoy", "en", "la", "clase", "de", "español", "soy", "somos"],
+      "answers": [["Estoy", "en", "la", "clase", "de", "español"]]
+    },
+    {
+      "type": "tiles",
+      "prompt": "Build: He is tired.",
+      "tiles": ["Él", "está", "cansado", "es", "son", "tiene"],
+      "answers": [["Él", "está", "cansado"]]
+    },
+    {
+      "type": "tiles",
+      "prompt": "Build: We are ready.",
+      "tiles": ["Nosotros", "estamos", "listos", "somos", "soy", "tienen"],
+      "answers": [["Nosotros", "estamos", "listos"], ["Estamos", "listos"]]
+    },
+    {
+      "type": "tiles",
+      "prompt": "Build: Y’all are at school.",
+      "tiles": ["Ustedes", "están", "en", "la", "escuela", "son", "somos"],
+      "answers": [["Ustedes", "están", "en", "la", "escuela"], ["Están", "en", "la", "escuela"]]
+    },
+    {
+      "type": "tiles",
+      "prompt": "Build: The pencil is on the desk.",
+      "tiles": ["El", "lápiz", "está", "en", "el", "escritorio", "es", "son"],
+      "answers": [["El", "lápiz", "está", "en", "el", "escritorio"]]
+    },
+    {
+      "type": "tiles",
+      "prompt": "Build: You (informal) are funny.",
+      "tiles": ["Tú", "eres", "gracioso", "estás", "soy", "son"],
+      "answers": [["Tú", "eres", "gracioso"]]
+    },
+    {
+      "type": "tiles",
+      "prompt": "Build: The exam is difficult.",
+      "tiles": ["El", "examen", "es", "difícil", "está", "somos"],
+      "answers": [["El", "examen", "es", "difícil"]]
+    },
+    {
+      "type": "tiles",
+      "prompt": "Build: The window is open.",
+      "tiles": ["La", "ventana", "está", "abierta", "es", "son"],
+      "answers": [["La", "ventana", "está", "abierta"]]
+    },
+    {
+      "type": "tiles",
+      "prompt": "Build: My teacher is smart.",
+      "tiles": ["Mi", "profesor", "es", "inteligente", "está", "son"],
+      "answers": [["Mi", "profesor", "es", "inteligente"]]
+    },
+    {
+      "type": "tiles",
+      "prompt": "Build: We are in the gym.",
+      "tiles": ["Estamos", "en", "el", "gimnasio", "somos", "soy"],
+      "answers": [["Estamos", "en", "el", "gimnasio"]]
+    },
+    {
+      "type": "tiles",
+      "prompt": "Build: It is five o’clock.",
+      "tiles": ["Son", "las", "cinco", "Es", "están", "tiene"],
+      "answers": [["Son", "las", "cinco"]]
+    },
+    {
+      "type": "tiles",
+      "prompt": "Build: Maria is from Mexico.",
+      "tiles": ["María", "es", "de", "México", "está", "son"],
+      "answers": [["María", "es", "de", "México"]]
+    },
+    {
+      "type": "tiles",
+      "prompt": "Build: The students are nervous today.",
+      "tiles": ["Los", "estudiantes", "están", "nerviosos", "hoy", "son", "somos"],
+      "answers": [["Los", "estudiantes", "están", "nerviosos", "hoy"], ["Los", "estudiantes", "están", "nerviosos"]]
+    },
+    {
+      "type": "tiles",
+      "prompt": "Build: Science class is interesting.",
+      "tiles": ["La", "clase", "de", "ciencias", "es", "interesante", "está", "son"],
+      "answers": [["La", "clase", "de", "ciencias", "es", "interesante"]]
+    }
+  ]
+}

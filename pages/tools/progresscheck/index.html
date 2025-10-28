@@ -1,0 +1,639 @@
+<!DOCTYPE html>
+<html lang="en" translate="no">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Concept Practice</title>
+  <style>
+    :root{
+      --bg-top:#4f7a62; --bg-bot:#5d8b6f;
+      --panel:#ffffff; --ink:#0f172a; --muted:#295341;
+      --accent:#58cc02; --accent-ghost:#e6f5e9;
+      --error:#e54848; --error-soft:#ffe2e2; --ok-soft:#dcfce7;
+      --border:#dfece5; --tile:#f1f5f9; --tile-ink:#0f172a;
+      --tile-selected:#e2f3ff; --tile-wrong:#fee2e2;
+      --radius:18px; --shadow:0 10px 24px rgba(0,0,0,.08), 0 2px 6px rgba(0,0,0,.05);
+      --sidebar-w: 28vw; --stage-h: clamp(420px, 56vw, 720px);
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%;margin:0}
+    body{
+      color:var(--ink);
+      background:linear-gradient(to bottom,var(--bg-top),var(--bg-bot));
+      font-family: ui-sans-serif,-apple-system,Segoe UI,Roboto,Helvetica,Arial,"Apple Color Emoji","Segoe UI Emoji";
+    }
+    .app{height:100vh;display:grid;grid-template-columns: calc(100% - var(--sidebar-w)) var(--sidebar-w);gap:18px;padding:18px;overflow:hidden}
+    @media (max-width:1020px){ .app{grid-template-columns:1fr} :root{--sidebar-w:100vw} }
+
+    .panel{ background:var(--panel); border:1px solid var(--border); border-radius:var(--radius);
+      box-shadow:var(--shadow); display:flex; flex-direction:column; min-height:0; overflow:hidden; }
+
+    .gameHead{display:flex;align-items:center;gap:12px;padding:14px 16px;border-bottom:1px solid var(--border);background:#eaf4ee}
+    .pill{padding:8px 12px;border-radius:999px;background:#fff;border:1px solid #bfd6c9;color:#143825;font-weight:800;cursor:pointer}
+    .pill.active{background:#2e6a4d;color:#fff;border-color:#2e6a4d}
+    .grow{flex:1}
+
+    .gameBody{flex:1;display:flex;flex-direction:column;gap:16px;padding:18px;overflow:auto}
+    .stage{
+      position:relative;width:100%;height:var(--stage-h);
+      background:#fff;border:1px solid var(--border);border-radius:20px;box-shadow:var(--shadow);
+      padding:26px;display:flex;flex-direction:column;overflow:hidden;
+    }
+    .badge{position:absolute;top:12px;left:16px;font-weight:900;font-size:20px;color:#15452f}
+    .prompt{margin:36px 0 8px;font-weight:900;font-size:22px;line-height:1.25}
+    .subtitle{color:var(--muted);font-size:14px;margin:2px 0 14px}
+    .content{flex:1;overflow:auto;padding-right:4px}
+    .feedback{margin-top:12px;padding:12px 14px;border-radius:14px;font-weight:800;display:none}
+    .feedback.show{display:block}
+    .feedback.ok{background:var(--ok-soft);color:#0f5132;border:1px solid #86efac}
+    .feedback.bad{background:var(--error-soft);color:#7c1313;border:1px solid #ffb4b4}
+    .footer{padding-top:12px;display:flex;gap:12px;align-items:center;justify-content:flex-end}
+    .btn{appearance:none;border:0;outline:0;padding:12px 16px;border-radius:12px;font-weight:900;background:var(--accent);color:#fff;cursor:pointer;box-shadow:0 2px 6px rgba(0,0,0,.06)}
+    .btn:disabled{opacity:.5;cursor:not-allowed}
+    .statRow{display:flex;gap:10px;align-items:center;color:var(--muted);font-weight:800}
+
+    .answer-area{border:2px dashed #e2e8f0;border-radius:16px;padding:14px;min-height:62px;display:flex;flex-wrap:wrap;gap:10px;align-items:center;background:#fafcff}
+    .bank{margin-top:16px;display:flex;flex-wrap:wrap;gap:10px}
+    .tile{background:var(--tile);color:var(--tile-ink);border:1px solid #e2e8f0;border-radius:14px;padding:10px 14px;font-weight:800;letter-spacing:.2px;box-shadow:0 2px 6px rgba(0,0,0,.06);cursor:pointer;user-select:none;transition:transform .05s ease,background .15s,border-color .15s}
+    .tile:active{transform:scale(.98)}
+    .tile.wrong{background:var(--tile-wrong);border-color:#fecaca}
+
+    .match-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    .col{display:flex;flex-direction:column;gap:10px}
+    .match-card{background:#f3f8f5;border:1px solid var(--border);border-radius:14px;padding:12px 14px;font-weight:800;cursor:pointer;box-shadow:0 2px 6px rgba(0,0,0,.06);transition:opacity .15s,background .15s,border-color .15s}
+    .match-card.selected{background:#e4f0ea;border-color:#b7d7c8}
+    .match-card.paired{opacity:.55;pointer-events:none}
+
+    .type-wrap{display:flex;flex-direction:column;gap:10px}
+    .type-input{width:100%;font-size:18px;padding:14px 16px;border-radius:14px;border:2px solid #e2e8f0;outline:0;background:#fff}
+    .type-input:focus{border-color:#cbd5e1}
+    .accents{display:flex;flex-wrap:wrap;gap:8px;margin-top:2px}
+    .acc-btn{border:1px solid #e2e8f0;background:#f8fafc;border-radius:12px;padding:8px 10px;font-weight:800;cursor:pointer;box-shadow:0 2px 6px rgba(0,0,0,.06)}
+
+    /* BIG corrected-answer hint */
+    .hint{
+      margin-top:14px;background:#f1fbf4;border:2px dashed #9fd8b6;padding:16px 18px;border-radius:16px;color:#12412b;font-weight:900;
+      font-size:clamp(22px,3vw,32px);line-height:1.25;
+    }
+    .hint > div:first-child{font-size:clamp(16px,2.2vw,20px);opacity:.8;margin-bottom:8px}
+    .ghost-row,.hint #ghostText{font-size:clamp(22px,3vw,32px);font-weight:900;letter-spacing:.2px}
+    .ghost-tile{padding:10px 14px;border-radius:14px;border:2px dashed #8cccac;background:#e8f8ee;color:#0f3a27;font-weight:900;font-size:clamp(20px,2.8vw,28px)}
+
+    .grid-wrap{display:inline-block;border:1px solid #e2e8f0;border-radius:12px;overflow:hidden;background:#fff}
+    .grid{display:grid;user-select:none}
+    .cell{min-width:44px;min-height:44px;display:grid;place-items:center;padding:8px;border-right:1px solid #e2e8f0;border-bottom:1px solid #e2e8f0;background:#fff;font-weight:800;cursor:pointer}
+    .cell.sel{background:#e2f3ff}
+    .cell.wrong{background:var(--tile-wrong)}
+
+    .sideHead{padding:14px 16px;border-bottom:1px solid var(--border);background:#eaf4ee}
+    .sideBody{flex:1;overflow:auto;padding:16px}
+    .conceptList{display:grid;grid-template-columns:1fr;gap:10px}
+    .conceptItem{display:flex;align-items:flex-start;gap:10px;padding:10px 12px;border-radius:12px;background:#f7fbf8;border:1px solid #e6efe8}
+    .stickyActions{padding:14px 16px;border-top:1px solid var(--border);display:flex;gap:10px;background:#fafdfb}
+
+    /* Login Modal */
+    .modal{
+      position:fixed; inset:0; display:none; align-items:center; justify-content:center; background:rgba(0,0,0,.6); z-index:9999;
+    }
+    .modal .inner{
+      width:min(420px,92vw); background:#fff; border-radius:16px; padding:20px; box-shadow:var(--shadow);
+    }
+    .modal h2{ margin:0 0 10px; color:#103b28 }
+    .modal input{
+      width:100%; font:inherit; padding:12px 14px; border-radius:12px; border:1px solid #cfe0d8; outline:0; margin:8px 0 12px;
+    }
+    .modal .err{ color:#b71c1c; min-height:1.2em; font-weight:700 }
+  </style>
+</head>
+<body>
+  <!-- Sign-in modal -->
+  <div id="loginModal" class="modal" aria-modal="true" role="dialog">
+    <div class="inner">
+      <h2>Enter Class Password</h2>
+      <input id="loginPassword" type="password" autocomplete="current-password" placeholder="Class password" />
+      <button id="loginButton" class="btn">Sign In</button>
+      <div id="loginError" class="err"></div>
+    </div>
+  </div>
+
+  <div class="app" id="appRoot" style="visibility:hidden">
+    <!-- LEFT: GAME -->
+    <section class="panel" id="gamePanel">
+      <header class="gameHead">
+        <div class="grow"></div>
+        <div class="pillRow" id="classPills">
+          <button class="pill" data-class="1st">1st</button>
+          <button class="pill" data-class="3rd">3rd</button>
+          <button class="pill" data-class="4th">4th</button>
+        </div>
+      </header>
+
+      <main class="gameBody">
+        <div class="stage" id="stage">
+          <div class="badge" id="conceptBadge">—</div>
+          <div class="prompt" id="promptText">Pick concepts on the right to begin.</div>
+          <div class="subtitle" id="subtitleText"></div>
+          <div class="content" id="contentArea"></div>
+          <div class="feedback" id="feedback"></div>
+          <div class="footer" id="footer"></div>
+        </div>
+
+        <div class="statRow">
+          <span id="statClass">Class: 1st</span>
+          <span>•</span>
+          <span id="statTotal">Total: 0</span>
+        </div>
+      </main>
+    </section>
+
+    <!-- RIGHT: CONCEPTS -->
+    <aside class="panel" id="conceptPanel">
+      <header class="sideHead">
+        <div style="font-weight:900;color:#143825">Pick Concepts</div>
+        <div style="color:var(--muted);font-size:12px">Select one or more topics, then press <strong>Start Practice</strong>.</div>
+      </header>
+      <div class="sideBody">
+        <div class="conceptList" id="conceptList"></div>
+      </div>
+      <div class="stickyActions">
+        <div class="grow"></div>
+        <button class="btn" id="startBtn">Start / Refresh</button>
+      </div>
+    </aside>
+  </div>
+
+<script type="module">
+/* ========================= Firebase Auth + DB ========================= */
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/11.8.1/firebase-app.js';
+import { getDatabase, ref, runTransaction, get, set, onValue } from 'https://www.gstatic.com/firebasejs/11.8.1/firebase-database.js';
+import { getAuth, signInWithEmailAndPassword, setPersistence, inMemoryPersistence } from 'https://www.gstatic.com/firebasejs/11.8.1/firebase-auth.js';
+
+// YOUR FIREBASE CONFIG (same project you posted)
+const firebaseConfig = {
+  apiKey: "AIzaSyBBxUdOHCB1fJI9mZgYHJ0HCg6p_8R_1-s",
+  authDomain: "interactive-whiteboard-8bc1e.firebaseapp.com",
+  projectId: "interactive-whiteboard-8bc1e",
+  storageBucket: "interactive-whiteboard-8bc1e.firebasestorage.app",
+  messagingSenderId: "403793324386",
+  appId: "1:403793324386:web:c5f8da9579cd97f935a43b"
+};
+
+// Shared classroom email (same as your example)
+const SHARED_EMAIL = "classroom@myapp.com";
+
+const app = initializeApp(firebaseConfig);
+const db  = getDatabase(app);
+const auth = getAuth(app);
+await setPersistence(auth, inMemoryPersistence);
+
+/* ====== simple login modal copied from your example ====== */
+const loginModal    = document.getElementById('loginModal');
+const loginPassword = document.getElementById('loginPassword');
+const loginButton   = document.getElementById('loginButton');
+const loginError    = document.getElementById('loginError');
+const appRoot       = document.getElementById('appRoot');
+
+loginModal.style.display = 'flex';
+loginPassword.focus();
+
+loginButton.onclick = tryLogin;
+loginPassword.onkeydown = e => { if(e.key==='Enter') tryLogin(); };
+
+function tryLogin(){
+  const pass = loginPassword.value.trim();
+  loginError.textContent = '';
+  if(!pass){ loginError.textContent = "Please enter the password."; return; }
+  loginButton.disabled = true;
+  signInWithEmailAndPassword(auth, SHARED_EMAIL, pass)
+    .then(()=>{
+      loginModal.style.display = 'none';
+      appRoot.style.visibility = 'visible';
+    })
+    .catch(()=>{
+      loginError.textContent = "Incorrect password. Try again.";
+      loginButton.disabled = false;
+    });
+}
+
+/* ========================= APP: Practice Logic ========================= */
+const LESSON_BASE = "./lessons/";
+const CONCEPTS = [
+  ["c1-pronouns",                "C.1 - Pronouns",                            "c1-pronouns.json"],
+  ["c2-definite-articles",       "C.2 - Definite Articles",                   "c2-definite-articles.json"],
+  ["c3-indefinite-articles",     "C.3 - Indefinite Articles",                 "c3-indefinite-articles.json"],
+  ["c4-verb-meanings",           "C.4 - Verb Meanings",                       "c4-verb-meanings.json"],
+  ["c5-regular-conjugation",     "C.5 - Regular Conjugation",                 "c5-regular-conjugation.json"],
+  ["c6-conj-different-subjects", "C.6 - Conjugation with different subjects", "c6-conj-different-subjects.json"],
+  ["c7-gustar",                  "C.7 - Gustar",                              "c7-gustar.json"],
+  ["c8-ser-vs-estar",            "C.8 - Ser vs Estar",                        "c8-ser-vs-estar.json"],
+  ["c9-possessive-adjectives",   "C.9 - Possessive adjectives",               "c9-possessive-adjectives.json"],
+  ["c10-belonging",              "C.10 - Belonging",                          "c10-belonging.json"],
+  ["c11-present-progressive",    "C.11 - Present Progressive",                "c11-present-progressive.json"],
+  ["c12-tener",                  "C.12 - Tener",                              "c12-tener.json"],
+  ["c13-obligation",             "C.13 - Obligation",                         "c13-obligation.json"],
+  ["c14-the-verb-ir",            "C.14 - The verb Ir",                        "c14-the-verb-ir.json"],
+  ["c15-the-future-tense",       "C.15 - The Future Tense",                   "c15-the-future-tense.json"]
+];
+
+const DEMO_FALLBACK = {
+  id:"demo", title:"Demo", acceptNoAccents:true,
+  steps:[
+    {type:"typing", prompt:"Type: hola", answers:["hola"]},
+    {type:"tiles",  prompt:"Build: nosotros somos estudiantes", tiles:["somos","estudiantes","nosotros"], answer:["nosotros","somos","estudiantes"]},
+    {type:"matching", prompt:"Match", pairs:[["I","yo"],["she","ella"]]},
+    {type:"grid",   prompt:"Select 2x2 top-left", width:4, height:3, values:["a","b","c","d","e","f","g","h","i","j","k","l"], answerRect:[0,0,2,2]}
+  ]
+};
+
+const $  = (s,r=document)=>r.querySelector(s);
+const $$ = (s,r=document)=>[...r.querySelectorAll(s)];
+function shuffle(a){ const x=a.slice(); for(let i=x.length-1;i>0;i--){ const j=(Math.random()*(i+1))|0; [x[i],x[j]]=[x[j],x[i]] } return x }
+function normalizeText(s, ignoreAccents=false){
+  if(typeof s!=="string") return "";
+  let t = s.trim().toLowerCase().replace(/\s+/g,' ');
+  if(ignoreAccents) t = t.normalize("NFD").replace(/\p{Diacritic}/gu,"");
+  return t;
+}
+function arraysEqualCI(a,b){ if(a.length!==b.length) return false; for(let i=0;i<a.length;i++){ if(normalizeText(String(a[i]))!==normalizeText(String(b[i]))) return false } return true }
+function anyArrayMatchesCI(candidate, targets){ return targets.some(t=> arraysEqualCI(candidate,t)) }
+function rectToIndices([x,y,w,h], cols){ const out=[]; for(let r=y;r<y+h;r++){ for(let c=x;c<x+w;c++){ out.push(r*cols+c) } } return out }
+
+/* ---------- state ---------- */
+let selectedClass="1st";
+let totalAnswered = 0;
+const cache = new Map();
+const revisit = [];
+const userId = 'user-' + Math.random().toString(36).slice(2,9);
+
+/* ---------- els ---------- */
+const classPills=$("#classPills");
+const conceptBadge=$("#conceptBadge");
+const promptText=$("#promptText");
+const subtitleText=$("#subtitleText");
+const contentArea=$("#contentArea");
+const feedback=$("#feedback");
+const footer=$("#footer");
+const statClass=$("#statClass");
+const statTotal=$("#statTotal");
+const conceptList=$("#conceptList");
+const startBtn=$("#startBtn");
+
+/* ---------- class pills ---------- */
+classPills.addEventListener("click",(e)=>{
+  const b=e.target.closest(".pill"); if(!b) return;
+  selectedClass=b.dataset.class;
+  $$(".pill",classPills).forEach(p=> p.classList.toggle("active", p.dataset.class===selectedClass));
+  statClass.textContent = `Class: ${selectedClass}`;
+});
+$$(".pill",classPills)[0].classList.add("active");
+
+/* ---------- build concept list ---------- */
+function buildConceptList(){
+  conceptList.innerHTML="";
+  CONCEPTS.forEach(([id,label])=>{
+    const row=document.createElement("label"); row.className="conceptItem";
+    const cb=document.createElement("input"); cb.type="checkbox"; cb.value=id;
+    const span=document.createElement("div"); span.innerHTML=`<strong>${label}</strong>`;
+    row.appendChild(cb); row.appendChild(span); conceptList.appendChild(row);
+  });
+}
+buildConceptList();
+const getSelectedIds = () => $$("input[type=checkbox]:checked",conceptList).map(c=>c.value);
+
+/* ---------- loading lessons ---------- */
+async function ensureLoaded(conceptId,label,file){
+  if(cache.has(conceptId)) return cache.get(conceptId);
+  const url = new URL(LESSON_BASE + file, location.href).toString();
+  try{
+    const res = await fetch(url,{cache:"no-store"}); if(!res.ok) throw new Error(`HTTP ${res.status}`);
+    const json = await res.json();
+    const pack = {
+      id: conceptId,
+      title: json.title || label,
+      acceptNoAccents: !!json.acceptNoAccents,
+      steps: (json.steps||[]).map((st,idx)=>({
+        ...st,
+        type: String(st.type||"").toLowerCase(),
+        __conceptId: conceptId,
+        __conceptTitle: json.title || label,
+        __uid: `${conceptId}:${idx}:${Math.random().toString(36).slice(2)}`
+      }))
+    };
+    cache.set(conceptId, pack);
+    return pack;
+  }catch(e){
+    const pack = {
+      id: conceptId,
+      title: label,
+      acceptNoAccents: true,
+      steps: DEMO_FALLBACK.steps.map((s,idx)=>({
+        ...s, type:String(s.type).toLowerCase(),
+        __conceptId: conceptId, __conceptTitle: label, __uid:`${conceptId}:DEMO:${idx}:${Math.random().toString(36).slice(2)}`
+      }))
+    };
+    cache.set(conceptId, pack);
+    return pack;
+  }
+}
+
+function showBlankState(msg="Select at least one concept to begin."){
+  conceptBadge.textContent="—";
+  promptText.textContent=msg;
+  subtitleText.textContent="";
+  contentArea.innerHTML="";
+  feedback.className="feedback"; feedback.textContent="";
+  footer.innerHTML="";
+}
+
+/* ---------- next question (re-checks checklist every time) ---------- */
+startBtn.addEventListener("click", pickNext);
+document.addEventListener("keydown",(e)=>{
+  const btn = footer.querySelector(".btn[data-continue='1']");
+  if(e.key==="Enter" && btn && !btn.disabled){ e.preventDefault(); btn.click(); }
+});
+
+async function pickNext(){
+  const ids = getSelectedIds();
+  if(!ids.length){ showBlankState(); return; }
+
+  showBlankState("Loading…");
+
+  const packs = [];
+  for(const id of ids){
+    const entry = CONCEPTS.find(([cid])=>cid===id);
+    if(!entry) continue;
+    const [, label, file] = entry;
+    packs.push(await ensureLoaded(id,label,file));
+  }
+
+  let pool = packs.flatMap(p => p.steps.map(s => ({
+    ...s,
+    __conceptId: p.id,
+    __conceptTitle: p.title,
+    __acceptNoAccents: p.acceptNoAccents
+  })));
+
+  if(revisit.length){
+    const allowed = revisit.filter(r => ids.includes(r.__conceptId));
+    if(allowed.length && Math.random()<0.33){
+      pool = pool.concat(allowed.slice(0, Math.min(allowed.length, 5)));
+    }
+  }
+
+  if(!pool.length){ showBlankState("No questions found for the selected concepts."); return; }
+
+  const pick = pool[(Math.random()*pool.length)|0];
+  renderStep(pick);
+}
+
+function setFeedback(ok,msg){
+  feedback.className = "feedback show " + (ok ? "ok":"bad");
+  feedback.textContent = msg;
+}
+function clearFeedback(){ feedback.className="feedback"; feedback.textContent="" }
+function setFooterPrimary(label,onClick,disabled=false,isContinue=false){
+  footer.innerHTML="";
+  const b=document.createElement("button");
+  b.className="btn"; b.textContent=label; b.disabled=!!disabled; b.dataset.continue = isContinue?"1":"";
+  b.addEventListener("click", ()=> onClick && onClick());
+  footer.appendChild(b);
+  return b;
+}
+function bumpTotal(){ totalAnswered+=1; statTotal.textContent=`Total: ${totalAnswered}` }
+
+/* ---------- DB write on correct ---------- */
+function recordCorrect(conceptId, conceptTitle){
+  // Map "1st"/"3rd"/"4th" to numeric periods we store
+  const periodMap = { "1st":"1", "3rd":"3", "4th":"4" };
+  const period = periodMap[selectedClass] || "1";
+
+  const userRef = ref(db, `class_points/period${period}/users/${userId}/correct`);
+  const aggRef  = ref(db, `class_points/period${period}/aggregate/totalCorrect`);
+
+  // increment per-user and aggregate totals via transactions
+  runTransaction(userRef, cur => (cur || 0) + 1);
+  runTransaction(aggRef,  cur => (cur || 0) + 1);
+
+  // (optional) lightweight last-hit log per user
+  const lastRef = ref(db, `class_points/period${period}/users/${userId}/last`);
+  set(lastRef, { t: Date.now(), conceptId, conceptTitle });
+}
+
+/* ---------- render step + types ---------- */
+function renderStep(step){
+  clearFeedback(); footer.innerHTML=""; contentArea.innerHTML="";
+  conceptBadge.textContent = step.__conceptTitle || "—";
+  promptText.textContent = step.prompt || "";
+  subtitleText.textContent = "";
+
+  const t = String(step.type||"").toLowerCase();
+  if(t==="typing")   renderTyping(step);
+  else if(t==="tiles")     renderTiles(step);
+  else if(t==="matching")  renderMatching(step);
+  else if(t==="grid")      renderGrid(step);
+  else { subtitleText.textContent="This question type is not recognized."; setFooterPrimary("Next", pickNext, false, true); }
+}
+
+function renderTyping(step){
+  const wrap=document.createElement("div"); wrap.className="type-wrap";
+  const input=document.createElement("input"); input.className="type-input"; input.type="text";
+  input.placeholder=step.placeholder||"Type your answer";
+  const accents=document.createElement("div"); accents.className="accents";
+  ["á","é","í","ó","ú","ü","ñ","¿","¡"].forEach(ch=>{
+    const b=document.createElement("button"); b.className="acc-btn"; b.type="button"; b.textContent=ch;
+    b.addEventListener("click", ()=>{ if(input.readOnly) return; const s=input.selectionStart??input.value.length,e=input.selectionEnd??input.value.length; input.value=input.value.slice(0,s)+ch+input.value.slice(e); const pos=s+ch.length; input.setSelectionRange(pos,pos); input.dispatchEvent(new Event("input")); input.focus(); });
+    accents.appendChild(b);
+  });
+  const hint=document.createElement("div"); hint.className="hint"; hint.style.display="none"; hint.innerHTML=`<div>One correct answer:</div><div class="ghost-row" id="ghostText"></div>`;
+  wrap.appendChild(input); wrap.appendChild(accents); contentArea.appendChild(wrap); contentArea.appendChild(hint);
+  const ghostText=hint.querySelector("#ghostText");
+
+  const checkBtn=setFooterPrimary("Check", check, true, false);
+  input.addEventListener("input", ()=>{ checkBtn.disabled = input.value.trim().length===0 || input.readOnly; });
+  input.addEventListener("keydown",(e)=>{ if(e.key==="Enter" && !checkBtn.disabled){ e.preventDefault(); check(); }});
+  setTimeout(()=> input.focus(),0);
+
+  let hadWrong=false;
+  function check(){
+    const list = Array.isArray(step.answers)&&step.answers.length ? step.answers.slice() : (step.answer ? [step.answer] : []);
+    const got = input.value??"";
+    const ignore = !!step.__acceptNoAccents || !!step.acceptNoAccents;
+    const ok = list.some(w=> normalizeText(got,ignore)===normalizeText(String(w),ignore));
+    if(ok){
+      input.readOnly=true; setFeedback(true,"Nice!"); bumpTotal();
+      recordCorrect(step.__conceptId, step.__conceptTitle);
+      if(hadWrong) revisit.push(step);
+      setFooterPrimary("Next", pickNext, false, true);
+    }else{
+      hadWrong=true; setFeedback(false,"Try again.");
+      ghostText.textContent=String(list[0]||""); hint.style.display="block";
+      input.style.transform="scale(0.98)"; setTimeout(()=> input.style.transform="scale(1)",140);
+    }
+  }
+}
+
+function renderTiles(step){
+  subtitleText.textContent="Tap words to build the sentence. Tap again to return them.";
+  const answer=document.createElement("div"); answer.className="answer-area";
+  const bank=document.createElement("div"); bank.className="bank";
+  contentArea.appendChild(answer); contentArea.appendChild(bank);
+
+  const hint=document.createElement("div"); hint.className="hint"; hint.style.display="none"; hint.innerHTML=`<div>One correct answer:</div><div class="ghost-row" id="ghostRow"></div>`;
+  contentArea.appendChild(hint); const ghostRow=hint.querySelector("#ghostRow");
+
+  const tiles=(step.tiles||[]).slice();
+  const targets = Array.isArray(step.answers)&&step.answers.length ? step.answers.map(a=>a.slice()) : [ (step.answer||[]).slice() ];
+  let chosen=[]; let hadWrong=false;
+
+  function makeTile(text){
+    const el=document.createElement("div"); el.className="tile"; el.textContent=text;
+    el.addEventListener("click", ()=>{
+      if(el.parentElement===bank){ bank.removeChild(el); answer.appendChild(el); chosen.push(text); }
+      else{ answer.removeChild(el); bank.appendChild(el); const i=chosen.indexOf(text); if(i>-1) chosen.splice(i,1); }
+      el.classList.remove("wrong"); checkBtn.disabled = chosen.length===0;
+    });
+    return el;
+  }
+  shuffle(tiles).forEach(w=> bank.appendChild(makeTile(w)));
+  const checkBtn=setFooterPrimary("Check", onCheck, true, false);
+
+  function showHint(arr){ ghostRow.innerHTML=""; arr.forEach(w=>{ const g=document.createElement("span"); g.className="ghost-tile"; g.textContent=w; ghostRow.appendChild(g);}); hint.style.display="block"; }
+  function onCheck(){
+    const ok = anyArrayMatchesCI(chosen, targets);
+    if(ok){
+      setFeedback(true,"Great!"); bumpTotal();
+      recordCorrect(step.__conceptId, step.__conceptTitle);
+      if(hadWrong) revisit.push(step);
+      setFooterPrimary("Next", pickNext, false, true);
+    }else{
+      hadWrong=true;
+      $$(".tile",answer).forEach(t=>t.classList.add("wrong"));
+      setFeedback(false,"Not yet. Adjust and try again."); showHint(targets[0]||[]);
+      answer.style.transform="scale(0.98)"; setTimeout(()=>{ answer.style.transform="scale(1)" },140);
+      setTimeout(()=> $$(".tile.wrong",answer).forEach(t=>t.classList.remove("wrong")),260);
+    }
+  }
+}
+
+function renderMatching(step){
+  subtitleText.textContent="Tap one on the left, then its match on the right.";
+  const grid=document.createElement("div"); grid.className="match-grid";
+  const L=document.createElement("div"); L.className="col";
+  const R=document.createElement("div"); R.className="col";
+  grid.appendChild(L); grid.appendChild(R); contentArea.appendChild(grid);
+
+  const pairs=(step.pairs||[]).slice();
+  const left = shuffle(pairs.map(p=>p[0]));
+  const right = shuffle(pairs.map(p=>p[1]));
+  let selL=null, selR=null, matched=0; let hadWrong=false;
+
+  function card(text, side){
+    const el=document.createElement("div"); el.className="match-card"; el.textContent=text; el.tabIndex=0;
+    el.addEventListener("click", ()=>{
+      if(el.classList.contains("paired")) return;
+      if(side==="L"){ if(selL && selL!==el) selL.classList.remove("selected"); selL=el; el.classList.toggle("selected"); }
+      else { if(selR && selR!==el) selR.classList.remove("selected"); selR=el; el.classList.toggle("selected"); }
+      if(selL && selR){
+        const a=selL.textContent, b=selR.textContent;
+        const ok = pairs.some(([x,y])=> normalizeText(x)===normalizeText(a) && normalizeText(y)===normalizeText(b));
+        if(ok){
+          [selL,selR].forEach(e=>{ e.classList.remove("selected"); e.classList.add("paired"); e.style.background="var(--accent-ghost)"; e.style.borderColor="#cfe0d8"; });
+          matched++; selL=null; selR=null;
+          if(matched===pairs.length){
+            setFeedback(true,"All matched!"); bumpTotal();
+            recordCorrect(step.__conceptId, step.__conceptTitle);
+            if(hadWrong) revisit.push(step);
+            setFooterPrimary("Next", pickNext, false, true);
+          }
+        }else{
+          hadWrong=true; setFeedback(false,"That's not a match. Try again.");
+          setTimeout(()=>{ selL?.classList.remove("selected"); selR?.classList.remove("selected"); selL=null; selR=null; }, 140);
+        }
+      }
+    });
+    return el;
+  }
+  left.forEach(v=> L.appendChild(card(v,"L")));
+  right.forEach(v=> R.appendChild(card(v,"R")));
+}
+
+function renderGrid(step){
+  if(!step.width || !step.height || !Array.isArray(step.values) || step.values.length!==step.width*step.height){
+    subtitleText.textContent="Invalid grid configuration."; setFooterPrimary("Next", pickNext, false, true); return;
+  }
+  subtitleText.textContent="Click and drag to select a rectangle, then press Check.";
+
+  const wrap=document.createElement("div"); wrap.className="grid-wrap";
+  const gridEl=document.createElement("div"); gridEl.className="grid";
+  gridEl.style.gridTemplateColumns = `repeat(${step.width}, minmax(44px,1fr))`;
+  wrap.appendChild(gridEl); contentArea.appendChild(wrap);
+
+  const cells=[];
+  step.values.forEach((val,i)=>{
+    const c=document.createElement("div"); c.className="cell"; c.textContent=val; c.dataset.idx=String(i);
+    gridEl.appendChild(c); cells.push(c);
+  });
+
+  let dragging=false, startIdx=null, endIdx=null;
+  const xy = i => [i % step.width, Math.floor(i/step.width)];
+  const idx = (x,y)=> y*step.width + x;
+  function clearSel(){ cells.forEach(c=> c.classList.remove("sel","wrong")) }
+  function paint(a,b){
+    clearSel(); const [ax,ay]=xy(a), [bx,by]=xy(b);
+    const x0=Math.min(ax,bx), x1=Math.max(ax,bx), y0=Math.min(ay,by), y1=Math.max(ay,by);
+    for(let y=y0;y<=y1;y++) for(let x=x0;x<=x1;x++) cells[idx(x,y)].classList.add("sel");
+  }
+
+  function down(i){ dragging=true; startIdx=i; endIdx=i; paint(startIdx,endIdx) }
+  function move(i){ if(!dragging) return; endIdx=i; paint(startIdx,endIdx) }
+  function up(i){ if(!dragging) return; dragging=false; endIdx=i; paint(startIdx,endIdx) }
+
+  cells.forEach(c=>{
+    c.addEventListener("mousedown",()=> down(+c.dataset.idx));
+    c.addEventListener("mouseenter",()=> move(+c.dataset.idx));
+    c.addEventListener("mouseup",()=> up(+c.dataset.idx));
+    c.addEventListener("touchstart",e=>{e.preventDefault();down(+c.dataset.idx)},{passive:false});
+    c.addEventListener("touchmove",e=>{
+      e.preventDefault();
+      const t=e.touches[0], el=document.elementFromPoint(t.clientX,t.clientY);
+      const hit = el?.closest(".cell"); if(hit) move(+hit.dataset.idx);
+    },{passive:false});
+    c.addEventListener("touchend",()=> up(+c.dataset.idx));
+  });
+  document.addEventListener("mouseup", ()=> dragging=false);
+
+  const checkBtn = setFooterPrimary("Check", onCheck, false, false);
+  let hadWrong=false;
+
+  function selected(){ return cells.map((c,i)=> c.classList.contains("sel")? i : -1).filter(i=>i>=0) }
+  function onCheck(){
+    const sel = selected();
+    if(!sel.length){ setFeedback(false,"Select a section on the grid first."); return; }
+
+    let expected=[];
+    if(Array.isArray(step.answerRect)) expected = rectToIndices(step.answerRect, step.width);
+    else if(Array.isArray(step.answer)) expected = step.answer.slice().map(n=>+n);
+
+    expected.sort((a,b)=>a-b); sel.sort((a,b)=>a-b);
+    const ok = sel.length===expected.length && sel.every((v,i)=> v===expected[i]);
+    if(ok){
+      setFeedback(true,"Nice!"); bumpTotal();
+      recordCorrect(step.__conceptId, step.__conceptTitle);
+      if(hadWrong) revisit.push(step);
+      setFooterPrimary("Next", pickNext, false, true);
+    }else{
+      hadWrong=true;
+      cells.forEach((c,i)=>{ if(sel.includes(i) && !expected.includes(i)) c.classList.add("wrong") });
+      setFeedback(false,"Not quite. Adjust your selection and try again.");
+    }
+  }
+}
+
+/* ---------- init ---------- */
+(function init(){
+  document.getElementById('statClass').textContent=`Class: ${selectedClass}`;
+  document.getElementById('statTotal').textContent=`Total: ${totalAnswered}`;
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,31 @@
+{
+  "id": "c11-obligation",
+  "title": "C.11 – Obligation",
+  "acceptNoAccents": true,
+  "steps": [
+    {"type":"tiles","prompt":"Build: I have to study.","tiles":["Yo","tengo","que","estudiar","tienes","tenemos","hacer"],"answers":[["Yo","tengo","que","estudiar"],["Tengo","que","estudiar"]]},
+    {"type":"tiles","prompt":"Build: You (informal) have to read.","tiles":["Tú","tienes","que","leer","tengo","tiene","hacer"],"answers":[["Tú","tienes","que","leer"],["Tienes","que","leer"]]},
+    {"type":"tiles","prompt":"Build: He has to write.","tiles":["Él","tiene","que","escribir","tengo","tienen","hacer"],"answers":[["Él","tiene","que","escribir"],["Tiene","que","escribir"]]},
+    {"type":"tiles","prompt":"Build: She has to practice.","tiles":["Ella","tiene","que","practicar","tienen","tengo","hacer"],"answers":[["Ella","tiene","que","practicar"],["Tiene","que","practicar"]]},
+    {"type":"tiles","prompt":"Build: We have to work.","tiles":["Nosotros","tenemos","que","trabajar","tienen","tengo","hacer"],"answers":[["Nosotros","tenemos","que","trabajar"],["Tenemos","que","trabajar"]]},
+    {"type":"tiles","prompt":"Build: Y’all have to listen.","tiles":["Ustedes","tienen","que","escuchar","tenemos","tienes","hacer"],"answers":[["Ustedes","tienen","que","escuchar"],["Tienen","que","escuchar"]]},
+    {"type":"tiles","prompt":"Build: They have to run.","tiles":["Ellos","tienen","que","correr","tiene","tienes","hacer"],"answers":[["Ellos","tienen","que","correr"],["Tienen","que","correr"]]},
+    {"type":"tiles","prompt":"Build: I have to use the notebook.","tiles":["Yo","tengo","que","usar","el","cuaderno","tienes","hacer"],"answers":[["Yo","tengo","que","usar","el","cuaderno"],["Tengo","que","usar","el","cuaderno"]]},
+    {"type":"tiles","prompt":"Build: You (informal) have to answer.","tiles":["Tú","tienes","que","responder","tengo","tiene","hacer"],"answers":[["Tú","tienes","que","responder"],["Tienes","que","responder"]]},
+    {"type":"tiles","prompt":"Build: He has to open the door.","tiles":["Él","tiene","que","abrir","la","puerta","tienen","hacer"],"answers":[["Él","tiene","que","abrir","la","puerta"],["Tiene","que","abrir","la","puerta"]]},
+    {"type":"tiles","prompt":"Build: She has to read the book.","tiles":["Ella","tiene","que","leer","el","libro","tenemos","hacer"],"answers":[["Ella","tiene","que","leer","el","libro"],["Tiene","que","leer","el","libro"]]},
+    {"type":"tiles","prompt":"Build: We have to take notes.","tiles":["Nosotros","tenemos","que","tomar","apuntes","tienen","hacer"],"answers":[["Nosotros","tenemos","que","tomar","apuntes"],["Tenemos","que","tomar","apuntes"]]},
+    {"type":"tiles","prompt":"Build: We have to learn.","tiles":["Nosotros","tenemos","que","aprender","tienes","tienen","hacer"],"answers":[["Nosotros","tenemos","que","aprender"],["Tenemos","que","aprender"]]},
+    {"type":"tiles","prompt":"Build: Y’all have to arrive early.","tiles":["Ustedes","tienen","que","llegar","temprano","tenemos","hacer"],"answers":[["Ustedes","tienen","que","llegar","temprano"],["Tienen","que","llegar","temprano"]]},
+    {"type":"tiles","prompt":"Build: They have to share the pencils.","tiles":["Ellos","tienen","que","compartir","los","lápices","tiene","hacer"],"answers":[["Ellos","tienen","que","compartir","los","lápices"],["Tienen","que","compartir","los","lápices"]]},
+    {"type":"tiles","prompt":"Build: I have to ask a question.","tiles":["Yo","tengo","que","hacer","una","pregunta","tienes","leer"],"answers":[["Yo","tengo","que","hacer","una","pregunta"],["Tengo","que","hacer","una","pregunta"]]},
+    {"type":"tiles","prompt":"Build: You (informal) have to drink water.","tiles":["Tú","tienes","que","beber","agua","tengo","tiene","leer"],"answers":[["Tú","tienes","que","beber","agua"],["Tienes","que","beber","agua"]]},
+    {"type":"tiles","prompt":"Build: He has to study Spanish.","tiles":["Él","tiene","que","estudiar","español","tienes","tienen","leer"],"answers":[["Él","tiene","que","estudiar","español"],["Tiene","que","estudiar","español"]]},
+    {"type":"tiles","prompt":"Build: She has to use the computer.","tiles":["Ella","tiene","que","usar","la","computadora","tengo","aprender"],"answers":[["Ella","tiene","que","usar","la","computadora"],["Tiene","que","usar","la","computadora"]]},
+    {"type":"tiles","prompt":"Build: We have to write.","tiles":["Nosotros","tenemos","que","escribir","tienen","tienes","beber"],"answers":[["Nosotros","tenemos","que","escribir"],["Tenemos","que","escribir"]]},
+    {"type":"tiles","prompt":"Build: Y’all have to practice.","tiles":["Ustedes","tienen","que","practicar","tenemos","tiene","beber"],"answers":[["Ustedes","tienen","que","practicar"],["Tienen","que","practicar"]]},
+    {"type":"tiles","prompt":"Build: They have to read the notes.","tiles":["Ellos","tienen","que","leer","los","apuntes","tiene","usar"],"answers":[["Ellos","tienen","que","leer","los","apuntes"],["Tienen","que","leer","los","apuntes"]]},
+    {"type":"tiles","prompt":"Build: I have to prepare the homework.","tiles":["Yo","tengo","que","preparar","la","tarea","tienes","abrir"],"answers":[["Yo","tengo","que","preparar","la","tarea"],["Tengo","que","preparar","la","tarea"]]},
+    {"type":"tiles","prompt":"Build: They have to attend class.","tiles":["Ellos","tienen","que","asistir","a","clase","tiene","beber"],"answers":[["Ellos","tienen","que","asistir","a","clase"],["Tienen","que","asistir","a","clase"]]}
+  ]
+}

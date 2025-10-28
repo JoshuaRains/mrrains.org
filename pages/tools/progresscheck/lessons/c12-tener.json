@@ -1,0 +1,38 @@
+{
+  "id": "c12-tener",
+  "title": "C.12 – Tener",
+  "acceptNoAccents": true,
+  "steps": [
+    { "type": "typing", "prompt": "Fill the blank: Yo ________ (tener).", "answers": ["tengo"] },
+    { "type": "typing", "prompt": "Fill the blank: Tú ________ (tener).", "answers": ["tienes"] },
+    { "type": "typing", "prompt": "Fill the blank: Él ________ (tener).", "answers": ["tiene"] },
+    { "type": "typing", "prompt": "Fill the blank: Ella ________ (tener).", "answers": ["tiene"] },
+    { "type": "typing", "prompt": "Fill the blank: Usted ________ (tener).", "answers": ["tiene"] },
+    { "type": "typing", "prompt": "Fill the blank: Nosotros ________ (tener).", "answers": ["tenemos"] },
+    { "type": "typing", "prompt": "Fill the blank: Vosotros ________ (tener).", "answers": ["tenéis"] },
+    { "type": "typing", "prompt": "Fill the blank: Ustedes ________ (tener).", "answers": ["tienen"] },
+    { "type": "typing", "prompt": "Fill the blank: Ellos ________ (tener).", "answers": ["tienen"] },
+    { "type": "typing", "prompt": "Fill the blank: Ellas ________ (tener).", "answers": ["tienen"] },
+    { "type": "typing", "prompt": "Fill the blank: ¿Tú ________ (tener) un lápiz?", "answers": ["tienes"] },
+    { "type": "typing", "prompt": "Fill the blank: ¿Ustedes ________ (tener) tarea?", "answers": ["tienen"] },
+
+    { "type": "tiles", "prompt": "Build the sentence: I have a notebook. (use tener)", "tiles": ["Yo", "tengo", "un", "cuaderno", "tienes", "tiene", "tenemos", "tenéis", "tienen"], "answers": [["Yo", "tengo", "un", "cuaderno"]] },
+    { "type": "tiles", "prompt": "Build the sentence: You (informal) have a pencil. (use tener)", "tiles": ["Tú", "tienes", "un", "lápiz", "tengo", "tiene", "tenemos", "tenéis", "tienen"], "answers": [["Tú", "tienes", "un", "lápiz"]] },
+    { "type": "tiles", "prompt": "Build the sentence: He has a book. (use tener)", "tiles": ["Él", "tiene", "un", "libro", "tengo", "tienes", "tenemos", "tenéis", "tienen"], "answers": [["Él", "tiene", "un", "libro"]] },
+    { "type": "tiles", "prompt": "Build the sentence: She has a backpack. (use tener)", "tiles": ["Ella", "tiene", "una", "mochila", "tengo", "tienes", "tenemos", "tenéis", "tienen"], "answers": [["Ella", "tiene", "una", "mochila"]] },
+    { "type": "tiles", "prompt": "Build the sentence: You (formal) have a class. (use tener)", "tiles": ["Usted", "tiene", "una", "clase", "tengo", "tienes", "tenemos", "tenéis", "tienen"], "answers": [["Usted", "tiene", "una", "clase"]] },
+    { "type": "tiles", "prompt": "Build the sentence: We have homework. (use tener)", "tiles": ["Nosotros", "tenemos", "tarea", "tengo", "tienes", "tiene", "tenéis", "tienen"], "answers": [["Nosotros", "tenemos", "tarea"]] },
+    { "type": "tiles", "prompt": "Build the sentence: Y’all (Spain) have a test. (use tener)", "tiles": ["Vosotros", "tenéis", "un", "examen", "tengo", "tienes", "tiene", "tenemos", "tienen"], "answers": [["Vosotros", "tenéis", "un", "examen"]] },
+    { "type": "tiles", "prompt": "Build the sentence: Y’all have many books. (use tener)", "tiles": ["Ustedes", "tienen", "muchos", "libros", "tengo", "tienes", "tiene", "tenemos", "tenéis"], "answers": [["Ustedes", "tienen", "muchos", "libros"]] },
+    { "type": "tiles", "prompt": "Build the sentence: They (masc.) have two classes. (use tener)", "tiles": ["Ellos", "tienen", "dos", "clases", "tengo", "tienes", "tiene", "tenemos", "tenéis"], "answers": [["Ellos", "tienen", "dos", "clases"]] },
+    { "type": "tiles", "prompt": "Build the sentence: They (fem.) have a question. (use tener)", "tiles": ["Ellas", "tienen", "una", "pregunta", "tengo", "tienes", "tiene", "tenemos", "tenéis"], "answers": [["Ellas", "tienen", "una", "pregunta"]] },
+    { "type": "tiles", "prompt": "Build the sentence: We have a big problem. (use tener)", "tiles": ["Nosotros", "tenemos", "un", "problema", "grande", "tengo", "tienes", "tiene", "tenéis", "tienen"], "answers": [["Nosotros", "tenemos", "un", "problema", "grande"]] },
+
+    { "type": "grid", "prompt": "Select the correct present form of tener for: yo", "width": 2, "height": 3, "values": ["tengo", "tenemos", "tienes", "tenéis", "tiene", "tienen"], "answer": [0] },
+    { "type": "grid", "prompt": "Select the correct present form of tener for: nosotros", "width": 2, "height": 3, "values": ["tengo", "tenemos", "tienes", "tenéis", "tiene", "tienen"], "answer": [1] },
+    { "type": "grid", "prompt": "Select the correct present form of tener for: tú", "width": 2, "height": 3, "values": ["tengo", "tenemos", "tienes", "tenéis", "tiene", "tienen"], "answer": [2] },
+    { "type": "grid", "prompt": "Select the correct present form of tener for: vosotros", "width": 2, "height": 3, "values": ["tengo", "tenemos", "tienes", "tenéis", "tiene", "tienen"], "answer": [3] },
+    { "type": "grid", "prompt": "Select the correct present form of tener for: él/ella/usted", "width": 2, "height": 3, "values": ["tengo", "tenemos", "tienes", "tenéis", "tiene", "tienen"], "answer": [4] },
+    { "type": "grid", "prompt": "Select the correct present form of tener for: ustedes/ellos/ellas", "width": 2, "height": 3, "values": ["tengo", "tenemos", "tienes", "tenéis", "tiene", "tienen"], "answer": [5] }
+  ]
+}
