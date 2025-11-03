@@ -1,0 +1,668 @@
+<!DOCTYPE html>
+<html lang="en" translate="no">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Multiplayer Scrabble</title>
+<style>
+	:root{
+		--bg-top:#4f7a62; --bg-bot:#5d8b6f;
+		--panel:#ffffff; --ink:#0f172a; --muted:#295341;
+		--accent:#58cc02; --accent-ghost:#e6f5e9;
+		--error:#e54848; --border:#dfece5; --radius:18px;
+		--grid:#dce9e2; --latest-dark:#d2d9d6;
+		--yes:#1a7f37; --no:#d12b2b;
+		--center:#d7eafb;
+		--turn-tint:#e8f6ed;
+	}
+	*{box-sizing:border-box}
+	html,body{height:100%;margin:0}
+	body{
+		font-family: ui-sans-serif,-apple-system,Segoe UI,Roboto,Helvetica,Arial;
+		background:linear-gradient(to bottom,var(--bg-top),var(--bg-bot));
+		color:var(--ink);
+	}
+	.wrap{max-width:1200px;margin:0 auto;padding:16px}
+	.card{background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);padding:16px;box-shadow:0 10px 24px rgba(0,0,0,.08)}
+	.row{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+	button,input{font:inherit;border-radius:12px}
+	button{padding:10px 14px;border:none;cursor:pointer;background:var(--accent);color:#fff}
+	button[disabled]{opacity:.5;cursor:not-allowed}
+	.hidden{display:none !important}
+	.small{font-size:13px;color:#3c4f45}
+
+	.game-shell{display:grid;grid-template-columns:1fr;gap:12px;height:calc(100vh - 32px)}
+	.left{background:var(--panel);border-radius:var(--radius);border:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden}
+
+	.header{padding:12px;border-bottom:1px solid var(--border);display:flex;flex-direction:column;gap:8px}
+	.header-row1{display:flex;align-items:center;justify-content:space-between}
+	.header-code{font-weight:900;letter-spacing:1px;font-size:18px}
+	.header-me{font-weight:800;font-size:18px}
+	.header-row2{display:flex;justify-content:center;gap:10px;flex-wrap:wrap}
+	.playerCard{
+		display:flex;flex-direction:column;align-items:center;justify-content:center;
+		border:1px solid var(--border);border-radius:14px;background:#fff;
+		padding:8px 12px;min-width:110px
+	}
+	.playerCard.turn{background:var(--turn-tint);outline:2px solid #bde5c6}
+	.playerCard .name{font-weight:900;font-size:18px;line-height:1.2;text-align:center}
+	.playerCard .pts{margin-top:2px;font-weight:800;font-size:16px;opacity:.95;text-align:center}
+
+	.board-wrap{flex:1;display:flex;flex-direction:column;gap:8px;padding:12px;overflow:auto}
+	.board{
+		margin:auto;display:grid;grid-template-columns:repeat(15,40px);grid-auto-rows:40px;
+		background:#f7fbf9;border:1px solid var(--border);box-shadow:inset 0 0 0 1px var(--grid)
+	}
+	.cell{
+		position:relative;border-right:1px solid var(--grid);border-bottom:1px solid var(--grid);
+		display:flex;align-items:center;justify-content:center
+	}
+	.cell:nth-child(15n){border-right:none}
+	.cell:nth-last-child(-n+15){border-bottom:none}
+	.cell.drop-ok{outline:2px dashed var(--accent);outline-offset:-2px}
+	.cell.center{background:var(--center)}
+
+	.tile{
+		position:absolute;inset:3px;display:flex;align-items:center;justify-content:center;
+		background:#fff;border:1px solid var(--border);border-radius:8px;
+		box-shadow:0 4px 10px rgba(0,0,0,.08);user-select:none;padding:2px 6px 6px 6px
+	}
+	.tile .letter{font-weight:900;font-size:20px;line-height:1;transform:translateY(1px)}
+	.tile .pts{position:absolute;right:6px;bottom:4px;font-size:12px;font-weight:800;opacity:.85;line-height:1}
+	.tile.latest{background:var(--latest-dark)}
+	.tile.ghost{opacity:.45}
+
+	.rack{border-top:1px solid var(--border);padding:10px 12px;background:#f9fcfb}
+	.rack-inner{display:flex;gap:8px;flex-wrap:wrap}
+	.rack .tile{position:relative;inset:auto;width:44px;height:44px;cursor:grab}
+	.rack .tile:active{cursor:grabbing}
+	.footer{border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:8px;padding:10px 12px;background:#f7fbf9}
+	.status{font-weight:800;color:#0a7a3f}
+	.controls{display:flex;gap:8px;flex-wrap:wrap}
+	.btn-ghost{background:#fff;color:var(--ink);border:1px solid var(--border)}
+	.btn-danger{background:var(--error)}
+	.btn-yes{background:#1a7f37}
+	.btn-no{background:#d12b2b}
+
+	.review{border-top:1px dashed var(--border);background:#fbfdfc;padding:10px 12px;display:flex;flex-direction:column;gap:8px}
+	.review .line{font-weight:700}
+	.review .word{font-weight:900}
+	.review .vote-row{display:flex;gap:8px;flex-wrap:wrap}
+	.review .note{font-size:13px;color:#3a4a43}
+</style>
+</head>
+<body>
+<div class="wrap">
+	<!-- Lobby -->
+	<div id="lobby" class="card">
+		<h1 style="margin:0 0 12px 0">Lobby</h1>
+		<div class="row">
+			<button id="createBtn">Create Game</button>
+			<input id="joinCode" placeholder="Enter code to join…" />
+			<button id="joinBtn">Join</button>
+		</div>
+		<div class="row" style="margin-top:12px">
+			<span>Players: <strong id="lobbyCount">0</strong></span>
+			<span class="small">Game starts automatically when someone joins.</span>
+		</div>
+	</div>
+
+	<!-- Game -->
+	<div id="game" class="game-shell hidden">
+		<div class="left">
+			<div class="header">
+				<div class="header-row1">
+					<div id="topCode" class="header-code">—</div>
+					<div id="topMe" class="header-me">—</div>
+				</div>
+				<div id="playersRow" class="header-row2"></div>
+			</div>
+
+			<div class="board-wrap">
+				<div id="board" class="board" aria-label="Scrabble board"></div>
+			</div>
+
+			<div class="rack">
+				<div class="rack-inner" id="rack"></div>
+			</div>
+
+			<div class="footer">
+				<div id="status" class="status">waiting on another player</div>
+				<div class="controls">
+					<button id="contestBtn" class="btn-danger hidden">Contest latest word</button>
+					<button id="confirmBtn" disabled>Confirm Word</button>
+					<button id="recallBtn" class="btn-ghost">Recall</button>
+				</div>
+			</div>
+
+			<div id="reviewPanel" class="review hidden">
+				<div class="line">We are not sure if <span class="word" id="reviewWord">"—"</span> is a real word. Look it up. Is it real?</div>
+				<div class="vote-row">
+					<button id="voteReal" class="btn-yes">Real</button>
+					<button id="voteNotReal" class="btn-no">Not real</button>
+				</div>
+				<div id="reviewNote" class="note">Waiting for all votes…</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<script type="module">
+/* ---------- Firebase ---------- */
+const firebaseConfig = {
+        apiKey: "AIzaSyBP4-umlnVxOkvHiUCj6MDVa4Z3452BML0",
+        authDomain: "castles-64558.firebaseapp.com",
+        projectId: "castles-64558",
+        storageBucket: "castles-64558.appspot.com",
+        messagingSenderId: "450284390955",
+        appId: "1:450284390955:web:7e9e30ed7834635755f86e",
+        measurementId: "G-EFJJGH1GDK"
+      };
+
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getDatabase, ref, onValue, set, update, get, runTransaction } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+
+const app = initializeApp(firebaseConfig);
+const db  = getDatabase(app);
+
+/* ---------- DOM ---------- */
+const el = {
+	lobby: document.getElementById('lobby'),
+	createBtn: document.getElementById('createBtn'),
+	joinCode: document.getElementById('joinCode'),
+	joinBtn: document.getElementById('joinBtn'),
+	lobbyCount: document.getElementById('lobbyCount'),
+
+	game: document.getElementById('game'),
+	topCode: document.getElementById('topCode'),
+	topMe: document.getElementById('topMe'),
+	playersRow: document.getElementById('playersRow'),
+
+	board: document.getElementById('board'),
+	rack: document.getElementById('rack'),
+	status: document.getElementById('status'),
+	confirmBtn: document.getElementById('confirmBtn'),
+	recallBtn: document.getElementById('recallBtn'),
+	contestBtn: document.getElementById('contestBtn'),
+
+	reviewPanel: document.getElementById('reviewPanel'),
+	reviewWord: document.getElementById('reviewWord'),
+	voteReal: document.getElementById('voteReal'),
+	voteNotReal: document.getElementById('voteNotReal'),
+	reviewNote: document.getElementById('reviewNote'),
+};
+
+/* ---------- Constants / state ---------- */
+const BOARD_SIZE = 15;
+const CENTER = { r:7, c:7 };
+const RACK_SIZE = 12;
+
+/* Spanish Scrabble-style letter values (incl. Ñ), no CH/LL/RR, R slightly more frequent */
+const LETTER_VALUES = {
+	A:1,B:3,C:3,D:2,E:1,F:4,G:2,H:4,I:1,J:8,K:8,L:1,M:3,
+	N:1,Ñ:8,O:1,P:3,Q:5,R:1,S:1,T:1,U:1,V:4,W:8,X:8,Y:4,Z:10
+};
+
+/* Spanish distribution with boosted R (6) */
+const START_BAG = [
+	/* A */ ...Array(12).fill('A'),
+	/* B */ ...Array(2).fill('B'),
+	/* C */ ...Array(4).fill('C'),
+	/* D */ ...Array(5).fill('D'),
+	/* E */ ...Array(12).fill('E'),
+	/* F */ ...Array(1).fill('F'),
+	/* G */ ...Array(2).fill('G'),
+	/* H */ ...Array(2).fill('H'),
+	/* I */ ...Array(6).fill('I'),
+	/* J */ ...Array(1).fill('J'),
+	/* K */ ...Array(1).fill('K'),
+	/* L */ ...Array(4).fill('L'),
+	/* M */ ...Array(2).fill('M'),
+	/* N */ ...Array(5).fill('N'),
+	/* Ñ */ ...Array(1).fill('Ñ'),
+	/* O */ ...Array(9).fill('O'),
+	/* P */ ...Array(2).fill('P'),
+	/* Q */ ...Array(1).fill('Q'),
+	/* R */ ...Array(6).fill('R'),   // boosted from typical 5
+	/* S */ ...Array(6).fill('S'),
+	/* T */ ...Array(4).fill('T'),
+	/* U */ ...Array(5).fill('U'),
+	/* V */ ...Array(1).fill('V'),
+	/* W */ ...Array(1).fill('W'),
+	/* X */ ...Array(1).fill('X'),
+	/* Y */ ...Array(1).fill('Y'),
+	/* Z */ ...Array(1).fill('Z'),
+];
+
+/* ---------- State ---------- */
+let myPlayerId = null;
+let myDisplayName = null;
+let currentRoom = null;
+let pendingDrops = [];       // {r,c,letter}
+let localRack = [];
+let myTurn = false;
+let currentBoardMap = {};    // {"r_c": "A"}
+
+/* ---------- Helpers ---------- */
+function genCode(len=4){
+	const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+	let s=""; for(let i=0;i<len;i++) s += chars[Math.floor(Math.random()*(i+1))];
+	return s;
+}
+function shuffle(a){ for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]} return a; }
+function cellId(r,c){ return `cell-${r}-${c}`; }
+function setHidden(node, hidden){ node.classList.toggle('hidden', !!hidden); }
+function hasAnyTilesOnBoard(){ return Object.keys(currentBoardMap).length > 0; }
+function inBounds(r,c){ return r>=0 && r<BOARD_SIZE && c>=0 && c<BOARD_SIZE; }
+function point(letter){ return LETTER_VALUES[letter] ?? 0; }
+function tileHTML(letter, isLatest=false, isGhost=false){
+	const wrap = document.createElement('div');
+	wrap.className = 'tile'+(isGhost?' ghost':'')+(isLatest?' latest':'');
+	const L = document.createElement('span'); L.className='letter'; L.textContent = letter;
+	const P = document.createElement('span'); P.className='pts'; P.textContent = point(letter);
+	wrap.append(L,P);
+	return wrap;
+}
+
+/* ---------- Board UI ---------- */
+function buildBoard(){
+	el.board.innerHTML = "";
+	for(let r=0;r<BOARD_SIZE;r++){
+		for(let c=0;c<BOARD_SIZE;c++){
+			const div = document.createElement('div');
+			div.className = 'cell';
+			if(r===CENTER.r && c===CENTER.c) div.classList.add('center');
+			div.id = cellId(r,c);
+			div.addEventListener('dragover', e => { e.preventDefault(); div.classList.add('drop-ok'); });
+			div.addEventListener('dragleave', () => div.classList.remove('drop-ok'));
+			div.addEventListener('drop', e => {
+				e.preventDefault(); div.classList.remove('drop-ok');
+				if(!myTurn) return;
+				const letter = e.dataTransfer.getData("text/plain");
+				if(div.querySelector('.tile:not(.ghost)')) return;
+				const existingGhost = div.querySelector('.tile.ghost'); if(existingGhost) existingGhost.remove();
+				div.appendChild(tileHTML(letter,false,true));
+				const idx = localRack.indexOf(letter); if(idx !== -1) localRack.splice(idx,1);
+				renderRack();
+				pendingDrops = pendingDrops.filter(p => !(p.r===r && p.c===c));
+				pendingDrops.push({r,c,letter});
+				el.confirmBtn.disabled = pendingDrops.length===0;
+			});
+			el.board.appendChild(div);
+		}
+	}
+}
+function paintBoard(boardMap, highlightPositions){
+	currentBoardMap = boardMap || {};
+	for(let r=0;r<BOARD_SIZE;r++){
+		for(let c=0;c<BOARD_SIZE;c++){
+			const cell = document.getElementById(cellId(r,c)); if(!cell) continue;
+			const solid = cell.querySelector('.tile:not(.ghost)'); if(solid) solid.remove();
+			const key = `${r}_${c}`;
+			if(boardMap && boardMap[key]){
+				const isLatest = !!(highlightPositions && highlightPositions.find(p => p.r===r && p.c===c));
+				cell.appendChild(tileHTML(boardMap[key], isLatest, false));
+				const ghost = cell.querySelector('.tile.ghost'); if(ghost) ghost.remove();
+			}
+		}
+	}
+}
+
+/* ---------- Rack ---------- */
+function renderRack(){
+	el.rack.innerHTML = "";
+	localRack.forEach(L => {
+		const t = tileHTML(L,false,false);
+		t.style.width = "44px"; t.style.height = "44px";
+		t.draggable = true;
+		t.addEventListener('dragstart', e => { e.dataTransfer.setData("text/plain", L); });
+		el.rack.appendChild(t);
+	});
+}
+function recallPending(){
+	pendingDrops.forEach(p => {
+		const cell = document.getElementById(cellId(p.r,p.c));
+		if(cell){ const ghost = cell.querySelector('.tile.ghost'); if(ghost) ghost.remove(); }
+		localRack.push(p.letter);
+	});
+	pendingDrops = [];
+	renderRack();
+	el.confirmBtn.disabled = true;
+}
+
+/* ---------- Word finding ---------- */
+function boardWithPending(){
+	const map = { ...currentBoardMap };
+	pendingDrops.forEach(p => { map[`${p.r}_${p.c}`] = p.letter; });
+	return map;
+}
+function collectWord(map, r, c, dir){
+	let letters = [], coords = [];
+	const dr = dir==='h'?0:1, dc = dir==='h'?1:0;
+	let sr=r, sc=c;
+	while(inBounds(sr-dr, sc-dc) && map[`${sr-dr}_${sc-dc}`]){ sr-=dr; sc-=dc; }
+	let rr=sr, cc=sc;
+	while(inBounds(rr,cc) && map[`${rr}_${cc}`]){
+		letters.push(map[`${rr}_${cc}`]); coords.push({r:rr,c:cc});
+		rr+=dr; cc+=dc;
+	}
+	return { text: letters.join(''), coords };
+}
+function computeTurnWords(){
+	if(pendingDrops.length===0) return { ok:false, reason:"No tiles placed." };
+	const tempMap = boardWithPending();
+	const emptyBoard = !hasAnyTilesOnBoard();
+	if(emptyBoard && !tempMap[`${CENTER.r}_${CENTER.c}`]) return { ok:false, reason:"First move must cover the center." };
+
+	const inRow = pendingDrops.every(p => p.r === pendingDrops[0].r);
+	const inCol = pendingDrops.every(p => p.c === pendingDrops[0].c);
+	if(!(inRow||inCol)) return { ok:false, reason:"Tiles must be in a single row or column." };
+	const dir = inRow ? 'h' : 'v';
+
+	if(!emptyBoard){
+		let touches=false;
+		for(const p of pendingDrops){
+			for(const [dr,dc] of [[1,0],[-1,0],[0,1],[0,-1]]){
+				const nr=p.r+dr, nc=p.c+dc;
+				if(inBounds(nr,nc) && currentBoardMap[`${nr}_${nc}`]){ touches=true; break; }
+			}
+			if(touches) break;
+		}
+		if(!touches) return { ok:false, reason:"Placement must connect to existing tiles." };
+	}
+
+	if(dir==='h'){
+		const row = pendingDrops[0].r;
+		const minC = Math.min(...pendingDrops.map(p=>p.c));
+		const maxC = Math.max(...pendingDrops.map(p=>p.c));
+		for(let c=minC;c<=maxC;c++){ if(!tempMap[`${row}_${c}`]) return { ok:false, reason:"Gaps in the main word." }; }
+	}else{
+		const col = pendingDrops[0].c;
+		const minR = Math.min(...pendingDrops.map(p=>p.r));
+		const maxR = Math.max(...pendingDrops.map(p=>p.r));
+		for(let r=minR;r<=maxR;r++){ if(!tempMap[`${r}_${col}`]) return { ok:false, reason:"Gaps in the main word." }; }
+	}
+
+	const any = pendingDrops[0];
+	const main = collectWord(tempMap, any.r, any.c, inRow?'h':'v');
+	const perp = inRow ? 'v' : 'h';
+	const words = [];
+	const highlights = new Map();
+
+	if(main.text.length>1){ words.push(main); main.coords.forEach(p=>highlights.set(`${p.r}_${p.c}`,true)); }
+	for(const p of pendingDrops){
+		const w = collectWord(tempMap, p.r, p.c, perp);
+		if(w.text.length>1){ words.push(w); w.coords.forEach(q=>highlights.set(`${q.r}_${q.c}`,true)); }
+	}
+
+	if(words.length===0){
+		if(main.text.length===1) return { ok:false, reason:"Single-letter word must build off existing tiles." };
+		words.push(main); main.coords.forEach(p=>highlights.set(`${p.r}_${p.c}`,true));
+	}
+
+	let totalPoints = 0;
+	for(const w of words){
+		totalPoints += w.coords.reduce((acc,pos)=> acc + LETTER_VALUES[tempMap[`${pos.r}_${pos.c}`]], 0);
+	}
+	const highlight = Array.from(highlights.keys()).map(k=>{const [r,c]=k.split('_').map(Number); return {r,c};});
+	return { ok:true, words, totalPoints, highlight };
+}
+
+/* ---------- Lobby ---------- */
+el.createBtn.addEventListener('click', async () => {
+	const code = await createRoom();
+	el.joinCode.value = code;
+});
+el.joinBtn.addEventListener('click', async () => {
+	const code = (el.joinCode.value||"").trim();
+	if(!code){ alert("Enter a game code."); return; }
+	await joinRoom(code.toUpperCase());
+});
+
+async function createRoom(){
+	const code = genCode(4);
+	const roomRef = ref(db, 'rooms/'+code);
+	const bag = shuffle(START_BAG.slice()).join(',');
+	await set(roomRef, {
+		state:'lobby',
+		starter:null,
+		createdAt:Date.now(),
+		bag, board:{}, turn:null,
+		last:null, lastHighlight:[],
+		review:{status:'idle',votes:{}},
+		players:{}
+	});
+	await joinRoom(code);
+	return code;
+}
+
+async function joinRoom(code){
+	const snap = await get(ref(db, 'rooms/'+code));
+	if(!snap.exists()){ alert("Room not found."); return; }
+	currentRoom = code;
+
+	const playersSnap = await get(ref(db, `rooms/${code}/players`));
+	const count = playersSnap.exists() ? Object.keys(playersSnap.val()).length : 0;
+	const id = `p${count+1}`;
+	myPlayerId = id;
+	myDisplayName = `Player ${count+1}`;
+	await update(ref(db, `rooms/${code}/players/${id}`), {
+		name: myDisplayName, score: 0, rack: "", joinedAt: Date.now()
+	});
+
+	el.lobby.classList.add('hidden');
+	el.game.classList.remove('hidden');
+	el.topCode.textContent = code;
+	el.topMe.textContent = myDisplayName;
+	buildBoard();
+
+	onValue(ref(db, `rooms/${code}`), async (s) => {
+		const v = s.val()||{};
+		const players = v.players||{};
+		const pCount = Object.keys(players).length;
+		el.lobbyCount.textContent = pCount;
+
+		if(v.state === 'lobby' && pCount >= 2){
+			await attemptAutoStart(code);
+		}
+		if(v.state === 'playing'){
+			enterPlayingView(v);
+		}
+	});
+}
+
+/* Attempt to start once using leader election */
+async function attemptAutoStart(code){
+	const starterRef = ref(db, `rooms/${code}/starter`);
+	let iWon = false;
+	await runTransaction(starterRef, (cur) => (cur===null ? (iWon=true, myPlayerId) : cur));
+	if(!iWon) return;
+
+	const roomPath = `rooms/${code}`;
+	const roomSnap = await get(ref(db, roomPath)); if(!roomSnap.exists()) return;
+	const room = roomSnap.val();
+	const playerIds = Object.keys(room.players||{});
+	let bag = (room.bag||"").split(',').filter(Boolean);
+
+	const updates = {};
+	playerIds.forEach(pid => {
+		let rack = [];
+		for(let i=0;i<RACK_SIZE;i++){ if(bag.length) rack.push(bag.shift()); }
+		updates[`${roomPath}/players/${pid}/rack`] = rack.join(',');
+	});
+	updates[`${roomPath}/bag`]   = bag.join(',');
+	updates[`${roomPath}/turn`]  = playerIds[0] || null;
+	updates[`${roomPath}/state`] = 'playing';
+	await update(ref(db), updates);
+}
+
+/* ---------- Playing view ---------- */
+function enterPlayingView(v){
+	const players = v.players||{};
+	const board   = v.board||{};
+	const last    = v.last||null;
+	const review  = v.review||{status:'idle',votes:{}};
+	const lastHL  = v.lastHighlight || [];
+
+	renderPlayersRow(players, v.turn);
+
+	if(players[myPlayerId]){
+		localRack = (players[myPlayerId].rack||"").split(',').filter(Boolean);
+		renderRack();
+	}
+
+	myTurn = (v.turn === myPlayerId);
+	updateStatus(players);
+
+	paintBoard(board, lastHL);
+
+	const canContest = !!(last && review.status==='idle' && (last.placements?.length||0)>0);
+	setHidden(el.contestBtn, !canContest);
+
+	if(review.status === 'open'){
+		setHidden(el.reviewPanel, false);
+		el.reviewWord.textContent = `"${last?.word||''}"`;
+		const myVote = (review.votes||{})[myPlayerId];
+		el.voteReal.disabled    = !!myVote;
+		el.voteNotReal.disabled = !!myVote;
+
+		const totalPlayers = Object.keys(players).length || 0;
+		const voteCount = Object.keys(review.votes||{}).length || 0;
+		el.reviewNote.textContent = `Waiting for all votes… (${voteCount}/${totalPlayers})`;
+
+		if(voteCount === totalPlayers){
+			resolveReview(v, review);
+		}
+	}else{
+		setHidden(el.reviewPanel, true);
+	}
+
+	el.confirmBtn.onclick = confirmWord;
+	el.recallBtn.onclick  = recallPending;
+	el.contestBtn.onclick = openContest;
+	el.voteReal.onclick    = () => castVote('real');
+	el.voteNotReal.onclick = () => castVote('notReal');
+
+	el.confirmBtn.disabled = !(myTurn && pendingDrops.length>0);
+}
+
+/* Player cards */
+function renderPlayersRow(players, turn){
+	el.playersRow.innerHTML = "";
+	Object.entries(players).forEach(([pid,p])=>{
+		const card = document.createElement('div');
+		card.className = 'playerCard'+(turn===pid?' turn':'');
+		const name = document.createElement('div'); name.className='name'; name.textContent = p.name;
+		const pts  = document.createElement('div'); pts.className='pts';  pts.textContent = p.score||0;
+		card.append(name, pts);
+		el.playersRow.appendChild(card);
+	});
+}
+function updateStatus(players){
+	const count = Object.keys(players||{}).length;
+	el.status.textContent = (count<2) ? "waiting on another player" : (myTurn ? "waiting for you to place a word" : "waiting on another player");
+}
+
+/* Confirm word */
+async function confirmWord(){
+	if(!myTurn || pendingDrops.length===0) return;
+
+	const check = computeTurnWords();
+	if(!check.ok){ alert(check.reason); return; }
+
+	const roomPath = `rooms/${currentRoom}`;
+	const roomSnap = await get(ref(db, roomPath)); if(!roomSnap.exists()) return;
+	const room = roomSnap.val();
+	const players = room.players||{};
+	const order = Object.keys(players);
+	const me = players[myPlayerId];
+
+	const updates = {};
+	pendingDrops.forEach(p => {
+		updates[`${roomPath}/board/${p.r}_${p.c}`] = p.letter;
+		const cell = document.getElementById(cellId(p.r,p.c));
+		if(cell){ const ghost = cell.querySelector('.tile.ghost'); if(ghost) ghost.remove(); }
+	});
+
+	const myIndex = order.indexOf(myPlayerId);
+	const nextPid = order[(myIndex+1)%order.length];
+
+	let bag = (room.bag||"").split(',').filter(Boolean);
+	while(localRack.length<RACK_SIZE && bag.length){ localRack.push(bag.shift()); }
+	const afterRack = localRack.join(',');
+
+	const wordList = check.words.map(w=>w.text).join(' + ');
+
+	updates[`${roomPath}/last`] = {
+		word: wordList,
+		placements: pendingDrops.map(p => ({r:p.r,c:p.c,letter:p.letter})),
+		owner: myPlayerId,
+		points: check.totalPoints
+	};
+	updates[`${roomPath}/lastHighlight`] = check.highlight.map(p=>({r:p.r,c:p.c}));
+	updates[`${roomPath}/review`] = { status:'idle', votes:{} };
+	updates[`${roomPath}/players/${myPlayerId}/score`] = (me.score||0) + check.totalPoints;
+	updates[`${roomPath}/players/${myPlayerId}/rack`] = afterRack;
+	updates[`${roomPath}/bag`] = bag.join(',');
+	updates[`${roomPath}/turn`] = nextPid;
+
+	await update(ref(db), updates);
+
+	pendingDrops = [];
+	renderRack();
+	el.confirmBtn.disabled = true;
+}
+
+/* Contest / voting */
+async function openContest(){
+	if(!currentRoom) return;
+	await update(ref(db), { [`rooms/${currentRoom}/review/status`]:'open' });
+}
+async function castVote(choice){ // 'real' | 'notReal'
+	if(!currentRoom || !myPlayerId) return;
+	await update(ref(db), { [`rooms/${currentRoom}/review/votes/${myPlayerId}`]: choice });
+	el.voteReal.disabled = true; el.voteNotReal.disabled = true;
+}
+async function resolveReview(room, review){
+	const roomPath = `rooms/${currentRoom}`;
+	const votes = review.votes || {};
+	const real    = Object.values(votes).filter(v=>v==='real').length;
+	const notReal = Object.values(votes).filter(v=>v==='notReal').length;
+	if(review.status === 'closed') return;
+
+	if(notReal > real){
+		const last = room.last || null;
+		if(last && last.placements){
+			const board = room.board || {};
+			const updates = {};
+			last.placements.forEach(p => {
+				const key = `${p.r}_${p.c}`;
+				if(board[key]) updates[`${roomPath}/board/${key}`] = null;
+			});
+			const ownerPath = `${roomPath}/players/${last.owner}/score`;
+			const ownerScore = (room.players[last.owner]?.score)||0;
+			updates[ownerPath] = Math.max(0, ownerScore - (last.points||0));
+			const bag = (room.bag||"").split(',').filter(Boolean);
+			last.placements.forEach(p => bag.push(p.letter));
+			updates[`${roomPath}/bag`] = bag.join(',');
+			updates[`${roomPath}/review/status`] = 'closed';
+			updates[`${roomPath}/lastHighlight`] = [];
+			await update(ref(db), updates);
+		}else{
+			await update(ref(db), { [`${roomPath}/review/status`]:'closed', [`${roomPath}/lastHighlight`]: [] });
+		}
+	}else{
+		await update(ref(db), { [`${roomPath}/review/status`]:'closed' });
+	}
+}
+
+/* ---------- Boot ---------- */
+buildBoard();
+
+/* Optional: prefill from ?code= */
+const params = new URLSearchParams(location.search);
+const pre = params.get('code');
+if(pre){ document.getElementById('joinCode').value = pre.toUpperCase(); }
+</script>
+</body>
+</html>
