@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="en" translate="no">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Possession – Video, Guide & Builder</title>
+<style>
+	:root{
+		/* Base theme */
+		--bg-top:#4f7a62; --bg-bot:#5d8b6f;
+		--panel:#ffffff; --ink:#0f172a; --muted:#2a5241;
+		--border:#dfece5; --radius:16px;
+
+		/* Color-coding */
+		--c-who:#10b981;   /* Who? (owner) */
+		--c-adj:#3b82f6;   /* Possessive adjective */
+		--c-de:#f59e0b;    /* de + owner */
+		--c-thing:#ef4444; /* Thing owned */
+
+		/* Subtle accents */
+		--pill:#f1f5f9; --pill-b:#e2e8f0;
+	}
+	*{box-sizing:border-box}
+	html,body{height:100%;margin:0}
+	body{
+		color:var(--ink);
+		background:linear-gradient(to bottom,var(--bg-top),var(--bg-bot));
+		font-family:ui-sans-serif,-apple-system,Segoe UI,Roboto,Helvetica,Arial;
+	}
+	.wrap{max-width:980px;margin:0 auto;padding:24px 16px 56px}
+
+	.section{
+		background:var(--panel);
+		border:1px solid var(--border);
+		border-radius:var(--radius);
+		padding:18px 16px;
+		margin:16px 0;
+	}
+
+	h1{margin:.2rem 0 0.6rem; font-size:clamp(22px,3.4vw,30px)}
+	h2{margin:.2rem 0 .8rem; font-size:clamp(18px,2.6vw,22px); color:var(--muted)}
+	p,li{line-height:1.55; margin:.4rem 0}
+
+	/* Video */
+	.video{position:relative;width:100%;aspect-ratio:16/9;border-radius:12px;overflow:hidden;border:1px solid var(--border);background:#000}
+	.video iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+
+	/* Formula tags */
+	.formula{
+		display:flex; gap:10px; flex-wrap:wrap; align-items:center;
+		padding:10px; border:1px dashed var(--border); border-radius:12px; background:#fafafa;
+	}
+	.tag{
+		display:inline-flex; align-items:center; gap:6px;
+		background:var(--pill); border:1px solid var(--pill-b); border-radius:999px;
+		padding:6px 10px; font-weight:700; font-size:14px; white-space:nowrap;
+	}
+	.dot{width:10px;height:10px;border-radius:50%}
+	.dot.who{background:var(--c-who)}
+	.dot.adj{background:var(--c-adj)}
+	.dot.de{background:var(--c-de)}
+	.dot.thing{background:var(--c-thing)}
+
+	.line{
+		display:flex; align-items:center; gap:10px;
+		padding:10px 12px; border-radius:12px; border:1px solid var(--border);
+	}
+	.line small{opacity:.75}
+
+	/* Compact Who? (Possessive Adjectives) chart */
+	.chart-wrap{display:flex; justify-content:center; margin:8px 0 4px;}
+	.chart{width:100%; max-width:680px; border:1px solid var(--border); border-radius:12px; overflow:hidden}
+	.chart h4{margin:0; padding:8px 10px; font-size:15px; background:#f8fafb}
+	table{width:100%; border-collapse:collapse; font-size:14px}
+	th,td{padding:8px 10px; border-bottom:1px solid var(--border); text-align:left}
+	tbody tr:last-child td{border-bottom:none}
+	td:first-child{width:42%}
+	.badge{display:inline-block; padding:2px 8px; border-radius:999px; font-weight:800}
+	.badge.who{border:1px solid #bbf7d0; background:#ecfdf5; color:var(--c-who)}
+	.badge.adj{border:1px solid #bfdbfe; background:#eff6ff; color:var(--c-adj)}
+
+	/* Builder */
+	.instruction{
+		margin:6px 0 10px; font-size:15px; background:#f7faf7; border:1px solid #ddeadf;
+		border-radius:10px; padding:8px 12px;
+	}
+	.stage{
+		min-height:200px; display:grid; place-items:center; text-align:center;
+		border:1px solid var(--border); border-radius:12px; padding:16px;
+	}
+	.eng{font-size:clamp(16px,2.6vw,20px); opacity:.8; margin-bottom:4px}
+	.spa{font-size:clamp(24px,5vw,44px); font-weight:800; letter-spacing:.01em}
+	.blank{
+		display:inline-block; min-width:3.6ch; line-height:0.95; vertical-align:baseline;
+		border-bottom:3px solid #cbd5e1;
+	}
+
+	.slot{color:transparent; transition:color .15s}
+	.slot.visible{color:var(--ink)}
+	.slot.who.visible{color:var(--c-who)}
+	.slot.adj.visible{color:var(--c-adj)}
+	.slot.de.visible{color:var(--c-de)}
+	.slot.thing.visible{color:var(--c-thing)}
+
+	.controls{display:flex; gap:8px; justify-content:center; flex-wrap:wrap; margin-top:10px}
+	button{
+		appearance:none; border:1px solid var(--border); background:#fff; color:var(--ink);
+		border-radius:10px; padding:10px 14px; font-weight:700; cursor:pointer; min-width:110px;
+	}
+	button:active{transform:translateY(1px)}
+	.primary{background:#e7f6ec}
+
+	.steps{display:flex; gap:8px; justify-content:center; flex-wrap:wrap; margin-top:8px}
+	.step-pill{background:var(--pill); border:1px solid var(--pill-b); border-radius:999px; padding:6px 10px; font-size:13px; font-weight:700}
+	.step-pill.who{border-color:#bbf7d0; color:var(--c-who)}
+	.step-pill.adj{border-color:#bfdbfe; color:var(--c-adj)}
+	.step-pill.de{border-color:#fde68a; color:var(--c-de)}
+	.step-pill.thing{border-color:#fecaca; color:var(--c-thing)}
+
+	.summary{border:1px solid var(--border); border-radius:12px; padding:12px}
+	.summary ol{margin:.2rem 0 0; padding-left:1rem}
+	.k{font-weight:800}
+
+	/* Inline helpers */
+	.c-who{color:var(--c-who)} .c-adj{color:var(--c-adj)} .c-de{color:var(--c-de)} .c-thing{color:var(--c-thing)}
+</style>
+</head>
+<body>
+	<div class="wrap">
+		<!-- 1) Video -->
+		<section class="section">
+			<h1>Possession</h1>
+			<h2>Video</h2>
+			<div class="video">
+				<!-- Replace with your video ID -->
+				<iframe src="https://www.youtube.com/embed/YOUTUBE_ID_HERE" title="Spanish Possession lesson"
+						allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+						referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+			</div>
+		</section>
+
+		<!-- 2) Guide -->
+		<section class="section">
+			<h2>How it works</h2>
+
+			<!-- Two formulas -->
+			<div class="formula" aria-label="Formulas">
+				<span class="tag"><span class="dot adj"></span> (Possessive adjective) + <span class="dot.thing" style="display:inline-block;width:10px;height:10px;border-radius:50%;background:var(--c-thing)"></span> Thing</span>
+				<span>or</span>
+				<span class="tag"><span class="dot thing"></span> Thing</span>
+				<span>+</span>
+				<span class="tag"><span class="dot de"></span> de</span>
+				<span>+</span>
+				<span class="tag"><span class="dot who"></span> Owner</span>
+			</div>
+
+			<!-- Lines -->
+			<div class="line" style="border-left:6px solid var(--c-adj)">
+				<strong class="c-adj">Possessive adjectives</strong> — go before the thing. Agree with the <em>thing</em> (singular/plural). Only <b>nuestro/vuestro</b> change gender.
+			</div>
+
+			<!-- Who? chart for possessive adjectives -->
+			<div class="chart-wrap" aria-label="Who chart">
+				<div class="chart">
+					<h4>Which word do I use?</h4>
+					<table>
+						<tbody>
+							<tr><td>I</td><td><span class="badge adj">mi</span> / <span class="badge adj">mis</span></td></tr>
+							<tr><td>you (tú)</td><td><span class="badge adj">tu</span> / <span class="badge adj">tus</span></td></tr>
+							<tr><td>he / she / usted</td><td><span class="badge adj">su</span> / <span class="badge adj">sus</span></td></tr>
+							<tr><td>we</td><td><span class="badge adj">nuestro</span>, <span class="badge adj">nuestra</span>, <span class="badge adj">nuestros</span>, <span class="badge adj">nuestras</span></td></tr>
+							<tr><td>y’all (vosotros)</td><td><span class="badge adj">vuestro</span>, <span class="badge adj">vuestra</span>, <span class="badge adj">vuestros</span>, <span class="badge adj">vuestras</span></td></tr>
+							<tr><td>y’all (ustedes)</td><td><span class="badge adj">su</span> / <span class="badge adj">sus</span></td></tr>
+							<tr><td>they</td><td><span class="badge adj">su</span> / <span class="badge adj">sus</span></td></tr>
+						</tbody>
+					</table>
+				</div>
+			</div>
+
+			<div class="line" style="border-left:6px solid var(--c-de)">
+				<strong class="c-de">de + owner</strong> — “the thing <b>of</b> the owner.” If the owner starts with <b>el</b>, use <b>del</b> (de + el → del). Names don’t use articles.
+			</div>
+
+			<div class="line" style="border-left:6px solid var(--c-thing)">
+				<strong class="c-thing">Thing</strong> — include the article if you need it (el/la/los/las).
+			</div>
+		</section>
+
+		<!-- 3) Interactive Builder -->
+		<section class="section">
+			<h2>Sentence builder</h2>
+			<div class="instruction">Click Next to construct an example sentence.</div>
+
+			<div class="stage" aria-live="polite">
+				<div class="eng" id="engLine">Click Next to construct an example sentence.</div>
+				<div class="spa" id="spaLine">—</div>
+			</div>
+
+			<!-- For both paths, steps stay simple -->
+			<div class="steps" aria-label="Steps">
+				<span class="step-pill who">1. Owner / Who?</span>
+				<span class="step-pill adj">2A. Possessive word</span>
+				<span class="step-pill de">2B. de + owner</span>
+				<span class="step-pill thing">3. Thing</span>
+				<span class="step-pill">4. Full phrase</span>
+			</div>
+
+			<div class="controls">
+				<button id="prevBtn">Previous</button>
+				<button id="nextBtn" class="primary">Next</button>
+				<button id="newBtn">New sentence</button>
+			</div>
+
+			<div class="summary" style="margin-top:12px">
+				<ol>
+					<li><span class="k c-adj">Possessive adjective</span>: mi/mis, tu/tus, su/sus, nuestro/a/os/as, vuestro/a/os/as</li>
+					<li><span class="k c-de">de</span> + owner: el libro <b>de</b> María; los libros <b>del</b> profesor (de + el)</li>
+					<li><span class="k c-thing">Agree</span> with the thing (plural adds -s). <b>Nuestro/Vuestro</b> also match gender of the thing.</li>
+				</ol>
+			</div>
+		</section>
+	</div>
+
+<script>
+(() => {
+	/* ========= Data =========
+	   Two kinds:
+	     - 'adj': use possessive adjective
+	       { kind:'adj', english:'my books', person:'yo', noun:'libros', gender:'m', number:'pl' }
+	     - 'de' : use de + owner
+	       { kind:'de', english:"María's book", head:'el libro', owner:'María' }
+	       { kind:'de', english:"the teacher's pen", head:'la pluma', owner:'el profesor' } // triggers 'del'
+	*/
+	const ITEMS = [
+		// Possessive adjectives
+		{ kind:'adj', english:'my book',                 person:'yo',        noun:'libro',  gender:'m', number:'sg' },
+		{ kind:'adj', english:'my books',                person:'yo',        noun:'libros', gender:'m', number:'pl' },
+		{ kind:'adj', english:'your (tú) backpack',      person:'tú',        noun:'mochila',gender:'f', number:'sg' },
+		{ kind:'adj', english:'his notebook',            person:'él',        noun:'cuaderno',gender:'m',number:'sg' },
+		{ kind:'adj', english:'her pens',                person:'ella',      noun:'bolígrafos',gender:'m',number:'pl' },
+		{ kind:'adj', english:'our house',               person:'nosotros',  noun:'casa',   gender:'f', number:'sg' },
+		{ kind:'adj', english:'our books',               person:'nosotros',  noun:'libros', gender:'m', number:'pl' },
+		{ kind:'adj', english:'y’all (vosotros) notebooks', person:'vosotros', noun:'cuadernos',gender:'m',number:'pl' },
+		{ kind:'adj', english:'y’all (ustedes) desks',   person:'ustedes',   noun:'escritorios',gender:'m',number:'pl' },
+		{ kind:'adj', english:'their chairs',            person:'ellos',     noun:'sillas', gender:'f', number:'pl' },
+
+		// de + owner
+		{ kind:'de',  english:"María's book",            head:'el libro',  owner:'María' },
+		{ kind:'de',  english:"Juan's backpack",         head:'la mochila',owner:'Juan' },
+		{ kind:'de',  english:"the teacher’s pen",       head:'la pluma',  owner:'el profesor' },   // del
+		{ kind:'de',  english:"the students’ books",     head:'los libros',owner:'los estudiantes' },
+		{ kind:'de',  english:"the friend’s house",      head:'la casa',   owner:'el amigo' },      // del
+		{ kind:'de',  english:"the friends’ house",      head:'la casa',   owner:'los amigos' }
+	];
+
+	/* Possessive adjective selection */
+	function possAdj(person, gender, number){
+		// mi/tu/su only change for plural (mis/tus/sus)
+		const plural = number === 'pl';
+		if (person === 'yo') return plural ? 'mis' : 'mi';
+		if (person === 'tú') return plural ? 'tus' : 'tu';
+		if (person === 'él' || person === 'ella' || person === 'usted' || person === 'ellos' || person === 'ellas' || person === 'ustedes')
+			return plural ? 'sus' : 'su';
+		if (person === 'nosotros' || person === 'nosotras'){
+			if (gender === 'f') return plural ? 'nuestras' : 'nuestra';
+			return plural ? 'nuestros' : 'nuestro';
+		}
+		if (person === 'vosotros' || person === 'vosotras'){
+			if (gender === 'f') return plural ? 'vuestras' : 'vuestra';
+			return plural ? 'vuestros' : 'vuestro';
+		}
+		return plural ? 'sus' : 'su';
+	}
+
+	/* 'de' phrase, with del contraction */
+	function dePhrase(head, owner){
+		// If owner starts with "el " → "del ..."
+		if (/^el\s+/i.test(owner)) return `${head} del ${owner.replace(/^el\s+/i,'')}`;
+		return `${head} de ${owner}`;
+	}
+
+	/* Subject labels for display in step 1 (Owner / Who?) */
+	function ownerLabel(item){
+		if (item.kind === 'adj'){
+			switch(item.person){
+				case 'yo': return 'Yo';
+				case 'tú': return 'Tú';
+				case 'él': return 'Él';
+				case 'ella': return 'Ella';
+				case 'usted': return 'Usted';
+				case 'nosotros': return 'Nosotros';
+				case 'nosotras': return 'Nosotras';
+				case 'vosotros': return 'Vosotros';
+				case 'vosotras': return 'Vosotras';
+				case 'ellos': return 'Ellos';
+				case 'ellas': return 'Ellas';
+				case 'ustedes': return 'Ustedes';
+			}
+		}
+		// de-case: owner is a noun/name; show as-is
+		return item.owner || '';
+	}
+
+	/* DOM */
+	const engEl = document.getElementById('engLine');
+	const spaEl = document.getElementById('spaLine');
+	const prevBtn = document.getElementById('prevBtn');
+	const nextBtn = document.getElementById('nextBtn');
+	const newBtn  = document.getElementById('newBtn');
+
+	/* State
+	   Steps for 'adj':
+	     1 Owner → 2A Possessive word → 3 Thing → 4 Full phrase
+	   Steps for 'de':
+	     1 Owner → 2B de + owner → 3 Thing → 4 Full phrase
+	*/
+	let current = null;
+	let lastIdx = -1;
+	let step = 0;
+
+	function chooseItem(){
+		let i;
+		do { i = Math.floor(Math.random()*ITEMS.length); } while (ITEMS.length>1 && i===lastIdx);
+		lastIdx = i;
+		return {...ITEMS[i]};
+	}
+
+	function template(item){
+		// Build inline blanks depending on path
+		if (item.kind === 'adj'){
+			return `
+				<span class="blank"><span id="whoSlot" class="slot who"></span></span>
+				<span class="blank"><span id="adjSlot" class="slot adj"></span></span>
+				<span class="blank"><span id="thingSlot" class="slot thing"></span></span>.
+			`;
+		} else {
+			// de + owner path: Thing + de + Owner
+			return `
+				<span class="blank"><span id="whoSlot" class="slot who"></span></span>
+				<span class="blank"><span id="deSlot" class="slot de"></span></span>
+				<span class="blank"><span id="thingSlot" class="slot thing"></span></span>.
+			`;
+		}
+	}
+
+	function render(){
+		if (!current) return;
+		engEl.textContent = current.english;
+		spaEl.innerHTML = template(current);
+
+		// Slots
+		const whoSlot   = document.getElementById('whoSlot');
+		const adjSlot   = document.getElementById('adjSlot');
+		const deSlot    = document.getElementById('deSlot');
+		const thingSlot = document.getElementById('thingSlot');
+
+		// Fill values but keep hidden until revealed
+		if (current.kind === 'adj'){
+			const adj = possAdj(current.person, current.gender, current.number);
+			whoSlot.textContent = ownerLabel(current);
+			adjSlot.textContent = adj;
+			thingSlot.textContent = current.noun;
+		} else {
+			// Step 1: owner label
+			whoSlot.textContent = ownerLabel(current);
+			// Step 2: de + owner (with del if needed)
+			deSlot.textContent = (function(){
+				if (/^el\s+/i.test(current.owner)) return 'del ' + current.owner.replace(/^el\s+/i,'');
+				return 'de ' + current.owner;
+			})();
+			// Step 3: the head thing
+			thingSlot.textContent = current.head;
+		}
+
+		// Hide all first
+		[whoSlot, thingSlot].forEach(el=>el && el.classList.remove('visible'));
+		if (adjSlot) adjSlot.classList.remove('visible');
+		if (deSlot)  deSlot.classList.remove('visible');
+
+		// Reveal by step
+		if (step>=1) whoSlot && whoSlot.classList.add('visible');
+		if (current.kind === 'adj'){
+			if (step>=2) adjSlot && adjSlot.classList.add('visible');
+			if (step>=3) thingSlot && thingSlot.classList.add('visible');
+			if (step>=4) spaEl.textContent = `${adjSlot.textContent} ${thingSlot.textContent}.`;
+		} else {
+			if (step>=2) deSlot && deSlot.classList.add('visible');
+			if (step>=3) thingSlot && thingSlot.classList.add('visible');
+			if (step>=4) spaEl.textContent = `${thingSlot.textContent} ${deSlot.textContent}.`;
+		}
+	}
+
+	function startNew(){ current = chooseItem(); step = 0; render(); }
+
+	// Init
+	engEl.textContent = 'Click Next to construct an example sentence.';
+	spaEl.textContent = '—';
+
+	// Controls
+	nextBtn.addEventListener('click', () => {
+		if (!current) startNew();
+		else step = Math.min(4, step+1);
+		render();
+	});
+	prevBtn.addEventListener('click', () => {
+		if (!current) return;
+		step = Math.max(0, step-1);
+		render();
+	});
+	newBtn.addEventListener('click', startNew);
+
+	// Keyboard shortcuts
+	window.addEventListener('keydown', (e) => {
+		if (e.code==='Space'){ e.preventDefault(); nextBtn.click(); }
+		if (e.code==='ArrowLeft'){ e.preventDefault(); prevBtn.click(); }
+		if (e.code==='KeyN'){ e.preventDefault(); newBtn.click(); }
+	}, {passive:false});
+})();
+</script>
+</body>
+</html>

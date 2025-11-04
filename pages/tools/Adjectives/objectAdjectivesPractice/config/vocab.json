@@ -1,0 +1,34 @@
+{
+  "items": [
+    { "id": "grande",   "display": "grande",            "img": "grande.png",        "equiv": "size" },
+    { "id": "pequeño",  "display": "pequeño/pequeña",   "img": "pequeño.png",       "equiv": "size" },
+
+    { "id": "largo",    "display": "largo/larga",       "img": "largo.png",         "equiv": "length" },
+    { "id": "corto",    "display": "corto/corta",       "img": "corto.png",         "equiv": "length" },
+
+    { "id": "alto",     "display": "alto/alta",         "img": "alto.png",          "equiv": "height" },
+    { "id": "bajo",     "display": "bajo/baja",         "img": "bajo.png",          "equiv": "height" },
+
+    { "id": "ancho",    "display": "ancho/ancha",       "img": "ancho.png",         "equiv": "width" },
+    { "id": "delgado",  "display": "delgado/delgada",   "img": "delgado.png",       "equiv": "thickness" },
+    { "id": "grueso",   "display": "grueso/gruesa",     "img": "grueso.png",        "equiv": "thickness" },
+
+    { "id": "nuevo",    "display": "nuevo/nueva",       "img": "nuevo.png",         "equiv": "age" },
+    { "id": "viejo",    "display": "viejo/vieja",       "img": "viejo.png",         "equiv": "age" },
+    { "id": "joven",    "display": "joven",             "img": "joven.png",         "equiv": "age" },
+
+    { "id": "metálico", "display": "metálico/metálica", "img": "metálico.png",      "equiv": "material-metal" },
+    { "id": "madera",   "display": "de madera",         "img": "de madera.png",     "equiv": "material-wood" },
+    { "id": "plástico", "display": "de plástico",       "img": "de plástico.png",   "equiv": "material-plastic" },
+    { "id": "vidrio",   "display": "de vidrio",         "img": "de vidrio.png",     "equiv": "material-glass" },
+
+    { "id": "barato",   "display": "barato/barata",     "img": "barato.png",        "equiv": "price" },
+    { "id": "caro",     "display": "caro/cara",         "img": "caro.png",          "equiv": "price" },
+
+    { "id": "limpio",   "display": "limpio/limpia",     "img": "limpio.png",        "equiv": "cleanliness" },
+    { "id": "sucio",    "display": "sucio/sucia",       "img": "sucio.png",         "equiv": "cleanliness" },
+    { "id": "abierto",  "display": "abierto/abierta",   "img": "abierto.png",       "equiv": "openclose" },
+    { "id": "cerrado",  "display": "cerrado/cerrada",   "img": "cerrado.png",       "equiv": "openclose" },
+    { "id": "roto",     "display": "roto/rota",         "img": "roto.png",          "equiv": "broken" }
+  ]
+}

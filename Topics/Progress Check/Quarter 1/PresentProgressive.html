@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="en" translate="no">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Present Progressive – Video, Guide & Builder</title>
+<style>
+	:root{
+		/* Base theme */
+		--bg-top:#4f7a62; --bg-bot:#5d8b6f;
+		--panel:#ffffff; --ink:#0f172a; --muted:#2a5241;
+		--border:#dfece5; --radius:16px;
+
+		/* Color-coding */
+		--c-who:#10b981;    /* Who? (form) */
+		--c-estar:#a855f7;  /* estar */
+		--c-ing:#f59e0b;    /* -ing action */
+
+		/* Subtle accents */
+		--pill:#f1f5f9; --pill-b:#e2e8f0;
+	}
+	*{box-sizing:border-box}
+	html,body{height:100%;margin:0}
+	body{
+		color:var(--ink);
+		background:linear-gradient(to bottom,var(--bg-top),var(--bg-bot));
+		font-family:ui-sans-serif,-apple-system,Segoe UI,Roboto,Helvetica,Arial;
+	}
+	.wrap{max-width:980px;margin:0 auto;padding:24px 16px 56px}
+
+	.section{
+		background:var(--panel);
+		border:1px solid var(--border);
+		border-radius:var(--radius);
+		padding:18px 16px;
+		margin:16px 0;
+	}
+
+	h1{margin:.2rem 0 0.6rem; font-size:clamp(22px,3.4vw,30px)}
+	h2{margin:.2rem 0 .8rem; font-size:clamp(18px,2.6vw,22px); color:var(--muted)}
+	p,li{line-height:1.55; margin:.4rem 0}
+
+	/* Video */
+	.video{position:relative;width:100%;aspect-ratio:16/9;border-radius:12px;overflow:hidden;border:1px solid var(--border);background:#000}
+	.video iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+
+	/* Formula tags */
+	.formula{
+		display:flex; gap:10px; flex-wrap:wrap; align-items:center;
+		padding:10px; border:1px dashed var(--border); border-radius:12px; background:#fafafa;
+	}
+	.tag{
+		display:inline-flex; align-items:center; gap:6px;
+		background:var(--pill); border:1px solid var(--pill-b); border-radius:999px;
+		padding:6px 10px; font-weight:700; font-size:14px; white-space:nowrap;
+	}
+	.dot{width:10px;height:10px;border-radius:50%}
+	.dot.who{background:var(--c-who)}
+	.dot.est{background:var(--c-estar)}
+	.dot.ing{background:var(--c-ing)}
+
+	.line{
+		display:flex; align-items:center; gap:10px;
+		padding:10px 12px; border-radius:12px; border:1px solid var(--border);
+	}
+	.line small{opacity:.75}
+
+	/* Compact charts */
+	.chart-wrap{display:grid; grid-template-columns:1.1fr .9fr; gap:10px; margin:8px 0}
+	@media (max-width:800px){ .chart-wrap{grid-template-columns:1fr} }
+	.chart{width:100%; border:1px solid var(--border); border-radius:12px; overflow:hidden}
+	.chart h4{margin:0; padding:8px 10px; font-size:15px; background:#f8fafb}
+	table{width:100%; border-collapse:collapse; font-size:14px}
+	th,td{padding:8px 10px; border-bottom:1px solid var(--border); text-align:left}
+	tbody tr:last-child td{border-bottom:none}
+	td:first-child{width:60%}
+	.badge{
+		display:inline-block; padding:2px 8px; border-radius:999px; font-weight:800
+	}
+	.badge.who{border:1px solid #bbf7d0; background:#ecfdf5; color:var(--c-who)}
+	.badge.est{border:1px solid #e9d5ff; background:#f5f3ff; color:var(--c-estar)}
+	.badge.ing{border:1px solid #fde68a; background:#fff7ed; color:var(--c-ing)}
+
+	/* Builder */
+	.instruction{
+		margin:6px 0 10px; font-size:15px; background:#f7faf7; border:1px solid #ddeadf;
+		border-radius:10px; padding:8px 12px;
+	}
+	.stage{
+		min-height:200px; display:grid; place-items:center; text-align:center;
+		border:1px solid var(--border); border-radius:12px; padding:16px;
+	}
+	.eng{font-size:clamp(16px,2.6vw,20px); opacity:.8; margin-bottom:4px}
+	.spa{font-size:clamp(24px,5vw,44px); font-weight:800; letter-spacing:.01em}
+	.blank{
+		display:inline-block; min-width:3.4ch; line-height:0.95; vertical-align:baseline;
+		border-bottom:3px solid #cbd5e1;
+	}
+	.slot{color:transparent; transition:color .15s}
+	.slot.visible{color:var(--ink)}
+
+	/* Color reveals */
+	.slot.who.visible{color:var(--c-who)}
+	.slot.est.visible{color:var(--c-estar)}
+	.slot.ing.visible{color:var(--c-ing)}
+
+	.controls{display:flex; gap:8px; justify-content:center; flex-wrap:wrap; margin-top:10px}
+	button{
+		appearance:none; border:1px solid var(--border); background:#fff; color:var(--ink);
+		border-radius:10px; padding:10px 14px; font-weight:700; cursor:pointer; min-width:110px;
+	}
+	button:active{transform:translateY(1px)}
+	.primary{background:#e7f6ec}
+
+	.steps{display:flex; gap:8px; justify-content:center; flex-wrap:wrap; margin-top:8px}
+	.step-pill{background:var(--pill); border:1px solid var(--pill-b); border-radius:999px; padding:6px 10px; font-size:13px; font-weight:700}
+	.step-pill.who{border-color:#bbf7d0; color:var(--c-who)}
+	.step-pill.est{border-color:#e9d5ff; color:var(--c-estar)}
+	.step-pill.ing{border-color:#fde68a; color:var(--c-ing)}
+
+	.summary{border:1px solid var(--border); border-radius:12px; padding:12px}
+	.summary ol{margin:.2rem 0 0; padding-left:1rem}
+	.k{font-weight:800}
+
+	/* Inline helpers */
+	.c-who{color:var(--c-who)} .c-est{color:var(--c-estar)} .c-ing{color:var(--c-ing)}
+</style>
+</head>
+<body>
+	<div class="wrap">
+		<!-- 1) Video -->
+		<section class="section">
+			<h1>Present Progressive</h1>
+			<h2>Video</h2>
+			<div class="video">
+				<!-- Replace with your video ID -->
+				<iframe src="https://www.youtube.com/embed/YOUTUBE_ID_HERE" title="Present Progressive lesson"
+						allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+						referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+			</div>
+		</section>
+
+		<!-- 2) Guide -->
+		<section class="section">
+			<h2>How it works</h2>
+
+			<!-- Formula -->
+			<div class="formula" aria-label="Formula">
+				<span class="tag"><span class="dot who"></span> Who?</span>
+				<span>+</span>
+				<span class="tag"><span class="dot est"></span> estar (right form)</span>
+				<span>+</span>
+				<span class="tag"><span class="dot ing"></span> -ing action (gerund)</span>
+			</div>
+
+			<!-- Lines -->
+			<div class="line" style="border-left:6px solid var(--c-who)">
+				<strong class="c-who">Who?</strong> — who is doing the action. Pick the right form of <em>estar</em>.
+			</div>
+
+			<!-- Charts: Estar forms + -ing endings -->
+			<div class="chart-wrap" aria-label="Charts">
+				<div class="chart">
+					<h4 class="c-est">Forms of <b>estar</b></h4>
+					<table>
+						<tbody>
+							<tr><td>I</td><td><span class="badge who">estoy</span></td></tr>
+							<tr><td>you (tú)</td><td><span class="badge who">estás</span></td></tr>
+							<tr><td>he / she / usted</td><td><span class="badge who">está</span></td></tr>
+							<tr><td>we</td><td><span class="badge who">estamos</span></td></tr>
+							<tr><td>y’all (vosotros)</td><td><span class="badge who">estáis</span></td></tr>
+							<tr><td>y’all (ustedes)</td><td><span class="badge who">están</span></td></tr>
+							<tr><td>they</td><td><span class="badge who">están</span></td></tr>
+						</tbody>
+					</table>
+				</div>
+				<div class="chart">
+					<h4 class="c-ing">Make the -ing (regular)</h4>
+					<table>
+						<tbody>
+							<tr><td>AR verbs</td><td><span class="badge ing">-ando</span></td></tr>
+							<tr><td>ER verbs</td><td><span class="badge ing">-iendo</span></td></tr>
+							<tr><td>IR verbs</td><td><span class="badge ing">-iendo</span></td></tr>
+						</tbody>
+					</table>
+				</div>
+			</div>
+
+			<div class="line" style="border-left:6px solid var(--c-ing)">
+				<strong class="c-ing">-ing action</strong> — take the infinitive, drop the last 2 letters, add <b>-ando</b> or <b>-iendo</b>.
+				<small>Examples: hablar → hablando, comer → comiendo, vivir → viviendo.</small>
+			</div>
+		</section>
+
+		<!-- 3) Interactive Builder -->
+		<section class="section">
+			<h2>Sentence builder</h2>
+			<div class="instruction">Click Next to construct an example sentence.</div>
+
+			<div class="stage" aria-live="polite">
+				<div class="eng" id="engLine">Click Next to construct an example sentence.</div>
+				<div class="spa" id="spaLine">—</div>
+			</div>
+
+			<div class="steps" aria-label="Steps">
+				<span class="step-pill who">1. Who?</span>
+				<span class="step-pill est">2. Estar form</span>
+				<span class="step-pill ing">3. -ing action</span>
+				<span class="step-pill">4. Full sentence</span>
+			</div>
+
+			<div class="controls">
+				<button id="prevBtn">Previous</button>
+				<button id="nextBtn" class="primary">Next</button>
+				<button id="newBtn">New sentence</button>
+			</div>
+
+			<div class="summary" style="margin-top:12px">
+				<ol>
+					<li><span class="k c-who">Who?</span> Choose the subject (Yo / Tú / Ella / Nosotros / Vosotros / Ellos / Ustedes)</li>
+					<li><span class="k c-est">Estar</span> Conjugate estar: estoy/estás/está/estamos/estáis/están</li>
+					<li><span class="k c-ing">-ing action</span> Add the gerund: -ando (AR) / -iendo (ER/IR)</li>
+					<li>Put it together: <span class="c-who">Who?</span> + <span class="c-est">estar</span> + <span class="c-ing">-ing action</span></li>
+				</ol>
+			</div>
+		</section>
+	</div>
+
+<script>
+(() => {
+	/* ======== Data (regular only) ========
+	   kind: 'ar' | 'er' | 'ir'
+	   person: 'yo','tú','él','ella','usted','nosotros','vosotros','ellos','ellas','ustedes'
+	   infinitive: base verb
+	*/
+	const ITEMS = [
+		{ english:"I am talking.",              person:"yo",        kind:"ar", infinitive:"hablar" },
+		{ english:"You (tú) are listening.",    person:"tú",        kind:"ar", infinitive:"escuchar" },
+		{ english:"She is studying.",           person:"ella",      kind:"ar", infinitive:"estudiar" },
+		{ english:"He is walking.",             person:"él",        kind:"ar", infinitive:"caminar" },
+		{ english:"We are working.",            person:"nosotros",  kind:"ar", infinitive:"trabajar" },
+		{ english:"Y’all (vosotros) are watching.", person:"vosotros", kind:"ar", infinitive:"mirar" },
+		{ english:"Y’all are eating.",          person:"ustedes",   kind:"er", infinitive:"comer" },
+		{ english:"They are reading.",          person:"ellos",     kind:"er", infinitive:"leer" },
+		{ english:"I am writing.",              person:"yo",        kind:"ir", infinitive:"escribir" },
+		{ english:"We are living.",             person:"nosotros",  kind:"ir", infinitive:"vivir" }
+	];
+
+	/* Estar (present) */
+	const ESTAR = {
+		yo:"estoy", tú:"estás",
+		él:"está", ella:"está", usted:"está",
+		nosotros:"estamos", nosotras:"estamos",
+		vosotros:"estáis", vosotras:"estáis",
+		ellos:"están", ellas:"están", ustedes:"están"
+	};
+
+	/* Helpers */
+	const engEl = document.getElementById('engLine');
+	const spaEl = document.getElementById('spaLine');
+	const prevBtn = document.getElementById('prevBtn');
+	const nextBtn = document.getElementById('nextBtn');
+	const newBtn  = document.getElementById('newBtn');
+
+	let current = null;
+	let lastIdx = -1;
+	let step = 0; // 0..4
+
+	function chooseItem(){
+		let i;
+		do { i = Math.floor(Math.random()*ITEMS.length); } while (ITEMS.length>1 && i===lastIdx);
+		lastIdx = i;
+		return {...ITEMS[i]};
+	}
+
+	function makeGerund(inf, kind){
+		const stem = inf.slice(0,-2);
+		const end = (kind === 'ar') ? 'ando' : 'iendo';
+		return { stem, gerund: stem + end };
+	}
+
+	function subjectLabel(p){
+		switch(p){
+			case 'yo': return 'Yo';
+			case 'tú': return 'Tú';
+			case 'él': return 'Él';
+			case 'ella': return 'Ella';
+			case 'usted': return 'Usted';
+			case 'nosotros': return 'Nosotros';
+			case 'nosotras': return 'Nosotras';
+			case 'vosotros': return 'Vosotros';
+			case 'vosotras': return 'Vosotras';
+			case 'ellos': return 'Ellos';
+			case 'ellas': return 'Ellas';
+			case 'ustedes': return 'Ustedes';
+			default: return '';
+		}
+	}
+
+	function template(item){
+		// Simple 3 blanks: Who? | estar form | -ing action
+		return `
+			<span class="blank"><span id="whoSlot" class="slot who"></span></span>
+			<span class="blank"><span id="estSlot" class="slot est"></span></span>
+			<span class="blank"><span id="ingSlot" class="slot ing"></span></span>.
+		`;
+	}
+
+	function render(){
+		if (!current) return;
+
+		const { gerund } = makeGerund(current.infinitive, current.kind);
+		const estForm = ESTAR[current.person] || '';
+
+		engEl.textContent = current.english;
+		spaEl.innerHTML = template(current);
+
+		const whoSlot = document.getElementById('whoSlot');
+		const estSlot = document.getElementById('estSlot');
+		const ingSlot = document.getElementById('ingSlot');
+
+		whoSlot.textContent = subjectLabel(current.person);
+		estSlot.textContent = estForm;
+		ingSlot.textContent = gerund;
+
+		[whoSlot,estSlot,ingSlot].forEach(el=>el.classList.remove('visible'));
+
+		if (step>=1) whoSlot.classList.add('visible');
+		if (step>=2) estSlot.classList.add('visible');
+		if (step>=3) ingSlot.classList.add('visible');
+		if (step>=4) {
+			// Full sentence
+			spaEl.textContent = `${whoSlot.textContent} ${estSlot.textContent} ${ingSlot.textContent}.`;
+		}
+	}
+
+	function newSentence(){ current = chooseItem(); step = 0; render(); }
+
+	// Init UI
+	engEl.textContent = 'Click Next to construct an example sentence.';
+	spaEl.textContent = '—';
+
+	nextBtn.addEventListener('click', () => {
+		if (!current) newSentence();
+		else step = Math.min(4, step+1);
+		render();
+	});
+	prevBtn.addEventListener('click', () => {
+		if (!current) return;
+		step = Math.max(0, step-1);
+		render();
+	});
+	newBtn.addEventListener('click', newSentence);
+
+	// Keyboard
+	window.addEventListener('keydown', (e) => {
+		if (e.code==='Space'){ e.preventDefault(); nextBtn.click(); }
+		if (e.code==='ArrowLeft'){ e.preventDefault(); prevBtn.click(); }
+		if (e.code==='KeyN'){ e.preventDefault(); newBtn.click(); }
+	}, {passive:false});
+})();
+</script>
+</body>
+</html>

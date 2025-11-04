@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="en" translate="no">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Ser vs Estar – Video, Guide & Builder</title>
+<style>
+	:root{
+		/* Base theme */
+		--bg-top:#4f7a62; --bg-bot:#5d8b6f;
+		--panel:#ffffff; --ink:#0f172a; --muted:#2a5241;
+		--border:#dfece5; --radius:16px;
+
+		/* Color-coding */
+		--c-why:#06b6d4;   /* Why? (DOCTOR / PLACE) */
+		--c-ser:#3b82f6;   /* SER */
+		--c-estar:#a855f7; /* ESTAR */
+		--c-who:#10b981;   /* Who? (form) */
+		--c-pred:#ef4444;  /* Predicate */
+
+		/* Subtle accents */
+		--pill:#f1f5f9; --pill-b:#e2e8f0;
+	}
+	*{box-sizing:border-box}
+	html,body{height:100%;margin:0}
+	body{
+		color:var(--ink);
+		background:linear-gradient(to bottom,var(--bg-top),var(--bg-bot));
+		font-family:ui-sans-serif,-apple-system,Segoe UI,Roboto,Helvetica,Arial;
+	}
+	.wrap{max-width:980px;margin:0 auto;padding:24px 16px 56px}
+
+	.section{
+		background:var(--panel);
+		border:1px solid var(--border);
+		border-radius:var(--radius);
+		padding:18px 16px;
+		margin:16px 0;
+	}
+
+	h1{margin:.2rem 0 0.6rem; font-size:clamp(22px,3.4vw,30px)}
+	h2{margin:.2rem 0 .8rem; font-size:clamp(18px,2.6vw,22px); color:var(--muted)}
+	p,li{line-height:1.55; margin:.4rem 0}
+
+	/* Video */
+	.video{position:relative;width:100%;aspect-ratio:16/9;border-radius:12px;overflow:hidden;border:1px solid var(--border);background:#000}
+	.video iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+
+	/* Formula tags */
+	.formula{
+		display:flex; gap:10px; flex-wrap:wrap; align-items:center;
+		padding:10px; border:1px dashed var(--border); border-radius:12px; background:#fafafa;
+	}
+	.tag{
+		display:inline-flex; align-items:center; gap:6px;
+		background:var(--pill); border:1px solid var(--pill-b); border-radius:999px;
+		padding:6px 10px; font-weight:700; font-size:14px; white-space:nowrap;
+	}
+	.dot{width:10px;height:10px;border-radius:50%}
+	.dot.why{background:var(--c-why)}
+	.dot.ser{background:var(--c-ser)}
+	.dot.estar{background:var(--c-estar)}
+	.dot.who{background:var(--c-who)}
+	.dot.pred{background:var(--c-pred)}
+
+	.line{
+		display:flex; align-items:center; gap:10px;
+		padding:10px 12px; border-radius:12px; border:1px solid var(--border);
+	}
+	.line small{opacity:.75}
+
+	/* DOCTOR / PLACE cards */
+	.helper-row{display:grid; gap:10px; grid-template-columns:1fr 1fr; margin-top:8px}
+	@media (max-width:800px){ .helper-row{grid-template-columns:1fr} }
+	.helper{
+		border:1px solid var(--border); border-radius:12px; padding:12px;
+	}
+	.helper h3{margin:0 0 6px; font-size:16px}
+	.pills{display:flex; flex-wrap:wrap; gap:8px}
+	.pill{
+		background:var(--pill); border:1px solid var(--pill-b); border-radius:999px;
+		padding:6px 10px; font-weight:800; font-size:13px;
+	}
+	.pill.ser{color:var(--c-ser); border-color:#bfdbfe}
+	.pill.estar{color:var(--c-estar); border-color:#e9d5ff}
+
+	/* Compact Who? charts */
+	.chart-wrap{display:grid; grid-template-columns:1fr 1fr; gap:10px; margin:8px 0}
+	@media (max-width:800px){ .chart-wrap{grid-template-columns:1fr} }
+	.chart{width:100%; border:1px solid var(--border); border-radius:12px; overflow:hidden}
+	.chart h4{margin:0; padding:8px 10px; font-size:15px; background:#f8fafb}
+	table{width:100%; border-collapse:collapse; font-size:14px}
+	th,td{padding:8px 10px; border-bottom:1px solid var(--border); text-align:left}
+	tbody tr:last-child td{border-bottom:none}
+	td:first-child{width:60%}
+	.badge{
+		display:inline-block; padding:2px 8px; border-radius:999px; font-weight:800
+	}
+	.badge.who{border:1px solid #bbf7d0; background:#ecfdf5; color:var(--c-who)}
+
+	/* Builder */
+	.instruction{
+		margin:6px 0 10px; font-size:15px; background:#f7faf7; border:1px solid #ddeadf;
+		border-radius:10px; padding:8px 12px;
+	}
+	.stage{
+		min-height:200px; display:grid; place-items:center; text-align:center;
+		border:1px solid var(--border); border-radius:12px; padding:16px;
+	}
+	.eng{font-size:clamp(16px,2.6vw,20px); opacity:.8; margin-bottom:4px}
+	.spa{font-size:clamp(24px,5vw,44px); font-weight:800; letter-spacing:.01em}
+	.blank{
+		display:inline-block; min-width:3.4ch; line-height:0.95; vertical-align:baseline;
+		border-bottom:3px solid #cbd5e1;
+	}
+	.slot{color:transparent; transition:color .15s}
+	.slot.visible{color:var(--ink)}
+
+	/* Color reveals */
+	.slot.why.visible{color:var(--c-why)}
+	.slot.ser.visible{color:var(--c-ser)}
+	.slot.estar.visible{color:var(--c-estar)}
+	.slot.who.visible{color:var(--c-who)}
+	.slot.pred.visible{color:var(--c-pred)}
+
+	.controls{display:flex; gap:8px; justify-content:center; flex-wrap:wrap; margin-top:10px}
+	button{
+		appearance:none; border:1px solid var(--border); background:#fff; color:var(--ink);
+		border-radius:10px; padding:10px 14px; font-weight:700; cursor:pointer; min-width:110px;
+	}
+	button:active{transform:translateY(1px)}
+	.primary{background:#e7f6ec}
+
+	.steps{display:flex; gap:8px; justify-content:center; flex-wrap:wrap; margin-top:8px}
+	.step-pill{background:var(--pill); border:1px solid var(--pill-b); border-radius:999px; padding:6px 10px; font-size:13px; font-weight:700}
+	.step-pill.why{border-color:#a5f3fc; color:var(--c-why)}
+	.step-pill.ser{border-color:#bfdbfe; color:var(--c-ser)}
+	.step-pill.estar{border-color:#e9d5ff; color:var(--c-estar)}
+	.step-pill.who{border-color:#bbf7d0; color:var(--c-who)}
+	.step-pill.pred{border-color:#fecaca; color:var(--c-pred)}
+
+	.summary{border:1px solid var(--border); border-radius:12px; padding:12px}
+	.summary ol{margin:.2rem 0 0; padding-left:1rem}
+	.k{font-weight:800}
+
+	/* Inline helpers */
+	.c-why{color:var(--c-why)} .c-ser{color:var(--c-ser)} .c-estar{color:var(--c-estar)}
+	.c-who{color:var(--c-who)} .c-pred{color:var(--c-pred)}
+</style>
+</head>
+<body>
+	<div class="wrap">
+		<!-- 1) Video -->
+		<section class="section">
+			<h1>Ser vs Estar</h1>
+			<h2>Video</h2>
+			<div class="video">
+				<!-- Replace with your video ID -->
+				<iframe src="https://www.youtube.com/embed/YOUTUBE_ID_HERE" title="Ser vs Estar lesson"
+						allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+						referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+			</div>
+		</section>
+
+		<!-- 2) Guide -->
+		<section class="section">
+			<h2>How it works</h2>
+
+			<!-- Formula -->
+			<div class="formula" aria-label="Formula">
+				<span class="tag"><span class="dot why"></span> Why? (rule)</span>
+				<span>+</span>
+				<span class="tag"><span class="dot ser"></span> ser</span>
+				<span>or</span>
+				<span class="tag"><span class="dot estar"></span> estar</span>
+				<span>+</span>
+				<span class="tag"><span class="dot who"></span> Who? (form)</span>
+				<span>+</span>
+				<span class="tag"><span class="dot pred"></span> Predicate</span>
+			</div>
+
+			<!-- Lines -->
+			<div class="line" style="border-left:6px solid var(--c-why)">
+				<strong class="c-why">Why?</strong> — choose the rule: <b class="c-ser">DOCTOR</b> → use <b>ser</b>. <b class="c-estar">PLACE</b> → use <b>estar</b>.
+			</div>
+
+			<div class="helper-row">
+				<div class="helper">
+					<h3 class="c-ser">DOCTOR (use <b>ser</b>)</h3>
+					<div class="pills">
+						<span class="pill ser">D — Description</span>
+						<span class="pill ser">O — Occupation</span>
+						<span class="pill ser">C — Characteristic</span>
+						<span class="pill ser">T — Time/Date</span>
+						<span class="pill ser">O — Origin</span>
+						<span class="pill ser">R — Relationship</span>
+					</div>
+				</div>
+				<div class="helper">
+					<h3 class="c-estar">PLACE (use <b>estar</b>)</h3>
+					<div class="pills">
+						<span class="pill estar">P — Position</span>
+						<span class="pill estar">L — Location</span>
+						<span class="pill estar">A — Action (-ing)</span>
+						<span class="pill estar">C — Condition</span>
+						<span class="pill estar">E — Emotion</span>
+					</div>
+				</div>
+			</div>
+
+			<div class="line" style="border-left:6px solid var(--c-who)">
+				<strong class="c-who">Who?</strong> — pick the right form of the verb (who is doing the being).
+			</div>
+
+			<!-- Compact Who? charts -->
+			<div class="chart-wrap" aria-label="Who charts">
+				<div class="chart">
+					<h4 class="c-ser">Forms of <b>ser</b></h4>
+					<table>
+						<tbody>
+							<tr><td>I</td><td><span class="badge who">soy</span></td></tr>
+							<tr><td>you (tú)</td><td><span class="badge who">eres</span></td></tr>
+							<tr><td>he / she / usted</td><td><span class="badge who">es</span></td></tr>
+							<tr><td>we</td><td><span class="badge who">somos</span></td></tr>
+							<tr><td>y’all (vosotros)</td><td><span class="badge who">sois</span></td></tr>
+							<tr><td>y’all (ustedes)</td><td><span class="badge who">son</span></td></tr>
+							<tr><td>they</td><td><span class="badge who">son</span></td></tr>
+						</tbody>
+					</table>
+				</div>
+				<div class="chart">
+					<h4 class="c-estar">Forms of <b>estar</b></h4>
+					<table>
+						<tbody>
+							<tr><td>I</td><td><span class="badge who">estoy</span></td></tr>
+							<tr><td>you (tú)</td><td><span class="badge who">estás</span></td></tr>
+							<tr><td>he / she / usted</td><td><span class="badge who">está</span></td></tr>
+							<tr><td>we</td><td><span class="badge who">estamos</span></td></tr>
+							<tr><td>y’all (vosotros)</td><td><span class="badge who">estáis</span></td></tr>
+							<tr><td>y’all (ustedes)</td><td><span class="badge who">están</span></td></tr>
+							<tr><td>they</td><td><span class="badge who">están</span></td></tr>
+						</tbody>
+					</table>
+				</div>
+			</div>
+
+			<div class="line" style="border-left:6px solid var(--c-pred)">
+				<strong class="c-pred">Predicate</strong> — the rest of the idea (what, where, how, etc.).
+			</div>
+		</section>
+
+		<!-- 3) Interactive Builder -->
+		<section class="section">
+			<h2>Sentence builder</h2>
+			<div class="instruction">Click Next to construct an example sentence.</div>
+
+			<div class="stage" aria-live="polite">
+				<div class="eng" id="engLine">Click Next to construct an example sentence.</div>
+				<div class="spa" id="spaLine">—</div>
+			</div>
+
+			<div class="steps" aria-label="Steps">
+				<span class="step-pill why">1. Why?</span>
+				<span class="step-pill ser">2. ser</span>
+				<span class="step-pill estar">2. estar</span>
+				<span class="step-pill who">3. Who?</span>
+				<span class="step-pill pred">4. Predicate</span>
+				<span class="step-pill">5. Full sentence</span>
+			</div>
+
+			<div class="controls">
+				<button id="prevBtn">Previous</button>
+				<button id="nextBtn" class="primary">Next</button>
+				<button id="newBtn">New sentence</button>
+			</div>
+
+			<div class="summary" style="margin-top:12px">
+				<ol>
+					<li><span class="k c-why">Why?</span> Pick the rule: <b class="c-ser">DOCTOR → ser</b>, <b class="c-estar">PLACE → estar</b></li>
+					<li><span class="k c-who">Who?</span> Choose the correct form (soy/eres/… or estoy/estás/…)</li>
+					<li><span class="k c-pred">Predicate</span> Add the rest (description, job, location, condition, etc.)</li>
+					<li>Put it together: <span class="c-who">Who?</span> + <span class="c-ser">ser</span>/<span class="c-estar">estar</span> + <span class="c-pred">Predicate</span></li>
+				</ol>
+			</div>
+		</section>
+	</div>
+
+<script>
+(() => {
+	/* ========= Data =========
+	   type: 'ser' | 'estar'
+	   rule: one of DOCTOR or PLACE categories (for the Why? step)
+	   person: 'yo','tú','él','ella','usted','nosotros','vosotros','ellos','ellas','ustedes'
+	   predicate: Spanish complement to complete the sentence
+	*/
+	const ITEMS = [
+		// DOCTOR → ser
+		{ english:"She is tall.",               type:"ser",   rule:"Description",  person:"ella",     predicate:"alta" },
+		{ english:"He is a teacher.",           type:"ser",   rule:"Occupation",   person:"él",       predicate:"profesor" },
+		{ english:"We are funny.",              type:"ser",   rule:"Characteristic",person:"nosotros", predicate:"graciosos" },
+		{ english:"It is five o’clock.",       type:"ser",   rule:"Time/Date",    person:"él",       predicate:"las cinco" , time:true},
+		{ english:"I am from Texas.",           type:"ser",   rule:"Origin",       person:"yo",       predicate:"de Texas" },
+		{ english:"They are my friends.",       type:"ser",   rule:"Relationship", person:"ellos",    predicate:"mis amigos" },
+
+		// PLACE → estar
+		{ english:"We are at school.",          type:"estar", rule:"Location",     person:"nosotros", predicate:"en la escuela" },
+		{ english:"I am tired.",                type:"estar", rule:"Condition",    person:"yo",       predicate:"cansado" },
+		{ english:"She is happy.",              type:"estar", rule:"Emotion",      person:"ella",     predicate:"feliz" },
+		{ english:"They are sitting.",          type:"estar", rule:"Position",     person:"ellos",    predicate:"sentados" },
+		{ english:"You (tú) are studying.",     type:"estar", rule:"Action (-ing)",person:"tú",       predicate:"estudiando" },
+		{ english:"Y’all are at home.",         type:"estar", rule:"Location",     person:"ustedes",  predicate:"en casa" }
+	];
+
+	/* Verb forms (present) */
+	const SER = {
+		yo:"soy", tú:"eres",
+		él:"es", ella:"es", usted:"es",
+		nosotros:"somos", nosotras:"somos",
+		vosotros:"sois", vosotras:"sois",
+		ellos:"son", ellas:"son", ustedes:"son"
+	};
+	const ESTAR = {
+		yo:"estoy", tú:"estás",
+		él:"está", ella:"está", usted:"está",
+		nosotros:"estamos", nosotras:"estamos",
+		vosotros:"estáis", vosotras:"estáis",
+		ellos:"están", ellas:"están", ustedes:"están"
+	};
+
+	/* DOM */
+	const engEl  = document.getElementById('engLine');
+	const spaEl  = document.getElementById('spaLine');
+	const prevBtn= document.getElementById('prevBtn');
+	const nextBtn= document.getElementById('nextBtn');
+	const newBtn = document.getElementById('newBtn');
+
+	/* State
+	   Steps: 0 start
+	          1 Why? (rule)
+	          2 Verb choice (ser/estar)
+	          3 Who? (conjugated form revealed)
+	          4 Predicate
+	          5 Full sentence
+	*/
+	let current = null;
+	let lastIdx = -1;
+	let step = 0;
+
+	function chooseItem(){
+		let i;
+		do { i = Math.floor(Math.random()*ITEMS.length); } while (ITEMS.length>1 && i===lastIdx);
+		lastIdx = i;
+		return {...ITEMS[i]};
+	}
+
+	function getVerbForm(item){
+		return (item.type === "ser" ? SER : ESTAR)[item.person] || "";
+	}
+
+	function template(item){
+		// show Why? and Verb as colored tags above the sentence line
+		const why = `<span id="whySlot" class="slot why"></span>`;
+		const verbTag = item.type === "ser"
+			? `<span id="verbSlot" class="slot ser"></span>`
+			: `<span id="verbSlot" class="slot estar"></span>`;
+
+		// Sentence skeleton: Who? (conjugated verb) + predicate
+		return `
+			<div style="margin-bottom:10px; font-size:14px">
+				<strong class="c-why">Why?</strong>: ${why}
+				&nbsp;&nbsp;|&nbsp;&nbsp;
+				<strong>Verb</strong>: ${verbTag}
+			</div>
+			<span class="blank"><span id="whoSlot" class="slot who"></span></span>
+			<span class="blank"><span id="formSlot" class="slot ${item.type==='ser'?'ser':'estar'}"></span></span>
+			<span class="blank"><span id="predSlot" class="slot pred"></span></span>.
+		`;
+	}
+
+	function render(){
+		if (!current) return;
+
+		// English prompt
+		engEl.textContent = current.english;
+
+		// Spanish line with blanks
+		spaEl.innerHTML = template(current);
+
+		// Fill text
+		const whySlot  = document.getElementById('whySlot');
+		const verbSlot = document.getElementById('verbSlot');
+		const whoSlot  = document.getElementById('whoSlot');
+		const formSlot = document.getElementById('formSlot');
+		const predSlot = document.getElementById('predSlot');
+
+		// Short rule label (Why?)
+		const whyText = (current.type === "ser" ? "DOCTOR – " : "PLACE – ") + current.rule;
+		whySlot.textContent = whyText;
+		verbSlot.textContent = (current.type === "ser" ? "ser" : "estar");
+		whoSlot.textContent = subjectLabel(current.person);  // e.g., Yo / Tú / Ella / Nosotros / Vosotros / Ellos / Ustedes
+		formSlot.textContent = getVerbForm(current);
+		predSlot.textContent = current.predicate;
+
+		// Hide all first
+		[whySlot,verbSlot,whoSlot,formSlot,predSlot].forEach(el=>el.classList.remove('visible'));
+
+		if (step>=1) whySlot.classList.add('visible');
+		if (step>=2) verbSlot.classList.add('visible');
+		if (step>=3) { whoSlot.classList.add('visible'); formSlot.classList.add('visible'); }
+		if (step>=4) predSlot.classList.add('visible');
+		if (step>=5) {
+			// Replace with fully combined sentence (concise)
+			spaEl.textContent = `${whoSlot.textContent} ${formSlot.textContent} ${predSlot.textContent}.`;
+		}
+	}
+
+	function subjectLabel(p){
+		switch(p){
+			case 'yo': return 'Yo';
+			case 'tú': return 'Tú';
+			case 'él': return 'Él';
+			case 'ella': return 'Ella';
+			case 'usted': return 'Usted';
+			case 'nosotros': return 'Nosotros';
+			case 'nosotras': return 'Nosotras';
+			case 'vosotros': return 'Vosotros';
+			case 'vosotras': return 'Vosotras';
+			case 'ellos': return 'Ellos';
+			case 'ellas': return 'Ellas';
+			case 'ustedes': return 'Ustedes';
+			default: return '';
+		}
+	}
+
+	function startNew(){ current = chooseItem(); step = 0; render(); }
+
+	// Init text
+	engEl.textContent = 'Click Next to construct an example sentence.';
+	spaEl.textContent = '—';
+
+	// Controls
+	nextBtn.addEventListener('click', () => {
+		if (!current) startNew();
+		else step = Math.min(5, step+1);
+		render();
+	});
+	prevBtn.addEventListener('click', () => {
+		if (!current) return;
+		step = Math.max(0, step-1);
+		render();
+	});
+	newBtn.addEventListener('click', startNew);
+
+	// Keyboard shortcuts
+	window.addEventListener('keydown', (e) => {
+		if (e.code==='Space'){ e.preventDefault(); nextBtn.click(); }
+		if (e.code==='ArrowLeft'){ e.preventDefault(); prevBtn.click(); }
+		if (e.code==='KeyN'){ e.preventDefault(); newBtn.click(); }
+	}, {passive:false});
+})();
+</script>
+</body>
+</html>

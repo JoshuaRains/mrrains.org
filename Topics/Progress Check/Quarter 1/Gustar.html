@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en" translate="no">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Gustar – Video, Guide & Builder</title>
+<style>
+	:root{
+		/* Base theme */
+		--bg-top:#4f7a62; --bg-bot:#5d8b6f;
+		--panel:#ffffff; --ink:#0f172a; --muted:#2a5241;
+		--border:#dfece5; --radius:16px;
+
+		/* Color-coding (3 pieces) */
+		--c-who:#10b981;   /* Who? (me/te/le/nos/os/les) */
+		--c-verb:#f59e0b;  /* Verb: gusta/gustan */
+		--c-obj:#ef4444;   /* Thing/Action */
+
+		/* Subtle accents */
+		--pill:#f1f5f9; --pill-b:#e2e8f0;
+	}
+	*{box-sizing:border-box}
+	html,body{height:100%;margin:0}
+	body{
+		color:var(--ink);
+		background:linear-gradient(to bottom,var(--bg-top),var(--bg-bot));
+		font-family:ui-sans-serif,-apple-system,Segoe UI,Roboto,Helvetica,Arial;
+	}
+	.wrap{max-width:980px;margin:0 auto;padding:24px 16px 56px}
+
+	.section{
+		background:var(--panel);
+		border:1px solid var(--border);
+		border-radius:var(--radius);
+		padding:18px 16px;
+		margin:16px 0;
+	}
+
+	h1{margin:.2rem 0 0.6rem; font-size:clamp(22px,3.4vw,30px)}
+	h2{margin:.2rem 0 .8rem; font-size:clamp(18px,2.6vw,22px); color:var(--muted)}
+	p,li{line-height:1.55; margin:.4rem 0}
+
+	/* Video */
+	.video{position:relative;width:100%;aspect-ratio:16/9;border-radius:12px;overflow:hidden;border:1px solid var(--border);background:#000}
+	.video iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+
+	/* Guide – simple, color-coded */
+	.formula{
+		display:flex; gap:10px; flex-wrap:wrap; align-items:center;
+		padding:10px; border:1px dashed var(--border); border-radius:12px; background:#fafafa;
+	}
+	.tag{
+		display:inline-flex; align-items:center; gap:6px;
+		background:var(--pill); border:1px solid var(--pill-b); border-radius:999px;
+		padding:6px 10px; font-weight:700; font-size:14px; white-space:nowrap;
+	}
+	.dot{width:10px;height:10px;border-radius:50%}
+	.dot.who{background:var(--c-who)}
+	.dot.verb{background:var(--c-verb)}
+	.dot.obj{background:var(--c-obj)}
+
+	.line{
+		display:flex; align-items:center; gap:10px;
+		padding:10px 12px; border-radius:12px; border:1px solid var(--border);
+	}
+	.line small{opacity:.75}
+
+	/* Compact Who? chart (sits directly under the Who? line) */
+	.chart-wrap{
+		display:flex; justify-content:center; margin:8px 0 4px;
+	}
+	.chart{
+		width:100%; max-width:520px; border:1px solid var(--border); border-radius:12px; overflow:hidden;
+	}
+	table{width:100%; border-collapse:collapse; font-size:14px}
+	th,td{padding:8px 10px; border-bottom:1px solid var(--border); text-align:left}
+	thead th{background:#f8fafb; font-weight:800}
+	tbody tr:last-child td{border-bottom:none}
+	td:first-child{width:60%}
+	.badge{
+		display:inline-block; padding:2px 8px; border-radius:999px;
+		border:1px solid #bbf7d0; background:#ecfdf5; color:var(--c-who); font-weight:800
+	}
+
+	/* Builder */
+	.instruction{
+		margin:6px 0 10px; font-size:15px; background:#f7faf7; border:1px solid #ddeadf;
+		border-radius:10px; padding:8px 12px;
+	}
+	.stage{
+		min-height:200px; display:grid; place-items:center; text-align:center;
+		border:1px solid var(--border); border-radius:12px; padding:16px;
+	}
+	.eng{font-size:clamp(16px,2.6vw,20px); opacity:.8; margin-bottom:4px}
+	.spa{font-size:clamp(24px,5vw,44px); font-weight:800; letter-spacing:.01em}
+	.blank{
+		display:inline-block; min-width:3.4ch; line-height:0.95; vertical-align:baseline;
+		border-bottom:3px solid #cbd5e1;
+	}
+	.slot{color:transparent; transition:color .15s}
+	.slot.visible{color:var(--ink)}
+
+	/* Color the revealed pieces to match legend */
+	.slot.who.visible{color:var(--c-who)}
+	.slot.verb.visible{color:var(--c-verb)}
+	.slot.obj.visible{color:var(--c-obj)}
+
+	.controls{display:flex; gap:8px; justify-content:center; flex-wrap:wrap; margin-top:10px}
+	button{
+		appearance:none; border:1px solid var(--border); background:#fff; color:var(--ink);
+		border-radius:10px; padding:10px 14px; font-weight:700; cursor:pointer; min-width:110px;
+	}
+	button:active{transform:translateY(1px)}
+	.primary{background:#e7f6ec}
+
+	.steps{display:flex; gap:8px; justify-content:center; flex-wrap:wrap; margin-top:8px}
+	.step-pill{background:var(--pill); border:1px solid var(--pill-b); border-radius:999px; padding:6px 10px; font-size:13px; font-weight:700}
+	.step-pill.who{border-color:#bbf7d0; color:var(--c-who)}
+	.step-pill.verb{border-color:#fde68a; color:var(--c-verb)}
+	.step-pill.obj{border-color:#fecaca; color:var(--c-obj)}
+
+	.summary{border:1px solid var(--border); border-radius:12px; padding:12px}
+	.summary ol{margin:.2rem 0 0; padding-left:1rem}
+	.k{font-weight:800}
+
+	/* Tiny inline color helpers */
+	.c-who{color:var(--c-who)} .c-verb{color:var(--c-verb)} .c-obj{color:var(--c-obj)}
+</style>
+</head>
+<body>
+	<div class="wrap">
+		<!-- 1) Video -->
+		<section class="section">
+			<h1>Gustar</h1>
+			<h2>Video</h2>
+			<div class="video">
+				<iframe src="https://www.youtube.com/embed/YOUTUBE_ID_HERE" title="Gustar lesson"
+						allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+						referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+			</div>
+		</section>
+
+		<!-- 2) Guide -->
+		<section class="section">
+			<h2>How it works</h2>
+
+			<!-- Color-coded formula -->
+			<div class="formula" aria-label="Formula">
+				<span class="tag"><span class="dot who"></span> Who?</span>
+				<span>+</span>
+				<span class="tag"><span class="dot verb"></span> gusta / gustan</span>
+				<span>+</span>
+				<span class="tag"><span class="dot obj"></span> Thing / Action</span>
+			</div>
+
+			<!-- Lines with short explanations -->
+			<div class="line" style="border-left:6px solid var(--c-who)">
+				<strong class="c-who">Who?</strong> - who is the one that is liking? <small>me, te, le, nos, os, les.</small>
+			</div>
+
+			<!-- Compact Who? chart directly under the Who? line -->
+			<div class="chart-wrap" aria-label="Who chart">
+				<div class="chart" role="group" aria-label="Who? word to use">
+					<table>
+						<thead>
+							<tr><th>Person (subject)</th><th>Who? (use this word)</th></tr>
+						</thead>
+						<tbody>
+							<tr><td>I</td><td><span class="badge">me</span></td></tr>
+							<tr><td>you (tú)</td><td><span class="badge">te</span></td></tr>
+							<tr><td>he / she / usted</td><td><span class="badge">le</span></td></tr>
+							<tr><td>we</td><td><span class="badge">nos</span></td></tr>
+							<tr><td>y’all (vosotros)</td><td><span class="badge">os</span></td></tr>
+							<tr><td>y’all (ustedes)</td><td><span class="badge">les</span></td></tr>
+							<tr><td>they</td><td><span class="badge">les</span></td></tr>
+						</tbody>
+					</table>
+				</div>
+			</div>
+
+			<div class="line" style="border-left:6px solid var(--c-verb)">
+				<strong class="c-verb">Verb</strong> - choose <b>gusta</b> (one thing or any verb) or <b>gustan</b> (plural things).
+			</div>
+			<div class="line" style="border-left:6px solid var(--c-obj)">
+				<strong class="c-obj">Thing / Action</strong> - a noun with article <small>(el/la/los/las)</small> or an infinitive <small>(leer, correr)</small>.
+			</div>
+		</section>
+
+		<!-- 3) Interactive Builder -->
+		<section class="section">
+			<h2>Sentence builder</h2>
+			<div class="instruction">Click Next to construct an example sentence.</div>
+
+			<div class="stage" aria-live="polite">
+				<div class="eng" id="engLine">Click Next to construct an example sentence.</div>
+				<div class="spa" id="spaLine">—</div>
+			</div>
+
+			<div class="steps" aria-label="Steps">
+				<span class="step-pill who">1. Who?</span>
+				<span class="step-pill verb">2. Verb</span>
+				<span class="step-pill obj">3. Thing/Action</span>
+				<span class="step-pill">4. Full sentence</span>
+			</div>
+
+			<div class="controls">
+				<button id="prevBtn">Previous</button>
+				<button id="nextBtn" class="primary">Next</button>
+				<button id="newBtn">New sentence</button>
+			</div>
+
+			<div class="summary" style="margin-top:12px">
+				<ol>
+					<li><span class="k c-who">Who?</span>: me, te, le, nos, <u>os</u>, les</li>
+					<li><span class="k c-verb">Verb</span>: <b>gusta</b> = one thing or any verb; <b>gustan</b> = plural things</li>
+					<li><span class="k c-obj">Thing/Action</span>: noun with article (el/la/los/las) or an infinitive</li>
+					<li>Put it together: <span class="c-who">Who?</span> + <span class="c-verb">gusta/gustan</span> + <span class="c-obj">Thing/Action</span></li>
+				</ol>
+			</div>
+		</section>
+	</div>
+
+<script>
+(() => {
+	// Hard-coded practice set
+	// type: 'noun' or 'inf'; number: 'sg'|'pl' (ignored for 'inf')
+	const ITEMS = [
+		{ english:"I like the book.",              person:"yo",        type:"noun", number:"sg", noun:"el libro" },
+		{ english:"You (tú) like the movies.",     person:"tú",        type:"noun", number:"pl", noun:"las películas" },
+		{ english:"She likes music.",              person:"ella",      type:"noun", number:"sg", noun:"la música" },
+		{ english:"We like tacos.",                person:"nosotros",  type:"noun", number:"pl", noun:"los tacos" },
+		{ english:"They like art.",                person:"ellos",     type:"noun", number:"sg", noun:"el arte" },
+		{ english:"Y’all like sports.",            person:"ustedes",   type:"noun", number:"pl", noun:"los deportes" },
+		{ english:"I like to read.",               person:"yo",        type:"inf",  inf:"leer" },
+		{ english:"She likes to run.",             person:"ella",      type:"inf",  inf:"correr" },
+		{ english:"We like to dance.",             person:"nosotros",  type:"inf",  inf:"bailar" },
+		{ english:"They like to study.",           person:"ellos",     type:"inf",  inf:"estudiar" }
+	];
+
+	const WHO_WORD = {
+		yo:"me", tú:"te",
+		él:"le", ella:"le", usted:"le",
+		nosotros:"nos", nosotras:"nos",
+		vosotros:"os", vosotras:"os",
+		ellos:"les", ellas:"les", ustedes:"les"
+	};
+
+	const engEl = document.getElementById('engLine');
+	const spaEl = document.getElementById('spaLine');
+	const prevBtn = document.getElementById('prevBtn');
+	const nextBtn = document.getElementById('nextBtn');
+	const newBtn  = document.getElementById('newBtn');
+
+	let current = null;
+	let lastIdx = -1;
+	let step = 0; // 0..4
+
+	function chooseItem(){
+		let i;
+		do { i = Math.floor(Math.random()*ITEMS.length); } while (ITEMS.length>1 && i===lastIdx);
+		lastIdx = i;
+		return {...ITEMS[i]};
+	}
+
+	function computeParts(item){
+		const who = WHO_WORD[item.person] || "";
+		let verb = "gusta";
+		let thing = "";
+		if (item.type === "inf") {
+			verb = "gusta";
+			thing = item.inf;
+		} else {
+			verb = (item.number === "pl") ? "gustan" : "gusta";
+			thing = item.noun;
+		}
+		return { who, verb, thing };
+	}
+
+	function template(){
+		return `
+			<span class="blank"><span id="whoSlot"  class="slot who"></span></span>
+			<span class="blank"><span id="verbSlot" class="slot verb"></span></span>
+			<span class="blank"><span id="objSlot"  class="slot obj"></span></span>.
+		`;
+	}
+
+	function render(){
+		if (!current) return;
+		const { who, verb, thing } = computeParts(current);
+
+		engEl.textContent = current.english;
+		spaEl.innerHTML = template();
+
+		const whoSlot  = document.getElementById('whoSlot');
+		const verbSlot = document.getElementById('verbSlot');
+		const objSlot  = document.getElementById('objSlot');
+
+		// Preload text so underlines keep size
+		whoSlot.textContent  = who;
+		verbSlot.textContent = verb;
+		objSlot.textContent  = thing;
+
+		[whoSlot,verbSlot,objSlot].forEach(el=>el.classList.remove('visible'));
+
+		if (step>=1) whoSlot.classList.add('visible');
+		if (step>=2) verbSlot.classList.add('visible');
+		if (step>=3) objSlot.classList.add('visible');
+		if (step>=4) spaEl.textContent = `${who} ${verb} ${thing}.`;
+	}
+
+	function newSentence(){ current = chooseItem(); step = 0; render(); }
+
+	// Init UI
+	engEl.textContent = 'Click Next to construct an example sentence.';
+	spaEl.textContent = '—';
+
+	nextBtn.addEventListener('click', () => {
+		if (!current) newSentence();
+		else step = Math.min(4, step+1);
+		render();
+	});
+	prevBtn.addEventListener('click', () => {
+		if (!current) return;
+		step = Math.max(0, step-1);
+		render();
+	});
+	newBtn.addEventListener('click', newSentence);
+
+	// Keyboard: Space → next, Left → prev, N → new
+	window.addEventListener('keydown', (e) => {
+		if (e.code==='Space'){ e.preventDefault(); nextBtn.click(); }
+		if (e.code==='ArrowLeft'){ e.preventDefault(); prevBtn.click(); }
+		if (e.code==='KeyN'){ e.preventDefault(); newBtn.click(); }
+	}, {passive:false});
+})();
+</script>
+</body>
+</html>
