@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en" translate="no">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Tener Expressions – Emoji Practice</title>
+<style>
+	:root{
+		--bg-top:#4f7a62; --bg-bot:#5d8b6f;
+		--panel:#ffffff; --ink:#0f172a;
+		--border:#dfece5; --radius:22px;
+		--right:#16a34a; --right-soft:#e8f8ee;
+	}
+	*{box-sizing:border-box}
+	html,body{height:100%;margin:0}
+	body{
+		background:linear-gradient(to bottom,var(--bg-top),var(--bg-bot));
+		font-family:ui-sans-serif,-apple-system,Segoe UI,Roboto,Helvetica,Arial;
+		color:var(--ink);
+		overflow:hidden;
+	}
+	.app{
+		height:100dvh;
+		display:grid;
+		grid-template-rows:minmax(0,1fr) auto 40px;
+		gap:clamp(8px,2dvh,20px);
+		padding: clamp(8px,2dvh,28px);
+		max-width:1400px;
+		margin:0 auto;
+	}
+	.figure{
+		background:var(--panel);
+		border:1px solid var(--border);
+		border-radius:var(--radius);
+		box-shadow:0 18px 36px rgba(0,0,0,.12), 0 2px 8px rgba(0,0,0,.06);
+		display:flex; align-items:center; justify-content:center;
+		font-size:clamp(120px,30dvh,300px);
+	}
+	.choices-wrap{
+		background:var(--panel);
+		border:1px solid var(--border);
+		border-radius:var(--radius);
+		box-shadow:0 12px 24px rgba(0,0,0,.10), 0 2px 6px rgba(0,0,0,.06);
+		padding:clamp(10px,2dvh,24px);
+	}
+	.choices{
+		display:grid;
+		grid-template-columns:repeat(2,1fr);
+		gap:clamp(12px,2.5dvh,28px);
+	}
+	.choice{
+		display:flex; align-items:center; gap:clamp(16px,2dvh,24px);
+		border:3px solid var(--border);
+		background:#fff;
+		border-radius:22px;
+		padding:clamp(18px,3dvh,32px) clamp(20px,3dvh,40px);
+		font-size:clamp(24px,4dvh,48px);
+		font-weight:800;
+		line-height:1.1;
+		user-select:none;
+		transition:transform .08s ease, box-shadow .08s ease, border-color .12s ease, background .12s ease;
+		box-shadow:0 8px 18px rgba(0,0,0,.08);
+	}
+	.choice:hover{ transform:translateY(-2px); box-shadow:0 12px 24px rgba(0,0,0,.12) }
+	.choice .key{
+		display:inline-grid; place-items:center;
+		border-radius:16px; min-width:clamp(48px,5.5dvh,72px); height:clamp(48px,5.5dvh,72px);
+		background:#f1f5f9; font-size:.9em; flex:0 0 auto;
+	}
+	.choice.correct{
+		border-color:var(--right);
+		background:var(--right-soft);
+		outline:clamp(4px,0.8dvh,8px) solid color-mix(in oklab,var(--right) 55%,white 45%);
+		box-shadow:
+			0 0 0 clamp(5px,1dvh,10px) rgba(22,163,74,.18),
+			0 clamp(14px,3dvh,28px) clamp(24px,4dvh,48px) rgba(22,163,74,.35);
+		transform:translateY(-1px) scale(1.01);
+	}
+	.app.reveal-pending{ cursor:pointer }
+	.progress{
+		font-size:clamp(16px,2.2dvh,24px);
+		color:#e8f8ee;
+		font-weight:600;
+		opacity:0.9;
+		align-self:end;
+	}
+</style>
+</head>
+<body>
+<div class="app" id="app">
+	<div class="figure" id="emoji"></div>
+	<div class="choices-wrap"><div class="choices" id="choices"></div></div>
+	<div class="progress" id="progress"></div>
+</div>
+
+<script>
+/* ===============================
+   Question Configuration
+   =============================== */
+const QUESTIONS = [
+	{ emoji:"🎂", options:["tener ___ años","tener paciencia","tener hambre","tener miedo"], answerIndex:0 },
+	{ emoji:"⏳", options:["tener paciencia","tener frío","tener calor","tener suerte"], answerIndex:0 },
+	{ emoji:"⚠️", options:["tener cuidado","tener sueño","tener razón","tener sed"], answerIndex:0 },
+	{ emoji:"✅", options:["tener razón","no tener razón","tener suerte","tener prisa"], answerIndex:0 },
+	{ emoji:"❌", options:["no tener razón","tener razón","tener sueño","tener sed"], answerIndex:0 },
+	{ emoji:"🍔", options:["tener hambre","tener sed","tener sueño","tener calor"], answerIndex:0 },
+	{ emoji:"🥤", options:["tener sed","tener hambre","tener suerte","tener prisa"], answerIndex:0 },
+	{ emoji:"❄️", options:["tener frío","tener calor","tener hambre","tener sueño"], answerIndex:0 },
+	{ emoji:"🔥", options:["tener calor","tener frío","tener prisa","tener cuidado"], answerIndex:0 },
+	{ emoji:"🏃", options:["tener prisa","tener suerte","tener sueño","tener paciencia"], answerIndex:0 },
+	{ emoji:"😨", options:["tener miedo","tener frío","tener hambre","tener suerte"], answerIndex:0 },
+	{ emoji:"😴", options:["tener sueño","tener miedo","tener sed","tener suerte"], answerIndex:0 },
+	{ emoji:"🍀", options:["tener suerte","tener razón","tener cuidado","tener calor"], answerIndex:0 }
+];
+
+/* ===============================
+   Core Logic
+   =============================== */
+const appEl=document.getElementById("app");
+const emojiEl=document.getElementById("emoji");
+const choicesEl=document.getElementById("choices");
+const progressEl=document.getElementById("progress");
+
+let qPtr=0,state="idle",current=null;
+const shuffle=a=>{for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a;};
+
+function realizeQuestion(qRaw){
+	const paired=qRaw.options.map((t,idx)=>({t,idx}));
+	shuffle(paired);
+	const options=paired.map(p=>p.t);
+	const answerIndex=paired.findIndex(p=>p.idx===qRaw.answerIndex);
+	return{emoji:qRaw.emoji,options,answerIndex};
+}
+function renderQuestion(q){
+	emojiEl.textContent=q.emoji;
+	choicesEl.innerHTML="";
+	const labels=["A","B","C","D"];
+	q.options.forEach((opt,i)=>{
+		const div=document.createElement("div");
+		div.className="choice";
+		div.dataset.idx=i;
+		div.innerHTML=`<span class="key">${labels[i]}</span><span class="txt">${opt}</span>`;
+		choicesEl.appendChild(div);
+	});
+	progressEl.textContent=`Question ${qPtr+1} / ${QUESTIONS.length}`;
+	state="idle"; current=q; appEl.classList.add("reveal-pending");
+}
+function reveal(){
+	if(!current)return;
+	const nodes=[...choicesEl.querySelectorAll(".choice")];
+	const correct=nodes.find(n=>Number(n.dataset.idx)===current.answerIndex);
+	if(correct)correct.classList.add("correct");
+	state="revealed"; appEl.classList.remove("reveal-pending");
+}
+function next(){
+	state="transition";
+	qPtr++;
+	if(qPtr>=QUESTIONS.length)qPtr=0;
+	const q=realizeQuestion(QUESTIONS[qPtr]);
+	renderQuestion(q);
+}
+function clickFlow(){
+	if(state==="idle")reveal();
+	else if(state==="revealed")next();
+}
+(async function init(){
+	renderQuestion(realizeQuestion(QUESTIONS[qPtr]));
+	appEl.addEventListener("click",clickFlow);
+	window.addEventListener("keydown",e=>{
+		if(e.code==="Space"||e.code==="Enter"){e.preventDefault();clickFlow();}
+	});
+})();
+</script>
+</body>
+</html>

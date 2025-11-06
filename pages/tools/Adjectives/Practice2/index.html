@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Adjetivos — Find & Fix</title>
+<style>
+  :root { color-scheme: dark; }
+  * { box-sizing: border-box; }
+  html, body {
+    height: 100%;
+    margin: 0;
+    background: #0d0f12;
+    color: #e9eef4;
+    font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+  }
+  .wrap {
+    min-height: 100%;
+    display: grid;
+    place-items: center;
+    padding: 6vh 4vw 6vh;
+    text-align: center;
+  }
+  main { max-width: 1100px; }
+  .line { margin: .35em 0; }
+  .eng { font-size: clamp(20px, 3.6vw, 34px); opacity: .95; font-weight: 800; letter-spacing: .01em; }
+  .spa { font-size: clamp(28px, 5vw, 56px); font-weight: 800; letter-spacing: .01em; }
+
+  .m{
+    display:inline-block;
+    color:inherit;
+    transition: color 160ms ease-out, transform 220ms ease;
+    min-width:.2ch;
+  }
+  .m.revealed{ color:#ff5a5a; }
+  .m.fixed{
+    color:#22c55e;
+    animation: pop 220ms ease;
+  }
+  .all-correct{ color:#22c55e; transition: color 160ms ease-out; }
+
+  @keyframes pop{
+    0%{ transform:scale(1); }
+    50%{ transform:scale(1.08); }
+    100%{ transform:scale(1); }
+  }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <main aria-live="polite">
+      <div id="eng" class="line eng">—</div>
+      <div id="spa" class="line spa">Press Space</div>
+    </main>
+  </div>
+
+<script>
+/*
+  Mark each incorrect piece as:
+    <span class="m" data-fix="CORRECT_TEXT">wrong text</span>
+  Space:
+    - 1st: highlight all mistakes in red
+    - Next presses: fix one at a time (swap to data-fix, turn green)
+    - After all fixed: sentence turns green; next Space → next item
+*/
+
+const ITEMS = [
+  // 1 mistake (verb choice)
+  { html: 'El vaso <span class="m" data-fix="está">es</span> roto.' },
+
+  // 2 mistakes (verb + agreement)
+  { html: 'Las mesas <span class="m" data-fix="están">son</span> <span class="m" data-fix="sucias">sucio</span>.' },
+
+  // 1 mistake (capitalization at start)
+  { html: '<span class="m" data-fix="La">la</span> puerta está abierta.' },
+
+  // 3 mistakes (verb + agreement + missing final period implemented on last word)
+  { html: 'La ventana <span class="m" data-fix="está">es</span> <span class="m" data-fix="cerrada">cerrado</span><span class="m" data-fix="."></span>' },
+
+  // 1 mistake (accent spelling)
+  { html: 'Ese anillo es <span class="m" data-fix="metálico">metalico</span>.' },
+
+  // 2 mistakes (material phrase + verb)
+  { html: 'La mesa <span class="m" data-fix="es">está</span> de <span class="m" data-fix="madera">madéra</span>.' },
+
+  // 3 mistakes (plural verb + plural adj + capitalization)
+  { html: '<span class="m" data-fix="Los">los</span> zapatos <span class="m" data-fix="son">es</span> <span class="m" data-fix="caros">caro</span>.' },
+
+  // 1 mistake (new/old uses SER)
+  { html: 'El coche <span class="m" data-fix="es">está</span> viejo.' },
+
+  // 2 mistakes (gender agreement + capitalization of proper sentence start)
+  { html: '<span class="m" data-fix="La">la</span> niña <span class="m" data-fix="baja">bajo</span>.' },
+
+  // 1 mistake (plural adj agreement)
+  { html: 'Los pantalones son <span class="m" data-fix="largos">largo</span>.' },
+
+  // 2 mistakes (length/build are SER + number agreement)
+  { html: 'El cable <span class="m" data-fix="es">está</span> <span class="m" data-fix="delgado">delgados</span>.' },
+
+  // 3 mistakes (verb + two agreements)
+  { html: 'Las cajas <span class="m" data-fix="son">es</span> <span class="m" data-fix="gruesas">grueso</span> y <span class="m" data-fix="anchas">ancho</span>.' },
+
+  // 2 mistakes (state w/ ESTAR + add missing period on last word)
+  { html: 'El museo <span class="m" data-fix="está">es</span> cerrado hoy<span class="m" data-fix="."></span>' },
+
+  // 1 mistake (material noun form)
+  { html: 'Mi teléfono es de <span class="m" data-fix="plástico">plástica</span>.' },
+
+  // 2 mistakes (open/closed uses ESTAR + plural agreement)
+  { html: 'Las tiendas <span class="m" data-fix="están">son</span> <span class="m" data-fix="abiertas">abierto</span> los sábados.' }
+];
+
+const engEl = document.getElementById('eng');
+const spaEl = document.getElementById('spa');
+
+let i = -1;
+let phase = 'waiting'; // waiting | revealed | fixing | done
+let fixer = null;
+
+function countMistakes(){
+  return spaEl.querySelectorAll('.m').length;
+}
+
+function updateCount(){
+  const remaining = spaEl.querySelectorAll('.m:not(.fixed)').length;
+  engEl.textContent = `${remaining} ${remaining===1?'mistake':'mistakes'}`;
+}
+
+function setSentence(html){
+  spaEl.classList.remove('all-correct');
+  spaEl.innerHTML = html;
+  // Show count immediately when the sentence appears
+  updateCount();
+}
+
+function nextItem(){
+  i = (i + 1) % ITEMS.length;
+  setSentence(ITEMS[i].html);
+  phase = 'waiting';
+}
+
+function reveal(){
+  const bads = spaEl.querySelectorAll('.m');
+  bads.forEach(b => b.classList.add('revealed'));
+  phase = 'revealed';
+}
+
+function* makeFixer(){
+  const bads = spaEl.querySelectorAll('.m');
+  for(const b of bads){
+    yield () => {
+      const fix = b.getAttribute('data-fix') ?? '';
+      b.textContent = fix;
+      b.classList.remove('revealed');
+      b.classList.add('fixed');
+      updateCount();
+    };
+  }
+}
+
+function startFixing(){
+  fixer = makeFixer();
+  phase = 'fixing';
+  doOneFix();
+}
+
+function doOneFix(){
+  const step = fixer.next();
+  if(!step.done){
+    step.value();
+  }else{
+    spaEl.classList.add('all-correct');
+    updateCount(); // should display 0 mistakes
+    phase = 'done';
+  }
+}
+
+function advance(){
+  if(i === -1){ nextItem(); return; }
+  if(phase === 'waiting'){ reveal(); return; }
+  if(phase === 'revealed'){ startFixing(); return; }
+  if(phase === 'fixing'){ doOneFix(); return; }
+  if(phase === 'done'){ nextItem(); return; }
+}
+
+window.addEventListener('keydown', e => {
+  if(e.code === 'Space'){
+    e.preventDefault();
+    advance();
+  }
+});
+window.addEventListener('click', advance);
+</script>
+</body>
+</html>
