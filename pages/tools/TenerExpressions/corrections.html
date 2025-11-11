@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Adjetivos — Find & Fix</title>
+<style>
+  :root { color-scheme: dark; }
+  * { box-sizing: border-box; }
+  html, body {
+    height: 100%;
+    margin: 0;
+    background: #0d0f12;
+    color: #e9eef4;
+    font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+  }
+  .wrap {
+    min-height: 100%;
+    display: grid;
+    place-items: center;
+    padding: 6vh 4vw 6vh;
+    text-align: center;
+  }
+  main { max-width: 1100px; }
+  .line { margin: .35em 0; }
+  .eng { font-size: clamp(20px, 3.6vw, 34px); opacity: .95; font-weight: 800; letter-spacing: .01em; }
+  .spa { font-size: clamp(28px, 5vw, 56px); font-weight: 800; letter-spacing: .01em; }
+
+  .m{
+    display:inline-block;
+    color:inherit;
+    transition: color 160ms ease-out, transform 220ms ease;
+    min-width:.2ch;
+  }
+  .m.revealed{ color:#ff5a5a; }
+  .m.fixed{
+    color:#22c55e;
+    animation: pop 220ms ease;
+  }
+  .all-correct{ color:#22c55e; transition: color 160ms ease-out; }
+
+  @keyframes pop{
+    0%{ transform:scale(1); }
+    50%{ transform:scale(1.08); }
+    100%{ transform:scale(1); }
+  }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <main aria-live="polite">
+      <div id="eng" class="line eng">—</div>
+      <div id="spa" class="line spa">Press Space</div>
+    </main>
+  </div>
+
+<script>
+/*
+  Mark each incorrect piece as:
+    <span class="m" data-fix="CORRECT_TEXT">wrong text</span>
+  Space:
+    - 1st: highlight all mistakes in red
+    - Next presses: fix one at a time (swap to data-fix, turn green)
+    - After all fixed: sentence turns green; next Space → next item
+*/
+
+const ITEMS = [
+  // 1 — infinitive instead of conjugation
+  { html: 'Yo <span class="m" data-fix="tengo">tener</span> hambre.' },
+
+  // 2 — spelling mistake in the conjugation
+  { html: 'Tú <span class="m" data-fix="tienes">tienas</span> sed.' },
+
+  // 3 — capitalization + missing accent
+  { html: '<span class="m" data-fix="Él">el</span> tiene <span class="m" data-fix="sueño">sueno</span>.' },
+
+  // 4 — wrong verb form + missing accent + missing period
+  { html: 'Nosotros <span class="m" data-fix="tenemos">tenimos</span> <span class="m" data-fix="frío">frio</span> en la clase<span class="m" data-fix="."></span>' },
+
+  // 5 — capitalization + missing period
+  { html: '<span class="m" data-fix="Ellos">ellos</span> tienen calor en el gimnasio hoy<span class="m" data-fix="."></span>' },
+
+  // 6 — spelling mistake in the conjugation
+  { html: 'Ustedes <span class="m" data-fix="tienen">tienan</span> prisa para la clase.' },
+
+  // 7 — spelling mistake in the conjugation
+  { html: 'Yo <span class="m" data-fix="tengo">tiengo</span> miedo de los perros.' },
+
+  // 8 — wrong person for the verb
+  { html: 'Mis amigos <span class="m" data-fix="tienen">tiene</span> suerte en el juego.' },
+
+  // 9 — singular vs plural noun
+  { html: 'Mi hermano tiene quince <span class="m" data-fix="años">año</span>.' },
+
+  // 10 — capitalization + number agreement + missing period
+  { html: '<span class="m" data-fix="Nosotros">nosotros</span> tenemos celos de su <span class="m" data-fix="amiga">amigas</span><span class="m" data-fix="."></span>' },
+
+  // 11 — infinitive instead of conjugation
+  { html: 'Ellos <span class="m" data-fix="tienen">tener</span> que estudiar para el examen.' },
+
+  // 12 — missing "que"
+  { html: 'Ella tiene <span class="m" data-fix="que trabajar">trabajar</span> hoy.' },
+
+  // 13 — wrong preposition
+  { html: 'Yo tengo ganas <span class="m" data-fix="de">que</span> comer pizza.' },
+
+  // 14 — wrong person for the verb
+  { html: 'Ellos <span class="m" data-fix="tienen">tiene</span> ganas de jugar videojuegos.' },
+
+  // 15 — spelling mistake in the conjugation
+  { html: 'Tú no <span class="m" data-fix="tienes">tenes</span> razón en eso.' },
+
+  // 16 — missing accent + missing period
+  { html: 'Mis amigos no tienen <span class="m" data-fix="razón">razon</span><span class="m" data-fix="."></span>' },
+
+  // 17 — accent on frío + cafetería + missing period
+  { html: 'Nosotros no tenemos <span class="m" data-fix="frío">frio</span> en la <span class="m" data-fix="cafetería">cafeteria</span><span class="m" data-fix="."></span>' },
+
+  // 18 — infinitive instead of conjugation
+  { html: 'Yo tengo doce años y mi hermana <span class="m" data-fix="tiene">tener</span> diez.' },
+
+  // 19 — missing inverted question mark + missing accent on Tú
+  { html: '<span class="m" data-fix="¿">?</span><span class="m" data-fix="Tú">Tu</span> tienes miedo de los exámenes?' },
+
+  // 20 — missing accent on mamá + spelling of paciencia
+  { html: 'Mi <span class="m" data-fix="mamá">mama</span> tiene <span class="m" data-fix="paciencia">pacienca</span> conmigo.' },
+
+  // 21 — spelling of cuidado
+  { html: 'Los estudiantes no tienen <span class="m" data-fix="cuidado">cuiado</span> en el laboratorio.' }
+];
+
+
+const engEl = document.getElementById('eng');
+const spaEl = document.getElementById('spa');
+
+let i = -1;
+let phase = 'waiting'; // waiting | revealed | fixing | done
+let fixer = null;
+
+function countMistakes(){
+  return spaEl.querySelectorAll('.m').length;
+}
+
+function updateCount(){
+  const remaining = spaEl.querySelectorAll('.m:not(.fixed)').length;
+  engEl.textContent = `${remaining} ${remaining===1?'mistake':'mistakes'}`;
+}
+
+function setSentence(html){
+  spaEl.classList.remove('all-correct');
+  spaEl.innerHTML = html;
+  // Show count immediately when the sentence appears
+  updateCount();
+}
+
+function nextItem(){
+  i = (i + 1) % ITEMS.length;
+  setSentence(ITEMS[i].html);
+  phase = 'waiting';
+}
+
+function reveal(){
+  const bads = spaEl.querySelectorAll('.m');
+  bads.forEach(b => b.classList.add('revealed'));
+  phase = 'revealed';
+}
+
+function* makeFixer(){
+  const bads = spaEl.querySelectorAll('.m');
+  for(const b of bads){
+    yield () => {
+      const fix = b.getAttribute('data-fix') ?? '';
+      b.textContent = fix;
+      b.classList.remove('revealed');
+      b.classList.add('fixed');
+      updateCount();
+    };
+  }
+}
+
+function startFixing(){
+  fixer = makeFixer();
+  phase = 'fixing';
+  doOneFix();
+}
+
+function doOneFix(){
+  const step = fixer.next();
+  if(!step.done){
+    step.value();
+  }else{
+    spaEl.classList.add('all-correct');
+    updateCount(); // should display 0 mistakes
+    phase = 'done';
+  }
+}
+
+function advance(){
+  if(i === -1){ nextItem(); return; }
+  if(phase === 'waiting'){ reveal(); return; }
+  if(phase === 'revealed'){ startFixing(); return; }
+  if(phase === 'fixing'){ doOneFix(); return; }
+  if(phase === 'done'){ nextItem(); return; }
+}
+
+window.addEventListener('keydown', e => {
+  if(e.code === 'Space'){
+    e.preventDefault();
+    advance();
+  }
+});
+window.addEventListener('click', advance);
+</script>
+</body>
+</html>

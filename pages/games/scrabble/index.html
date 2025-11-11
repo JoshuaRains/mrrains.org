@@ -150,14 +150,14 @@
 <script type="module">
 /* ---------- Firebase ---------- */
 const firebaseConfig = {
-        apiKey: "AIzaSyBP4-umlnVxOkvHiUCj6MDVa4Z3452BML0",
-        authDomain: "castles-64558.firebaseapp.com",
-        projectId: "castles-64558",
-        storageBucket: "castles-64558.appspot.com",
-        messagingSenderId: "450284390955",
-        appId: "1:450284390955:web:7e9e30ed7834635755f86e",
-        measurementId: "G-EFJJGH1GDK"
-      };
+	apiKey: "AIzaSyBP4-umlnVxOkvHiUCj6MDVa4Z3452BML0",
+	authDomain: "castles-64558.firebaseapp.com",
+	projectId: "castles-64558",
+	storageBucket: "castles-64558.appspot.com",
+	messagingSenderId: "450284390955",
+	appId: "1:450284390955:web:7e9e30ed7834635755f86e",
+	measurementId: "G-EFJJGH1GDK"
+};
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import { getDatabase, ref, onValue, set, update, get, runTransaction } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
@@ -223,7 +223,7 @@ const START_BAG = [
 	/* O */ ...Array(9).fill('O'),
 	/* P */ ...Array(2).fill('P'),
 	/* Q */ ...Array(1).fill('Q'),
-	/* R */ ...Array(6).fill('R'),   // boosted from typical 5
+	/* R */ ...Array(6).fill('R'),
 	/* S */ ...Array(6).fill('S'),
 	/* T */ ...Array(4).fill('T'),
 	/* U */ ...Array(5).fill('U'),
@@ -244,17 +244,30 @@ let myTurn = false;
 let currentBoardMap = {};    // {"r_c": "A"}
 
 /* ---------- Helpers ---------- */
-function genCode(len=4){
-	const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
-	let s=""; for(let i=0;i<len;i++) s += chars[Math.floor(Math.random()*(i+1))];
+function genCode(len = 6){
+	// Use full alphabet + digits 1-9
+	const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ123456789";
+	let s = "";
+	for(let i=0;i<len;i++){
+		s += chars[Math.floor(Math.random() * chars.length)];
+	}
 	return s;
 }
-function shuffle(a){ for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]} return a; }
+
+function shuffle(a){
+	for(let i=a.length-1;i>0;i--){
+		const j = Math.floor(Math.random()*(i+1));
+		[a[i],a[j]] = [a[j],a[i]];
+	}
+	return a;
+}
+
 function cellId(r,c){ return `cell-${r}-${c}`; }
 function setHidden(node, hidden){ node.classList.toggle('hidden', !!hidden); }
 function hasAnyTilesOnBoard(){ return Object.keys(currentBoardMap).length > 0; }
 function inBounds(r,c){ return r>=0 && r<BOARD_SIZE && c>=0 && c<BOARD_SIZE; }
 function point(letter){ return LETTER_VALUES[letter] ?? 0; }
+
 function tileHTML(letter, isLatest=false, isGhost=false){
 	const wrap = document.createElement('div');
 	wrap.className = 'tile'+(isGhost?' ghost':'')+(isLatest?' latest':'');
@@ -262,6 +275,30 @@ function tileHTML(letter, isLatest=false, isGhost=false){
 	const P = document.createElement('span'); P.className='pts'; P.textContent = point(letter);
 	wrap.append(L,P);
 	return wrap;
+}
+
+/* Give a rack to a player who joined mid-game (or whose rack is empty) */
+async function ensureRackForPlayer(roomCode, playerId){
+	const roomPath = `rooms/${roomCode}`;
+	const roomSnap = await get(ref(db, roomPath));
+	if(!roomSnap.exists()) return;
+	const room = roomSnap.val();
+	const players = room.players || {};
+	const player = players[playerId];
+	if(!player) return;
+
+	let rackArr = (player.rack || "").split(',').filter(Boolean);
+	if(rackArr.length >= RACK_SIZE) return; // already has tiles
+
+	let bag = (room.bag || "").split(',').filter(Boolean);
+	while(rackArr.length < RACK_SIZE && bag.length){
+		rackArr.push(bag.shift());
+	}
+
+	const updates = {};
+	updates[`${roomPath}/players/${playerId}/rack`] = rackArr.join(',');
+	updates[`${roomPath}/bag`] = bag.join(',');
+	await update(ref(db), updates);
 }
 
 /* ---------- Board UI ---------- */
@@ -292,6 +329,7 @@ function buildBoard(){
 		}
 	}
 }
+
 function paintBoard(boardMap, highlightPositions){
 	currentBoardMap = boardMap || {};
 	for(let r=0;r<BOARD_SIZE;r++){
@@ -319,10 +357,14 @@ function renderRack(){
 		el.rack.appendChild(t);
 	});
 }
+
 function recallPending(){
 	pendingDrops.forEach(p => {
 		const cell = document.getElementById(cellId(p.r,p.c));
-		if(cell){ const ghost = cell.querySelector('.tile.ghost'); if(ghost) ghost.remove(); }
+		if(cell){
+			const ghost = cell.querySelector('.tile.ghost');
+			if(ghost) ghost.remove();
+		}
 		localRack.push(p.letter);
 	});
 	pendingDrops = [];
@@ -336,6 +378,7 @@ function boardWithPending(){
 	pendingDrops.forEach(p => { map[`${p.r}_${p.c}`] = p.letter; });
 	return map;
 }
+
 function collectWord(map, r, c, dir){
 	let letters = [], coords = [];
 	const dr = dir==='h'?0:1, dc = dir==='h'?1:0;
@@ -348,6 +391,7 @@ function collectWord(map, r, c, dir){
 	}
 	return { text: letters.join(''), coords };
 }
+
 function computeTurnWords(){
 	if(pendingDrops.length===0) return { ok:false, reason:"No tiles placed." };
 	const tempMap = boardWithPending();
@@ -375,12 +419,16 @@ function computeTurnWords(){
 		const row = pendingDrops[0].r;
 		const minC = Math.min(...pendingDrops.map(p=>p.c));
 		const maxC = Math.max(...pendingDrops.map(p=>p.c));
-		for(let c=minC;c<=maxC;c++){ if(!tempMap[`${row}_${c}`]) return { ok:false, reason:"Gaps in the main word." }; }
+		for(let c=minC;c<=maxC;c++){
+			if(!tempMap[`${row}_${c}`]) return { ok:false, reason:"Gaps in the main word." };
+		}
 	}else{
 		const col = pendingDrops[0].c;
 		const minR = Math.min(...pendingDrops.map(p=>p.r));
 		const maxR = Math.max(...pendingDrops.map(p=>p.r));
-		for(let r=minR;r<=maxR;r++){ if(!tempMap[`${r}_${col}`]) return { ok:false, reason:"Gaps in the main word." }; }
+		for(let r=minR;r<=maxR;r++){
+			if(!tempMap[`${r}_${col}`]) return { ok:false, reason:"Gaps in the main word." };
+		}
 	}
 
 	const any = pendingDrops[0];
@@ -389,22 +437,32 @@ function computeTurnWords(){
 	const words = [];
 	const highlights = new Map();
 
-	if(main.text.length>1){ words.push(main); main.coords.forEach(p=>highlights.set(`${p.r}_${p.c}`,true)); }
+	if(main.text.length>1){
+		words.push(main);
+		main.coords.forEach(p=>highlights.set(`${p.r}_${p.c}`,true));
+	}
 	for(const p of pendingDrops){
 		const w = collectWord(tempMap, p.r, p.c, perp);
-		if(w.text.length>1){ words.push(w); w.coords.forEach(q=>highlights.set(`${q.r}_${q.c}`,true)); }
+		if(w.text.length>1){
+			words.push(w);
+			w.coords.forEach(q=>highlights.set(`${q.r}_${q.c}`,true));
+		}
 	}
 
 	if(words.length===0){
 		if(main.text.length===1) return { ok:false, reason:"Single-letter word must build off existing tiles." };
-		words.push(main); main.coords.forEach(p=>highlights.set(`${p.r}_${p.c}`,true));
+		words.push(main);
+		main.coords.forEach(p=>highlights.set(`${p.r}_${p.c}`,true));
 	}
 
 	let totalPoints = 0;
 	for(const w of words){
 		totalPoints += w.coords.reduce((acc,pos)=> acc + LETTER_VALUES[tempMap[`${pos.r}_${pos.c}`]], 0);
 	}
-	const highlight = Array.from(highlights.keys()).map(k=>{const [r,c]=k.split('_').map(Number); return {r,c};});
+	const highlight = Array.from(highlights.keys()).map(k=>{
+		const [r,c]=k.split('_').map(Number);
+		return {r,c};
+	});
 	return { ok:true, words, totalPoints, highlight };
 }
 
@@ -413,6 +471,7 @@ el.createBtn.addEventListener('click', async () => {
 	const code = await createRoom();
 	el.joinCode.value = code;
 });
+
 el.joinBtn.addEventListener('click', async () => {
 	const code = (el.joinCode.value||"").trim();
 	if(!code){ alert("Enter a game code."); return; }
@@ -420,7 +479,14 @@ el.joinBtn.addEventListener('click', async () => {
 });
 
 async function createRoom(){
-	const code = genCode(4);
+	// Ensure we don't collide with an existing room
+	let code;
+	while(true){
+		code = genCode(6);
+		const snap = await get(ref(db, 'rooms/'+code));
+		if(!snap.exists()) break;
+	}
+
 	const roomRef = ref(db, 'rooms/'+code);
 	const bag = shuffle(START_BAG.slice()).join(',');
 	await set(roomRef, {
@@ -437,8 +503,11 @@ async function createRoom(){
 }
 
 async function joinRoom(code){
-	const snap = await get(ref(db, 'rooms/'+code));
+	const roomRef = ref(db, 'rooms/'+code);
+	const snap = await get(roomRef);
 	if(!snap.exists()){ alert("Room not found."); return; }
+	const room = snap.val();
+
 	currentRoom = code;
 
 	const playersSnap = await get(ref(db, `rooms/${code}/players`));
@@ -446,9 +515,15 @@ async function joinRoom(code){
 	const id = `p${count+1}`;
 	myPlayerId = id;
 	myDisplayName = `Player ${count+1}`;
+
 	await update(ref(db, `rooms/${code}/players/${id}`), {
 		name: myDisplayName, score: 0, rack: "", joinedAt: Date.now()
 	});
+
+	// If the game is already playing, make sure this new player gets a rack
+	if(room.state === 'playing'){
+		await ensureRackForPlayer(code, id);
+	}
 
 	el.lobby.classList.add('hidden');
 	el.game.classList.remove('hidden');
@@ -479,7 +554,8 @@ async function attemptAutoStart(code){
 	if(!iWon) return;
 
 	const roomPath = `rooms/${code}`;
-	const roomSnap = await get(ref(db, roomPath)); if(!roomSnap.exists()) return;
+	const roomSnap = await get(ref(db, roomPath));
+	if(!roomSnap.exists()) return;
 	const room = roomSnap.val();
 	const playerIds = Object.keys(room.players||{});
 	let bag = (room.bag||"").split(',').filter(Boolean);
@@ -487,7 +563,9 @@ async function attemptAutoStart(code){
 	const updates = {};
 	playerIds.forEach(pid => {
 		let rack = [];
-		for(let i=0;i<RACK_SIZE;i++){ if(bag.length) rack.push(bag.shift()); }
+		for(let i=0;i<RACK_SIZE;i++){
+			if(bag.length) rack.push(bag.shift());
+		}
 		updates[`${roomPath}/players/${pid}/rack`] = rack.join(',');
 	});
 	updates[`${roomPath}/bag`]   = bag.join(',');
@@ -558,9 +636,12 @@ function renderPlayersRow(players, turn){
 		el.playersRow.appendChild(card);
 	});
 }
+
 function updateStatus(players){
 	const count = Object.keys(players||{}).length;
-	el.status.textContent = (count<2) ? "waiting on another player" : (myTurn ? "waiting for you to place a word" : "waiting on another player");
+	el.status.textContent = (count<2)
+		? "waiting on another player"
+		: (myTurn ? "waiting for you to place a word" : "waiting on another player");
 }
 
 /* Confirm word */
@@ -568,10 +649,14 @@ async function confirmWord(){
 	if(!myTurn || pendingDrops.length===0) return;
 
 	const check = computeTurnWords();
-	if(!check.ok){ alert(check.reason); return; }
+	if(!check.ok){
+		alert(check.reason);
+		return;
+	}
 
 	const roomPath = `rooms/${currentRoom}`;
-	const roomSnap = await get(ref(db, roomPath)); if(!roomSnap.exists()) return;
+	const roomSnap = await get(ref(db, roomPath));
+	if(!roomSnap.exists()) return;
 	const room = roomSnap.val();
 	const players = room.players||{};
 	const order = Object.keys(players);
@@ -581,14 +666,19 @@ async function confirmWord(){
 	pendingDrops.forEach(p => {
 		updates[`${roomPath}/board/${p.r}_${p.c}`] = p.letter;
 		const cell = document.getElementById(cellId(p.r,p.c));
-		if(cell){ const ghost = cell.querySelector('.tile.ghost'); if(ghost) ghost.remove(); }
+		if(cell){
+			const ghost = cell.querySelector('.tile.ghost');
+			if(ghost) ghost.remove();
+		}
 	});
 
 	const myIndex = order.indexOf(myPlayerId);
 	const nextPid = order[(myIndex+1)%order.length];
 
 	let bag = (room.bag||"").split(',').filter(Boolean);
-	while(localRack.length<RACK_SIZE && bag.length){ localRack.push(bag.shift()); }
+	while(localRack.length<RACK_SIZE && bag.length){
+		localRack.push(bag.shift());
+	}
 	const afterRack = localRack.join(',');
 
 	const wordList = check.words.map(w=>w.text).join(' + ');
@@ -618,11 +708,14 @@ async function openContest(){
 	if(!currentRoom) return;
 	await update(ref(db), { [`rooms/${currentRoom}/review/status`]:'open' });
 }
+
 async function castVote(choice){ // 'real' | 'notReal'
 	if(!currentRoom || !myPlayerId) return;
 	await update(ref(db), { [`rooms/${currentRoom}/review/votes/${myPlayerId}`]: choice });
-	el.voteReal.disabled = true; el.voteNotReal.disabled = true;
+	el.voteReal.disabled = true;
+	el.voteNotReal.disabled = true;
 }
+
 async function resolveReview(room, review){
 	const roomPath = `rooms/${currentRoom}`;
 	const votes = review.votes || {};
@@ -649,7 +742,10 @@ async function resolveReview(room, review){
 			updates[`${roomPath}/lastHighlight`] = [];
 			await update(ref(db), updates);
 		}else{
-			await update(ref(db), { [`${roomPath}/review/status`]:'closed', [`${roomPath}/lastHighlight`]: [] });
+			await update(ref(db), {
+				[`${roomPath}/review/status`]:'closed',
+				[`${roomPath}/lastHighlight`]: []
+			});
 		}
 	}else{
 		await update(ref(db), { [`${roomPath}/review/status`]:'closed' });
@@ -662,7 +758,9 @@ buildBoard();
 /* Optional: prefill from ?code= */
 const params = new URLSearchParams(location.search);
 const pre = params.get('code');
-if(pre){ document.getElementById('joinCode').value = pre.toUpperCase(); }
+if(pre){
+	document.getElementById('joinCode').value = pre.toUpperCase();
+}
 </script>
 </body>
 </html>
