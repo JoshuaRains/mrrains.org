@@ -1,0 +1,106 @@
+[
+  {
+    "term": "tener que (+ verbo en base form)",
+    "translation": [
+      "to have to (do something)",
+      "to need to (do something)",
+      "must (do something)"
+    ]
+  },
+  {
+    "term": "tener ___ años",
+    "translation": [
+      "to be ___ years old"
+    ]
+  },
+  {
+    "term": "tener celos",
+    "translation": [
+      "to be jealous"
+    ]
+  },
+  {
+    "term": "tener paciencia",
+    "translation": [
+      "to be patient",
+      "to have patience"
+    ]
+  },
+  {
+    "term": "tener ganas de (+ verbo en base form)",
+    "translation": [
+      "to feel like (doing something)",
+      "to want to (do something)",
+      "to be in the mood to (do something)"
+    ]
+  },
+  {
+    "term": "tener cuidado",
+    "translation": [
+      "to be careful"
+    ]
+  },
+  {
+    "term": "tener razón",
+    "translation": [
+      "to be right"
+    ]
+  },
+  {
+    "term": "no tener razón",
+    "translation": [
+      "to be wrong"
+    ]
+  },
+  {
+    "term": "tener hambre",
+    "translation": [
+      "to be hungry"
+    ]
+  },
+  {
+    "term": "tener sed",
+    "translation": [
+      "to be thirsty"
+    ]
+  },
+  {
+    "term": "tener frío",
+    "translation": [
+      "to be cold"
+    ]
+  },
+  {
+    "term": "tener calor",
+    "translation": [
+      "to be hot",
+      "to be warm"
+    ]
+  },
+  {
+    "term": "tener prisa",
+    "translation": [
+      "to be in a hurry"
+    ]
+  },
+  {
+    "term": "tener miedo",
+    "translation": [
+      "to be afraid",
+      "to be scared"
+    ]
+  },
+  {
+    "term": "tener sueño",
+    "translation": [
+      "to be sleepy",
+      "to be tired (sleepy)"
+    ]
+  },
+  {
+    "term": "tener suerte",
+    "translation": [
+      "to be lucky"
+    ]
+  }
+]

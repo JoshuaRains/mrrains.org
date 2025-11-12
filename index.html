@@ -242,6 +242,15 @@
     .activity-icon.assignment_add {
         background: linear-gradient(to right, #a3299f, #eb02dc); /* Bright pink gradient for "assignment_add" */
     }
+    .activity-icon.vector {
+background: linear-gradient(to right, #7fae94, #94c0a8);
+    }
+    .activity-svg-icon {
+	width: 24px;
+	height: 24px;
+	display: block;
+}
+
 
     /* Material Symbols sizing (so it matches your Material Icons) */
 .material-symbols-outlined {
@@ -334,6 +343,8 @@ image-rendering: -webkit-optimize-contrast;
   white-space: nowrap;
   direction: ltr;
 }
+
+
 
 
   </style>
@@ -584,7 +595,6 @@ image-rendering: -webkit-optimize-contrast;
 
         <div class="games-slide" data-title="Games">
           <button class="game-item" onclick="location.href='./pages/games/castles2/student.html'"><img src="assets/vector_icons/TilesGame.svg" alt="Tiles Game"><p>Castles</p></button>
-          <button class="game-item" onclick="location.href='./pages/games/battleship/'"><img src="assets/vector_icons/battleship.svg" alt="battleship"><p>battleship</p></button>
         
         </div>
 
@@ -622,7 +632,56 @@ image-rendering: -webkit-optimize-contrast;
 
 <br>
 <br>
+<p class="activity-topic">Week 15</p>
+
+
+
+<button class="activity-button" onclick="window.open('./pages/games/vocabularyReview/index.html?set=quererforms', '_blank')">
+              <div class="activity-item">
+                <div class="activity-icon model_training">
+                  <span class="material-icons">model_training</span>
+                </div>
+                <div class="activity-text">Querer Conjugation Practice </div>
+              </div>
+            </button>
+
 <p class="activity-topic">Week 14</p>
+
+<button class="activity-button" onclick="location.href='./pages/games/battleship/'">
+  <div class="activity-item">
+    <div class="activity-icon vector">
+      <img src="assets/vector_icons/battleship.svg" alt="Battleship" class="activity-svg-icon">
+    </div>
+    <div class="activity-text">Tener + Querer Battleship</div>
+  </div>
+</button>
+
+<button class="activity-button" onclick="window.open('./pages/games/vocabularyReview/index.html?set=tenerforms', '_blank')">
+              <div class="activity-item">
+                <div class="activity-icon model_training">
+                  <span class="material-icons">model_training</span>
+                </div>
+                <div class="activity-text">Tener Conjugation Practice </div>
+              </div>
+            </button>
+
+<button class="activity-button" onclick="window.open('./pages/games/vocabularyReview/index.html?set=tenerexpressions', '_blank')">
+              <div class="activity-item">
+                <div class="activity-icon model_training">
+                  <span class="material-icons">model_training</span>
+                </div>
+                <div class="activity-text">Tener Expressions </div>
+              </div>
+            </button>
+
+<button class="activity-button" onclick="window.open('./pages/games/vocabularyReview/index.html?set=tenerexpressionssentences', '_blank')">
+              <div class="activity-item">
+                <div class="activity-icon model_training">
+                  <span class="material-icons">model_training</span>
+                </div>
+                <div class="activity-text">Tener Expressions Sentences</div>
+              </div>
+            </button>
 
 <button class="activity-button" onclick="location.href='./pages/tools/TenerExpressions/corrections.html'">
           <div class="activity-item">
@@ -632,6 +691,8 @@ image-rendering: -webkit-optimize-contrast;
             <div class="activity-text">Tener Expressions Sentence Correcting (whole class)</div>
           </div>
         </button>
+
+
 
 <p class="activity-topic">Week 13</p>
 

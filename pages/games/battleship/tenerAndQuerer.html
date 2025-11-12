@@ -1,0 +1,902 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Conjugation Battleship</title>
+<link rel="preconnect" href="https://www.gstatic.com" crossorigin>
+
+<style>
+:root{
+	--bg:#f7f9fc; --text:#111827; --muted:#596273; --panel:#ffffff; --line:#e5e7eb;
+	--good:#16a34a; --bad:#dc2626; --warn:#b45309;
+	/* sizes computed to keep perfect squares on both boards */
+	--rowHeadW: 140px; --colHeadH: 132px; --cellBig: 80px; --cellSmall: 32px;
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+	margin:0;
+	background:var(--bg);
+	color:var(--text);
+	font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,'Helvetica Neue',Arial
+}
+.app{max-width:1200px;margin:0 auto;padding:18px}
+.header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.h1{font-size:clamp(20px,2.6vw,28px);font-weight:800;margin:0}
+
+.card{
+	background:var(--panel);
+	border:1px solid var(--line);
+	border-radius:14px;
+	padding:14px;
+	box-shadow:0 8px 22px rgba(20,30,60,.06)
+}
+.title{font-weight:800;margin-bottom:8px}
+.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.small{font-size:12px;color:var(--muted)}
+.hr{height:1px;background:linear-gradient(90deg,transparent,#e5e7eb,transparent);margin:12px 0}
+.input,input[type="text"]{
+	background:#fff;border:1px solid var(--line);color:var(--text);
+	padding:10px 12px;border-radius:10px;outline:none;width:220px
+}
+.btn{
+	background:#111827;color:#fff;border:1px solid #111827;
+	padding:10px 14px;border-radius:10px;font-weight:700;
+	cursor:pointer;transition:filter .15s ease,transform .06s ease
+}
+.btn:hover{filter:brightness(1.05)}
+.btn:active{transform:translateY(1px)}
+.btn.secondary{background:#e5e7eb;color:#111827;border-color:#d1d5db}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+
+/* Boards stage */
+.stage{display:grid;gap:16px;grid-template-columns:260px 1fr;align-items:start}
+.boardWrap{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:12px}
+.boardHead{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.boardTitle{font-weight:800}
+
+/* Tables w/ square cells */
+.tableWrap{overflow:visible}
+table{border-collapse:separate;border-spacing:0}
+th,td{border:1px solid var(--line);padding:0;text-align:center;vertical-align:middle;background:#fff}
+th.corner{width:var(--rowHeadW);height:var(--colHeadH);background:#fafafa}
+th.colHead{width:var(--cellBig);height:var(--colHeadH);position:relative;background:#fafafa}
+th.rowHead{width:var(--rowHeadW);height:var(--cellBig);padding:0 10px;text-align:right;font-weight:800;background:#fafafa}
+.slanted{
+	position:absolute;left:50%;bottom:8px;
+	transform-origin:bottom left;transform:translateX(-50%) rotate(-34deg);
+	white-space:nowrap;font-size:15px;font-weight:800;color:#0f172a
+}
+.cell{
+	position:relative;display:flex;align-items:center;justify-content:center;
+	width:var(--cellBig);height:var(--cellBig);font-size:30px
+}
+.mini td .cell{width:var(--cellSmall);height:var(--cellSmall);font-size:18px}
+.dot{width:10px;height:10px;border-radius:50%;display:inline-block}
+.dot.hit{background:var(--good)} .dot.miss{background:var(--bad)}
+
+/* Footer: status + always-on answer bar */
+.footer{
+	margin-top:12px;
+	display:grid;
+	grid-template-columns:1fr auto;
+	gap:14px;
+	align-items:end
+}
+.status{
+	background:#111827;color:#fff;
+	padding:10px 12px;border-radius:10px;font-weight:700
+}
+.answerBar{display:flex;flex-direction:column;gap:6px;min-width:min(560px,48vw)}
+.hint-bad{display:none;color:var(--bad);font-weight:800}
+.hint-used{display:none;color:var(--warn);font-weight:800}
+.answerRow{display:flex;gap:8px;align-items:center}
+.answerInput{
+	flex:1;font-size:24px;padding:14px 16px;border-radius:12px;
+	border:2px solid #d1d5db;outline:none;background:#fff;color:var(--text)
+}
+.answerInput.is-wrong{color:var(--bad);border-color:var(--bad)}
+.answerInput.is-right{color:var(--good);border-color:var(--good)}
+
+/* End screen */
+#endScreen{display:none;margin-top:10px}
+#endScreen.show{display:block}
+.winner{font-weight:800;font-size:18px;margin-bottom:6px}
+.note{color:var(--muted)}
+
+/* Accent character buttons */
+.accentRow{
+  display:flex; gap:6px; flex-wrap:wrap; margin-top:4px;
+}
+.accentBtn{
+  padding:8px 10px; border-radius:10px; border:1px solid #cbd5e1;
+  background:#f8fafc; cursor:pointer; font-weight:800; font-size:18px;
+}
+.accentBtn:hover{ filter:brightness(.98) }
+
+/* Cell FX */
+.fx{
+	position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+	font-size:40px;pointer-events:none;opacity:0;
+	filter:drop-shadow(0 4px 8px rgba(0,0,0,.2))
+}
+.fx.fx-hit,.fx.fx-miss{animation:popFade .7s ease-out forwards}
+@keyframes popFade{
+	0%{transform:scale(.4);opacity:0}
+	25%{opacity:1}
+	70%{transform:scale(1.7);opacity:.35}
+	100%{transform:scale(1.9);opacity:0}
+}
+
+/* Placement screen */
+#placementScreen{
+	margin-top:12px;
+	text-align:center;
+}
+.placementBoardWrap{
+	display:flex;
+	justify-content:center;
+	margin:12px 0;
+}
+</style>
+</head>
+<body>
+<div class="app">
+	<div class="header">
+		<h1 class="h1">Conjugation Battleship</h1>
+	</div>
+
+	<!-- LOBBY -->
+	<div id="lobby" class="card">
+		<div class="title">Start or Join a Match</div>
+		<div class="row">
+			<button id="btnCreate" class="btn">Create Match</button>
+			<input id="joinCodeInput" type="text" maxlength="4" placeholder="Enter code (e.g., H7KT)" />
+			<button id="btnJoin" class="btn secondary">Join</button>
+		</div>
+
+		<div id="createPanel" style="display:none">
+			<div class="hr"></div>
+			<div class="row small">
+				<div>Code: <strong id="matchCodeLabel"></strong></div>
+				<div>Players: <strong id="playersCountChip">1/2</strong></div>
+				<div id="waitChip">Waiting for opponent…</div>
+			</div>
+			<div class="row" style="margin-top:8px">
+				<button id="btnCancel" class="btn secondary">Cancel</button>
+			</div>
+		</div>
+
+		<div id="joinPanel" style="display:none">
+			<div class="hr"></div>
+			<div class="row small">
+				<div>Joined: <strong id="joinedCodeLabel"></strong></div>
+				<div id="joinWaitChip">Waiting for host to prepare the game…</div>
+			</div>
+		</div>
+	</div>
+
+	<!-- GAME -->
+	<div id="game" style="display:none">
+		<!-- Placement screen -->
+		<div id="placementScreen" class="card" style="display:none">
+			<div class="title">Place Your Fleet</div>
+			<div class="small">
+				This is your board. Press “Randomize ships” until you like the layout, then press “Ready”.
+			</div>
+			<div class="placementBoardWrap">
+				<div class="tableWrap"><table id="placementBoard"></table></div>
+			</div>
+			<div class="row" style="justify-content:center;margin-top:8px">
+				<button id="btnRandomize" class="btn secondary">Randomize ships</button>
+				<button id="btnReady" class="btn">Ready</button>
+			</div>
+			<div class="small" id="readyStatusText" style="margin-top:8px"></div>
+		</div>
+
+		<!-- Main play screen -->
+		<div id="playScreen" style="display:none">
+			<div class="stage">
+				<!-- Mini: Your Fleet (no labels) -->
+				<div class="boardWrap">
+					<div class="boardHead">
+						<div class="boardTitle">Your Fleet</div>
+						<div class="small">
+							<span class="dot hit"></span> Hit &nbsp;&nbsp;
+							<span class="dot miss"></span> Miss
+						</div>
+					</div>
+					<div class="tableWrap"><table id="myBoard" class="mini"></table></div>
+				</div>
+
+				<!-- Main: Target Grid -->
+				<div class="boardWrap">
+					<div class="boardHead">
+						<div class="boardTitle">Target Grid</div>
+						<div class="small">
+							<span class="dot hit"></span> Hit &nbsp;&nbsp;
+							<span class="dot miss"></span> Miss
+						</div>
+					</div>
+					<div class="tableWrap"><table id="enemyBoard"></table></div>
+
+					<div id="endScreen" class="card">
+						<div class="winner" id="winnerText">Winner: —</div>
+						<div class="note">Rematch re-rolls ships and keeps players.</div>
+						<div class="row" style="margin-top:10px"><button id="btnRematch" class="btn">Rematch</button></div>
+					</div>
+				</div>
+			</div>
+
+			<!-- Status + Always-on Answer Bar -->
+			<div class="footer">
+				<div class="status" id="statusText">Status: —</div>
+
+				<div class="answerBar">
+					<div id="hintBad" class="hint-bad">Not a correct form of a verb</div>
+					<div id="hintUsed" class="hint-used">That conjugation has already been used</div>
+					<div class="answerRow">
+						<input id="answerInput" type="text" class="answerInput" placeholder="Type a verb form"/>
+						<button id="btnFire" class="btn" disabled>Fire</button>
+					</div>
+					<div id="accentRow" class="accentRow">
+						<button type="button" class="accentBtn" data-char="á" aria-label="á">á</button>
+						<button type="button" class="accentBtn" data-char="é" aria-label="é">é</button>
+						<button type="button" class="accentBtn" data-char="í" aria-label="í">í</button>
+						<button type="button" class="accentBtn" data-char="ó" aria-label="ó">ó</button>
+						<button type="button" class="accentBtn" data-char="ú" aria-label="ú">ú</button>
+						<button type="button" class="accentBtn" data-char="ü" aria-label="ü">ü</button>
+						<button type="button" class="accentBtn" data-char="ñ" aria-label="ñ">ñ</button>
+						<button type="button" class="accentBtn" data-char="¡" aria-label="¡">¡</button>
+						<button type="button" class="accentBtn" data-char="¿" aria-label="¿">¿</button>
+					</div>
+
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<script type="module">
+/* ===================== CONFIG ===================== */
+const PRONOUNS = ["yo","tú","él/ella/usted","nosotros","ustedes/ellos/ellas"];
+const VERBS = [
+	{inf:"ser",    type:"er", en:"to be"},
+	{inf:"estar",  type:"ar", en:"to be"},
+	{inf:"tener",  type:"er", en:"to have"},
+	{inf:"querer", type:"er", en:"to want"},
+];
+const SHIPS = [3,2,2,1];
+const IRREGULARS = {
+  "ser": {
+	"yo":"soy",
+	"tú":"eres",
+	"él/ella/usted":"es",
+	"nosotros":"somos",
+	"ustedes/ellos/ellas":"son"
+  },
+  "estar": {
+	"yo":"estoy",
+	"tú":"estás",
+	"él/ella/usted":"está",
+	"nosotros":"estamos",
+	"ustedes/ellos/ellas":"están"
+  },
+  "tener": {
+	"yo":"tengo",
+	"tú":"tienes",
+	"él/ella/usted":"tiene",
+	"nosotros":"tenemos",
+	"ustedes/ellos/ellas":"tienen"
+  },
+  "querer": {
+	"yo":"quiero",
+	"tú":"quieres",
+	"él/ella/usted":"quiere",
+	"nosotros":"queremos",
+	"ustedes/ellos/ellas":"quieren"
+  }
+};
+const ENDINGS = {
+  ar: {"yo":"o","tú":"as","él/ella/usted":"a","nosotros":"amos","ustedes/ellos/ellas":"an"},
+  er: {"yo":"o","tú":"es","él/ella/usted":"e","nosotros":"emos","ustedes/ellos/ellas":"en"},
+  ir: {"yo":"o","tú":"es","él/ella/usted":"e","nosotros":"imos","ustedes/ellos/ellas":"en"},
+};
+
+const EMOJI_HIT="✅", EMOJI_MISS="❌", EMOJI_SHIP="🚢", FX_HIT="💥", FX_MISS="💦";
+
+/* ===================== UTILITIES ===================== */
+const strip = s => s.normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().trim();
+function conj(verbInf, type, pron){
+	if(IRREGULARS[verbInf]?.[pron]) return IRREGULARS[verbInf][pron];
+	if(!ENDINGS[type]) return "";
+	const stem = verbInf.slice(0,-2);
+	return stem + ENDINGS[type][pron];
+}
+
+function insertAtCaret(el, text){
+  const start = el.selectionStart ?? el.value.length;
+  const end   = el.selectionEnd ?? el.value.length;
+  const v = el.value;
+  el.value = v.slice(0, start) + text + v.slice(end);
+  const pos = start + text.length;
+  el.setSelectionRange(pos, pos);
+  el.focus();
+  // trigger input listeners (clears feedback, etc.)
+  el.dispatchEvent(new Event('input', { bubbles:true }));
+}
+
+/* Build a fast lookup from typed form → list of (r,c) cells */
+const FORM_INDEX = new Map();
+(function buildIndex(){
+	for(let r=0;r<VERBS.length;r++){
+		for(let c=0;c<PRONOUNS.length;c++){
+			const form = conj(VERBS[r].inf, VERBS[r].type, PRONOUNS[c]);
+			const key = strip(form);
+			if(!FORM_INDEX.has(key)) FORM_INDEX.set(key, []);
+			FORM_INDEX.get(key).push({r,c});
+		}
+	}
+})();
+
+/* ===================== Firebase ===================== */
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-app.js";
+import { getDatabase, ref, onValue, set, update, get, runTransaction } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-database.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyAVMngUu7jm_eOohqYE-9-27yW2ajht-hs",
+  authDomain: "battleship-dbe77.firebaseapp.com",
+  projectId: "battleship-dbe77",
+  storageBucket: "battleship-dbe77.firebasestorage.app",
+  messagingSenderId: "116418577581",
+  appId: "1:116418577581:web:7e7f68dc32f6a19cbc3224"
+};
+
+let app, db;
+try{ app = initializeApp(firebaseConfig); db = getDatabase(app); }
+catch(e){ console.warn("Firebase not initialized yet. Paste your config.", e); }
+
+/* ===================== State & Refs ===================== */
+const LS_ID_KEY = "cbattleship_client_id_v7";
+let CLIENT_ID = localStorage.getItem(LS_ID_KEY);
+if(!CLIENT_ID){
+	CLIENT_ID = 'p' + Math.random().toString(36).slice(2,9);
+	localStorage.setItem(LS_ID_KEY, CLIENT_ID);
+}
+
+const qs = s=>document.querySelector(s);
+
+/* Lobby */
+const lobby = qs("#lobby"),
+      createPanel=qs("#createPanel"),
+      joinPanel=qs("#joinPanel");
+const btnCreate=qs("#btnCreate"),
+      btnJoin=qs("#btnJoin"),
+      btnCancel=qs("#btnCancel");
+const joinCodeInput=qs("#joinCodeInput");
+const matchCodeLabel=qs("#matchCodeLabel"),
+      joinedCodeLabel=qs("#joinedCodeLabel");
+const playersCountChip=qs("#playersCountChip"),
+      waitChip=qs("#waitChip"),
+      joinWaitChip=qs("#joinWaitChip");
+
+/* Game containers */
+const game=qs("#game");
+const placementScreen=qs("#placementScreen"),
+      placementBoardEl=qs("#placementBoard"),
+      btnRandomize=qs("#btnRandomize"),
+      btnReady=qs("#btnReady"),
+      readyStatusText=qs("#readyStatusText");
+const playScreen=qs("#playScreen");
+
+/* Boards */
+const myBoardEl=qs("#myBoard"),
+      enemyBoardEl=qs("#enemyBoard");
+
+/* End screen */
+const endScreen=qs("#endScreen"),
+      winnerText=qs("#winnerText"),
+      btnRematch=qs("#btnRematch");
+
+/* Answer bar */
+const statusText=qs("#statusText");
+const answerInput=qs("#answerInput"),
+      btnFire=qs("#btnFire"),
+      hintBad=qs("#hintBad"),
+      hintUsed=qs("#hintUsed");
+
+let CURRENT_CODE=null, I_AM_HOST=false, MATCH=null, ENEMY_ID=null;
+
+/* Helpers */
+const codeGen=()=>{
+	const chars="ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+	let s="";
+	for(let i=0;i<4;i++) s+=chars[Math.floor(Math.random()*chars.length)];
+	return s;
+};
+const matchRef=code=>ref(db,`matches/${code}`);
+const newEmptyGrid=()=>Array.from({length:VERBS.length}, _=> Array(PRONOUNS.length).fill(0));
+const copy2D=a=>a.map(r=>r.slice());
+function canPlace(g,r,c,len,dir){
+	const rows=g.length,cols=g[0].length;
+	if(dir==='H'){
+		if(c+len>cols) return false;
+		for(let j=0;j<len;j++) if(g[r][c+j]!==0) return false;
+	}else{
+		if(r+len>rows) return false;
+		for(let i=0;i<len;i++) if(g[r+i][c]!==0) return false;
+	}
+	return true;
+}
+function placeShipsRandom(){
+  const g = newEmptyGrid();
+  for(const size of SHIPS){
+    let placed=false, tries=0;
+    while(!placed && tries<500){
+      tries++;
+      const dir = Math.random()<0.5?'H':'V';
+      const r = Math.floor(Math.random()*g.length);
+      const c = Math.floor(Math.random()*g[0].length);
+      if(canPlace(g,r,c,size,dir)){
+        if(dir==='H') for(let j=0;j<size;j++) g[r][c+j]=1;
+        else          for(let i=0;i<size;i++) g[r+i][c]=1;
+        placed=true;
+      }
+    }
+    if(!placed) return placeShipsRandom(); // fallback if crowded
+  }
+  return g;
+}
+function setStatus(s){statusText.textContent="Status: "+s}
+
+/* Build tables */
+function buildBoard(tableEl,{labelsTop=true,labelsLeft=true,mini=false}={}){
+	const rows=VERBS.length, cols=PRONOUNS.length;
+	let html="<thead>";
+	if(labelsTop){
+		html+="<tr>";
+		html+=labelsLeft?`<th class="corner"></th>`:"";
+		for(let c=0;c<cols;c++){
+			html+=`<th class="colHead"><div class="slanted">${PRONOUNS[c]}</div></th>`;
+		}
+		html+="</tr>";
+	}
+	html+="</thead><tbody>";
+	for(let r=0;r<rows;r++){
+		html+="<tr>";
+		if(labelsLeft) html+=`<th class="rowHead">${VERBS[r].inf}</th>`;
+		for(let c=0;c<cols;c++){
+			html+=`<td><div class="cell" data-r="${r}" data-c="${c}"></div></td>`;
+		}
+		html+="</tr>";
+	}
+	html+="</tbody>";
+	tableEl.innerHTML=html;
+	if(mini) tableEl.classList.add("mini");
+}
+
+/* Painting */
+function paintMyBoard(base){
+	const apply = (tableEl)=>{
+		if(!tableEl) return;
+		const boxes=tableEl.querySelectorAll(".cell");
+		boxes.forEach(b=>{
+			const r=+b.dataset.r,c=+b.dataset.c;
+			const v=base?.[r]?.[c]??0;
+			b.textContent="";
+			if(v===1)b.textContent=EMOJI_SHIP;
+			if(v===2)b.textContent=EMOJI_HIT;
+			if(v===-1)b.textContent=EMOJI_MISS;
+		});
+	};
+	apply(myBoardEl);
+	apply(placementBoardEl);
+}
+function paintEnemyBoard(marks){
+	const boxes=enemyBoardEl.querySelectorAll(".cell");
+	boxes.forEach(b=>{
+		const r=+b.dataset.r,c=+b.dataset.c;
+		const v=marks?.[r]?.[c]??0;
+		b.textContent="";
+		if(v===2)b.textContent=EMOJI_HIT;
+		if(v===-1)b.textContent=EMOJI_MISS;
+	});
+}
+
+/* Sizing (keep everything visible & square) */
+function computeSizes(){
+	const stage=document.querySelector(".stage"); if(!stage) return;
+	const mainWrap=enemyBoardEl.closest(".boardWrap");
+	const rows=VERBS.length, cols=PRONOUNS.length;
+	const rowHeadW=140, colHeadHBig=132;
+	const availW=mainWrap.getBoundingClientRect().width-rowHeadW-12;
+	const availH=window.innerHeight-stage.getBoundingClientRect().top-200;
+	const byW=Math.floor(availW/cols), byH=Math.floor((availH-colHeadHBig)/rows);
+	let cellBig=Math.floor(Math.min(byW,byH)*1.2);
+	cellBig=Math.max(56,Math.min(cellBig,110));
+	let cellSmall=Math.floor(cellBig*0.55);
+	cellSmall=Math.max(20,Math.min(cellSmall,48));
+	document.documentElement.style.setProperty('--rowHeadW',rowHeadW+"px");
+	document.documentElement.style.setProperty('--colHeadH',colHeadHBig+"px");
+	document.documentElement.style.setProperty('--cellBig',cellBig+"px");
+	document.documentElement.style.setProperty('--cellSmall',cellSmall+"px");
+}
+
+/* Animation on a cell */
+function animateCell(r,c,type){
+	const cell=enemyBoardEl.querySelector(`.cell[data-r="${r}"][data-c="${c}"]`); if(!cell) return;
+	const fx=document.createElement("div");
+	fx.className=`fx ${type==='hit'?'fx-hit':'fx-miss'}`;
+	fx.textContent= type==='hit'?FX_HIT:FX_MISS;
+	cell.appendChild(fx);
+	setTimeout(()=>{ cell.textContent = (type==='hit'?EMOJI_HIT:EMOJI_MISS); },700);
+	setTimeout(()=> fx.remove(), 900);
+}
+
+/* Enable/disable Fire based on turn */
+function setFireEnabled(){
+	const on = !!(MATCH && MATCH.state?.status==="playing" && MATCH.state?.turn===CLIENT_ID && ENEMY_ID);
+	btnFire.disabled = !on;
+}
+
+/* Resolve typed form → target cell or reason */
+function resolveCellFromInput(str, marks){
+	const list = FORM_INDEX.get(strip(str)) || [];
+	if(list.length===0) return {kind:"noMatch"};
+	// prefer a cell we haven't targeted yet
+	for(const {r,c} of list){
+		if(!marks || (marks[r][c]!==-1 && marks[r][c]!==2))
+			return {kind:"target", r, c};
+	}
+	// all matched cells were already used
+	return {kind:"used"};
+}
+
+/* Fire at a specific cell (r,c) */
+async function fireAtCell(r,c){
+	const code=CURRENT_CODE; const mref=matchRef(code);
+	const snap=await get(mref); const m=snap.val(); if(!m) return null;
+	if(m.state?.turn!==CLIENT_ID) return null;
+
+	const myMarks=m.marks?.[CLIENT_ID]||newEmptyGrid();
+	if(myMarks[r][c]===-1 || myMarks[r][c]===2) return null;
+
+	const enemyId=Object.keys(m.players||{}).find(pid=>pid!==CLIENT_ID); if(!enemyId) return null;
+	const enemyGrid=m.boards?.[enemyId];
+	const myMarksNew=copy2D(myMarks);
+	const enemyGridNew=enemyGrid?copy2D(enemyGrid):null;
+
+	let result="miss";
+	if(enemyGridNew){
+		if(enemyGridNew[r][c]===1){
+			enemyGridNew[r][c]=2; myMarksNew[r][c]=2; result="hit";
+		}else{
+			if(enemyGridNew[r][c]===0) enemyGridNew[r][c]=-1;
+			myMarksNew[r][c]=-1;
+		}
+	}
+	let finished=false;
+	if(result==="hit" && enemyGridNew){
+		let anyLeft=false;
+		for(const row of enemyGridNew){
+			for(const v of row){
+				if(v===1){ anyLeft=true; break; }
+			}
+			if(anyLeft) break;
+		}
+		if(!anyLeft) finished=true;
+	}
+	const updates={};
+	updates[`/marks/${CLIENT_ID}`]=myMarksNew;
+	if(enemyGridNew) updates[`/boards/${enemyId}`]=enemyGridNew;
+	updates[`/state/turn`]= finished? null : enemyId;
+	if(finished){
+		updates[`/state/status`]="finished";
+		updates[`/state/winner`]=CLIENT_ID;
+	}
+	await update(mref, updates);
+	return result;
+}
+
+/* Render from match snapshot */
+function render(){
+	const m=MATCH; if(!m) return;
+	const ids=Object.keys(m.players||{}); ENEMY_ID = ids.find(x=>x!==CLIENT_ID)||null;
+
+	const st=m.state?.status||"waiting";
+	const turn=m.state?.turn||null;
+
+	if(st==="placing"){
+		lobby.style.display="none";
+		game.style.display="block";
+		if(placementScreen) placementScreen.style.display="block";
+		if(playScreen) playScreen.style.display="none";
+
+		if(placementBoardEl && !placementBoardEl.querySelector("tbody")){
+			buildBoard(placementBoardEl,{labelsTop:true,labelsLeft:true,mini:false});
+		}
+	}else if(st==="playing"){
+		lobby.style.display="none";
+		game.style.display="block";
+		if(placementScreen) placementScreen.style.display="none";
+		if(playScreen) playScreen.style.display="block";
+
+		if(!myBoardEl.querySelector("tbody"))
+			buildBoard(myBoardEl,{labelsTop:false,labelsLeft:false,mini:true});
+		if(!enemyBoardEl.querySelector("tbody"))
+			buildBoard(enemyBoardEl,{labelsTop:true,labelsLeft:true,mini:false});
+		computeSizes();
+	}
+
+	// Paint boards
+	const myBase=m.boards?.[CLIENT_ID]||null;
+	const myMarks=m.marks?.[CLIENT_ID]||null;
+	if(myBase) paintMyBoard(myBase);
+	if(myMarks && st==="playing") paintEnemyBoard(myMarks);
+
+	// Placement UI statuses
+	if(st==="placing" && placementScreen){
+		const readyMap=m.ready || {};
+		const meReady=!!readyMap[CLIENT_ID];
+		const otherId=ids.find(x=>x!==CLIENT_ID);
+		const otherReady=otherId? !!readyMap[otherId] : false;
+
+		if(btnRandomize) btnRandomize.disabled = meReady;
+		if(btnReady) btnReady.disabled = meReady;
+
+		if(readyStatusText){
+			if(meReady && otherReady){
+				readyStatusText.textContent="Both players ready — starting game…";
+			}else if(meReady){
+				readyStatusText.textContent="You are ready. Waiting for your opponent.";
+			}else if(otherReady){
+				readyStatusText.textContent="Opponent is ready. Choose a layout and press Ready.";
+			}else{
+				readyStatusText.textContent="Choose a layout, then press Ready.";
+			}
+		}
+	}
+
+	// Status bar text
+	if(st==="playing"){
+		setFireEnabled();
+		setStatus(turn===CLIENT_ID
+			? "Your turn — type a conjugation and press Fire."
+			: "Opponent's turn — please wait."
+		);
+	}else if(st==="waiting"){
+		setStatus(ids.length===1
+			? "Waiting for an opponent…"
+			: "Opponent joined — preparing game…"
+		);
+	}else if(st==="placing"){
+		setFireEnabled();
+		setStatus("Place your ships, then press Ready.");
+	}else if(st==="finished"){
+		setFireEnabled();
+		const win=m.state?.winner===CLIENT_ID;
+		setStatus(win? "You won! 🎉":"You lost. Good game!");
+		winnerText.textContent=win? "Winner: You! 🎉" : "Winner: Opponent";
+		endScreen.classList.add("show");
+	}
+}
+
+/* Host: move from waiting → placing (initial boards) */
+async function hostAutoStart(){
+	if(!I_AM_HOST || !CURRENT_CODE) return;
+	const sRef=ref(db,`matches/${CURRENT_CODE}/state/status`);
+	try{
+		const res=await runTransaction(sRef, s=>(s==="waiting"?"placing":s));
+		if(res.committed && res.snapshot.val()==="placing"){
+			const mref=matchRef(CURRENT_CODE);
+			const snap=await get(mref); const m=snap.val(); if(!m) return;
+			const ids=Object.keys(m.players||{}); if(ids.length<2){
+				await update(mref,{"state/status":"waiting"});
+				return;
+			}
+			const p1=m.host;
+			const p2=ids.find(x=>x!==p1);
+			const boards={};
+			boards[p1]=placeShipsRandom();
+			boards[p2]=placeShipsRandom();
+			const marks={};
+			marks[p1]=newEmptyGrid();
+			marks[p2]=newEmptyGrid();
+			const ready={};
+			ready[p1]=false;
+			ready[p2]=false;
+			await update(mref,{
+				boards,
+				marks,
+				ready,
+				state:{status:"placing",turn:null,winner:null}
+			});
+		}
+	}catch(e){ console.error(e); }
+}
+
+/* Host: once both players ready → start playing */
+async function maybeStartGameAfterReady(){
+	if(!I_AM_HOST || !CURRENT_CODE || !MATCH) return;
+	if(MATCH.state?.status!=="placing") return;
+	const ids=Object.keys(MATCH.players||{}); if(ids.length<2) return;
+	const readyMap=MATCH.ready || {};
+	const allReady = ids.every(id=>readyMap[id]);
+	if(!allReady) return;
+
+	const p1=MATCH.host;
+	const p2=ids.find(x=>x!==p1);
+	const marks={};
+	marks[p1]=newEmptyGrid();
+	marks[p2]=newEmptyGrid();
+	const first=Math.random()<0.5? p1 : p2;
+
+	await update(matchRef(CURRENT_CODE), {
+		marks,
+		state:{status:"playing",turn:first,winner:null}
+	});
+}
+
+/* Listen to a match */
+function attachMatchListener(code){
+	const mref=matchRef(code);
+	onValue(mref,(snap)=>{
+		MATCH=snap.val(); if(!MATCH) return;
+		if(lobby.style.display!=="none"){
+			const count=Object.keys(MATCH.players||{}).length;
+			playersCountChip.textContent=`${count}/2`;
+			if(MATCH.state?.status==="waiting" && count>=2){
+				waitChip.textContent="Opponent joined — preparing game…";
+				joinWaitChip.textContent="Host is preparing the game…";
+				hostAutoStart();
+			}else if(MATCH.state?.status==="placing"){
+				waitChip.textContent="Opponent joined — placing ships…";
+				joinWaitChip.textContent="Placing ships…";
+			}
+		}
+		render();
+		if(I_AM_HOST) maybeStartGameAfterReady();
+	});
+}
+
+/* ===================== Lobby actions ===================== */
+btnCreate?.addEventListener("click", async ()=>{
+	if(!db){ alert("Paste your Firebase config first."); return; }
+	const code=codeGen(); CURRENT_CODE=code; I_AM_HOST=true;
+	matchCodeLabel.textContent=code; createPanel.style.display="block"; joinPanel.style.display="none";
+	await set(matchRef(code),{
+		host:CLIENT_ID,
+		createdAt:Date.now(),
+		players:{[CLIENT_ID]:true},
+		state:{status:"waiting",turn:null,winner:null}
+	});
+	attachMatchListener(code);
+});
+btnCancel?.addEventListener("click", ()=>location.reload());
+btnJoin?.addEventListener("click", async ()=>{
+	if(!db){ alert("Paste your Firebase config first."); return; }
+	const raw=(joinCodeInput.value||"").toUpperCase().replace(/[^A-Z0-9]/g,"").slice(0,4);
+	if(raw.length!==4){ alert("Enter a 4-character code."); return; }
+	const code=raw; const mref=matchRef(code); const snap=await get(mref);
+	if(!snap.exists()){ alert("Match not found."); return; }
+	const m=snap.val();
+	if((m.state?.status||"")!=="waiting"){ alert("Match already started or unavailable."); return; }
+	if(Object.keys(m.players||{}).length>=2){ alert("Match is already full."); return; }
+	await update(mref,{[`players/${CLIENT_ID}`]:true});
+	CURRENT_CODE=code; I_AM_HOST=(m.host===CLIENT_ID);
+	matchCodeLabel.textContent=code; joinedCodeLabel.textContent=code;
+	createPanel.style.display="none"; joinPanel.style.display="block";
+	attachMatchListener(code);
+});
+
+/* ===================== Placement actions ===================== */
+btnRandomize?.addEventListener("click", async ()=>{
+	if(!db || !CURRENT_CODE || !MATCH) return;
+	if(MATCH.state?.status!=="placing") return;
+	const readyMap=MATCH.ready || {};
+	if(readyMap[CLIENT_ID]) return; // locked in
+	const newBoard = placeShipsRandom();
+	await update(matchRef(CURRENT_CODE), { [`boards/${CLIENT_ID}`]: newBoard });
+});
+
+btnReady?.addEventListener("click", async ()=>{
+	if(!db || !CURRENT_CODE || !MATCH) return;
+	if(MATCH.state?.status!=="placing") return;
+	const readyMap=MATCH.ready || {};
+	if(readyMap[CLIENT_ID]) return;
+	await update(matchRef(CURRENT_CODE), { [`ready/${CLIENT_ID}`]: true });
+});
+
+/* ===================== Answer bar behavior ===================== */
+document.querySelectorAll('#accentRow .accentBtn').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    insertAtCaret(answerInput, btn.dataset.char);
+  });
+});
+
+function clearFeedback(){
+	hintBad.style.display="none";
+	hintUsed.style.display="none";
+	answerInput.classList.remove("is-wrong","is-right");
+}
+answerInput.addEventListener("input", clearFeedback);
+
+btnFire.addEventListener("click", async ()=>{
+	if(btnFire.disabled || !MATCH) return;
+	const myMarks = MATCH.marks?.[CLIENT_ID] || newEmptyGrid();
+	const val = answerInput.value;
+	const result = resolveCellFromInput(val, myMarks);
+
+	if(result.kind==="noMatch"){
+		hintUsed.style.display="none";
+		hintBad.style.display="block";
+		answerInput.classList.remove("is-right");
+		answerInput.classList.add("is-wrong");
+		return;
+	}
+	if(result.kind==="used"){
+		hintBad.style.display="none";
+		hintUsed.style.display="block";
+		return;
+	}
+
+	answerInput.classList.remove("is-wrong");
+	answerInput.classList.add("is-right");
+
+	const outcome = await fireAtCell(result.r, result.c); // "hit" | "miss" | null
+	if(outcome){ animateCell(result.r, result.c, outcome); }
+
+	setTimeout(()=>{ answerInput.value=""; clearFeedback(); }, 800);
+});
+
+answerInput.addEventListener("keydown",(e)=>{
+	if(e.key==="Enter"){
+		e.preventDefault();
+		btnFire.click();
+	}
+});
+
+/* ===================== Rematch ===================== */
+btnRematch.addEventListener("click", async ()=>{
+	if(!db || !CURRENT_CODE) return;
+	const sRef=ref(db,`matches/${CURRENT_CODE}/state/status`);
+	const res=await runTransaction(sRef, s=>(s==="finished"?"placing":s));
+	if(res.committed && res.snapshot.val()==="placing"){
+		const mref=matchRef(CURRENT_CODE);
+		const snap=await get(mref); const m=snap.val(); if(!m) return;
+		const ids=Object.keys(m.players||{}); if(ids.length<2) return;
+		const p1=m.host;
+		const p2=ids.find(x=>x!==p1);
+		const boards={};
+		boards[p1]=placeShipsRandom();
+		boards[p2]=placeShipsRandom();
+		const marks={};
+		marks[p1]=newEmptyGrid();
+		marks[p2]=newEmptyGrid();
+		const ready={};
+		ready[p1]=false;
+		ready[p2]=false;
+		await update(mref,{
+			boards,
+			marks,
+			ready,
+			state:{status:"placing",turn:null,winner:null}
+		});
+		endScreen.classList.remove("show");
+	}
+});
+
+/* ===================== Init ===================== */
+function initBoards(){
+	if(!myBoardEl.querySelector("tbody"))
+		buildBoard(myBoardEl,{labelsTop:false,labelsLeft:false,mini:true});
+	if(!enemyBoardEl.querySelector("tbody"))
+		buildBoard(enemyBoardEl,{labelsTop:true,labelsLeft:true,mini:false});
+}
+initBoards();
+setStatus("Choose Create or Join to begin.");
+window.addEventListener("resize", computeSizes);
+</script>
+</body>
+</html>
