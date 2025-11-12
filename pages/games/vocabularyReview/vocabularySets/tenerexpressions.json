@@ -10,7 +10,11 @@
   {
     "term": "tener ___ años",
     "translation": [
-      "to be ___ years old"
+      "to be ___ years old",
+      "to be years old",
+      "to be _ years old",
+      "to be __ years old"
+
     ]
   },
   {
@@ -29,27 +33,32 @@
   {
     "term": "tener ganas de (+ verbo en base form)",
     "translation": [
-      "to feel like (doing something)",
-      "to want to (do something)",
-      "to be in the mood to (do something)"
+      "to feel like doing something",
+      "to feel like doing"
+
     ]
   },
   {
     "term": "tener cuidado",
     "translation": [
-      "to be careful"
+      "to be careful",
+      "to have caution"
     ]
   },
   {
     "term": "tener razón",
     "translation": [
-      "to be right"
+      "to be right",
+      "to be correct"
     ]
   },
   {
     "term": "no tener razón",
     "translation": [
-      "to be wrong"
+      "to be wrong",
+      "to be incorrect",
+      "to not be right",
+      "to not be correct"
     ]
   },
   {
@@ -94,7 +103,7 @@
     "term": "tener sueño",
     "translation": [
       "to be sleepy",
-      "to be tired (sleepy)"
+      "to be tired"
     ]
   },
   {
