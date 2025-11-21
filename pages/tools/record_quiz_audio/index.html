@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Grabador MP3 – Regular Verbs</title>
+<title>Grabador MP3 – Querer</title>
 <style>
 	:root{
 		color-scheme: dark;
@@ -30,7 +30,7 @@
 <script src="https://unpkg.com/lamejs@1.2.0/lame.min.js"></script>
 </head>
 <body>
-	<h1>Audio Recorder (MP3) – Regular Verbs</h1>
+	<h1>Audio Recorder (MP3) – Querer</h1>
 
 	<div class="panel">
 		<div class="row">
@@ -66,10 +66,14 @@
 
 <script>
 (() => {
-	// Prompts → filenames RegularVerbs1..20.mp3
+	// Prompts → filenames Querer1..6.mp3
 	const prompts = [
-		"escribes","escuchan","como","vivimos","habla","comen","escribimos","escucho","hablas","escriben",
-		"escuchamos","vive","comemos","escribo","escuchas","hablan","comemos","escriben","escucha","hablamos"
+		"quiero",
+		"quieres",
+		"quiere",
+		"queremos",
+		"queréis",
+		"quieren"
 	];
 
 	// --- UI refs ---
@@ -273,19 +277,19 @@
 		prompts.forEach((label, idx) => {
 			const n = idx + 1;
 			const btn = document.createElement('button');
-			btn.textContent = `${label} → RegularVerbs${n}.mp3`;
-			btn.title = `Guardar como RegularVerbs${n}.mp3`;
+			btn.textContent = `${label} → Querer${n}.mp3`;
+			btn.title = `Guardar como Querer${n}.mp3`;
 			btn.addEventListener('click', () => {
 				if (!currentBlob) { setStatus("No hay toma para guardar"); return; }
 				const a = document.createElement('a');
 				const url = URL.createObjectURL(currentBlob);
 				a.href = url;
-				a.download = `RegularVerbs${n}.mp3`;
+				a.download = `Querer${n}.mp3`;
 				document.body.appendChild(a);
 				a.click();
 				a.remove();
 				URL.revokeObjectURL(url);
-				setStatus(`Guardado RegularVerbs${n}.mp3`);
+				setStatus(`Guardado Querer${n}.mp3`);
 			});
 			saverGrid.appendChild(btn);
 		});
