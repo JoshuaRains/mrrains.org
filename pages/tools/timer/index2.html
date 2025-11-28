@@ -3,76 +3,278 @@
 
 <head>
     <meta charset="UTF-8" />
-    <title>ES → EN Translation Demo (Transformers.js)</title>
-    <!-- Make sure this script actually loads (check the Network tab) -->
-    <script src="https://cdn.jsdelivr.net/npm/@xenova/transformers@2.17.1/dist/transformers.umd.min.js"></script>
+    <title>Browser Translation Demo (ES → EN)</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <style>
+        body {
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            background: #0f172a;
+            color: #e5e7eb;
+            margin: 0;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .app {
+            background: #111827;
+            border-radius: 16px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, .6);
+            padding: 20px;
+            width: min(900px, 100vw - 32px);
+            display: grid;
+            gap: 16px;
+        }
+
+        h1 {
+            margin: 0 0 4px;
+            font-size: 1.4rem;
+        }
+
+        p {
+            margin: 0;
+            color: #9ca3af;
+            font-size: 0.9rem;
+        }
+
+        textarea {
+            width: 100%;
+            min-height: 120px;
+            background: #020617;
+            color: #e5e7eb;
+            border: 1px solid #1f2937;
+            border-radius: 10px;
+            padding: 10px;
+            font-size: 0.95rem;
+            resize: vertical;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: #22c55e;
+            box-shadow: 0 0 0 2px rgba(34, 197, 94, .3);
+        }
+
+        .row {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .methods {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .methods label {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 0.9rem;
+            background: #020617;
+            border-radius: 999px;
+            padding: 4px 10px;
+            border: 1px solid #1f2937;
+        }
+
+        button {
+            border: none;
+            border-radius: 999px;
+            background: #22c55e;
+            color: #022c12;
+            font-weight: 700;
+            padding: 8px 16px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        button:disabled {
+            opacity: 0.5;
+            cursor: default;
+        }
+
+        button:hover:not(:disabled) {
+            filter: brightness(1.05);
+        }
+
+        .status {
+            font-size: 0.8rem;
+            color: #a5b4fc;
+        }
+
+        .error {
+            color: #f97373;
+        }
+
+        .output {
+            background: #020617;
+            border-radius: 10px;
+            border: 1px solid #1f2937;
+            padding: 10px;
+            min-height: 80px;
+            font-size: 0.95rem;
+            white-space: pre-wrap;
+        }
+
+        .badge {
+            display: inline-block;
+            font-size: 0.7rem;
+            padding: 2px 6px;
+            border-radius: 999px;
+            background: #1e293b;
+            color: #e5e7eb;
+        }
+    </style>
 </head>
 
 <body>
-    <h1>Spanish → English demo (local, no backend)</h1>
+    <div class="app">
+        <div>
+            <h1>Browser Translation Demo <span class="badge">ES → EN</span></h1>
+            <p>Type some Spanish text and test different in-browser translation methods (no backend).</p>
+        </div>
 
-    <textarea id="srcText" rows="4" cols="60" placeholder="Escribe una frase en español aquí...">
-Hola, este es un ejemplo de traducción en el navegador.
-	</textarea>
-    <br>
-    <button id="translateBtn">Translate ES → EN</button>
+        <div>
+            <label for="srcText" style="font-size:.9rem; color:#9ca3af;">Spanish input</label>
+            <textarea id="srcText" placeholder="Escribe algo en español aquí..."></textarea>
+        </div>
 
-    <h2>Result:</h2>
-    <div id="result" style="border:1px solid #ccc; padding:8px; min-height:2em;"></div>
+        <div class="row">
+            <div class="methods">
+                <label>
+                    <input type="radio" name="method" value="chrome" checked>
+                    Chrome Translation API
+                </label>
+                <label>
+                    <input type="radio" name="method" value="transformers">
+                    Transformers.js (Xenova/opus-mt-es-en)
+                </label>
+            </div>
 
-    <script>
-        let esEnTranslator = null;
-        let translatorLoading = false;
-        let translatorFailed = false;
+            <button id="btnTranslate">
+                <span id="btnLabel">Translate</span>
+                <span id="btnSpinner" style="display:none;">⏳</span>
+            </button>
+        </div>
 
-        async function ensureEsEnTranslator() {
-            if (esEnTranslator || translatorFailed) return esEnTranslator;
+        <div class="status" id="status"></div>
 
-            // If already loading, wait for it
-            if (translatorLoading) {
-                while (translatorLoading && !esEnTranslator && !translatorFailed) {
-                    await new Promise(r => setTimeout(r, 50));
-                }
-                return esEnTranslator;
+        <div>
+            <label style="font-size:.9rem; color:#9ca3af;">English output</label>
+            <div class="output" id="outText"></div>
+        </div>
+    </div>
+
+    <!-- Everything below runs as an ES module -->
+    <script type="module">
+        // --------- DOM refs ----------
+        const srcText = document.getElementById('srcText');
+        const outText = document.getElementById('outText');
+        const statusEl = document.getElementById('status');
+        const btn = document.getElementById('btnTranslate');
+        const btnLabel = document.getElementById('btnLabel');
+        const btnSpinner = document.getElementById('btnSpinner');
+
+        function getSelectedMethod() {
+            const input = document.querySelector('input[name="method"]:checked');
+            return input ? input.value : 'chrome';
+        }
+
+        function setBusy(isBusy, msg = '') {
+            btn.disabled = isBusy;
+            btnSpinner.style.display = isBusy ? 'inline-block' : 'none';
+            btnLabel.textContent = isBusy ? 'Working…' : 'Translate';
+            statusEl.textContent = msg;
+            statusEl.classList.remove('error');
+        }
+
+        function setError(msg) {
+            statusEl.textContent = msg;
+            statusEl.classList.add('error');
+        }
+
+        // --------- Method 1: Chrome Translation API ----------
+        // Uses experimental `self.translation.createTranslator`.
+        let chromeTranslator = null;
+        let chromeChecked = false;
+        let chromeAvailable = false;
+
+        async function ensureChromeTranslator() {
+            if (chromeTranslator) return chromeTranslator;
+            if (chromeChecked && !chromeAvailable) {
+                throw new Error('Chrome Translation API not available on this browser.');
             }
 
-            translatorLoading = true;
+            chromeChecked = true;
+            if (!('translation' in self) || typeof self.translation.createTranslator !== 'function') {
+                chromeAvailable = false;
+                throw new Error('Chrome Translation API not available on this browser.');
+            }
 
             try {
-                if (!window.transformers || !window.transformers.pipeline) {
-                    console.error('Transformers.js not available. window.transformers is:', window.transformers);
-                    translatorFailed = true;
-                    return null;
-                }
-
-                const { pipeline, env } = window.transformers;
-                env.allowLocalModels = false; // only remote, so no weird local file issues
-
-                // Load small ES→EN model
-                esEnTranslator = await pipeline(
-                    'translation',
-                    'Xenova/opus-mt-es-en'
-                );
-
-                console.log('ES→EN model loaded');
-                return esEnTranslator;
+                chromeTranslator = await self.translation.createTranslator({
+                    sourceLanguage: 'es',
+                    targetLanguage: 'en',
+                });
+                chromeAvailable = true;
+                return chromeTranslator;
             } catch (err) {
-                console.error('Failed to load ES→EN model:', err);
-                translatorFailed = true;
-                return null;
-            } finally {
-                translatorLoading = false;
+                console.error('Failed to create Chrome translator:', err);
+                chromeAvailable = false;
+                throw new Error('Failed to create Chrome translator. (This may require special flags/origin trial.)');
             }
         }
 
-        async function translateEsToEn(text) {
-            const translator = await ensureEsEnTranslator();
-            if (!translator) {
-                return '[Translator failed to load; see console] ' + text;
+        async function translateWithChrome(text) {
+            const t = await ensureChromeTranslator();
+            const result = await t.translate(text);
+            return typeof result === 'string' ? result : String(result);
+        }
+
+        // --------- Method 2: Transformers.js (Xenova) ----------
+        // Pure client-side model loaded from Hugging Face via jsDelivr.
+        import { pipeline, env } from 'https://cdn.jsdelivr.net/npm/@xenova/transformers@2.17.1';
+
+        let hfTranslator = null;
+        let hfLoading = false;
+
+        async function ensureTransformersTranslator() {
+            if (hfTranslator) return hfTranslator;
+            if (hfLoading) {
+                // wait for existing load
+                while (hfLoading && !hfTranslator) {
+                    await new Promise(r => setTimeout(r, 100));
+                }
+                if (hfTranslator) return hfTranslator;
             }
 
+            hfLoading = true;
+            try {
+                // optional: force remote models only (no local file access)
+                env.allowLocalModels = false;
+
+                statusEl.textContent = 'Loading Transformers.js model (first time only, may take a bit)…';
+                hfTranslator = await pipeline('translation', 'Xenova/opus-mt-es-en');
+                return hfTranslator;
+            } catch (err) {
+                console.error('Error loading Transformers.js model:', err);
+                throw new Error('Failed to load Transformers.js translation model.');
+            } finally {
+                hfLoading = false;
+            }
+        }
+
+        async function translateWithTransformers(text) {
+            const translator = await ensureTransformersTranslator();
             const out = await translator(text, {
-                top_k: 0,
+                // keep things deterministic and relatively fast
                 do_sample: false,
                 num_beams: 1,
             });
@@ -80,28 +282,59 @@ Hola, este es un ejemplo de traducción en el navegador.
             if (Array.isArray(out) && out[0] && out[0].translation_text) {
                 return out[0].translation_text;
             }
-            return text;
+            return typeof out === 'string' ? out : JSON.stringify(out);
         }
 
-        document.getElementById('translateBtn').addEventListener('click', async () => {
-            const src = document.getElementById('srcText').value.trim();
-            const resultEl = document.getElementById('result');
-
-            if (!src) {
-                resultEl.textContent = '(No text)';
+        // --------- Main click handler ----------
+        btn.addEventListener('click', async () => {
+            const text = srcText.value.trim();
+            if (!text) {
+                outText.textContent = '';
+                setError('Please enter some Spanish text first.');
                 return;
             }
 
-            resultEl.textContent = 'Loading model / translating… (first time can take a while)…';
+            const method = getSelectedMethod();
+            setBusy(true, method === 'chrome'
+                ? 'Trying Chrome Translation API…'
+                : 'Using Transformers.js (Xenova/opus-mt-es-en)…'
+            );
 
             try {
-                const translated = await translateEsToEn(src);
-                resultEl.textContent = translated;
+                let translated = '';
+                const t0 = performance.now();
+
+                if (method === 'chrome') {
+                    translated = await translateWithChrome(text);
+                } else if (method === 'transformers') {
+                    translated = await translateWithTransformers(text);
+                } else {
+                    throw new Error('Unknown method: ' + method);
+                }
+
+                const t1 = performance.now();
+                outText.textContent = translated;
+                statusEl.textContent = `✅ Done via "${method}" in ${(t1 - t0).toFixed(0)} ms`;
+                statusEl.classList.remove('error');
             } catch (err) {
-                console.error('Translation error:', err);
-                resultEl.textContent = 'Error: ' + (err && err.message ? err.message : err);
+                console.error(err);
+                outText.textContent = '';
+                setError(`❌ ${err.message || err}`);
+            } finally {
+                setBusy(false);
             }
         });
+
+        // Optional: Ctrl+Enter to translate
+        srcText.addEventListener('keydown', e => {
+            if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
+                e.preventDefault();
+                btn.click();
+            }
+        });
+
+        // Pre-fill with a sample to make testing easier
+        srcText.value = 'Hoy vamos a aprender español con nuestros estudiantes.';
     </script>
 </body>
 
