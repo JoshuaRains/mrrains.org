@@ -508,7 +508,10 @@
 				src="">
 			</iframe>
 			<!-- Subtitle Overlay -->
-			<div id="subtitleOverlay" class="subtitle-overlay"></div>
+			<div id="subtitleOverlay" class="subtitle-overlay">
+				<div id="ccEs"></div>
+				<div id="ccEn"></div>
+			</div>
 		</div>
 
 		<!-- Controls -->
@@ -586,7 +589,10 @@
 
 	<audio id="ding" preload="auto" src="../../../assets/timer.mp3"></audio>
 
-	<script>
+	<!-- Everything below is a JS module so we can import Transformers.js -->
+	<script type="module">
+		import { pipeline, env } from 'https://cdn.jsdelivr.net/npm/@xenova/transformers@2.17.1';
+
 		/* ---------- State ---------- */
 		let sections = [];
 		let schedule = []; // { time: "HH:MM", action: "start"|"pause" }
@@ -625,6 +631,8 @@
 		const subtitleOverlay = document.getElementById('subtitleOverlay');
 		const ccModeSelect = document.getElementById('ccMode');
 		let ccMode = 'es'; // "es" or "es-en"
+		const ccEsLine = document.getElementById('ccEs');
+		const ccEnLine = document.getElementById('ccEn');
 
 		const progressFill = document.getElementById('progressFill');
 		const progressFree = document.getElementById('progressFree');
@@ -718,14 +726,14 @@
 				const row = document.createElement('div');
 				row.className = 'row';
 				row.innerHTML = `
-			<div class="move-btns">
-				<button class="move-btn up">▲</button>
-				<button class="move-btn down">▼</button>
-			</div>
-			<input type="text" placeholder="Section name" value="${s.name}">
-			<input type="number" step="0.5" min="0" placeholder="Minutes" value="${s.minutes}">
-			<button class="icon-btn" title="Remove">🗑️</button>
-		`;
+					<div class="move-btns">
+						<button class="move-btn up">▲</button>
+						<button class="move-btn down">▼</button>
+					</div>
+					<input type="text" placeholder="Section name" value="${s.name}">
+					<input type="number" step="0.5" min="0" placeholder="Minutes" value="${s.minutes}">
+					<button class="icon-btn" title="Remove">🗑️</button>
+				`;
 				const [moveDiv, nameInput, minInput, delBtn] = row.children;
 				moveDiv.querySelector('.up').addEventListener('click', () => moveSection(i, -1));
 				moveDiv.querySelector('.down').addEventListener('click', () => moveSection(i, 1));
@@ -744,13 +752,13 @@
 				row.className = 'row';
 				row.style.gridTemplateColumns = '1fr 100px 40px';
 				row.innerHTML = `
-			<input type="time" value="${item.time}">
-			<select style="background:#0f141e; color:var(--ink); border:1px solid #2a3445; border-radius:12px; padding:12px; outline:none;">
-				<option value="start" ${item.action === 'start' ? 'selected' : ''}>Start</option>
-				<option value="pause" ${item.action === 'pause' ? 'selected' : ''}>Pause</option>
-			</select>
-			<button class="icon-btn" title="Remove">🗑️</button>
-		`;
+					<input type="time" value="${item.time}">
+					<select style="background:#0f141e; color:var(--ink); border:1px solid #2a3445; border-radius:12px; padding:12px; outline:none;">
+						<option value="start" ${item.action === 'start' ? 'selected' : ''}>Start</option>
+						<option value="pause" ${item.action === 'pause' ? 'selected' : ''}>Pause</option>
+					</select>
+					<button class="icon-btn" title="Remove">🗑️</button>
+				`;
 				const [timeInput, actionSelect, delBtn] = row.children;
 				timeInput.addEventListener('input', e => { item.time = e.target.value; saveConfig(); });
 				actionSelect.addEventListener('change', e => { item.action = e.target.value; saveConfig(); });
@@ -820,7 +828,7 @@
 
 		/* ---------- Audio ---------- */
 		function setVolume(v) { audioEl.volume = Math.max(0, Math.min(1, v)); }
-		volEl.addEventListener('input', e => setVolume(parseFloat(e.target.value)));
+		volEl.addEventListener('input', e => setVolume(parseFloat(e.target.value) || 0));
 
 		/* ---------- Scheduler ---------- */
 		let lastTriggeredTime = "";
@@ -849,7 +857,7 @@
 			const now = Date.now();
 			elapsedMs = now - startTs;
 
-			if (elapsedMs >= totalMs) {
+			if (elapsedMs >= totalMs && totalMs > 0) {
 				elapsedMs = totalMs;
 				pauseTimer();
 				if (lastChimedIndex < starts.length) {
@@ -864,6 +872,12 @@
 		}
 
 		function updateCompletionUI(force = false) {
+			if (!totalMs) {
+				progressFill.style.width = '0%';
+				progressFree.style.width = '0%';
+				return;
+			}
+
 			let sectionTotal = sections.reduce((sum, s) => sum + (Number(s.minutes) || 0) * 60000, 0);
 			let greenMs = Math.min(elapsedMs, sectionTotal);
 			let redMs = Math.max(0, elapsedMs - sectionTotal);
@@ -940,6 +954,7 @@
 			toggleBtn.style.color = "#fff";
 			pauseBtn.textContent = "Pause";
 			pauseBtn.classList.remove('timing');
+			overlay.classList.remove('show');
 			tick();
 		}
 
@@ -978,63 +993,54 @@
 			updateCompletionUI();
 		}
 
-		/* ---------- ES -> EN translation via LibreTranslate ---------- */
-		// NOTE: This calls a public instance of LibreTranslate from the browser.
-		// If it ever rate-limits you, captions will just fall back to Spanish.
-		let ltIsTranslating = false;
-		let ltQueue = [];
-		let ltLastSrc = '';
-		let ltLastDst = '';
+		/* ---------- ES -> EN translation with Transformers.js ---------- */
+		let hfTranslator = null;
+		let hfLoading = false;
+
+		async function ensureTransformersTranslator() {
+			if (hfTranslator) return hfTranslator;
+			if (hfLoading) {
+				while (hfLoading && !hfTranslator) {
+					await new Promise(r => setTimeout(r, 100));
+				}
+				return hfTranslator;
+			}
+
+			hfLoading = true;
+			try {
+				env.allowLocalModels = false; // remote only
+				console.log('Loading Transformers.js translation model…');
+				hfTranslator = await pipeline('translation', 'Xenova/opus-mt-es-en');
+				console.log('Transformers.js model ready');
+				return hfTranslator;
+			} catch (err) {
+				console.error('Error loading Transformers.js model:', err);
+				hfTranslator = null;
+				return null;
+			} finally {
+				hfLoading = false;
+			}
+		}
 
 		async function translateEsToEn(text) {
 			text = text.trim();
 			if (!text) return text;
+			const translator = await ensureTransformersTranslator();
+			if (!translator) return text;
 
-			// Reuse last translation for identical string
-			if (text === ltLastSrc && ltLastDst) {
-				subtitleOverlay.textContent = ltLastDst;
-				return ltLastDst;
-			}
-
-			ltQueue.push(text);
-
-			if (ltIsTranslating) {
-				// We'll show Spanish until translation is ready
+			try {
+				const out = await translator(text, {
+					do_sample: false,
+					num_beams: 1,
+				});
+				if (Array.isArray(out) && out[0] && out[0].translation_text) {
+					return out[0].translation_text;
+				}
+				return typeof out === 'string' ? out : text;
+			} catch (err) {
+				console.error('Translation error:', err);
 				return text;
 			}
-
-			ltIsTranslating = true;
-
-			while (ltQueue.length) {
-				const src = ltQueue.pop();
-				ltQueue = []; // keep only the most recent phrase
-
-				try {
-					const res = await fetch('https://libretranslate.com/translate', {
-						method: 'POST',
-						headers: { 'Content-Type': 'application/json' },
-						body: JSON.stringify({
-							q: src,
-							source: 'es',
-							target: 'en',
-							format: 'text'
-						})
-					});
-					if (!res.ok) throw new Error('HTTP ' + res.status);
-					const data = await res.json();
-					ltLastSrc = src;
-					ltLastDst = data.translatedText || src;
-					subtitleOverlay.textContent = ltLastDst;
-				} catch (err) {
-					console.error('Translation error:', err);
-					ltLastSrc = src;
-					ltLastDst = src;
-					subtitleOverlay.textContent = src;
-				}
-			}
-
-			ltIsTranslating = false;
-			return ltLastDst || text;
 		}
 
 		/* ---------- Subtitles Logic ---------- */
@@ -1048,38 +1054,67 @@
 			recognition.interimResults = true;
 			recognition.lang = 'es-MX';
 
-			recognition.onresult = (event) => {
-				let interimText = '';
-				let finalText = '';
+			let lastTranslatedEs = '';   // remember last fully-translated Spanish sentence
 
-				for (let i = event.resultIndex; i < event.results.length; i++) {
+			recognition.onresult = async (event) => {
+				let interimTranscript = '';
+				let finalTranscript = '';
+
+				// MDN-style accumulation: interim = live phrase, final = committed text
+				for (let i = event.resultIndex; i < event.results.length; ++i) {
 					const res = event.results[i];
-					const text = res[0].transcript.trim();
+					const text = res[0].transcript;
+
 					if (res.isFinal) {
-						finalText = text;
+						finalTranscript += text;
 					} else {
-						interimText = text;
+						interimTranscript += text;
 					}
 				}
 
-				if (!interimText && !finalText) return;
+				// Nothing to show?
+				if (!interimTranscript && !finalTranscript) return;
 
+				// This is the "live" Spanish line (grows as you speak)
+				const liveSpanish = (interimTranscript || finalTranscript).trim();
+
+				// --- Mode 1: ES -> ES (only Spanish captions) ---
 				if (ccMode === 'es') {
-					const toShow = interimText || finalText;
-					subtitleOverlay.textContent = toShow;
+					ccEsLine.textContent = liveSpanish;
+					ccEnLine.textContent = ''; // make sure English line is empty
 					return;
 				}
 
+				// --- Mode 2: ES -> EN (double captions) ---
 				if (ccMode === 'es-en') {
-					// Show live Spanish while we wait for translation
-					if (interimText) {
-						subtitleOverlay.textContent = interimText;
-					}
-					if (finalText) {
-						translateEsToEn(finalText);
+					// 1) Always show live Spanish on top
+					ccEsLine.textContent = liveSpanish;
+
+					// 2) Only translate when we have NEW final text
+					//    (so we don't spam translations for every interim update)
+					const finalClean = finalTranscript.trim();
+					if (!finalClean) return;
+
+					// If it's the same final phrase we already translated, do nothing
+					if (finalClean === lastTranslatedEs) return;
+
+					lastTranslatedEs = finalClean;
+
+					// Optional: clear old English until new translation arrives
+					ccEnLine.textContent = '';
+
+					// 3) Translate and then show English beneath
+					const translated = await translateEsToEn(finalClean);
+
+					// Only update if we are still in ES-EN mode and this is still
+					// the latest final Spanish we know about
+					if (ccMode === 'es-en' && lastTranslatedEs === finalClean) {
+						ccEnLine.textContent = translated;
 					}
 				}
 			};
+
+
 
 			recognition.onerror = (event) => {
 				console.error('Speech recognition error', event.error);
@@ -1114,16 +1149,28 @@
 				recognition.stop();
 				ccBtn.classList.remove('active');
 				subtitleOverlay.style.display = 'none';
-				subtitleOverlay.textContent = '';
+				// Clear both lines
+				ccEsLine.textContent = '';
+				ccEnLine.textContent = '';
 			}
 		}
 
+
 		ccBtn.addEventListener('click', () => toggleCC());
+		ccModeSelect.addEventListener('change', (e) => {
+			ccMode = e.target.value;
+			ccEsLine.textContent = '';
+			ccEnLine.textContent = '';
+		});
 
 		/* ---------- Event Listeners ---------- */
 		toggleBtn.addEventListener('click', () => {
 			if (running) {
+				// Stop -> reset timer, then open config
 				resetTimer();
+				overlay.classList.add('show');
+				buildConfigRows();
+				buildScheduleRows();
 			} else {
 				startTimer();
 			}
@@ -1229,8 +1276,8 @@
 		/* ---------- Init ---------- */
 		loadConfig();
 		buildTimeline();
+		setVolume(parseFloat(volEl.value) || 0.6);
 	</script>
-
 </body>
 
 </html>
