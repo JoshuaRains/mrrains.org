@@ -5,7 +5,6 @@
 	<meta charset="utf-8" />
 	<meta name="viewport" content="width=device-width, initial-scale=1" />
 	<title>Class Timeline + Slides</title>
-	<script src="https://cdn.jsdelivr.net/npm/@xenova/transformers@2.17.1/dist/transformers.umd.min.js"></script>
 
 	<style>
 		:root {
@@ -626,138 +625,6 @@
 		const subtitleOverlay = document.getElementById('subtitleOverlay');
 		const ccModeSelect = document.getElementById('ccMode');
 		let ccMode = 'es'; // "es" or "es-en"
-		// --- Chrome Translation API helpers (ES -> EN) ---
-		let translator = null;
-		let translatorReady = false;
-		let translatorError = false;
-
-		/**
-		 * Ensure we have a Chrome Translation API translator instance.
-		 * Requires Chrome with the Translation API flag enabled.
-		 */
-		async function getChromeTranslator() {
-			if (translatorReady && translator) return translator;
-			if (translatorError) return null;
-
-			// API detection
-			if (!('translation' in self) || typeof self.translation.createTranslator !== 'function') {
-				console.warn('Chrome Translation API not available on this browser.');
-				translatorError = true;
-				return null;
-			}
-
-			try {
-				translator = await self.translation.createTranslator({
-					sourceLanguage: 'es', // we speak Spanish
-					targetLanguage: 'en'  // translate to English
-				});
-				translatorReady = true;
-				return translator;
-			} catch (err) {
-				console.error('Failed to create Chrome translator:', err);
-				translatorError = true;
-				return null;
-			}
-		}
-
-		/**
-		 * Translate Spanish -> English using Chrome Translation API.
-		 * If anything fails, returns the original text so captions still show something.
-		 */
-		async function translateEStoENChrome(text) {
-			const t = await getChromeTranslator();
-			if (!t) return text; // fallback: show Spanish
-
-			try {
-				const result = await t.translate(text);
-				// API returns a string in current spec
-				return result || text;
-			} catch (err) {
-				console.error('Chrome translation failed:', err);
-				return text;
-			}
-		}
-
-
-
-		// --- Local ES -> EN translator using Transformers.js ---
-		let esEnTranslator = null;
-		let translatorLoading = false;
-		let translatorFailed = false;
-
-		/**
-		 * Ensure the ES->EN translator is loaded.
-		 * Uses Xenova/opus-mt-es-en via Transformers.js (runs fully in-browser).
-		 */
-		async function ensureEsEnTranslator() {
-			if (esEnTranslator || translatorFailed) return esEnTranslator;
-
-			// If a load is already in progress, wait for it
-			if (translatorLoading) {
-				while (translatorLoading && !esEnTranslator && !translatorFailed) {
-					await new Promise(r => setTimeout(r, 50));
-				}
-				return esEnTranslator;
-			}
-
-			translatorLoading = true;
-
-			try {
-				if (!window.transformers || !window.transformers.pipeline) {
-					console.error('Transformers.js not available. Check the <script> include in <head>.');
-					translatorFailed = true;
-					return null;
-				}
-
-				const { pipeline, env } = window.transformers;
-
-				// Optional: allow remote models but not local files
-				env.allowLocalModels = false;
-
-				// Small ES -> EN translation model
-				esEnTranslator = await pipeline(
-					'translation',
-					'Xenova/opus-mt-es-en'
-				);
-
-				console.log('ES->EN translator model loaded');
-				return esEnTranslator;
-			} catch (err) {
-				console.error('Failed to load ES->EN translator model:', err);
-				translatorFailed = true;
-				return null;
-			} finally {
-				translatorLoading = false;
-			}
-		}
-
-		/**
-		 * Translate Spanish -> English locally in the browser.
-		 * If anything fails, it just returns the original Spanish text.
-		 */
-		async function translateEsToEnLocal(text) {
-			const translator = await ensureEsEnTranslator();
-			if (!translator) return text;
-
-			try {
-				const output = await translator(text, {
-					// Make it deterministic & fairly fast
-					top_k: 0,
-					do_sample: false,
-					num_beams: 1,
-				});
-
-				// transformers.js returns [{ translation_text: "..." }]
-				if (Array.isArray(output) && output[0] && output[0].translation_text) {
-					return output[0].translation_text;
-				}
-				return text;
-			} catch (err) {
-				console.error('Local ES->EN translation error:', err);
-				return text;
-			}
-		}
-
 
 		const progressFill = document.getElementById('progressFill');
 		const progressFree = document.getElementById('progressFree');
@@ -775,7 +642,6 @@
 		ccModeSelect.addEventListener('change', (e) => {
 			ccMode = e.target.value;
 		});
-
 
 		/* ---------- Persistence ---------- */
 		const LS_KEY = 'classTimelineConfig.v2';
@@ -833,9 +699,6 @@
 				acc += len;
 				ends.push(acc);
 			}
-			// Free time is technically a section at the end, but we don't add it to starts/ends for checkpoints
-			// unless we want a checkpoint for "Free Time Start"?
-			// Let's add a virtual start for it so we can chime when it starts.
 			if (freeTimeEnabled && ftMs > 0) {
 				starts.push(sectionTotal);
 				ends.push(totalMs);
@@ -879,7 +742,7 @@
 			schedule.forEach((item, i) => {
 				const row = document.createElement('div');
 				row.className = 'row';
-				row.style.gridTemplateColumns = '1fr 100px 40px'; // Override for schedule
+				row.style.gridTemplateColumns = '1fr 100px 40px';
 				row.innerHTML = `
 			<input type="time" value="${item.time}">
 			<select style="background:#0f141e; color:var(--ink); border:1px solid #2a3445; border-radius:12px; padding:12px; outline:none;">
@@ -911,15 +774,12 @@
 			checkLayer.innerHTML = '';
 			if (!sections.length && !freeTimeEnabled) return;
 
-			// Percent positions for labels
-			// We only show labels for real sections
 			const percents = starts.slice(0, sections.length).map(ms => (ms / totalMs) * 100);
 
 			sections.forEach((s, i) => {
 				const cp = document.createElement('div');
 				cp.className = 'cp';
 				if (i === 0) cp.classList.add('first');
-				// If free time is enabled, the last section is NOT the last visual element
 				if (!freeTimeEnabled && i === sections.length - 1) cp.classList.add('last');
 
 				const dot = document.createElement('div');
@@ -936,8 +796,6 @@
 				checkLayer.appendChild(cp);
 			});
 
-			// Add a label for Free Time? Maybe just the red bar is enough.
-			// Let's add a checkpoint for Free Time start if enabled
 			if (freeTimeEnabled) {
 				const ftStartMs = starts[sections.length];
 				const cp = document.createElement('div');
@@ -972,7 +830,7 @@
 			const mm = String(now.getMinutes()).padStart(2, '0');
 			const timeStr = `${hh}:${mm}`;
 
-			if (timeStr === lastTriggeredTime) return; // Already triggered for this minute
+			if (timeStr === lastTriggeredTime) return;
 
 			const item = schedule.find(x => x.time === timeStr);
 			if (item) {
@@ -994,7 +852,6 @@
 			if (elapsedMs >= totalMs) {
 				elapsedMs = totalMs;
 				pauseTimer();
-				// Final chime if we haven't already
 				if (lastChimedIndex < starts.length) {
 					audioEl.currentTime = 0;
 					audioEl.play().catch(() => { });
@@ -1007,80 +864,34 @@
 		}
 
 		function updateCompletionUI(force = false) {
-			const pct = Math.min(100, (elapsedMs / totalMs) * 100);
-			// The green bar handles the section part
-			// The red bar handles the free time part
-			// But visually we want them to fill up left-to-right.
-
-			// Let's simplify:
-			// Green bar width = min(elapsed, sectionTotal) / totalMs
-			// Red bar width = max(0, elapsed - sectionTotal) / totalMs
-			// Wait, the CSS is absolute.
-			// progress-fill is left:0. progress-free is right:0.
-			// This means progress-free grows from right to left?
-			// Actually the CSS says: progress-free { right:0; width:0%; }
-			// If we want it to fill after green, it should probably be positioned differently or we just manipulate widths.
-
-			// Let's try this:
-			// Green bar fills up to sectionTotal.
-			// Red bar fills up from sectionTotal to end.
-
 			let sectionTotal = sections.reduce((sum, s) => sum + (Number(s.minutes) || 0) * 60000, 0);
 			let greenMs = Math.min(elapsedMs, sectionTotal);
 			let redMs = Math.max(0, elapsedMs - sectionTotal);
 
-			// We need percentages relative to totalMs
 			let greenPct = (greenMs / totalMs) * 100;
 			let redPct = (redMs / totalMs) * 100;
 
 			progressFill.style.width = `${greenPct}%`;
 
-			// For the red bar, if we want it to appear *after* the green bar,
-			// we should probably position it at left: greenPct?
-			// But existing CSS has it at right:0.
-			// Let's override the CSS for progress-free to be left-based if we want it continuous.
-			// Or just use the existing CSS if the user intended it to grow from right?
-			// Looking at CSS: .progress-free { right: 0; ... }
-			// This implies it grows from the right edge.
-			// If the user wants "Free Time" at the end of class, it usually appends to the green bar.
-			// Let's change it to left-based positioning for continuity.
 			progressFree.style.right = 'auto';
 			progressFree.style.left = `${(sectionTotal / totalMs) * 100}%`;
 			progressFree.style.width = `${redPct}%`;
 
-
-			// Checkpoints
-			// We want to chime when we cross a start/end boundary
-			// starts[] contains 0, len1, len1+len2, ...
-			// We skip 0.
-			// We want to chime at each boundary.
-			// Find which section we are in.
 			let currentIdx = -1;
 			for (let i = 0; i < starts.length; i++) {
 				if (elapsedMs >= starts[i] - EPS) currentIdx = i;
 			}
 
 			if (currentIdx > lastChimedIndex && running) {
-				// Chime!
-				// Only if we actually crossed it just now (handled by state machine usually, but here we poll)
-				// We'll just chime whenever currentIdx increases.
-				if (lastChimedIndex !== -1) { // Don't chime on immediate start? Or do?
-					// Usually bellwork starts immediately.
-					// Let's chime if it's not the very first split second (unless we want a start bell).
-					// Let's chime.
+				if (lastChimedIndex !== -1) {
 					audioEl.currentTime = 0;
 					audioEl.play().catch(() => { });
 				}
 				lastChimedIndex = currentIdx;
 			}
 
-			// Update labels active state
-			// A label is active if we are inside its section
-			// i.e. starts[i] <= elapsed < ends[i]
 			const labels = document.querySelectorAll('.cp-label');
 			labels.forEach((lbl, i) => {
-				// The last checkpoint (Free Time) doesn't have a duration in the same way in the loop
-				// but let's handle standard sections
 				if (i < sections.length) {
 					if (elapsedMs >= starts[i] && elapsedMs < ends[i]) {
 						lbl.classList.add('active');
@@ -1093,7 +904,6 @@
 						lbl.classList.remove('completed');
 					}
 				} else {
-					// Free time label
 					if (freeTimeEnabled && i === sections.length) {
 						if (elapsedMs >= starts[i]) {
 							lbl.classList.add('active');
@@ -1104,15 +914,8 @@
 				}
 			});
 
-			// Update dots
 			const dots = document.querySelectorAll('.cp');
 			dots.forEach((dot, i) => {
-				// Completed if passed
-				// The dot is at starts[i] (except maybe last one?)
-				// Actually the dots are at starts[i].
-				// If elapsed >= starts[i], is it completed?
-				// Usually "completed" means we passed that checkpoint.
-				// Let's say a checkpoint is "reached" (completed) if elapsed >= its time.
 				let time = starts[i];
 				if (elapsedMs >= time) {
 					dot.classList.add('completed');
@@ -1125,7 +928,6 @@
 		function startTimer() {
 			if (running) return;
 			if (elapsedMs >= totalMs) {
-				// Restart if at end
 				elapsedMs = 0;
 				lastChimedIndex = -1;
 				updateCompletionUI();
@@ -1176,6 +978,65 @@
 			updateCompletionUI();
 		}
 
+		/* ---------- ES -> EN translation via LibreTranslate ---------- */
+		// NOTE: This calls a public instance of LibreTranslate from the browser.
+		// If it ever rate-limits you, captions will just fall back to Spanish.
+		let ltIsTranslating = false;
+		let ltQueue = [];
+		let ltLastSrc = '';
+		let ltLastDst = '';
+
+		async function translateEsToEn(text) {
+			text = text.trim();
+			if (!text) return text;
+
+			// Reuse last translation for identical string
+			if (text === ltLastSrc && ltLastDst) {
+				subtitleOverlay.textContent = ltLastDst;
+				return ltLastDst;
+			}
+
+			ltQueue.push(text);
+
+			if (ltIsTranslating) {
+				// We'll show Spanish until translation is ready
+				return text;
+			}
+
+			ltIsTranslating = true;
+
+			while (ltQueue.length) {
+				const src = ltQueue.pop();
+				ltQueue = []; // keep only the most recent phrase
+
+				try {
+					const res = await fetch('https://libretranslate.com/translate', {
+						method: 'POST',
+						headers: { 'Content-Type': 'application/json' },
+						body: JSON.stringify({
+							q: src,
+							source: 'es',
+							target: 'en',
+							format: 'text'
+						})
+					});
+					if (!res.ok) throw new Error('HTTP ' + res.status);
+					const data = await res.json();
+					ltLastSrc = src;
+					ltLastDst = data.translatedText || src;
+					subtitleOverlay.textContent = ltLastDst;
+				} catch (err) {
+					console.error('Translation error:', err);
+					ltLastSrc = src;
+					ltLastDst = src;
+					subtitleOverlay.textContent = src;
+				}
+			}
+
+			ltIsTranslating = false;
+			return ltLastDst || text;
+		}
+
 		/* ---------- Subtitles Logic ---------- */
 		let recognition;
 		let recognizing = false;
@@ -1187,43 +1048,38 @@
 			recognition.interimResults = true;
 			recognition.lang = 'es-MX';
 
-			recognition.onresult = async (event) => {
+			recognition.onresult = (event) => {
 				let interimText = '';
 				let finalText = '';
 
-				// Collect the latest interim + final segments
 				for (let i = event.resultIndex; i < event.results.length; i++) {
 					const res = event.results[i];
 					const text = res[0].transcript.trim();
-
 					if (res.isFinal) {
-						finalText = text;     // last completed phrase
+						finalText = text;
 					} else {
-						interimText = text;   // live partial phrase
+						interimText = text;
 					}
 				}
 
 				if (!interimText && !finalText) return;
 
-				// Mode 1: ES -> ES (Spanish captions)
 				if (ccMode === 'es') {
 					const toShow = interimText || finalText;
 					subtitleOverlay.textContent = toShow;
 					return;
 				}
 
-				// Mode 2: ES -> EN (local translation)
 				if (ccMode === 'es-en') {
-					const base = finalText || interimText;
-					if (!base) return;
-
-					// While model is loading, you might see a small delay on first use
-					const translated = await translateEsToEnLocal(base);
-					subtitleOverlay.textContent = translated;
+					// Show live Spanish while we wait for translation
+					if (interimText) {
+						subtitleOverlay.textContent = interimText;
+					}
+					if (finalText) {
+						translateEsToEn(finalText);
+					}
 				}
 			};
-
-
 
 			recognition.onerror = (event) => {
 				console.error('Speech recognition error', event.error);
@@ -1242,8 +1098,6 @@
 			ccBtn.style.display = 'none';
 			console.warn('Web Speech API not supported');
 		}
-
-
 
 		function toggleCC(forceState) {
 			if (!recognition) return;
@@ -1266,23 +1120,9 @@
 
 		ccBtn.addEventListener('click', () => toggleCC());
 
-
 		/* ---------- Event Listeners ---------- */
 		toggleBtn.addEventListener('click', () => {
-			if (running) startTimer(); // Stop logic is weirdly named "startTimer" in my copy-paste? 
-			// Wait, logic above:
-			// startTimer() checks if running, if so returns.
-			// So toggleBtn should call pauseTimer() if running?
-			// Let's fix the toggle logic.
 			if (running) {
-				// It's a "Stop" button now
-				resetTimer(); // Or pause? The label says "Stop". Usually Stop means Reset.
-				// But the code above had "Stop" button call resetTimer?
-				// Let's look at original logic.
-				// Original had "Start" -> running=true.
-				// If running, it says "Stop".
-				// If I click Stop, it should probably reset or pause.
-				// Let's make it Reset for "Stop", and Pause is separate.
 				resetTimer();
 			} else {
 				startTimer();
@@ -1313,7 +1153,6 @@
 		document.addEventListener('keydown', e => {
 			if (e.key === 'Escape') overlay.classList.remove('show');
 			if (e.key === ' ' && e.target.tagName !== 'INPUT') {
-				// Space to toggle pause/resume if running
 				e.preventDefault();
 				if (running) pauseTimer();
 				else if (paused) startTimer();
@@ -1325,16 +1164,12 @@
 			if (e.target === overlay) overlay.classList.remove('show');
 		});
 
-		// Double click top bar to open config? Or a button?
-		// There is no config button in the UI!
-		// The original code probably had one or relied on a hidden trigger.
-		// Let's add a gear icon or just make the topbar clickable.
 		document.querySelector('.topbar').addEventListener('dblclick', () => {
 			overlay.classList.add('show');
 			buildConfigRows();
 			buildScheduleRows();
 		});
-		// Also add a keyboard shortcut 'c' for config
+
 		document.addEventListener('keydown', e => {
 			if (e.key === 'c' && e.target.tagName !== 'INPUT') {
 				overlay.classList.add('show');
@@ -1391,12 +1226,11 @@
 			buildTimeline();
 		});
 
-
 		/* ---------- Init ---------- */
 		loadConfig();
 		buildTimeline();
-
 	</script>
+
 </body>
 
 </html>

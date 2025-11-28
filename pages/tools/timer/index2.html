@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>ES → EN Translation Demo (Transformers.js)</title>
+    <!-- Make sure this script actually loads (check the Network tab) -->
+    <script src="https://cdn.jsdelivr.net/npm/@xenova/transformers@2.17.1/dist/transformers.umd.min.js"></script>
+</head>
+
+<body>
+    <h1>Spanish → English demo (local, no backend)</h1>
+
+    <textarea id="srcText" rows="4" cols="60" placeholder="Escribe una frase en español aquí...">
+Hola, este es un ejemplo de traducción en el navegador.
+	</textarea>
+    <br>
+    <button id="translateBtn">Translate ES → EN</button>
+
+    <h2>Result:</h2>
+    <div id="result" style="border:1px solid #ccc; padding:8px; min-height:2em;"></div>
+
+    <script>
+        let esEnTranslator = null;
+        let translatorLoading = false;
+        let translatorFailed = false;
+
+        async function ensureEsEnTranslator() {
+            if (esEnTranslator || translatorFailed) return esEnTranslator;
+
+            // If already loading, wait for it
+            if (translatorLoading) {
+                while (translatorLoading && !esEnTranslator && !translatorFailed) {
+                    await new Promise(r => setTimeout(r, 50));
+                }
+                return esEnTranslator;
+            }
+
+            translatorLoading = true;
+
+            try {
+                if (!window.transformers || !window.transformers.pipeline) {
+                    console.error('Transformers.js not available. window.transformers is:', window.transformers);
+                    translatorFailed = true;
+                    return null;
+                }
+
+                const { pipeline, env } = window.transformers;
+                env.allowLocalModels = false; // only remote, so no weird local file issues
+
+                // Load small ES→EN model
+                esEnTranslator = await pipeline(
+                    'translation',
+                    'Xenova/opus-mt-es-en'
+                );
+
+                console.log('ES→EN model loaded');
+                return esEnTranslator;
+            } catch (err) {
+                console.error('Failed to load ES→EN model:', err);
+                translatorFailed = true;
+                return null;
+            } finally {
+                translatorLoading = false;
+            }
+        }
+
+        async function translateEsToEn(text) {
+            const translator = await ensureEsEnTranslator();
+            if (!translator) {
+                return '[Translator failed to load; see console] ' + text;
+            }
+
+            const out = await translator(text, {
+                top_k: 0,
+                do_sample: false,
+                num_beams: 1,
+            });
+
+            if (Array.isArray(out) && out[0] && out[0].translation_text) {
+                return out[0].translation_text;
+            }
+            return text;
+        }
+
+        document.getElementById('translateBtn').addEventListener('click', async () => {
+            const src = document.getElementById('srcText').value.trim();
+            const resultEl = document.getElementById('result');
+
+            if (!src) {
+                resultEl.textContent = '(No text)';
+                return;
+            }
+
+            resultEl.textContent = 'Loading model / translating… (first time can take a while)…';
+
+            try {
+                const translated = await translateEsToEn(src);
+                resultEl.textContent = translated;
+            } catch (err) {
+                console.error('Translation error:', err);
+                resultEl.textContent = 'Error: ' + (err && err.message ? err.message : err);
+            }
+        });
+    </script>
+</body>
+
+</html>
