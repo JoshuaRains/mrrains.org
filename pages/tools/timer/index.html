@@ -1,1402 +1,609 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-	<meta charset="utf-8" />
-	<meta name="viewport" content="width=device-width, initial-scale=1" />
-	<title>Class Timeline + Slides</title>
-	<script src="https://cdn.jsdelivr.net/npm/@xenova/transformers@2.17.1/dist/transformers.min.js"></script>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Class Timeline + Slides</title>
+<style>
+	:root{
+		color-scheme: dark;
+		--green: #36c269;
+		--green-weak: #2a9b53;
+		--ink: #e9eef4;
+		--panel: #141922;
+		--muted: #9aa6b2;
+		--shadow: 0 10px 30px rgba(0,0,0,.35);
 
-	<style>
-		:root {
-			color-scheme: dark;
-			--green: #36c269;
-			--green-weak: #2a9b53;
-			--ink: #e9eef4;
-			--panel: #141922;
-			--muted: #9aa6b2;
-			--shadow: 0 10px 30px rgba(0, 0, 0, .35);
+		--bar-h: 28px;                 /* bar & dot diameter */
+		--edge-inset: calc(var(--bar-h) / 2);   /* inset for end dots */
+		--topbar-pad-x: clamp(16px, 4vw, 48px);
+		--topbar-pad-top: 48px;                  /* push bar down a bit */
+	}
 
-			--bar-h: 24px;
-			/* Slightly thinner for modern look */
-			--topbar-pad-x: clamp(16px, 4vw, 48px);
-			--topbar-pad-top: 48px;
-		}
+	*{ box-sizing: border-box; }
+	html,body{ height:100%; margin:0; }
+	body{
+		color: var(--ink);
+		font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+		background: url('../../assets/Machu_Picchu.jpg') center/cover no-repeat fixed;
+	}
 
-		* {
-			box-sizing: border-box;
-		}
-
-		html,
-		body {
-			height: 100%;
-			margin: 0;
-		}
-
-		body {
-			color: var(--ink);
-			font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
-			background: url('../../assets/Machu_Picchu.jpg') center/cover no-repeat fixed;
-		}
-
-		/* Layout: top progress, middle slides, floating controls */
-		.app {
-			min-height: 100vh;
-			display: grid;
-			grid-template-rows: auto 1fr;
-			position: relative;
-		}
+	/* Layout: top progress, middle slides, floating controls */
+	.app{
+  min-height: 100vh;
+  display: grid;
+  grid-template-rows: auto 1fr;
+  position: relative;            /* NEW: so .controls can be absolute inside */
+}
 
 
-		/* ---------- Top progress bar ---------- */
-		.topbar {
-			padding:
-				var(--topbar-pad-top) max(var(--topbar-pad-x), env(safe-area-inset-right)) 6px max(var(--topbar-pad-x), env(safe-area-inset-left));
-		}
+	/* ---------- Top progress bar ---------- */
+	.topbar{
+		padding:
+			var(--topbar-pad-top)
+			max(var(--topbar-pad-x), env(safe-area-inset-right))
+			6px
+			max(var(--topbar-pad-x), env(safe-area-inset-left));
+	}
+	.progress-wrap{
+		position: relative;
+		height: max(88px, calc(var(--bar-h) * 3.1)); /* room for staggered labels */
+		width: 100%;
+		max-width: 1200px;
+		margin-inline: auto;
+	}
 
-		.progress-wrap {
-			position: relative;
-			height: max(88px, calc(var(--bar-h) * 3.1));
-			/* room for staggered labels */
-			width: 100%;
-			max-width: 1200px;
-			margin-inline: auto;
-		}
+	/* Track (no border to keep geometry exact) */
+	.progress-track{
+		position:absolute; left:0; right:0; top:50%;
+		transform: translateY(-50%);
+		height: var(--bar-h);
+		border-radius: var(--bar-h);
+		background: linear-gradient(180deg, #202735, #1a2130);
+		box-shadow: 0 0 0 1px #202838 inset; /* faux border */
+		overflow: visible; /* let caps render cleanly */
+	}
+	/* Fill with perfectly rounded ends; end-caps inset inward */
+	.progress-fill{
+		position:absolute; left:0; top:50%;
+		transform: translateY(-50%);
+		height: var(--bar-h);
+		width:0%;
+		background: linear-gradient(90deg, var(--green-weak), var(--green));
+		border-radius: var(--bar-h);
+		transition: width .25s linear;
+	}
+	/* LEFT green cap — center sits at +radius from left edge */
+	.progress-fill::before{
+		content:"";
+		position:absolute; top:50%; left:0;
+		transform: translateY(-50%);
+		width: var(--bar-h); height: var(--bar-h);
+		border-radius: 50%;
+		background: var(--green);
+	}
+	/* RIGHT green cap — center sits at (width - radius) from left edge */
+	.progress-fill::after{
+		content:"";
+		position:absolute; top:50%; left: calc(100% - var(--bar-h));
+		transform: translateY(-50%);
+		width: var(--bar-h); height: var(--bar-h);
+		border-radius: 50%;
+		background: var(--green);
+        
+	}
+    /* Small-start state: show only the left cap */
+.progress-fill.small { background: transparent; }
+.progress-fill.small::after { display: none; }  /* hide right cap when tiny */
+.progress-fill.small::before { left: 0; }       /* left cap sits nicely at the start */
 
-		/* Track */
-		.progress-track {
-			position: absolute;
-			left: 0;
-			right: 0;
-			top: 50%;
-			transform: translateY(-50%);
-			height: var(--bar-h);
-			border-radius: 4px;
-			/* Soft square */
-			background: linear-gradient(180deg, #202735, #1a2130);
-			box-shadow: 0 0 0 1px #202838 inset;
-			overflow: hidden;
-		}
 
-		/* Fill */
-		.progress-fill {
-			position: absolute;
-			left: 0;
-			top: 0;
-			bottom: 0;
-			width: 0%;
-			background: linear-gradient(90deg, var(--green-weak), var(--green));
-			border-radius: 4px;
-			/* Match track */
-			transition: width .25s linear;
-			z-index: 2;
-			box-shadow: 0 0 10px rgba(54, 194, 105, 0.2);
-		}
+	/* Checkpoints & staggered labels */
+	.checklayer{ position:absolute; inset:0; pointer-events:none; }
+	.cp{ position:absolute; top:50%; transform: translate(-50%, -50%); }
+	/* Inset the end dots (first moves right, last moves left) */
+	.cp.first{ transform: translate(calc(-50% + var(--edge-inset)), -50%); }
+	.cp.last { transform: translate(calc(-50% - var(--edge-inset)), -50%); }
 
-		/* No more caps */
-		.progress-fill::before,
-		.progress-fill::after {
-			display: none;
-		}
+	.cp-dot{
+		width: var(--bar-h); height: var(--bar-h);
+		border-radius: 50%;
+		background: #101521;
+		box-shadow: 0 0 0 2px #39465a;  /* outline without changing size */
+		transition: background .25s ease, transform .3s ease, box-shadow .25s ease;
+	}
+	.cp.completed .cp-dot{
+		background: var(--green);
+		box-shadow: 0 0 0 0 var(--green);
+		animation: pop .35s ease;
+	}
+	@keyframes pop{ 0%{transform:scale(1)} 40%{transform:scale(1.25)} 100%{transform:scale(1)} }
 
-		/* Free Time Red Bar */
-		.progress-free {
-			position: absolute;
-			right: 0;
-			top: 0;
-			bottom: 0;
-			width: 0%;
-			background: #e54d2e;
-			transition: width .25s linear;
-			z-index: 1;
-		}
+	.cp-label{
+		position:absolute; left:50%; transform: translateX(-50%);
+		white-space: nowrap;
+		font-weight: 800;
+		font-size: 1.25rem;
+		letter-spacing: .2px;
+		color: #c7d0da;
+		opacity: .98;
+		background: rgba(20,25,34,.55);
+		backdrop-filter: blur(6px);
+		border: 1px solid rgba(255,255,255,.08);
+		border-radius: 12px;
+		padding: 6px 12px;
+		pointer-events: auto;
+	}
+	.cp-label.top{ bottom: calc(100% + 8px); }
+	.cp-label.bottom{ top: calc(100% + 8px); }
+	.cp-label.active{ color: #ffffff; }
+	.cp-label.completed{ color: var(--green); }
+	.cp.first .cp-label{ transform: none; left: 0; }
+	.cp.last  .cp-label{ transform: translateX(-100%); left: 100%; }
 
-		/* Checkpoints */
-		.checklayer {
-			position: absolute;
-			inset: 0;
-			pointer-events: none;
-			z-index: 10;
-		}
+	/* ---------- Slides area (fills remaining space) ---------- */
+	/* Remove the extra bottom space that was saving room for fixed controls */
+.slides-area{
+  min-height: 0;
+  display: flex; align-items: stretch; justify-content: center;
+  padding:
+    6px
+    max(var(--topbar-pad-x), env(safe-area-inset-right))
+    6px                                       /* CHANGED from 96px to 6px */
+    max(var(--topbar-pad-x), env(safe-area-inset-left));
+}
 
-		.cp {
-			position: absolute;
-			top: 50%;
-			transform: translate(-50%, -50%);
-		}
+	/* EXACT style you provided */
+	.slides-frame{
+		width: min(100%);
+		height: 100%;
+		border: 0;
+		border-radius: 12px;
+		box-shadow: var(--shadow);
+		background: rgba(0,0,0,.15);
+	}
 
-		/* No offsets for first/last - pixel perfect math */
-		.cp.first {
-			transform: translate(-50%, -50%);
-		}
+	/* ---------- Floating controls (centered, over slides) ---------- */
+	.controls{
+  position: absolute;                         /* CHANGED from fixed */
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: max(9px);
+  display: flex; gap: 12px;
+  z-index: 50;
+  pointer-events: none;                       /* keep: only buttons are clickable */
+  align-items: center;
+}
+	.btn,
+.btn-accent{
+  pointer-events: auto;
+  background: #ffffff;
+  color: #2f2f2f;           /* dark gray */
+  border: none;
+  border-radius: 20px;       /* tweak or set to 0 if you want square */
+  padding: 8px 10px;
+  font-weight: 600;
+  font-size: 14px;
+  line-height: 1;
+  box-shadow: none;
+  cursor: pointer;
+  transition: none;         /* keep totally flat; remove if you want hover effects */
+}
 
-		.cp.last {
-			transform: translate(-50%, -50%);
-		}
+/* Keep the same look on hover/active/focus */
+.btn:hover,
+.btn:active,
+.btn:focus-visible,
+.btn-accent:hover,
+.btn-accent:active,
+.btn-accent:focus-visible{
+  background: #ffffff;
+  color: #2f2f2f;
+  box-shadow: none;
+  outline: none;
+}
 
-		.cp-dot {
-			width: 2px;
-			height: 36px;
-			/* Taller than bar for tick mark effect */
-			background: #4b5563;
-			transition: background .25s ease, transform .3s ease, box-shadow .25s ease;
-			border-radius: 1px;
-		}
+	/* Volume slider (styled) */
+	.vol{
+		pointer-events: auto;
+		appearance: none;
+		height: 6px;
+		width: 160px;
+		border-radius: 999px;
+		background: #2b3444;
+		outline: none;
+	}
+	.vol::-webkit-slider-thumb{
+		appearance: none;
+		width: 18px; height: 18px; border-radius: 50%;
+		background: white;
+		cursor: pointer;
+	}
+	.vol::-moz-range-thumb{
+		width: 18px; height: 18px; border-radius: 50%;
+		background: white;
+		border: none; cursor: pointer;
+	}
 
-		.cp.completed .cp-dot {
-			background: #fff;
-			box-shadow: 0 0 8px rgba(255, 255, 255, 0.6);
-			transform: scaleY(1.1);
-		}
+	/* ---------- Config overlay ---------- */
+	.overlay{
+		position: fixed; inset: 0; background: rgba(10,12,16,.6);
+		backdrop-filter: blur(6px);
+		display: none; align-items: center; justify-content: center;
+		padding: clamp(10px, 2vw, 24px);
+		z-index: 60; /* above everything */
+	}
+	.overlay.show{ display:flex; }
+	.cfg{
+		width: min(100%, 880px);
+		background: var(--panel);
+		border: 1px solid rgba(255,255,255,.08);
+		border-radius: 18px; box-shadow: var(--shadow);
+		padding: clamp(16px, 3vw, 28px);
+		display: grid; gap: 16px;
+	}
+	.cfg .field{
+		display: grid; gap: 8px;
+	}
+	.cfg label{
+		font-size: .95rem; color: var(--muted); font-weight: 700;
+	}
+	.rows{ display: grid; gap: 10px; max-height: min(60vh, 360px); overflow: auto; padding-right: 4px; }
+	.row{ display: grid; grid-template-columns: 1fr 120px 44px; gap: 10px; align-items: center; }
+	input[type="text"], input[type="url"], input[type="number"]{
+		width: 100%; background:#0f141e; color:var(--ink);
+		border:1px solid #2a3445; border-radius:12px; padding:12px; font-size:15px;
+		outline:none; transition:border-color .2s ease, box-shadow .2s ease;
+	}
+	input[type="number"]{ font-variant-numeric: tabular-nums; }
+	input:focus{ border-color: var(--green); box-shadow: 0 0 0 3px rgba(54,194,105,.12); }
+	.add-btn{ padding:10px 14px; border-radius:10px; border:1px dashed #2a3445; background:#0f141e; color:var(--ink); cursor:pointer; }
+	.cfg-actions{ display:flex; gap:10px; justify-content:flex-end; }
+	.primary{ background:linear-gradient(180deg, #193524, #132b1c); border:1px solid rgba(54,194,105,.5); color:var(--ink); border-radius:12px; padding:12px 18px; font-weight:800; cursor:pointer; }
+	.ghost{ background:transparent; border:1px solid #2a3445; color:var(--ink); border-radius:12px; padding:12px 18px; cursor:pointer; }
 
-		.cp-label {
-			position: absolute;
-			left: 50%;
-			transform: translateX(-50%);
-			white-space: nowrap;
-			font-weight: 700;
-			font-size: 1.1rem;
-			/* Slightly smaller for cleaner look */
-			letter-spacing: .2px;
-			color: #9ca3af;
-			opacity: .9;
-			background: rgba(17, 24, 39, .85);
-			backdrop-filter: blur(4px);
-			border: 1px solid rgba(255, 255, 255, .1);
-			border-radius: 6px;
-			/* Square-ish */
-			padding: 4px 10px;
-			pointer-events: auto;
-			transition: color .2s, border-color .2s, opacity .2s;
-		}
-
-		.cp-label.top {
-			bottom: calc(100% + 12px);
-			/* More spacing for ticks */
-		}
-
-		.cp-label.bottom {
-			top: calc(100% + 12px);
-		}
-
-		.cp-label.active {
-			color: #ffffff;
-			border-color: rgba(255, 255, 255, .3);
-			opacity: 1;
-		}
-
-		.cp-label.completed {
-			color: var(--green);
-			border-color: rgba(54, 194, 105, .3);
-		}
-
-		.cp.first .cp-label {
-			transform: none;
-			left: 0;
-		}
-
-		.cp.last .cp-label {
-			transform: translateX(-100%);
-			left: 100%;
-		}
-
-		/* Slides */
-		.slides-area {
-			min-height: 0;
-			display: flex;
-			align-items: stretch;
-			justify-content: center;
-			padding: 6px max(var(--topbar-pad-x), env(safe-area-inset-right)) 6px max(var(--topbar-pad-x), env(safe-area-inset-left));
-		}
-
-		.slides-frame {
-			width: min(100%);
-			height: 100%;
-			border: 0;
-			border-radius: 12px;
-			box-shadow: var(--shadow);
-			background: rgba(0, 0, 0, .15);
-		}
-
-		/* Controls */
-		.controls {
-			position: absolute;
-			left: 50%;
-			transform: translateX(-50%);
-			bottom: max(9px);
-			display: flex;
-			gap: 12px;
-			z-index: 50;
-			pointer-events: none;
-			align-items: center;
-		}
-
-		.btn,
-		.btn-accent {
-			pointer-events: auto;
-			background: #ffffff;
-			color: #2f2f2f;
-			border: none;
-			border-radius: 20px;
-			padding: 8px 10px;
-			font-weight: 600;
-			font-size: 14px;
-			line-height: 1;
-			cursor: pointer;
-			transition: none;
-		}
-
-		.btn:hover,
-		.btn-accent:hover {
-			background: #ffffff;
-			color: #2f2f2f;
-		}
-
-		/* Button Groups */
-		.btn-group {
-			display: flex;
-			align-items: center;
-			background: #ffffff;
-			border-radius: 20px;
-			padding: 2px;
-			gap: 2px;
-			pointer-events: auto;
-		}
-
-		.btn-group .btn {
-			border-radius: 16px;
-			background: transparent;
-			padding: 6px 10px;
-		}
-
-		.btn-group .btn:hover {
-			background: #f0f0f0;
-		}
-
-		/* Pause Button */
-		#pauseBtn {
-			min-width: 80px;
-		}
-
-		#pauseBtn.timing {
-			background: var(--green);
-			color: #fff;
-		}
-
-		.vol {
-			pointer-events: auto;
-			appearance: none;
-			height: 6px;
-			width: 160px;
-			border-radius: 999px;
-			background: #2b3444;
-			outline: none;
-		}
-
-		.vol::-webkit-slider-thumb {
-			appearance: none;
-			width: 18px;
-			height: 18px;
-			border-radius: 50%;
-			background: white;
-			cursor: pointer;
-		}
-
-		/* Config Overlay */
-		.overlay {
-			position: fixed;
-			inset: 0;
-			background: rgba(10, 12, 16, .6);
-			backdrop-filter: blur(6px);
-			display: none;
-			align-items: center;
-			justify-content: center;
-			padding: clamp(10px, 2vw, 24px);
-			z-index: 60;
-		}
-
-		.overlay.show {
-			display: flex;
-		}
-
-		.cfg {
-			width: min(100%, 880px);
-			background: var(--panel);
-			border: 1px solid rgba(255, 255, 255, .08);
-			border-radius: 18px;
-			box-shadow: var(--shadow);
-			padding: clamp(16px, 3vw, 28px);
-			display: grid;
-			gap: 16px;
-		}
-
-		.cfg .field {
-			display: grid;
-			gap: 8px;
-		}
-
-		.cfg label {
-			font-size: .95rem;
-			color: var(--muted);
-			font-weight: 700;
-		}
-
-		.rows {
-			display: grid;
-			gap: 10px;
-			max-height: min(60vh, 360px);
-			overflow: auto;
-			padding-right: 4px;
-		}
-
-		.row {
-			display: grid;
-			grid-template-columns: 40px 1fr 100px 40px;
-			gap: 8px;
-			align-items: center;
-		}
-
-		input[type="text"],
-		input[type="url"],
-		input[type="number"],
-		input[type="time"] {
-			width: 100%;
-			background: #0f141e;
-			color: var(--ink);
-			border: 1px solid #2a3445;
-			border-radius: 12px;
-			padding: 12px;
-			font-size: 15px;
-			outline: none;
-		}
-
-		input:focus {
-			border-color: var(--green);
-			box-shadow: 0 0 0 3px rgba(54, 194, 105, .12);
-		}
-
-		.add-btn {
-			padding: 10px 14px;
-			border-radius: 10px;
-			border: 1px dashed #2a3445;
-			background: #0f141e;
-			color: var(--ink);
-			cursor: pointer;
-		}
-
-		.cfg-actions {
-			display: flex;
-			gap: 10px;
-			justify-content: flex-end;
-		}
-
-		.primary {
-			background: linear-gradient(180deg, #193524, #132b1c);
-			border: 1px solid rgba(54, 194, 105, .5);
-			color: var(--ink);
-			border-radius: 12px;
-			padding: 12px 18px;
-			font-weight: 800;
-			cursor: pointer;
-		}
-
-		.ghost {
-			background: transparent;
-			border: 1px solid #2a3445;
-			color: var(--ink);
-			border-radius: 12px;
-			padding: 12px 18px;
-			cursor: pointer;
-		}
-
-		.ft-config {
-			display: grid;
-			grid-template-columns: auto 1fr;
-			gap: 12px;
-			align-items: center;
-			padding: 12px;
-			background: rgba(255, 255, 255, .03);
-			border-radius: 12px;
-		}
-
-		.total-time {
-			font-size: 1.1rem;
-			font-weight: 800;
-			color: var(--green);
-			text-align: right;
-			padding: 10px 0;
-			border-top: 1px solid rgba(255, 255, 255, .1);
-			margin-top: 10px;
-		}
-
-		.move-btns {
-			display: flex;
-			flex-direction: column;
-			gap: 2px;
-		}
-
-		.move-btn {
-			background: transparent;
-			border: none;
-			color: var(--muted);
-			cursor: pointer;
-			font-size: 10px;
-			padding: 2px;
-			line-height: 1;
-		}
-
-		.move-btn:hover {
-			color: #fff;
-		}
-
-		@media (max-width: 640px) {
-			.progress-wrap {
-				height: max(96px, calc(var(--bar-h) * 3.4));
-			}
-
-			.cp-label {
-				font-size: 1.05rem;
-			}
-
-			.vol {
-				width: 120px;
-			}
-		}
-
-		/* Subtitles */
-		.subtitle-overlay {
-			position: absolute;
-			bottom: 80px;
-			left: 50%;
-			transform: translateX(-50%);
-			width: 80%;
-			text-align: center;
-			font-size: 2rem;
-			font-weight: 700;
-			color: #ffffff;
-			text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8), 0 0 10px rgba(0, 0, 0, 0.5);
-			pointer-events: none;
-			z-index: 40;
-			min-height: 1.2em;
-			line-height: 1.4;
-		}
-
-		#ccBtn.active {
-			background: var(--green);
-			color: #fff;
-		}
-	</style>
+	@media (max-width: 640px){
+		.progress-wrap{ height: max(96px, calc(var(--bar-h) * 3.4)); }
+		.cp-label{ font-size: 1.05rem; }
+		.vol{ width: 120px; }
+	}
+</style>
 </head>
-
 <body>
-	<div class="app">
-		<!-- Top progress bar -->
-		<div class="topbar">
-			<div class="progress-wrap">
-				<div class="progress-track">
-					<div class="progress-fill" id="progressFill"></div>
-					<div class="progress-free" id="progressFree"></div>
-				</div>
-				<div class="checklayer" id="checkLayer" aria-hidden="true"></div>
+<div class="app">
+	<!-- Top progress bar -->
+	<div class="topbar">
+		<div class="progress-wrap">
+			<div class="progress-track">
+				<div class="progress-fill" id="progressFill"></div>
 			</div>
-		</div>
-
-		<!-- Slides area -->
-		<div class="slides-area">
-			<iframe class="slides-frame" id="slidesFrame" loading="lazy"
-				allow="autoplay; fullscreen; clipboard-write; encrypted-media; picture-in-picture; screen-wake-lock"
-				sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-presentation allow-downloads"
-				src="">
-			</iframe>
-			<!-- Subtitle Overlay -->
-			<div id="subtitleOverlay" class="subtitle-overlay"></div>
-		</div>
-
-		<!-- Controls -->
-		<div class="controls">
-			<button class="btn" id="restartBtn">Restart</button>
-
-			<div class="btn-group">
-				<button class="btn" id="backBtn">-1m</button>
-				<button class="btn" id="fwdBtn">+1m</button>
-			</div>
-
-			<button class="btn" id="pauseBtn">Pause</button>
-
-			<div class="btn-group">
-				<button class="btn" id="ftSubBtn" title="Less Free Time">-FT</button>
-				<button class="btn" id="ftAddBtn" title="More Free Time">+FT</button>
-			</div>
-
-			<button class="btn" id="ccBtn" title="Toggle Subtitles">CC</button>
-
-			<select class="btn" id="ccMode" title="Subtitle Mode">
-				<option value="es">ES → ES</option>
-				<option value="es-en">ES → EN</option>
-			</select>
-
-			<button class="btn btn-accent" id="toggleBtn">Start</button>
-
-			<input class="vol" id="vol" type="range" min="0" max="1" step="0.01" value="0.6" title="Volume" />
+			<div class="checklayer" id="checkLayer" aria-hidden="true"></div>
 		</div>
 	</div>
 
-	<!-- Config overlay -->
-	<div class="overlay" id="overlay">
-		<div class="cfg">
-			<div class="field">
-				<label for="slidesUrl">Slides URL (embed link)</label>
-				<input type="url" id="slidesUrl" placeholder="https://…/embed?…" />
-			</div>
-
-			<div class="rows" id="rows"></div>
-
-			<div class="ft-config">
-				<input type="checkbox" id="ftEnabled" style="width:20px; height:20px;">
-				<div style="display:grid; gap:4px;">
-					<label for="ftEnabled" style="margin:0; cursor:pointer;">Enable Free Time Reward</label>
-					<div style="display:flex; align-items:center; gap:10px;">
-						<span style="font-size:0.9rem; color:var(--muted);">Duration (min):</span>
-						<input type="number" id="ftMinutes" value="5" step="0.5" min="0"
-							style="width:80px; padding:6px;">
-					</div>
-				</div>
-			</div>
-
-			<div class="total-time" id="totalTimeDisplay">Total: 0m</div>
-
-			<div style="display:flex; align-items:center; justify-content:space-between;">
-				<button class="add-btn" id="addRow">+ Add section</button>
-				<div style="color:var(--muted); font-size:.9rem;">Minutes can be decimals (e.g., 7.5)</div>
-			</div>
-
-			<hr style="border:0; border-top:1px solid rgba(255,255,255,.1); margin:0; width:100%;">
-
-			<div class="field">
-				<label>Schedule (Auto-Start/Pause)</label>
-				<div class="rows" id="schedRows" style="max-height: 160px;"></div>
-				<button class="add-btn" id="addSchedRow" style="width:fit-content;">+ Add Trigger</button>
-			</div>
-
-			<div class="cfg-actions">
-				<button class="ghost" id="clearAll">Clear</button>
-				<button class="primary" id="startNow">Start</button>
-			</div>
-		</div>
+	<!-- Slides area fills remaining space -->
+	<div class="slides-area">
+		<iframe
+			class="slides-frame"
+			id="slidesFrame"
+			loading="lazy"
+			allow="autoplay; fullscreen; clipboard-write; encrypted-media; picture-in-picture; screen-wake-lock"
+			sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-presentation allow-downloads"
+			src="">
+		</iframe>
 	</div>
 
-	<audio id="ding" preload="auto" src="../../../assets/timer.mp3"></audio>
+	<!-- Centered floating controls (over slides) -->
+	<div class="controls">
+		<button class="btn" id="restartBtn">Restart</button>
+		<button class="btn" id="pauseBtn">Pause</button>
+		<button class="btn btn-accent" id="toggleBtn">Start</button>
+		<input class="vol" id="vol" type="range" min="0" max="1" step="0.01" value="0.6" title="Volume" />
+	</div>
+</div>
 
-	<script>
-		/* ---------- State ---------- */
-		let sections = [];
-		let schedule = []; // { time: "HH:MM", action: "start"|"pause" }
-		let slidesURL = "";
-		let freeTimeEnabled = false;
-		let freeTimeMinutes = 5;
+<!-- Config overlay (shows when stopped) -->
+<div class="overlay" id="overlay">
+	<div class="cfg">
+		<div class="field">
+			<label for="slidesUrl">Slides URL (embed link)</label>
+			<input type="url" id="slidesUrl" placeholder="https://…/embed?…" />
+		</div>
 
-		let running = false;
-		let paused = false;
-		let startTs = 0;
-		let elapsedMs = 0;
-		let rafId = null;
+		<div class="rows" id="rows"></div>
 
-		let totalMs = 0;
-		let starts = [];
-		let ends = [];
-		let lastChimedIndex = -1;
-		const EPS = 60;
+		<div style="display:flex; align-items:center; justify-content:space-between;">
+			<button class="add-btn" id="addRow">+ Add section</button>
+			<div style="color:var(--muted); font-size:.9rem;">Minutes can be decimals (e.g., 7.5)</div>
+		</div>
+		<div class="cfg-actions">
+			<button class="ghost" id="clearAll">Clear</button>
+			<button class="primary" id="startNow">Start</button>
+		</div>
+	</div>
+</div>
 
-		/* ---------- Elements ---------- */
-		const overlay = document.getElementById('overlay');
-		const rowsEl = document.getElementById('rows');
-		const schedRowsEl = document.getElementById('schedRows');
-		const addRowBtn = document.getElementById('addRow');
-		const addSchedRowBtn = document.getElementById('addSchedRow');
-		const startNowBtn = document.getElementById('startNow');
-		const clearAllBtn = document.getElementById('clearAll');
-		const toggleBtn = document.getElementById('toggleBtn');
-		const restartBtn = document.getElementById('restartBtn');
-		const backBtn = document.getElementById('backBtn');
-		const fwdBtn = document.getElementById('fwdBtn');
-		const pauseBtn = document.getElementById('pauseBtn');
-		const ftSubBtn = document.getElementById('ftSubBtn');
-		const ftAddBtn = document.getElementById('ftAddBtn');
-		const ccBtn = document.getElementById('ccBtn');
-		const subtitleOverlay = document.getElementById('subtitleOverlay');
-		const ccModeSelect = document.getElementById('ccMode');
-		let ccMode = 'es'; // "es" or "es-en"
-		// --- Chrome Translation API helpers (ES -> EN) ---
-		let translator = null;
-		let translatorReady = false;
-		let translatorError = false;
+<!-- Audio for checkpoint chime -->
+<audio id="ding" preload="auto" src="../../../assets/timer.mp3"></audio>
 
-		/**
-		 * Ensure we have a Chrome Translation API translator instance.
-		 * Requires Chrome with the Translation API flag enabled.
-		 */
-		async function getChromeTranslator() {
-			if (translatorReady && translator) return translator;
-			if (translatorError) return null;
+<script>
+/* ---------- State ---------- */
+let sections = [];
+let slidesURL = "";
+let running = false;
+let paused = false;
+let startTs = 0;
+let elapsedMs = 0;
+let rafId = null;
 
-			// API detection
-			if (!('translation' in self) || typeof self.translation.createTranslator !== 'function') {
-				console.warn('Chrome Translation API not available on this browser.');
-				translatorError = true;
-				return null;
-			}
+let totalMs = 0;
+let starts = [];   // start time (ms) for each section (label/checkpoint)
+let ends = [];     // end time (ms) for each section (up to next label or total)
+let lastChimedIndex = -1; // highest checkpoint index we've chimed for
+const EPS = 60; // tolerance so we don't miss edge crossings
 
-			try {
-				translator = await self.translation.createTranslator({
-					sourceLanguage: 'es', // we speak Spanish
-					targetLanguage: 'en'  // translate to English
-				});
-				translatorReady = true;
-				return translator;
-			} catch (err) {
-				console.error('Failed to create Chrome translator:', err);
-				translatorError = true;
-				return null;
-			}
-		}
+/* ---------- Elements ---------- */
+const overlay = document.getElementById('overlay');
+const rowsEl = document.getElementById('rows');
+const addRowBtn = document.getElementById('addRow');
+const startNowBtn = document.getElementById('startNow');
+const clearAllBtn = document.getElementById('clearAll');
+const toggleBtn = document.getElementById('toggleBtn');
+const restartBtn = document.getElementById('restartBtn');
+const pauseBtn = document.getElementById('pauseBtn');
 
-		/**
-		 * Translate Spanish -> English using Chrome Translation API.
-		 * If anything fails, returns the original text so captions still show something.
-		 */
-		async function translateEStoENChrome(text) {
-			const t = await getChromeTranslator();
-			if (!t) return text; // fallback: show Spanish
+const progressFill = document.getElementById('progressFill');
+const checkLayer = document.getElementById('checkLayer');
 
-			try {
-				const result = await t.translate(text);
-				// API returns a string in current spec
-				return result || text;
-			} catch (err) {
-				console.error('Chrome translation failed:', err);
-				return text;
+const audioEl = document.getElementById('ding');
+const volEl = document.getElementById('vol');
+
+const slidesInput = document.getElementById('slidesUrl');
+const slidesFrame = document.getElementById('slidesFrame');
+
+/* ---------- Persistence ---------- */
+/* Store both sections and slidesURL together; read old formats gracefully */
+const LS_KEY = 'classTimelineConfig.v1';
+function saveConfig(){
+	const payload = { sections, slidesURL };
+	localStorage.setItem(LS_KEY, JSON.stringify(payload));
+}
+function loadConfig(){
+	try{
+		const raw = localStorage.getItem(LS_KEY);
+		if(raw){
+			const data = JSON.parse(raw);
+			if(Array.isArray(data)){ // very old format (sections array)
+				sections = data.filter(s => s && (s.name ?? '') !== '');
+			}else if(data && typeof data === 'object'){
+				sections = Array.isArray(data.sections) ? data.sections : [];
+				slidesURL = typeof data.slidesURL === 'string' ? data.slidesURL : '';
+				sections = sections.filter(s => s && (s.name ?? '') !== '');
 			}
 		}
+	}catch{}
+	if(!sections.length){
+		sections = [
+			{ name: 'Bellwork', minutes: 8 },
+			{ name: 'Review', minutes: 17 },
+			{ name: 'New Content', minutes: 20 },
+			{ name: 'Practice', minutes: 22 },
+			{ name: 'Exit Ticket', minutes: 10 },
+            { name: 'Reflection', minutes: 5 },
+		];
+	}
+	if(!slidesURL) slidesURL = "";
+	slidesInput.value = slidesURL;
+	slidesFrame.src = slidesURL || "";
+}
 
+/* ---------- Time math ---------- */
+function computeTotals(){
+	totalMs = sections.reduce((sum, s) => sum + (Number(s.minutes)||0)*60000, 0);
+	starts = [];
+	ends = [];
+	let acc = 0;
+	for(let i=0;i<sections.length;i++){
+		starts.push(acc);                                 // label at BEGINNING of section
+		const len = (Number(sections[i].minutes)||0)*60000;
+		acc += len;
+		ends.push(i < sections.length-1 ? acc : totalMs); // to NEXT section (last to total)
+	}
+}
 
-
-		// --- Local ES -> EN translator using Transformers.js ---
-		let esEnTranslator = null;
-		let translatorLoading = false;
-		let translatorFailed = false;
-
-		/**
-		 * Ensure the ES->EN translator is loaded.
-		 * Uses Xenova/opus-mt-es-en via Transformers.js (runs fully in-browser).
-		 */
-		async function ensureEsEnTranslator() {
-			if (esEnTranslator || translatorFailed) return esEnTranslator;
-
-			// If a load is already in progress, wait for it
-			if (translatorLoading) {
-				while (translatorLoading && !esEnTranslator && !translatorFailed) {
-					await new Promise(r => setTimeout(r, 50));
-				}
-				return esEnTranslator;
-			}
-
-			translatorLoading = true;
-
-			try {
-				if (!window.transformers || !window.transformers.pipeline) {
-					console.error('Transformers.js not available. Check the <script> include in <head>.');
-					translatorFailed = true;
-					return null;
-				}
-
-				const { pipeline, env } = window.transformers;
-
-				// Optional: allow remote models but not local files
-				env.allowLocalModels = false;
-
-				// Small ES -> EN translation model
-				esEnTranslator = await pipeline(
-					'translation',
-					'Xenova/opus-mt-es-en'
-				);
-
-				console.log('ES->EN translator model loaded');
-				return esEnTranslator;
-			} catch (err) {
-				console.error('Failed to load ES->EN translator model:', err);
-				translatorFailed = true;
-				return null;
-			} finally {
-				translatorLoading = false;
-			}
-		}
-
-		/**
-		 * Translate Spanish -> English locally in the browser.
-		 * If anything fails, it just returns the original Spanish text.
-		 */
-		async function translateEsToEnLocal(text) {
-			const translator = await ensureEsEnTranslator();
-			if (!translator) return text;
-
-			try {
-				const output = await translator(text, {
-					// Make it deterministic & fairly fast
-					top_k: 0,
-					do_sample: false,
-					num_beams: 1,
-				});
-
-				// transformers.js returns [{ translation_text: "..." }]
-				if (Array.isArray(output) && output[0] && output[0].translation_text) {
-					return output[0].translation_text;
-				}
-				return text;
-			} catch (err) {
-				console.error('Local ES->EN translation error:', err);
-				return text;
-			}
-		}
-
-
-		const progressFill = document.getElementById('progressFill');
-		const progressFree = document.getElementById('progressFree');
-		const checkLayer = document.getElementById('checkLayer');
-
-		const audioEl = document.getElementById('ding');
-		const volEl = document.getElementById('vol');
-
-		const slidesInput = document.getElementById('slidesUrl');
-		const slidesFrame = document.getElementById('slidesFrame');
-		const ftEnabledInput = document.getElementById('ftEnabled');
-		const ftMinutesInput = document.getElementById('ftMinutes');
-		const totalTimeDisplay = document.getElementById('totalTimeDisplay');
-
-		ccModeSelect.addEventListener('change', (e) => {
-			ccMode = e.target.value;
-		});
-
-
-		/* ---------- Persistence ---------- */
-		const LS_KEY = 'classTimelineConfig.v2';
-		function saveConfig() {
-			const payload = { sections, schedule, slidesURL, freeTimeEnabled, freeTimeMinutes };
-			localStorage.setItem(LS_KEY, JSON.stringify(payload));
-			updateTotalTime();
-		}
-		function loadConfig() {
-			try {
-				const raw = localStorage.getItem(LS_KEY);
-				if (raw) {
-					const data = JSON.parse(raw);
-					if (Array.isArray(data)) {
-						sections = data.filter(s => s && (s.name ?? '') !== '');
-					} else if (data && typeof data === 'object') {
-						sections = Array.isArray(data.sections) ? data.sections : [];
-						schedule = Array.isArray(data.schedule) ? data.schedule : [];
-						slidesURL = typeof data.slidesURL === 'string' ? data.slidesURL : '';
-						freeTimeEnabled = !!data.freeTimeEnabled;
-						freeTimeMinutes = Number(data.freeTimeMinutes) || 5;
-						sections = sections.filter(s => s && (s.name ?? '') !== '');
-					}
-				}
-			} catch { }
-			if (!sections.length) {
-				sections = [
-					{ name: 'Bellwork', minutes: 8 },
-					{ name: 'Review', minutes: 17 },
-					{ name: 'New Content', minutes: 20 },
-					{ name: 'Practice', minutes: 22 },
-					{ name: 'Exit Ticket', minutes: 10 },
-					{ name: 'Reflection', minutes: 5 },
-				];
-			}
-			slidesInput.value = slidesURL || "";
-			slidesFrame.src = slidesURL || "";
-			ftEnabledInput.checked = freeTimeEnabled;
-			ftMinutesInput.value = freeTimeMinutes;
-			updateTotalTime();
-		}
-
-		/* ---------- Time math ---------- */
-		function computeTotals() {
-			let sectionTotal = sections.reduce((sum, s) => sum + (Number(s.minutes) || 0) * 60000, 0);
-			let ftMs = (freeTimeEnabled ? (Number(freeTimeMinutes) || 0) * 60000 : 0);
-			totalMs = sectionTotal + ftMs;
-
-			starts = [];
-			ends = [];
-			let acc = 0;
-			for (let i = 0; i < sections.length; i++) {
-				starts.push(acc);
-				const len = (Number(sections[i].minutes) || 0) * 60000;
-				acc += len;
-				ends.push(acc);
-			}
-			// Free time is technically a section at the end, but we don't add it to starts/ends for checkpoints
-			// unless we want a checkpoint for "Free Time Start"?
-			// Let's add a virtual start for it so we can chime when it starts.
-			if (freeTimeEnabled && ftMs > 0) {
-				starts.push(sectionTotal);
-				ends.push(totalMs);
-			}
-		}
-
-		function updateTotalTime() {
-			let sectionTotal = sections.reduce((sum, s) => sum + (Number(s.minutes) || 0), 0);
-			let ft = (freeTimeEnabled ? (Number(freeTimeMinutes) || 0) : 0);
-			totalTimeDisplay.textContent = `Total: ${(sectionTotal + ft).toFixed(1)}m`;
-		}
-
-		/* ---------- Builders ---------- */
-		function buildConfigRows() {
-			rowsEl.innerHTML = '';
-			sections.forEach((s, i) => {
-				const row = document.createElement('div');
-				row.className = 'row';
-				row.innerHTML = `
-			<div class="move-btns">
-				<button class="move-btn up">▲</button>
-				<button class="move-btn down">▼</button>
-			</div>
+/* ---------- Builders ---------- */
+function buildConfigRows(){
+	rowsEl.innerHTML = '';
+	sections.forEach((s,i)=>{
+		const row = document.createElement('div');
+		row.className = 'row';
+		row.innerHTML = `
 			<input type="text" placeholder="Section name" value="${s.name}">
 			<input type="number" step="0.5" min="0" placeholder="Minutes" value="${s.minutes}">
 			<button class="icon-btn" title="Remove">🗑️</button>
 		`;
-				const [moveDiv, nameInput, minInput, delBtn] = row.children;
-				moveDiv.querySelector('.up').addEventListener('click', () => moveSection(i, -1));
-				moveDiv.querySelector('.down').addEventListener('click', () => moveSection(i, 1));
-
-				nameInput.addEventListener('input', e => { s.name = e.target.value; saveConfig(); buildTimeline(); });
-				minInput.addEventListener('input', e => { s.minutes = e.target.value; saveConfig(); buildTimeline(); });
-				delBtn.addEventListener('click', () => { sections.splice(i, 1); saveConfig(); buildConfigRows(); buildTimeline(); });
-				rowsEl.appendChild(row);
-			});
-		}
-
-		function buildScheduleRows() {
-			schedRowsEl.innerHTML = '';
-			schedule.forEach((item, i) => {
-				const row = document.createElement('div');
-				row.className = 'row';
-				row.style.gridTemplateColumns = '1fr 100px 40px'; // Override for schedule
-				row.innerHTML = `
-			<input type="time" value="${item.time}">
-			<select style="background:#0f141e; color:var(--ink); border:1px solid #2a3445; border-radius:12px; padding:12px; outline:none;">
-				<option value="start" ${item.action === 'start' ? 'selected' : ''}>Start</option>
-				<option value="pause" ${item.action === 'pause' ? 'selected' : ''}>Pause</option>
-			</select>
-			<button class="icon-btn" title="Remove">🗑️</button>
-		`;
-				const [timeInput, actionSelect, delBtn] = row.children;
-				timeInput.addEventListener('input', e => { item.time = e.target.value; saveConfig(); });
-				actionSelect.addEventListener('change', e => { item.action = e.target.value; saveConfig(); });
-				delBtn.addEventListener('click', () => { schedule.splice(i, 1); saveConfig(); buildScheduleRows(); });
-				schedRowsEl.appendChild(row);
-			});
-		}
-
-		function moveSection(index, dir) {
-			if (index + dir < 0 || index + dir >= sections.length) return;
-			const temp = sections[index];
-			sections[index] = sections[index + dir];
-			sections[index + dir] = temp;
-			saveConfig();
-			buildConfigRows();
-			buildTimeline();
-		}
-
-		function buildTimeline() {
-			computeTotals();
-			checkLayer.innerHTML = '';
-			if (!sections.length && !freeTimeEnabled) return;
-
-			// Percent positions for labels
-			// We only show labels for real sections
-			const percents = starts.slice(0, sections.length).map(ms => (ms / totalMs) * 100);
-
-			sections.forEach((s, i) => {
-				const cp = document.createElement('div');
-				cp.className = 'cp';
-				if (i === 0) cp.classList.add('first');
-				// If free time is enabled, the last section is NOT the last visual element
-				if (!freeTimeEnabled && i === sections.length - 1) cp.classList.add('last');
-
-				const dot = document.createElement('div');
-				dot.className = 'cp-dot';
-				dot.dataset.index = i;
-
-				const label = document.createElement('div');
-				label.className = 'cp-label ' + (i % 2 === 0 ? 'top' : 'bottom');
-				label.textContent = s.name || 'Untitled';
-
-				cp.appendChild(dot);
-				cp.appendChild(label);
-				cp.style.left = `${percents[i]}%`;
-				checkLayer.appendChild(cp);
-			});
-
-			// Add a label for Free Time? Maybe just the red bar is enough.
-			// Let's add a checkpoint for Free Time start if enabled
-			if (freeTimeEnabled) {
-				const ftStartMs = starts[sections.length];
-				const cp = document.createElement('div');
-				cp.className = 'cp';
-				cp.style.left = `${(ftStartMs / totalMs) * 100}%`;
-
-				const dot = document.createElement('div');
-				dot.className = 'cp-dot';
-
-				const label = document.createElement('div');
-				label.className = 'cp-label bottom';
-				label.textContent = 'Free Time';
-				label.style.color = '#e54d2e';
-
-				cp.appendChild(dot);
-				cp.appendChild(label);
-				checkLayer.appendChild(cp);
-			}
-
-			updateCompletionUI(true);
-		}
-
-		/* ---------- Audio ---------- */
-		function setVolume(v) { audioEl.volume = Math.max(0, Math.min(1, v)); }
-		volEl.addEventListener('input', e => setVolume(parseFloat(e.target.value)));
-
-		/* ---------- Scheduler ---------- */
-		let lastTriggeredTime = "";
-		setInterval(() => {
-			const now = new Date();
-			const hh = String(now.getHours()).padStart(2, '0');
-			const mm = String(now.getMinutes()).padStart(2, '0');
-			const timeStr = `${hh}:${mm}`;
-
-			if (timeStr === lastTriggeredTime) return; // Already triggered for this minute
-
-			const item = schedule.find(x => x.time === timeStr);
-			if (item) {
-				lastTriggeredTime = timeStr;
-				if (item.action === 'start') {
-					if (!running) startTimer();
-				} else if (item.action === 'pause') {
-					if (running) pauseTimer();
-				}
-			}
-		}, 1000);
-
-		/* ---------- Timer Logic ---------- */
-		function tick() {
-			if (!running) return;
-			const now = Date.now();
-			elapsedMs = now - startTs;
-
-			if (elapsedMs >= totalMs) {
-				elapsedMs = totalMs;
-				pauseTimer();
-				// Final chime if we haven't already
-				if (lastChimedIndex < starts.length) {
-					audioEl.currentTime = 0;
-					audioEl.play().catch(() => { });
-					lastChimedIndex = starts.length;
-				}
-			}
-
-			updateCompletionUI();
-			rafId = requestAnimationFrame(tick);
-		}
-
-		function updateCompletionUI(force = false) {
-			const pct = Math.min(100, (elapsedMs / totalMs) * 100);
-			// The green bar handles the section part
-			// The red bar handles the free time part
-			// But visually we want them to fill up left-to-right.
-
-			// Let's simplify:
-			// Green bar width = min(elapsed, sectionTotal) / totalMs
-			// Red bar width = max(0, elapsed - sectionTotal) / totalMs
-			// Wait, the CSS is absolute.
-			// progress-fill is left:0. progress-free is right:0.
-			// This means progress-free grows from right to left?
-			// Actually the CSS says: progress-free { right:0; width:0%; }
-			// If we want it to fill after green, it should probably be positioned differently or we just manipulate widths.
-
-			// Let's try this:
-			// Green bar fills up to sectionTotal.
-			// Red bar fills up from sectionTotal to end.
-
-			let sectionTotal = sections.reduce((sum, s) => sum + (Number(s.minutes) || 0) * 60000, 0);
-			let greenMs = Math.min(elapsedMs, sectionTotal);
-			let redMs = Math.max(0, elapsedMs - sectionTotal);
-
-			// We need percentages relative to totalMs
-			let greenPct = (greenMs / totalMs) * 100;
-			let redPct = (redMs / totalMs) * 100;
-
-			progressFill.style.width = `${greenPct}%`;
-
-			// For the red bar, if we want it to appear *after* the green bar,
-			// we should probably position it at left: greenPct?
-			// But existing CSS has it at right:0.
-			// Let's override the CSS for progress-free to be left-based if we want it continuous.
-			// Or just use the existing CSS if the user intended it to grow from right?
-			// Looking at CSS: .progress-free { right: 0; ... }
-			// This implies it grows from the right edge.
-			// If the user wants "Free Time" at the end of class, it usually appends to the green bar.
-			// Let's change it to left-based positioning for continuity.
-			progressFree.style.right = 'auto';
-			progressFree.style.left = `${(sectionTotal / totalMs) * 100}%`;
-			progressFree.style.width = `${redPct}%`;
-
-
-			// Checkpoints
-			// We want to chime when we cross a start/end boundary
-			// starts[] contains 0, len1, len1+len2, ...
-			// We skip 0.
-			// We want to chime at each boundary.
-			// Find which section we are in.
-			let currentIdx = -1;
-			for (let i = 0; i < starts.length; i++) {
-				if (elapsedMs >= starts[i] - EPS) currentIdx = i;
-			}
-
-			if (currentIdx > lastChimedIndex && running) {
-				// Chime!
-				// Only if we actually crossed it just now (handled by state machine usually, but here we poll)
-				// We'll just chime whenever currentIdx increases.
-				if (lastChimedIndex !== -1) { // Don't chime on immediate start? Or do?
-					// Usually bellwork starts immediately.
-					// Let's chime if it's not the very first split second (unless we want a start bell).
-					// Let's chime.
-					audioEl.currentTime = 0;
-					audioEl.play().catch(() => { });
-				}
-				lastChimedIndex = currentIdx;
-			}
-
-			// Update labels active state
-			// A label is active if we are inside its section
-			// i.e. starts[i] <= elapsed < ends[i]
-			const labels = document.querySelectorAll('.cp-label');
-			labels.forEach((lbl, i) => {
-				// The last checkpoint (Free Time) doesn't have a duration in the same way in the loop
-				// but let's handle standard sections
-				if (i < sections.length) {
-					if (elapsedMs >= starts[i] && elapsedMs < ends[i]) {
-						lbl.classList.add('active');
-						lbl.classList.remove('completed');
-					} else if (elapsedMs >= ends[i]) {
-						lbl.classList.remove('active');
-						lbl.classList.add('completed');
-					} else {
-						lbl.classList.remove('active');
-						lbl.classList.remove('completed');
-					}
-				} else {
-					// Free time label
-					if (freeTimeEnabled && i === sections.length) {
-						if (elapsedMs >= starts[i]) {
-							lbl.classList.add('active');
-						} else {
-							lbl.classList.remove('active');
-						}
-					}
-				}
-			});
-
-			// Update dots
-			const dots = document.querySelectorAll('.cp');
-			dots.forEach((dot, i) => {
-				// Completed if passed
-				// The dot is at starts[i] (except maybe last one?)
-				// Actually the dots are at starts[i].
-				// If elapsed >= starts[i], is it completed?
-				// Usually "completed" means we passed that checkpoint.
-				// Let's say a checkpoint is "reached" (completed) if elapsed >= its time.
-				let time = starts[i];
-				if (elapsedMs >= time) {
-					dot.classList.add('completed');
-				} else {
-					dot.classList.remove('completed');
-				}
-			});
-		}
-
-		function startTimer() {
-			if (running) return;
-			if (elapsedMs >= totalMs) {
-				// Restart if at end
-				elapsedMs = 0;
-				lastChimedIndex = -1;
-				updateCompletionUI();
-			}
-			running = true;
-			paused = false;
-			startTs = Date.now() - elapsedMs;
-			toggleBtn.textContent = "Stop";
-			toggleBtn.style.background = "#e54d2e";
-			toggleBtn.style.color = "#fff";
-			pauseBtn.textContent = "Pause";
-			pauseBtn.classList.remove('timing');
-			tick();
-		}
-
-		function pauseTimer() {
-			running = false;
-			paused = true;
-			cancelAnimationFrame(rafId);
-			toggleBtn.textContent = "Start";
-			toggleBtn.style.background = "#ffffff";
-			toggleBtn.style.color = "#2f2f2f";
-			pauseBtn.textContent = "Resume";
-			pauseBtn.classList.add('timing');
-		}
-
-		function resetTimer() {
-			running = false;
-			paused = false;
-			cancelAnimationFrame(rafId);
-			elapsedMs = 0;
-			lastChimedIndex = -1;
-			updateCompletionUI();
-			toggleBtn.textContent = "Start";
-			toggleBtn.style.background = "#ffffff";
-			toggleBtn.style.color = "#2f2f2f";
-			pauseBtn.textContent = "Pause";
-			pauseBtn.classList.remove('timing');
-		}
-
-		function adjustTime(deltaMs) {
-			elapsedMs += deltaMs;
-			if (elapsedMs < 0) elapsedMs = 0;
-			if (elapsedMs > totalMs) elapsedMs = totalMs;
-			if (running) {
-				startTs = Date.now() - elapsedMs;
-			}
-			updateCompletionUI();
-		}
-
-		/* ---------- Subtitles Logic ---------- */
-		let recognition;
-		let recognizing = false;
-
-		if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
-			const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-			recognition = new SpeechRecognition();
-			recognition.continuous = true;
-			recognition.interimResults = true;
-			recognition.lang = 'es-MX';
-
-			recognition.onresult = async (event) => {
-				let interimText = '';
-				let finalText = '';
-
-				// Collect the latest interim + final segments
-				for (let i = event.resultIndex; i < event.results.length; i++) {
-					const res = event.results[i];
-					const text = res[0].transcript.trim();
-
-					if (res.isFinal) {
-						finalText = text;     // last completed phrase
-					} else {
-						interimText = text;   // live partial phrase
-					}
-				}
-
-				if (!interimText && !finalText) return;
-
-				// Mode 1: ES -> ES (Spanish captions)
-				if (ccMode === 'es') {
-					const toShow = interimText || finalText;
-					subtitleOverlay.textContent = toShow;
-					return;
-				}
-
-				// Mode 2: ES -> EN (local translation)
-				if (ccMode === 'es-en') {
-					const base = finalText || interimText;
-					if (!base) return;
-
-					// While model is loading, you might see a small delay on first use
-					const translated = await translateEsToEnLocal(base);
-					subtitleOverlay.textContent = translated;
-				}
-			};
-
-
-
-			recognition.onerror = (event) => {
-				console.error('Speech recognition error', event.error);
-				if (event.error === 'not-allowed') {
-					alert('Microphone access denied. Please allow microphone access to use subtitles.');
-					toggleCC(false);
-				}
-			};
-
-			recognition.onend = () => {
-				if (recognizing) {
-					recognition.start();
-				}
-			};
-		} else {
-			ccBtn.style.display = 'none';
-			console.warn('Web Speech API not supported');
-		}
-
-
-
-		function toggleCC(forceState) {
-			if (!recognition) return;
-
-			const newState = forceState !== undefined ? forceState : !recognizing;
-
-			if (newState) {
-				recognition.start();
-				recognizing = true;
-				ccBtn.classList.add('active');
-				subtitleOverlay.style.display = 'block';
-			} else {
-				recognizing = false;
-				recognition.stop();
-				ccBtn.classList.remove('active');
-				subtitleOverlay.style.display = 'none';
-				subtitleOverlay.textContent = '';
-			}
-		}
-
-		ccBtn.addEventListener('click', () => toggleCC());
-
-
-		/* ---------- Event Listeners ---------- */
-		toggleBtn.addEventListener('click', () => {
-			if (running) startTimer(); // Stop logic is weirdly named "startTimer" in my copy-paste? 
-			// Wait, logic above:
-			// startTimer() checks if running, if so returns.
-			// So toggleBtn should call pauseTimer() if running?
-			// Let's fix the toggle logic.
-			if (running) {
-				// It's a "Stop" button now
-				resetTimer(); // Or pause? The label says "Stop". Usually Stop means Reset.
-				// But the code above had "Stop" button call resetTimer?
-				// Let's look at original logic.
-				// Original had "Start" -> running=true.
-				// If running, it says "Stop".
-				// If I click Stop, it should probably reset or pause.
-				// Let's make it Reset for "Stop", and Pause is separate.
-				resetTimer();
-			} else {
-				startTimer();
-			}
-		});
-
-		pauseBtn.addEventListener('click', () => {
-			if (running) pauseTimer();
-			else if (paused) startTimer();
-		});
-
-		restartBtn.addEventListener('click', resetTimer);
-		backBtn.addEventListener('click', () => adjustTime(-60000));
-		fwdBtn.addEventListener('click', () => adjustTime(60000));
-
-		ftSubBtn.addEventListener('click', () => {
-			freeTimeMinutes = Math.max(0, (Number(freeTimeMinutes) || 0) - 1);
-			saveConfig();
-			buildTimeline();
-		});
-		ftAddBtn.addEventListener('click', () => {
-			freeTimeMinutes = (Number(freeTimeMinutes) || 0) + 1;
-			saveConfig();
-			buildTimeline();
-		});
-
-		// Config UI
-		document.addEventListener('keydown', e => {
-			if (e.key === 'Escape') overlay.classList.remove('show');
-			if (e.key === ' ' && e.target.tagName !== 'INPUT') {
-				// Space to toggle pause/resume if running
-				e.preventDefault();
-				if (running) pauseTimer();
-				else if (paused) startTimer();
-				else startTimer();
-			}
-		});
-
-		overlay.addEventListener('click', e => {
-			if (e.target === overlay) overlay.classList.remove('show');
-		});
-
-		// Double click top bar to open config? Or a button?
-		// There is no config button in the UI!
-		// The original code probably had one or relied on a hidden trigger.
-		// Let's add a gear icon or just make the topbar clickable.
-		document.querySelector('.topbar').addEventListener('dblclick', () => {
-			overlay.classList.add('show');
-			buildConfigRows();
-			buildScheduleRows();
-		});
-		// Also add a keyboard shortcut 'c' for config
-		document.addEventListener('keydown', e => {
-			if (e.key === 'c' && e.target.tagName !== 'INPUT') {
-				overlay.classList.add('show');
-				buildConfigRows();
-				buildScheduleRows();
-			}
-		});
-
-		addRowBtn.addEventListener('click', () => {
-			sections.push({ name: 'New Section', minutes: 10 });
-			saveConfig();
-			buildConfigRows();
-			buildTimeline();
-		});
-
-		addSchedRowBtn.addEventListener('click', () => {
-			schedule.push({ time: "08:00", action: "start" });
-			saveConfig();
-			buildScheduleRows();
-		});
-
-		startNowBtn.addEventListener('click', () => {
-			overlay.classList.remove('show');
-			resetTimer();
-			startTimer();
-		});
-
-		clearAllBtn.addEventListener('click', () => {
-			if (confirm('Clear all sections?')) {
-				sections = [];
-				schedule = [];
-				saveConfig();
-				buildConfigRows();
-				buildScheduleRows();
-				buildTimeline();
-			}
-		});
-
-		slidesInput.addEventListener('change', e => {
-			slidesURL = e.target.value;
-			slidesFrame.src = slidesURL;
-			saveConfig();
-		});
-
-		ftEnabledInput.addEventListener('change', e => {
-			freeTimeEnabled = e.target.checked;
-			saveConfig();
-			buildTimeline();
-		});
-
-		ftMinutesInput.addEventListener('change', e => {
-			freeTimeMinutes = e.target.value;
-			saveConfig();
-			buildTimeline();
-		});
-
-
-		/* ---------- Init ---------- */
-		loadConfig();
-		buildTimeline();
-
-	</script>
+		const [nameInput, minInput, delBtn] = row.children;
+		nameInput.addEventListener('input', e => { s.name = e.target.value; saveConfig(); buildTimeline(); });
+		minInput.addEventListener('input', e => { s.minutes = e.target.value; saveConfig(); buildTimeline(); });
+		delBtn.addEventListener('click', ()=> { sections.splice(i,1); saveConfig(); buildConfigRows(); buildTimeline(); });
+		rowsEl.appendChild(row);
+	});
+}
+
+function buildTimeline(){
+	computeTotals();
+	checkLayer.innerHTML = '';
+	if(!sections.length || !totalMs) return;
+
+	// Percent positions for LABEL STARTS (first at 0%)
+	const percents = starts.map(ms => (ms/totalMs)*100);
+
+	sections.forEach((s,i)=>{
+		const cp = document.createElement('div');
+		cp.className = 'cp';
+		if(i===0) cp.classList.add('first');
+		if(i===sections.length-1) cp.classList.add('last');
+
+		const dot = document.createElement('div');
+		dot.className = 'cp-dot';
+		dot.dataset.index = i;
+
+		const label = document.createElement('div');
+		label.className = 'cp-label ' + (i % 2 === 0 ? 'top' : 'bottom');
+		label.textContent = s.name || 'Untitled';
+
+		cp.appendChild(dot);
+		cp.appendChild(label);
+		cp.style.left = `${percents[i]}%`;
+		checkLayer.appendChild(cp);
+	});
+
+	updateCompletionUI(true);
+}
+
+/* ---------- Audio ---------- */
+function setVolume(v){
+	audioEl.volume = Math.max(0, Math.min(1, v));
+}
+volEl.addEventListener('input', e => setVolume(parseFloat(e.target.value)));
+
+/* ---------- Run Loop ---------- */
+function update(){
+	if(!running || paused) return;
+	const now = performance.now();
+	elapsedMs = Math.min(totalMs, (now - startTs));
+	draw();
+	if(elapsedMs >= totalMs){
+		stopTimer(false);
+		return;
+	}
+	rafId = requestAnimationFrame(update);
+}
+
+function draw() {
+  const ratio = totalMs ? (elapsedMs / totalMs) : 0;
+  const track = document.querySelector('.progress-track');
+  const trackW = track ? track.clientWidth : 0;
+
+  // cap diameter from CSS var --bar-h
+  const barH = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--bar-h')) || 28;
+  const px = Math.max(0, Math.min(1, ratio)) * trackW;
+
+  // normal width for the rectangle part
+  progressFill.style.width = `${Math.max(0, Math.min(100, ratio*100))}%`;
+
+  // If the bar is smaller than one cap, use "small" mode (only left cap)
+  progressFill.classList.toggle('small', px < barH);
+
+  handleChimes();
+  updateCompletionUI();
+}
+
+
+window.addEventListener('resize', draw);
+document.addEventListener('visibilitychange', () => { if(!document.hidden) draw(); });
+
+
+/* Play a chime whenever we pass a new checkpoint start time (skip the first) */
+function handleChimes(){
+  if(!sections.length) return;
+  let highest = -1;
+  for(let i=0;i<starts.length;i++){
+    if(elapsedMs + EPS >= starts[i]) highest = i; else break;   // <-- EPS
+  }
+  if(highest > lastChimedIndex){
+    let firstToPlay = Math.max(1, lastChimedIndex + 1); // skip index 0
+    for(let i = firstToPlay; i <= highest; i++){
+      setTimeout(()=>{ try { audioEl.currentTime = 0; audioEl.play(); } catch(e) {} }, (i-firstToPlay)*140);
+    }
+    lastChimedIndex = highest;
+  }
+}
+
+
+/* Active/completed states:
+   active i where starts[i] <= elapsed < ends[i]
+   checkpoint completed when elapsed >= starts[i]
+*/
+function updateCompletionUI(initial=false){
+  if(!sections.length) return;
+
+  let activeIndex = 0;
+  for(let i=0;i<sections.length;i++){
+    if(elapsedMs + EPS >= starts[i] && elapsedMs < ends[i] - EPS) { activeIndex = i; break; }  // EPS both sides
+    if(i === sections.length-1 && elapsedMs + EPS >= starts[i]) activeIndex = i;
+  }
+
+  [...checkLayer.children].forEach((cp, i)=>{
+    const completed = elapsedMs + EPS >= starts[i];           // <-- EPS
+    cp.classList.toggle('completed', completed);
+    const label = cp.querySelector('.cp-label');
+    label.classList.toggle('completed', elapsedMs + EPS >= ends[i]); // <-- EPS
+    label.classList.toggle('active', i === activeIndex && elapsedMs + EPS < ends[i]);
+    if(initial && i===0){ cp.classList.remove('completed'); }
+  });
+}
+
+
+/* ---------- Controls ---------- */
+function startTimer(resetElapsed=true){
+	if(!sections.length || !totalMs) return;
+	if(resetElapsed) elapsedMs = 0;
+	startTs = performance.now() - elapsedMs; // support resume
+	running = true;
+	paused = false;
+	lastChimedIndex = -1; // reset chime tracker
+	toggleBtn.textContent = 'Stop';
+	pauseBtn.textContent = 'Pause';
+	overlay.classList.remove('show');
+	cancelAnimationFrame(rafId);
+	rafId = requestAnimationFrame(update);
+}
+function stopTimer(showConfig=true){
+	running = false;
+	paused = false;
+	toggleBtn.textContent = 'Start';
+	pauseBtn.textContent = 'Pause';
+	cancelAnimationFrame(rafId);
+	if(showConfig) overlay.classList.add('show');
+}
+function restartTimer(){
+	elapsedMs = 0;
+	lastChimedIndex = -1;
+	startTimer(true);
+}
+function pauseTimer(){
+	if(!running || paused) return;
+	paused = true;
+	pauseBtn.textContent = 'Continue';
+	cancelAnimationFrame(rafId);
+}
+function continueTimer(){
+	if(!running || !paused) return;
+	paused = false;
+	startTs = performance.now() - elapsedMs; // keep elapsed time
+	pauseBtn.textContent = 'Pause';
+	cancelAnimationFrame(rafId);
+	rafId = requestAnimationFrame(update);
+}
+
+/* ---------- Events ---------- */
+toggleBtn.addEventListener('click', () => running ? stopTimer(true) : (buildTimeline(), startTimer(true)));
+restartBtn.addEventListener('click', () => restartTimer());
+pauseBtn.addEventListener('click', () => paused ? continueTimer() : pauseTimer());
+
+addRowBtn.addEventListener('click', () => { sections.push({ name:'', minutes:5 }); saveConfig(); buildConfigRows(); buildTimeline(); });
+startNowBtn.addEventListener('click', () => { slidesURL = slidesInput.value.trim(); slidesFrame.src = slidesURL || ""; saveConfig(); buildTimeline(); startTimer(true); });
+clearAllBtn.addEventListener('click', () => { sections = []; saveConfig(); buildConfigRows(); buildTimeline(); });
+overlay.addEventListener('click', (e) => { if(e.target === overlay) overlay.classList.remove('show'); });
+slidesInput.addEventListener('change', () => { slidesURL = slidesInput.value.trim(); slidesFrame.src = slidesURL || ""; saveConfig(); });
+
+/* ---------- Init ---------- */
+loadConfig();
+buildConfigRows();
+buildTimeline();
+stopTimer(true); // show config on load
+setVolume(parseFloat(volEl.value) || 0.6);
+</script>
 </body>
-
 </html>
