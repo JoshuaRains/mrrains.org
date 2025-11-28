@@ -219,17 +219,27 @@
 
 		/* Controls */
 		.controls {
-			position: absolute;
+			position: fixed;
+			bottom: 10px;
 			left: 50%;
-			transform: translateX(-50%);
-			bottom: max(9px);
+			transform: translateX(-50%) scale(calc(1 / var(--zoom)));
+			transform-origin: center;
+
 			display: flex;
-			gap: 12px;
-			z-index: 50;
-			pointer-events: none;
 			align-items: center;
+			/* ⬅ make all children vertically centered */
+			gap: 12px;
+			font-size: 14px;
+			pointer-events: none;
+			z-index: 9999;
+			flex-wrap: nowrap;
+			/* ⬅ never wrap onto multiple lines */
+
 		}
 
+
+
+		.btn,
 		.btn,
 		.btn-accent {
 			pointer-events: auto;
@@ -243,7 +253,11 @@
 			line-height: 1;
 			cursor: pointer;
 			transition: none;
+
+			/* 👇 NEW: never wrap the button text */
+			white-space: nowrap;
 		}
+
 
 		.btn:hover,
 		.btn-accent:hover {
@@ -253,20 +267,27 @@
 
 		/* Button Groups */
 		.btn-group {
-			display: flex;
+			display: inline-flex;
 			align-items: center;
 			background: #ffffff;
 			border-radius: 20px;
 			padding: 2px;
 			gap: 2px;
 			pointer-events: auto;
+
+			/* 👇 NEW: don’t let the whole pill shrink */
+			flex: 0 0 auto;
 		}
 
 		.btn-group .btn {
 			border-radius: 16px;
 			background: transparent;
 			padding: 6px 10px;
+
+			/* 👇 NEW: don’t let individual buttons collapse */
+			flex: 0 0 auto;
 		}
+
 
 		.btn-group .btn:hover {
 			background: #f0f0f0;
@@ -285,12 +306,18 @@
 		.vol {
 			pointer-events: auto;
 			appearance: none;
-			height: 6px;
+			height: 20px;
+			/* ⬅ a bit taller so it matches button height visually */
 			width: 160px;
 			border-radius: 999px;
 			background: #2b3444;
 			outline: none;
+			flex: 0 0 auto;
+			/* ⬅ don’t let flexbox squish it */
+			white-space: nowrap;
+			/* ⬅ text in buttons stays on one line */
 		}
+
 
 		.vol::-webkit-slider-thumb {
 			appearance: none;
@@ -526,8 +553,8 @@
 			<button class="btn" id="pauseBtn">Pause</button>
 
 			<div class="btn-group">
-				<button class="btn" id="ftSubBtn" title="Less Free Time">-FT</button>
-				<button class="btn" id="ftAddBtn" title="More Free Time">+FT</button>
+				<button class="btn" id="ftSubBtn" title="Less Free Time">-f</button>
+				<button class="btn" id="ftAddBtn" title="More Free Time">+f</button>
 			</div>
 
 			<button class="btn" id="ccBtn" title="Toggle Subtitles">CC</button>
@@ -592,6 +619,17 @@
 	<!-- Everything below is a JS module so we can import Transformers.js -->
 	<script type="module">
 		import { pipeline, env } from 'https://cdn.jsdelivr.net/npm/@xenova/transformers@2.17.1';
+
+
+		function getZoom() {
+			return window.devicePixelRatio || 1;
+		}
+
+		function updateZoomVar() {
+			document.documentElement.style.setProperty('--zoom', getZoom());
+		}
+		window.addEventListener('resize', updateZoomVar);
+		updateZoomVar();
 
 		/* ---------- State ---------- */
 		let sections = [];
