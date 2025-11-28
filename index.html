@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en" translate="no">
+
 <head>
   <meta charset="UTF-8" />
   <title>MrRains.org</title>
@@ -7,32 +8,58 @@
   <!-- Google Fonts and Icons -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Chewy&family=Doto:wght@100..900&family=Edu+AU+VIC+WA+NT+Guides:wght@400..700&family=Silkscreen:wght@400;700&family=Noto+Serif&display=swap" rel="stylesheet">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Chewy&family=Doto:wght@100..900&family=Edu+AU+VIC+WA+NT+Guides:wght@400..700&family=Silkscreen:wght@400;700&family=Noto+Serif&display=swap"
+    rel="stylesheet">
   <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons" />
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" />
   <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
     body {
       font-family: 'Noto Sans', sans-serif;
       background: linear-gradient(to bottom, #517860, #5c8a6d);
       color: #ecefec;
       min-height: 100vh;
     }
-    .container { width: 90%; margin: 0 auto; padding: 20px; }
+
+    .container {
+      width: 90%;
+      margin: 0 auto;
+      padding: 20px;
+    }
 
     .welcome {
       font-size: 60px;
       font-family: 'Noto Serif', serif;
       text-align: center;
-      margin-top: 10px; /* Reduce the top margin of the header */
+      margin-top: 10px;
+      /* Reduce the top margin of the header */
     }
+
     .greeting {
-      margin: 5px 0px 50px 300px; /* Reduce the bottom margin of the greeting */
+      margin: 5px 0px 50px 300px;
+      /* Reduce the bottom margin of the greeting */
       font-size: 20px;
       animation: pulse 3s ease-in-out infinite;
       text-align: center;
     }
-    @keyframes pulse { 0%,100% { transform: scale(1) rotate(5deg); } 50% { transform: scale(1.1) rotate(5deg); } }
+
+    @keyframes pulse {
+
+      0%,
+      100% {
+        transform: scale(1) rotate(5deg);
+      }
+
+      50% {
+        transform: scale(1.1) rotate(5deg);
+      }
+    }
 
     /* Juegos Carousel */
     .juegos-header {
@@ -46,9 +73,11 @@
       font-size: 30px;
       min-width: 400px;
       max-width: 1200px;
-      margin: 0 auto; /* Center the game area horizontally */
+      margin: 0 auto;
+      /* Center the game area horizontally */
 
     }
+
     .juegos-header .arrow {
       position: absolute;
       top: 50%;
@@ -60,8 +89,16 @@
       cursor: pointer;
       z-index: 1;
     }
-    .juegos-header .prev { z-index: 15; left: 10px; }
-    .juegos-header .next { z-index: 15;right: 10px; }
+
+    .juegos-header .prev {
+      z-index: 15;
+      left: 10px;
+    }
+
+    .juegos-header .next {
+      z-index: 15;
+      right: 10px;
+    }
 
     .preview-text {
       font-size: 12px;
@@ -75,14 +112,21 @@
       border-bottom-left-radius: 10px;
       border-bottom-right-radius: 10px;
       overflow: hidden;
-      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
       min-width: 400px;
-      z-index: 1; /* Ensure the game area is on a lower layer */
-      position: relative; /* Ensure stacking context */
+      z-index: 1;
+      /* Ensure the game area is on a lower layer */
+      position: relative;
+      /* Ensure stacking context */
       max-width: 1200px;
-      margin: 0 auto; /* Center the game area horizontally */
+      margin: 0 auto;
+      /* Center the game area horizontally */
     }
-    .games-slider { display: flex; }
+
+    .games-slider {
+      display: flex;
+    }
+
     .games-slide {
       min-width: 100%;
       display: flex;
@@ -103,47 +147,62 @@
       transition: transform 0.3s ease, filter 0.3s ease;
       cursor: pointer;
     }
-    .game-item img { width: 100%; height: auto; border-radius: 10px; }
-    .game-item p { font-weight: bold; margin-top: 10px; color: #000; }
-    .game-item:hover { filter: brightness(0.9); transform: scale(1.05); }
+
+    .game-item img {
+      width: 100%;
+      height: auto;
+      border-radius: 10px;
+    }
+
+    .game-item p {
+      font-weight: bold;
+      margin-top: 10px;
+      color: #000;
+    }
+
+    .game-item:hover {
+      filter: brightness(0.9);
+      transform: scale(1.05);
+    }
 
     /* Announcement Slide */
     .announcement-box {
-  position: relative;
-  overflow: hidden;           
-  background-image: url('assets/cork.jpg');
-  background-repeat: repeat;
-  background-size: 1000px 500px;
-  border-radius: 10px;
-  width: calc(100% - 10px);
-  height: 300px;
-  margin: 5px auto;
-  box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.8);
-}
+      position: relative;
+      overflow: hidden;
+      background-image: url('assets/cork.jpg');
+      background-repeat: repeat;
+      background-size: 1000px 500px;
+      border-radius: 10px;
+      width: calc(100% - 10px);
+      height: 300px;
+      margin: 5px auto;
+      box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.8);
+    }
 
 
-.slip {
-  position: absolute;
-  background: #fff;
-  border-radius: 8px;
-  padding: 8px 12px;
-  width: 200px;            /* default width; override inline if you like */
-  box-shadow: 0 2px 5px rgba(0,0,0,0.3);
-  font-family: 'Noto Sans', sans-serif;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
-}
+    .slip {
+      position: absolute;
+      background: #fff;
+      border-radius: 8px;
+      padding: 8px 12px;
+      width: 200px;
+      /* default width; override inline if you like */
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+      font-family: 'Noto Sans', sans-serif;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+    }
 
-/* the push-pin graphic */
-.slip .pin {
-  position: absolute;
-  top: -12px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 24px;
-  height: 24px;
-  background: url('assets/pin.png') no-repeat center;
-  background-size: contain;
-}
+    /* the push-pin graphic */
+    .slip .pin {
+      position: absolute;
+      top: -12px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 24px;
+      height: 24px;
+      background: url('assets/pin.png') no-repeat center;
+      background-size: contain;
+    }
 
 
     /* Activities Section */
@@ -157,6 +216,7 @@
       justify-content: space-around;
       border-bottom: none;
     }
+
     .activities-tab {
       background: none;
       border: none;
@@ -167,6 +227,7 @@
       cursor: pointer;
       transition: color 0.3s, border-color 0.3s;
     }
+
     .activities-tab.active {
       color: #fff;
       border-bottom-color: #fff;
@@ -176,6 +237,7 @@
     .activities-contents {
       position: relative;
     }
+
     .activities-content {
       display: none;
       opacity: 0;
@@ -183,119 +245,166 @@
       flex-direction: column;
       gap: 15px;
     }
+
     .activities-content.active {
       display: flex;
       opacity: 1;
     }
 
     /* Reuse your existing activity styles inside each pane */
-    .activity-topic { font-size: 16px; color: #ecefec; font-family: 'Noto Sans', sans-serif; margin-bottom: 5px; }
+    .activity-topic {
+      font-size: 16px;
+      color: #ecefec;
+      font-family: 'Noto Sans', sans-serif;
+      margin-bottom: 5px;
+    }
+
     .activity-button {
-      background: none; border: none; padding: 0; width: 100%; outline: none; min-width: 400px; cursor: pointer;
+      background: none;
+      border: none;
+      padding: 0;
+      width: 100%;
+      outline: none;
+      min-width: 400px;
+      cursor: pointer;
     }
+
     .activity-item {
-      display: flex; width: 100%;
+      display: flex;
+      width: 100%;
     }
+
     .activity-icon {
-      padding: 10px; display: flex; align-items: center; justify-content: center;
+      padding: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       background: linear-gradient(to right, #42E695, #3BB2B8);
-      border-top-left-radius: 10px; border-bottom-left-radius: 10px;
+      border-top-left-radius: 10px;
+      border-bottom-left-radius: 10px;
     }
+
     .activity-text {
-      padding: 10px; background-color: #abd1b5;
-      border-top-right-radius: 10px; border-bottom-right-radius: 10px;
-      display: flex; align-items: center; flex: 1;
+      padding: 10px;
+      background-color: #abd1b5;
+      border-top-right-radius: 10px;
+      border-bottom-right-radius: 10px;
+      display: flex;
+      align-items: center;
+      flex: 1;
     }
+
     .activity-item:hover .activity-icon,
     .activity-item:hover .activity-text {
       filter: brightness(0.9);
     }
 
     .activity-icon.package_2 {
-      background: linear-gradient(to right, #00C6FF, #0072FF); /* Bright blue gradient for "notifications" */
+      background: linear-gradient(to right, #00C6FF, #0072FF);
+      /* Bright blue gradient for "notifications" */
     }
 
     .activity-icon.notifications {
-        background: linear-gradient(to right, #00C6FF, #0072FF); /* Bright blue gradient for "notifications" */
+      background: linear-gradient(to right, #00C6FF, #0072FF);
+      /* Bright blue gradient for "notifications" */
     }
 
     .activity-icon.sports_esports {
-        background: linear-gradient(to right, #FF7EB3, #FF758C); /* Pink to soft red for "esports" */
+      background: linear-gradient(to right, #FF7EB3, #FF758C);
+      /* Pink to soft red for "esports" */
     }
 
     .activity-icon.description {
-    background: linear-gradient(to right, #42E695, #3BB2B8); /* Vibrant teal gradient for "training" */
+      background: linear-gradient(to right, #42E695, #3BB2B8);
+      /* Vibrant teal gradient for "training" */
 
     }
 
     .activity-icon.model_training {
-    background: linear-gradient(to right, #FFD700, #FFA500); /* Golden to orange for "package" */
+      background: linear-gradient(to right, #FFD700, #FFA500);
+      /* Golden to orange for "package" */
 
     }
 
     .activity-icon.smart_display {
-        background: linear-gradient(to right, #FF512F, #DD2476); /* Warm sunset gradient for "display" */
+      background: linear-gradient(to right, #FF512F, #DD2476);
+      /* Warm sunset gradient for "display" */
     }
+
     .activity-icon.dictionary {
-        background: linear-gradient(to right, #00C6FF, #0072FF); /* Bright blue gradient for "notifications" */
+      background: linear-gradient(to right, #00C6FF, #0072FF);
+      /* Bright blue gradient for "notifications" */
     }
+
     .activity-icon.assignment_add {
-        background: linear-gradient(to right, #a3299f, #eb02dc); /* Bright pink gradient for "assignment_add" */
+      background: linear-gradient(to right, #a3299f, #eb02dc);
+      /* Bright pink gradient for "assignment_add" */
     }
+
     .activity-icon.vector {
-background: linear-gradient(to right, #7fae94, #94c0a8);
+      background: linear-gradient(to right, #7fae94, #94c0a8);
     }
+
     .activity-svg-icon {
-	width: 24px;
-	height: 24px;
-	display: block;
-}
+      width: 24px;
+      height: 24px;
+      display: block;
+    }
 
 
     /* Material Symbols sizing (so it matches your Material Icons) */
-.material-symbols-outlined {
-	font-variation-settings:
-		'FILL' 0,
-		'wght' 400,
-		'GRAD' 0,
-		'opsz' 24;
-	font-size: 24px;   /* match your .material-icons rule */
-	line-height: 1;
-}
+    .material-symbols-outlined {
+      font-variation-settings:
+        'FILL' 0,
+        'wght' 400,
+        'GRAD' 0,
+        'opsz' 24;
+      font-size: 24px;
+      /* match your .material-icons rule */
+      line-height: 1;
+    }
 
-/* New pink gradient for "music" activities */
-.activity-icon.music_note {
-	background: linear-gradient(to right, #FF6FB1, #FF3D7F); /* vibrant pinks */
-}
+    /* New pink gradient for "music" activities */
+    .activity-icon.music_note {
+      background: linear-gradient(to right, #FF6FB1, #FF3D7F);
+      /* vibrant pinks */
+    }
 
 
     .flower-container {
-      position: relative; /* Ensure it is positioned absolutely */
-      width: 100%; /* Match the width of the game area */
-      max-width: 100%; /* Optional: Limit the maximum width */
+      position: relative;
+      /* Ensure it is positioned absolutely */
+      width: 100%;
+      /* Match the width of the game area */
+      max-width: 100%;
+      /* Optional: Limit the maximum width */
       min-width: 400px;
       bottom: -30px;
       max-width: 1200px;
       height: 70px;
       z-index: 10;
-      margin: 0 auto; /* Center the game area horizontally */
+      margin: 0 auto;
+      /* Center the game area horizontally */
 
-      overflow: hidden; /* Ensure the grass texture gets cut off at the end of the container */
+      overflow: hidden;
+      /* Ensure the grass texture gets cut off at the end of the container */
     }
 
     .flower-gif {
       position: absolute;
       bottom: 10px;
-      width: auto; /* Revert to original size for pixel art */
+      width: auto;
+      /* Revert to original size for pixel art */
       min-width: 400px;
       height: 80px;
       display: inline-block;
       image-rendering: -moz-crisp-edges;
-image-rendering: -moz-crisp-edges;
-image-rendering: -o-crisp-edges;
-image-rendering: -webkit-optimize-contrast;
--ms-interpolation-mode: nearest-neighbor;
-      image-rendering: pixelated; /* Ensure the grass texture is not blurry */
+      image-rendering: -moz-crisp-edges;
+      image-rendering: -o-crisp-edges;
+      image-rendering: -webkit-optimize-contrast;
+      -ms-interpolation-mode: nearest-neighbor;
+      image-rendering: pixelated;
+      /* Ensure the grass texture is not blurry */
     }
 
     img[src="assets/no_cookies.svg"],
@@ -332,23 +441,20 @@ image-rendering: -webkit-optimize-contrast;
     }
 
     .material-icons {
-  font-family: 'Material Icons';
-  font-size: 24px;
-  font-style: normal;
-  font-weight: normal;
-  line-height: 1;
-  letter-spacing: normal;
-  text-transform: none;
-  display: inline-block;
-  white-space: nowrap;
-  direction: ltr;
-}
-
-
-
-
+      font-family: 'Material Icons';
+      font-size: 24px;
+      font-style: normal;
+      font-weight: normal;
+      line-height: 1;
+      letter-spacing: normal;
+      text-transform: none;
+      display: inline-block;
+      white-space: nowrap;
+      direction: ltr;
+    }
   </style>
 </head>
+
 <body>
   <div class="container">
     <div style="position: absolute; top: 10px; left: 10px;">
@@ -373,7 +479,7 @@ image-rendering: -webkit-optimize-contrast;
       // List of possible greetings with equal weights   
       const greetings = [
         { text: "¿Qué estudiamos hoy?", weight: 1 },
-        
+
         { text: "¡Bienvenidos a clase!", weight: 1 },
 
         { text: "¿Puedo ir al baño?", weight: 1 },
@@ -406,13 +512,13 @@ image-rendering: -webkit-optimize-contrast;
       document.addEventListener("DOMContentLoaded", () => {
         const today = new Date();
         const dateString = today.toISOString().split('T')[0]; // YYYY-MM-DD format
-        
+
         // Calculate total weight
         const totalWeight = greetings.reduce((sum, g) => sum + g.weight, 0);
-        
+
         // Use the date to get a deterministic index
         const dailyIndex = getDailyIndex(dateString, totalWeight);
-        
+
         // Find the greeting based on the weighted index
         let runningTotal = 0;
         let selectedGreeting = greetings[0].text; // default
@@ -423,7 +529,7 @@ image-rendering: -webkit-optimize-contrast;
             break;
           }
         }
-        
+
         // Update the greeting text
         const greetingElement = document.querySelector(".greeting");
         greetingElement.textContent = selectedGreeting;
@@ -452,8 +558,8 @@ image-rendering: -webkit-optimize-contrast;
       text-align: center;
     ">
       <h2>About this site</h2>
-      
-      
+
+
 
       <div style="margin-top: 20px;">
         <img src="assets/flower.svg" alt="No Student Data" style="width: 30px; height: 30px; vertical-align: middle;">
@@ -463,14 +569,17 @@ image-rendering: -webkit-optimize-contrast;
       </div>
 
       <div style="margin-top: 20px;">
-        <img src="assets/no_data_refresh.svg" alt="No Student Data" style="width: 30px; height: 30px; vertical-align: middle;">
+        <img src="assets/no_data_refresh.svg" alt="No Student Data"
+          style="width: 30px; height: 30px; vertical-align: middle;">
         <h3 style="display: inline-block; margin-left: 10px; vertical-align: middle;">Download to turn in</h3>
         <p style="margin-top: 5px;">All data will disappear when the page is refreshed.</p>
 
         <p style="margin-top: 5px;">All data that you want to save has to be downloaded to your computer.</p>
       </div>
 
-      <button onclick="event.stopPropagation(); document.getElementById('info-popup').style.display='none'; document.getElementById('overlay').style.display='none';" style="
+      <button
+        onclick="event.stopPropagation(); document.getElementById('info-popup').style.display='none'; document.getElementById('overlay').style.display='none';"
+        style="
         margin-top: 20px;
         padding: 10px 20px;
         background-color: #517860;
@@ -481,18 +590,20 @@ image-rendering: -webkit-optimize-contrast;
       ">Close</button>
     </div>
 
-    <div id="overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 999;"></div>
-    
+    <div id="overlay"
+      style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 999;">
+    </div>
+
     <script>
       const infoButton = document.getElementById('infoButton');
       const popup = document.getElementById('info-popup');
       const overlay = document.getElementById('overlay');
-      
+
       infoButton.addEventListener('click', (e) => {
         popup.style.display = 'block';
         overlay.style.display = 'block';
       });
-      
+
       overlay.addEventListener('click', () => {
         popup.style.display = 'none';
         overlay.style.display = 'none';
@@ -505,7 +616,7 @@ image-rendering: -webkit-optimize-contrast;
         &#x25C0;
         <div class="preview-text" id="prevPreview">Previous Slide</div>
       </button>
-      
+
       <span id="juegosTitle">Announcements</span>
       <button class="arrow next" id="nextBtn">
         &#x25B6;
@@ -518,22 +629,22 @@ image-rendering: -webkit-optimize-contrast;
       <div class="games-slider" id="slider">
         <!-- Announcements Slide -->
         <div class="games-slide" data-title="Announcements">
-            <div class="announcement-box">
-                <!-- Slip #1: header + body -->
-               
+          <div class="announcement-box">
+            <!-- Slip #1: header + body -->
 
-                <div class="slip" style="bottom: 20px; left: 50px;">
-                  <div class="pin"></div>
-                  <h3 style="margin: 0 0 6px; font-size: 16px; color: #333;">Navigation:</h3>
-                  <p style="margin: 0; font-size: 14px; color: #555;">
-                    View the daily activities below under "Spanish I"<br>
-                  </p>
-                </div>
 
-                
-                
-              
-                <!-- 
+            <div class="slip" style="bottom: 20px; left: 50px;">
+              <div class="pin"></div>
+              <h3 style="margin: 0 0 6px; font-size: 16px; color: #333;">Navigation:</h3>
+              <p style="margin: 0; font-size: 14px; color: #555;">
+                View the daily activities below under "Spanish I"<br>
+              </p>
+            </div>
+
+
+
+
+            <!-- 
 
                 <div class="slip" style="top: 50px; left: 400px; width: 150px; padding: 0px">
                   <div class="pin"></div>
@@ -547,55 +658,123 @@ image-rendering: -webkit-optimize-contrast;
                        style="display: block; width: 100%; border-radius: 4px;" />
                 </div>
                 -->
-              </div>
-              
+          </div>
+
         </div>
-        
-        
+
+
         <!-- Diversos Slide -->
         <div class="games-slide" data-title="Review">
 
-          <button class="game-item" onclick="location.href='./pages/tools/weekgame'"><img src="assets/vector_icons/days.svg"><p>hoy es...</p></button>
-          <button class="game-item" onclick="location.href='./pages/maps/countriesweather/index.html'"><img src="assets/vector_icons/MapWeather.svg" alt="30-100"><p>Countries Weather</p></button>
+          <button class="game-item" onclick="location.href='./pages/tools/weekgame'"><img
+              src="assets/vector_icons/days.svg">
+            <p>hoy es...</p>
+          </button>
+          <button class="game-item" onclick="location.href='./pages/maps/countriesweather/index.html'"><img
+              src="assets/vector_icons/MapWeather.svg" alt="30-100">
+            <p>Countries Weather</p>
+          </button>
 
-          <button class="game-item" onclick="location.href='./pages/tools/colorgame'"><img src="assets/vector_icons/colors2.svg" alt="Grade Calculator"><p>el color es...</p></button>
-          <button class="game-item" onclick="location.href='./pages/tools/numbergame'"><img src="assets/vector_icons/GradeCalc.svg" alt="Number game"><p>Number Game</p></button>
-          <button class="game-item" onclick="location.href='./pages/tools/clockgame'"><img src="assets/vector_icons/clockgame.svg" alt="time game"><p>Time Game</p></button>
-          <button class="game-item" onclick="location.href='./pages/tools/flaggame'"><img src="assets/vector_icons/flaggame.svg" alt="flags"><p>Flag Game</p></button>
-          <button class="game-item" onclick="location.href='./pages/tools/pronounce'"><img src="assets/vector_icons/pronounce.svg" alt="flags"><p>Pronounce</p></button>
-          <button class="game-item" onclick="location.href='./pages/tools/serestarpractice'"><img src="assets/vector_icons/serorestar.svg" alt="flags"><p>ser estar</p></button>
-          <button class="game-item" onclick="location.href='./pages/tools/serestarvisual/index.html?set=set1'"><img src="assets/vector_icons/serorestarlogic.svg" alt="flags"><p>ser estar visual</p></button>
-          <button class="game-item" onclick="location.href='./pages/tools/pronounpractice/basic.html'"><img src="assets/vector_icons/pronouns.svg" alt="flags"><p>pronouns</p></button>
-          <button class="game-item" onclick="location.href='./pages/tools/pronounpractice/complex.html'"><img src="assets/vector_icons/conjugate pronouns.svg" alt="flags"><p>pronouns for conjugation</p></button>
-          <button class="game-item" onclick="location.href='./pages/tools/presentprogressive/index.html?set=set'"><img src="assets/vector_icons/progressive.svg" alt="flags"><p>present progressive</p></button>
+          <button class="game-item" onclick="location.href='./pages/tools/colorgame'"><img
+              src="assets/vector_icons/colors2.svg" alt="Grade Calculator">
+            <p>el color es...</p>
+          </button>
+          <button class="game-item" onclick="location.href='./pages/tools/numbergame'"><img
+              src="assets/vector_icons/GradeCalc.svg" alt="Number game">
+            <p>Number Game</p>
+          </button>
+          <button class="game-item" onclick="location.href='./pages/tools/clockgame'"><img
+              src="assets/vector_icons/clockgame.svg" alt="time game">
+            <p>Time Game</p>
+          </button>
+          <button class="game-item" onclick="location.href='./pages/tools/flaggame'"><img
+              src="assets/vector_icons/flaggame.svg" alt="flags">
+            <p>Flag Game</p>
+          </button>
+          <button class="game-item" onclick="location.href='./pages/tools/pronounce'"><img
+              src="assets/vector_icons/pronounce.svg" alt="flags">
+            <p>Pronounce</p>
+          </button>
+          <button class="game-item" onclick="location.href='./pages/tools/serestarpractice'"><img
+              src="assets/vector_icons/serorestar.svg" alt="flags">
+            <p>ser estar</p>
+          </button>
+          <button class="game-item" onclick="location.href='./pages/tools/serestarvisual/index.html?set=set1'"><img
+              src="assets/vector_icons/serorestarlogic.svg" alt="flags">
+            <p>ser estar visual</p>
+          </button>
+          <button class="game-item" onclick="location.href='./pages/tools/pronounpractice/basic.html'"><img
+              src="assets/vector_icons/pronouns.svg" alt="flags">
+            <p>pronouns</p>
+          </button>
+          <button class="game-item" onclick="location.href='./pages/tools/pronounpractice/complex.html'"><img
+              src="assets/vector_icons/conjugate pronouns.svg" alt="flags">
+            <p>pronouns for conjugation</p>
+          </button>
+          <button class="game-item" onclick="location.href='./pages/tools/presentprogressive/index.html?set=set'"><img
+              src="assets/vector_icons/progressive.svg" alt="flags">
+            <p>present progressive</p>
+          </button>
 
 
 
 
-         <!-- <button class="game-item" onclick="location.href='./pages/tools/story printout maker/index.html'"><img src="assets/vector_icons/Booklets.svg" alt="Bubble Scanner"><p>Booklet Maker</p></button> -->
+          <!-- <button class="game-item" onclick="location.href='./pages/tools/story printout maker/index.html'"><img src="assets/vector_icons/Booklets.svg" alt="Bubble Scanner"><p>Booklet Maker</p></button> -->
 
         </div>
 
         <div class="games-slide" data-title="Tools">
-          <button class="game-item" onclick="window.open('https://corpus.rae.es/frec/1000_formas.TXT','_blank')"><img src="assets/vector_icons/TopVocab.svg" alt="Vocab Común"><p>Most Common Words</p></button>
-          <button class="game-item" onclick="location.href='./pages/tools/gradecalculator/index.html'"><img src="assets/vector_icons/GradeCalc.svg" alt="Grade Calculator"><p>Grade Calculator</p></button>
-          <button class="game-item" onclick="location.href='./pages/tools/colorDemo'"><img src="assets/vector_icons/colors.svg" alt="color demo"><p>Color Wheel</p></button>
-          <button class="game-item" onclick="location.href='./pages/tools/studentdrivenvocabulary/index.html'"><img src="assets/vector_icons/vote.svg" alt="vote on vocab"><p>Vocab Vote</p></button>
-          <button class="game-item" onclick="location.href='./pages/tools/timer/index.html'"><img src="assets/vector_icons/BathroomTimer.svg" alt="slides timer"><p>Class Slides</p></button>
+          <button class="game-item" onclick="window.open('https://corpus.rae.es/frec/1000_formas.TXT','_blank')"><img
+              src="assets/vector_icons/TopVocab.svg" alt="Vocab Común">
+            <p>Most Common Words</p>
+          </button>
+          <button class="game-item" onclick="location.href='./pages/tools/gradecalculator/index.html'"><img
+              src="assets/vector_icons/GradeCalc.svg" alt="Grade Calculator">
+            <p>Grade Calculator</p>
+          </button>
+          <button class="game-item" onclick="location.href='./pages/tools/colorDemo'"><img
+              src="assets/vector_icons/colors.svg" alt="color demo">
+            <p>Color Wheel</p>
+          </button>
+          <button class="game-item" onclick="location.href='./pages/tools/studentdrivenvocabulary/index.html'"><img
+              src="assets/vector_icons/vote.svg" alt="vote on vocab">
+            <p>Vocab Vote</p>
+          </button>
+          <button class="game-item" onclick="location.href='./pages/tools/timer/index.html'"><img
+              src="assets/vector_icons/BathroomTimer.svg" alt="slides timer">
+            <p>Class Slides</p>
+          </button>
 
           <!-- <button class="game-item" onclick="location.href='./pages/maps/mapgame/index.html'"><img src="assets/vector_icons/MapGame.svg" alt="0-30"><p>Map Game</p></button> -->
           <!-- <button class="game-item" onclick="location.href='pages/Countries'"><img src="assets/Countries.png" alt="30-100"><p>Countries Culture</p></button> -->
-          <button class="game-item" onclick="location.href='./pages/tools/weatherforecast/5.html'"><img src="assets/vector_icons/MapWeather.svg" alt="30-100"><p>Forecast Activity</p></button>
+          <button class="game-item" onclick="location.href='./pages/tools/weatherforecast/5.html'"><img
+              src="assets/vector_icons/MapWeather.svg" alt="30-100">
+            <p>Forecast Activity</p>
+          </button>
 
           <!-- <button class="game-item" onclick="location.href='./pages/maps/countries/index.html'"><img src="assets/vector_icons/Countries.svg" alt="30-100"><p>Countries Info</p></button> -->
-          <button class="game-item" onclick="window.open('https://www.oldmapsonline.org/en/history/regions/981#position=3.18/-5.53/-35.51&year=1545','_blank')"><img src="assets/vector_icons/Timeline map.svg" alt="Vocab Común"><p>Historical Map</p></button>
-          <button class="game-item" onclick="location.href='./pages/tools/bingo/generator.html'"><img src="assets/vector_icons/bingo.svg" alt="flags"><p>bingo sheets</p></button>
+          <button class="game-item"
+            onclick="window.open('https://www.oldmapsonline.org/en/history/regions/981#position=3.18/-5.53/-35.51&year=1545','_blank')"><img
+              src="assets/vector_icons/Timeline map.svg" alt="Vocab Común">
+            <p>Historical Map</p>
+          </button>
+          <button class="game-item" onclick="location.href='./pages/tools/countriesRandom/index.html'"><img
+              src="assets/vector_icons/Countries.svg" alt="Random Country">
+            <p>Random Country</p>
+          </button>
+          <button class="game-item" onclick="location.href='./pages/tools/bingo/generator.html'"><img
+              src="assets/vector_icons/bingo.svg" alt="flags">
+            <p>bingo sheets</p>
+          </button>
 
         </div>
 
         <div class="games-slide" data-title="Games">
-          <button class="game-item" onclick="location.href='./pages/games/castles2/student.html'"><img src="assets/vector_icons/TilesGame.svg" alt="Tiles Game"><p>Castles</p></button>
-        
+          <button class="game-item" onclick="location.href='./pages/games/castles2/student.html'"><img
+              src="assets/vector_icons/TilesGame.svg" alt="Tiles Game">
+            <p>Castles</p>
+          </button>
+
         </div>
 
 
@@ -604,349 +783,367 @@ image-rendering: -webkit-optimize-contrast;
 
     <!-- Activities List -->
     <div class="activities">
-        <!-- Tab Headers -->
-        <div class="activities-tabs">
-          <button class="activities-tab active" data-tab="spanish1">Spanish I</button>
-          <button class="activities-tab" data-tab="spanish2">Spanish II</button>
-          <!--<button class="activities-tab" data-tab="library">Biblioteca</button> -->
-          <button class="activities-tab" data-tab="vocab">Vocabulario</button>
-        </div>
-  
-        <!-- Tab Contents -->
-        <div class="activities-contents">
-          <!-- Spanish I pane (default) -->
-          <div id="spanish1" class="activities-content active">
-            <br>
-            <br>
-            <br>
+      <!-- Tab Headers -->
+      <div class="activities-tabs">
+        <button class="activities-tab active" data-tab="spanish1">Spanish I</button>
+        <button class="activities-tab" data-tab="spanish2">Spanish II</button>
+        <!--<button class="activities-tab" data-tab="library">Biblioteca</button> -->
+        <button class="activities-tab" data-tab="vocab">Vocabulario</button>
+      </div>
 
-<button class="activity-button" onclick="window.open('https://forms.office.com/Pages/ResponsePage.aspx?id=XLWBeJ-IAkuxQ-hPoSIOwwOpeut3vPZFiTYhf9vT8zFUNlBRNUlVRExEQzVNTTRNTk1XNFpVU09MVy4u', '_blank')">
-  <div class="activity-item">
-    <div class="activity-icon package_2">
-      <span class="material-icons">inventory_2</span>
-    </div>
-    <div class="activity-text">Dropbox</div>
-  </div>
-</button>
+      <!-- Tab Contents -->
+      <div class="activities-contents">
+        <!-- Spanish I pane (default) -->
+        <div id="spanish1" class="activities-content active">
+          <br>
+          <br>
+          <br>
 
-
-<br>
-<br>
-<p class="activity-topic">Week 15</p>
-
-
-
-<button class="activity-button" onclick="window.open('./pages/games/vocabularyReview/index.html?set=quererforms', '_blank')">
-              <div class="activity-item">
-                <div class="activity-icon model_training">
-                  <span class="material-icons">model_training</span>
-                </div>
-                <div class="activity-text">Querer Conjugation Practice </div>
+          <button class="activity-button"
+            onclick="window.open('https://forms.office.com/Pages/ResponsePage.aspx?id=XLWBeJ-IAkuxQ-hPoSIOwwOpeut3vPZFiTYhf9vT8zFUNlBRNUlVRExEQzVNTTRNTk1XNFpVU09MVy4u', '_blank')">
+            <div class="activity-item">
+              <div class="activity-icon package_2">
+                <span class="material-icons">inventory_2</span>
               </div>
-            </button>
-
-<p class="activity-topic">Week 14</p>
-
-<button class="activity-button" onclick="location.href='./pages/games/battleship/tenerAndQuerer.html'">
-  <div class="activity-item">
-    <div class="activity-icon vector">
-      <img src="assets/vector_icons/battleship.svg" alt="Battleship" class="activity-svg-icon">
-    </div>
-    <div class="activity-text">Tener + Querer Battleship</div>
-  </div>
-</button>
-
-<button class="activity-button" onclick="window.open('./pages/games/vocabularyReview/index.html?set=tenerforms', '_blank')">
-              <div class="activity-item">
-                <div class="activity-icon model_training">
-                  <span class="material-icons">model_training</span>
-                </div>
-                <div class="activity-text">Tener Conjugation Practice </div>
-              </div>
-            </button>
-
-<button class="activity-button" onclick="window.open('./pages/games/vocabularyReview/index.html?set=tenerexpressions', '_blank')">
-              <div class="activity-item">
-                <div class="activity-icon model_training">
-                  <span class="material-icons">model_training</span>
-                </div>
-                <div class="activity-text">Tener Expressions </div>
-              </div>
-            </button>
-
-<button class="activity-button" onclick="window.open('./pages/games/vocabularyReview/index.html?set=tenerexpressionssentences', '_blank')">
-              <div class="activity-item">
-                <div class="activity-icon model_training">
-                  <span class="material-icons">model_training</span>
-                </div>
-                <div class="activity-text">Tener Expressions Sentences</div>
-              </div>
-            </button>
-
-<button class="activity-button" onclick="location.href='./pages/tools/TenerExpressions/corrections.html'">
-          <div class="activity-item">
-            <div class="activity-icon sports_esports">
-              <span class="material-icons">notifications</span>
+              <div class="activity-text">Dropbox</div>
             </div>
-            <div class="activity-text">Tener Expressions Sentence Correcting (whole class)</div>
-          </div>
-        </button>
+          </button>
+
+
+          <br>
+          <br>
+          <p class="activity-topic">Week 15</p>
 
 
 
-<p class="activity-topic">Week 13</p>
-
-
-
-<button class="activity-button" onclick="location.href='./pages/tools/TenerExpressions/index.html'">
-          <div class="activity-item">
-            <div class="activity-icon sports_esports">
-              <span class="material-icons">notifications</span>
+          <button class="activity-button"
+            onclick="window.open('./pages/games/vocabularyReview/index.html?set=quererforms', '_blank')">
+            <div class="activity-item">
+              <div class="activity-icon model_training">
+                <span class="material-icons">model_training</span>
+              </div>
+              <div class="activity-text">Querer Conjugation Practice </div>
             </div>
-            <div class="activity-text">Tener Expressions Practice activity (whole class)</div>
-          </div>
-        </button>
+          </button>
 
-<button class="activity-button" onclick="location.href='./pages/tools/Adjectives/Practice2/index.html'">
-          <div class="activity-item">
-            <div class="activity-icon sports_esports">
-              <span class="material-icons">notifications</span>
+          <p class="activity-topic">Week 14</p>
+
+          <button class="activity-button" onclick="location.href='./pages/games/battleship/tenerAndQuerer.html'">
+            <div class="activity-item">
+              <div class="activity-icon vector">
+                <img src="assets/vector_icons/battleship.svg" alt="Battleship" class="activity-svg-icon">
+              </div>
+              <div class="activity-text">Tener + Querer Battleship</div>
             </div>
-            <div class="activity-text">Adjectives correct the sentences activity (whole class)</div>
-          </div>
-        </button>
+          </button>
 
-<button class="activity-button" onclick="window.open('./pages/games/vocabularyReview/index.html?set=descriptiveAdjectives2', '_blank')">
-              <div class="activity-item">
-                <div class="activity-icon model_training">
-                  <span class="material-icons">model_training</span>
-                </div>
-                <div class="activity-text">Adjectives Vocab Practice (Spanish to English) </div>
+          <button class="activity-button"
+            onclick="window.open('./pages/games/vocabularyReview/index.html?set=tenerforms', '_blank')">
+            <div class="activity-item">
+              <div class="activity-icon model_training">
+                <span class="material-icons">model_training</span>
               </div>
-            </button>
-
-<button class="activity-button" onclick="window.open('./pages/games/vocabularyReview/index.html?set=descriptiveAdjectives1', '_blank')">
-              <div class="activity-item">
-                <div class="activity-icon model_training">
-                  <span class="material-icons">model_training</span>
-                </div>
-                <div class="activity-text">Adjectives Vocab Practice (English to Spanish) </div>
-              </div>
-            </button>
-
-<button class="activity-button" onclick="location.href='./pages/tools/Adjectives/objectAdjectivesPractice/index.html'">
-          <div class="activity-item">
-            <div class="activity-icon sports_esports">
-              <span class="material-icons">notifications</span>
+              <div class="activity-text">Tener Conjugation Practice </div>
             </div>
-            <div class="activity-text">Adjectives Practice activity (whole class)</div>
-          </div>
-        </button>
+          </button>
 
-<button class="activity-button" onclick="location.href='./pages/games/scrabble/index.html'">
-          <div class="activity-item">
-            <div class="activity-icon sports_esports">
-              <span class="material-icons">sports_esports</span>
+          <button class="activity-button"
+            onclick="window.open('./pages/games/vocabularyReview/index.html?set=tenerexpressions', '_blank')">
+            <div class="activity-item">
+              <div class="activity-icon model_training">
+                <span class="material-icons">model_training</span>
+              </div>
+              <div class="activity-text">Tener Expressions </div>
             </div>
-            <div class="activity-text">Scrabble</div>
-          </div>
-        </button>
+          </button>
 
-<p class="activity-topic">Quarter 1 Progress</p>
-
-<button class="activity-button" onclick="location.href='./pages/tools/progresscheck'">
-          <div class="activity-item">
-            <div class="activity-icon model_training">
-              <span class="material-icons">model_training</span>
+          <button class="activity-button"
+            onclick="window.open('./pages/games/vocabularyReview/index.html?set=tenerexpressionssentences', '_blank')">
+            <div class="activity-item">
+              <div class="activity-icon model_training">
+                <span class="material-icons">model_training</span>
+              </div>
+              <div class="activity-text">Tener Expressions Sentences</div>
             </div>
-            <div class="activity-text">Practice</div>
-          </div>
-        </button>
+          </button>
 
-<p class="activity-topic">Week: 10</p>
-
-<button class="activity-button" onclick="location.href='./pages/tools/bingo'">
-          <div class="activity-item">
-            <div class="activity-icon model_training">
-              <span class="material-icons">model_training</span>
+          <button class="activity-button" onclick="location.href='./pages/tools/TenerExpressions/corrections.html'">
+            <div class="activity-item">
+              <div class="activity-icon sports_esports">
+                <span class="material-icons">notifications</span>
+              </div>
+              <div class="activity-text">Tener Expressions Sentence Correcting (whole class)</div>
             </div>
-            <div class="activity-text">Bingo</div>
-          </div>
-        </button>
+          </button>
 
-        <button class="activity-button" onclick="location.href='./pages/tools/lesson/index.html?set=ir'">
-              <div class="activity-item">
-                <div class="activity-icon description">
-                  <span class="material-icons">description</span>
-                </div>
-                <div class="activity-text">ir practice</div>
+
+
+          <p class="activity-topic">Week 13</p>
+
+
+
+          <button class="activity-button" onclick="location.href='./pages/tools/TenerExpressions/index.html'">
+            <div class="activity-item">
+              <div class="activity-icon sports_esports">
+                <span class="material-icons">notifications</span>
               </div>
-            </button>
+              <div class="activity-text">Tener Expressions Practice activity (whole class)</div>
+            </div>
+          </button>
 
-<br>
-
-
-
-
-<p class="activity-topic">Week 8:</p>
-
-            
-
-             <button class="activity-button" onclick="location.href='./topics/gustar/practice.html'">
-              <div class="activity-item">
-                <div class="activity-icon description">
-                  <span class="material-icons">description</span>
-                </div>
-                <div class="activity-text">Gustar Practice</div>
+          <button class="activity-button" onclick="location.href='./pages/tools/Adjectives/Practice2/index.html'">
+            <div class="activity-item">
+              <div class="activity-icon sports_esports">
+                <span class="material-icons">notifications</span>
               </div>
-            </button>
+              <div class="activity-text">Adjectives correct the sentences activity (whole class)</div>
+            </div>
+          </button>
 
-            <button class="activity-button" onclick="window.open('./pages/games/vocabularyReview/index.html?set=regularendings', '_blank')">
-              <div class="activity-item">
-                <div class="activity-icon model_training">
-                  <span class="material-icons">model_training</span>
-                </div>
-                <div class="activity-text">Regular endings practice </div>
+          <button class="activity-button"
+            onclick="window.open('./pages/games/vocabularyReview/index.html?set=descriptiveAdjectives2', '_blank')">
+            <div class="activity-item">
+              <div class="activity-icon model_training">
+                <span class="material-icons">model_training</span>
               </div>
-            </button>
+              <div class="activity-text">Adjectives Vocab Practice (Spanish to English) </div>
+            </div>
+          </button>
 
-            <button class="activity-button" onclick="window.open('./pages/games/vocabularyReview/index.html?set=regularendings', '_blank')">
-              <div class="activity-item">
-                <div class="activity-icon model_training">
-                  <span class="material-icons">model_training</span>
-                </div>
-                <div class="activity-text">Regular endings practice </div>
+          <button class="activity-button"
+            onclick="window.open('./pages/games/vocabularyReview/index.html?set=descriptiveAdjectives1', '_blank')">
+            <div class="activity-item">
+              <div class="activity-icon model_training">
+                <span class="material-icons">model_training</span>
               </div>
-            </button>
+              <div class="activity-text">Adjectives Vocab Practice (English to Spanish) </div>
+            </div>
+          </button>
 
-            <button class="activity-button" onclick="window.open('./pages/shorts/index.html?set=doomscrolling1', '_blank')">
-              <div class="activity-item">
-                <div class="activity-icon smart_display">
-                  <span class="material-icons">smart_display</span>
-                </div>
-                <div class="activity-text">Youtube Reels</div>
+          <button class="activity-button"
+            onclick="location.href='./pages/tools/Adjectives/objectAdjectivesPractice/index.html'">
+            <div class="activity-item">
+              <div class="activity-icon sports_esports">
+                <span class="material-icons">notifications</span>
               </div>
-            </button>
+              <div class="activity-text">Adjectives Practice activity (whole class)</div>
+            </div>
+          </button>
 
-            <button class="activity-button" onclick="location.href='./topics/regular verbs/practice.html'">
-              <div class="activity-item">
-                <div class="activity-icon description">
-                  <span class="material-icons">description</span>
-                </div>
-                <div class="activity-text">Regular Conjugations Practice</div>
+          <button class="activity-button" onclick="location.href='./pages/games/scrabble/index.html'">
+            <div class="activity-item">
+              <div class="activity-icon sports_esports">
+                <span class="material-icons">sports_esports</span>
               </div>
-            </button>
+              <div class="activity-text">Scrabble</div>
+            </div>
+          </button>
 
-<p class="activity-topic">Week 5:</p>
-          
+          <p class="activity-topic">Quarter 1 Progress</p>
 
-            <button class="activity-button" onclick="window.open('./pages/games/vocabularyReview/index.html?set=emotions', '_blank')">
-              <div class="activity-item">
-                <div class="activity-icon model_training">
-                  <span class="material-icons">model_training</span>
-                </div>
-                <div class="activity-text">Emotions </div>
+          <button class="activity-button" onclick="location.href='./pages/tools/progresscheck'">
+            <div class="activity-item">
+              <div class="activity-icon model_training">
+                <span class="material-icons">model_training</span>
               </div>
-            </button>
+              <div class="activity-text">Practice</div>
+            </div>
+          </button>
 
-             <button class="activity-button" onclick="window.open('./pages/games/vocabularyReview/index.html?set=estar', '_blank')">
-              <div class="activity-item">
-                <div class="activity-icon model_training">
-                  <span class="material-icons">model_training</span>
-                </div>
-                <div class="activity-text">Estar </div>
+          <p class="activity-topic">Week: 10</p>
+
+          <button class="activity-button" onclick="location.href='./pages/tools/bingo'">
+            <div class="activity-item">
+              <div class="activity-icon model_training">
+                <span class="material-icons">model_training</span>
               </div>
-            </button>
+              <div class="activity-text">Bingo</div>
+            </div>
+          </button>
 
-          <button class="activity-button" onclick="window.open('./pages/games/vocabularyReview/index.html?set=places', '_blank')">
-              <div class="activity-item">
-                <div class="activity-icon model_training">
-                  <span class="material-icons">model_training</span>
-                </div>
-                <div class="activity-text">Places </div>
+          <button class="activity-button" onclick="location.href='./pages/tools/lesson/index.html?set=ir'">
+            <div class="activity-item">
+              <div class="activity-icon description">
+                <span class="material-icons">description</span>
               </div>
-            </button>
+              <div class="activity-text">ir practice</div>
+            </div>
+          </button>
 
-            <button class="activity-button" onclick="location.href='./topics/Time/ExploreClock.html'">
-              <div class="activity-item">
-                <div class="activity-icon description">
-                  <span class="material-icons">description</span>
-                </div>
-                <div class="activity-text">Interactive clock activity</div>
+          <br>
+
+
+
+
+          <p class="activity-topic">Week 8:</p>
+
+
+
+          <button class="activity-button" onclick="location.href='./topics/gustar/practice.html'">
+            <div class="activity-item">
+              <div class="activity-icon description">
+                <span class="material-icons">description</span>
               </div>
-            </button>
+              <div class="activity-text">Gustar Practice</div>
+            </div>
+          </button>
 
-            
+          <button class="activity-button"
+            onclick="window.open('./pages/games/vocabularyReview/index.html?set=regularendings', '_blank')">
+            <div class="activity-item">
+              <div class="activity-icon model_training">
+                <span class="material-icons">model_training</span>
+              </div>
+              <div class="activity-text">Regular endings practice </div>
+            </div>
+          </button>
+
+          <button class="activity-button"
+            onclick="window.open('./pages/games/vocabularyReview/index.html?set=regularendings', '_blank')">
+            <div class="activity-item">
+              <div class="activity-icon model_training">
+                <span class="material-icons">model_training</span>
+              </div>
+              <div class="activity-text">Regular endings practice </div>
+            </div>
+          </button>
+
+          <button class="activity-button"
+            onclick="window.open('./pages/shorts/index.html?set=doomscrolling1', '_blank')">
+            <div class="activity-item">
+              <div class="activity-icon smart_display">
+                <span class="material-icons">smart_display</span>
+              </div>
+              <div class="activity-text">Youtube Reels</div>
+            </div>
+          </button>
+
+          <button class="activity-button" onclick="location.href='./topics/regular verbs/practice.html'">
+            <div class="activity-item">
+              <div class="activity-icon description">
+                <span class="material-icons">description</span>
+              </div>
+              <div class="activity-text">Regular Conjugations Practice</div>
+            </div>
+          </button>
+
+          <p class="activity-topic">Week 5:</p>
+
+
+          <button class="activity-button"
+            onclick="window.open('./pages/games/vocabularyReview/index.html?set=emotions', '_blank')">
+            <div class="activity-item">
+              <div class="activity-icon model_training">
+                <span class="material-icons">model_training</span>
+              </div>
+              <div class="activity-text">Emotions </div>
+            </div>
+          </button>
+
+          <button class="activity-button"
+            onclick="window.open('./pages/games/vocabularyReview/index.html?set=estar', '_blank')">
+            <div class="activity-item">
+              <div class="activity-icon model_training">
+                <span class="material-icons">model_training</span>
+              </div>
+              <div class="activity-text">Estar </div>
+            </div>
+          </button>
+
+          <button class="activity-button"
+            onclick="window.open('./pages/games/vocabularyReview/index.html?set=places', '_blank')">
+            <div class="activity-item">
+              <div class="activity-icon model_training">
+                <span class="material-icons">model_training</span>
+              </div>
+              <div class="activity-text">Places </div>
+            </div>
+          </button>
+
+          <button class="activity-button" onclick="location.href='./topics/Time/ExploreClock.html'">
+            <div class="activity-item">
+              <div class="activity-icon description">
+                <span class="material-icons">description</span>
+              </div>
+              <div class="activity-text">Interactive clock activity</div>
+            </div>
+          </button>
+
+
 
           <p class="activity-topic">Week 2</p>
-            <button class="activity-button" onclick="window.open('./Topics/Senderos_vocab/Spanish 1 - List 1.pdf', '_blank')">
-          <div class="activity-item">
-            <div class="activity-icon description">
-              <span class="material-icons">description</span>
+          <button class="activity-button"
+            onclick="window.open('./Topics/Senderos_vocab/Spanish 1 - List 1.pdf', '_blank')">
+            <div class="activity-item">
+              <div class="activity-icon description">
+                <span class="material-icons">description</span>
+              </div>
+              <div class="activity-text">Senderos Vocabulario - Unidad 1</div>
             </div>
-            <div class="activity-text">Senderos Vocabulario - Unidad 1</div>
-          </div>
-            </button>
+          </button>
 
-            <button class="activity-button" onclick="window.open('./pages/games/vocabularyReview/index.html?set=greetings-goodbyes', '_blank')">
-          <div class="activity-item">
-            <div class="activity-icon model_training">
-              <span class="material-icons">model_training</span>
+          <button class="activity-button"
+            onclick="window.open('./pages/games/vocabularyReview/index.html?set=greetings-goodbyes', '_blank')">
+            <div class="activity-item">
+              <div class="activity-icon model_training">
+                <span class="material-icons">model_training</span>
+              </div>
+              <div class="activity-text">Saludos y Despedidas</div>
             </div>
-            <div class="activity-text">Saludos y Despedidas</div>
-          </div>
-        </button>
+          </button>
 
-        
-<p class="activity-topic">Week 1</p>
-           
 
-            <button class="activity-button" onclick="location.href='./topics/Classroom Commands/Class Commands Poster.pdf'">
-              <div class="activity-item">
-                <div class="activity-icon description">
-                  <span class="material-icons">description</span>
-                </div>
-                <div class="activity-text">Classroom Commmands</div>
+          <p class="activity-topic">Week 1</p>
+
+
+          <button class="activity-button"
+            onclick="location.href='./topics/Classroom Commands/Class Commands Poster.pdf'">
+            <div class="activity-item">
+              <div class="activity-icon description">
+                <span class="material-icons">description</span>
               </div>
-            </button>
+              <div class="activity-text">Classroom Commmands</div>
+            </div>
+          </button>
 
-            <button class="activity-button" onclick="window.open('./pages/games/vocabularyReview/index.html?set=class-commands', '_blank')">
-              <div class="activity-item">
-                <div class="activity-icon model_training">
-                  <span class="material-icons">model_training</span>
-                </div>
-                <div class="activity-text">Classroom Commands Practice </div>
+          <button class="activity-button"
+            onclick="window.open('./pages/games/vocabularyReview/index.html?set=class-commands', '_blank')">
+            <div class="activity-item">
+              <div class="activity-icon model_training">
+                <span class="material-icons">model_training</span>
               </div>
-            </button>
+              <div class="activity-text">Classroom Commands Practice </div>
+            </div>
+          </button>
 
-            <button class="activity-button" onclick="location.href='./topics/_temp_Quizzes/Quiz Unit 1-1.pdf'">
-              <div class="activity-item">
-                <div class="activity-icon description">
-                  <span class="material-icons">description</span>
-                </div>
-                <div class="activity-text">Classroom Commmands Study Guide</div>
+          <button class="activity-button" onclick="location.href='./topics/_temp_Quizzes/Quiz Unit 1-1.pdf'">
+            <div class="activity-item">
+              <div class="activity-icon description">
+                <span class="material-icons">description</span>
               </div>
-            </button>
+              <div class="activity-text">Classroom Commmands Study Guide</div>
+            </div>
+          </button>
 
-        <button class="activity-button" onclick="location.href='./pages/tools/studentdrivenvocabulary/index.html'">
-              <div class="activity-item">
-                <div class="activity-icon assignment_add">
-                  <span class="material-symbols-outlined">assignment_add</span>
-                </div>
-                <div class="activity-text">Choosing Vocabulary</div>
+          <button class="activity-button" onclick="location.href='./pages/tools/studentdrivenvocabulary/index.html'">
+            <div class="activity-item">
+              <div class="activity-icon assignment_add">
+                <span class="material-symbols-outlined">assignment_add</span>
               </div>
-            </button>
+              <div class="activity-text">Choosing Vocabulary</div>
+            </div>
+          </button>
 
-        
-          </div>
-          <!-- Spanish II pane -->
-          <div id="spanish2" class="activities-content">
-            <br>
-            <br>
-            <div style="display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%;">
+
+        </div>
+        <!-- Spanish II pane -->
+        <div id="spanish2" class="activities-content">
+          <br>
+          <br>
+          <div style="display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%;">
             <p class="activity-topic" style="margin: 0;">Nothing here yet...</p>
             <img src="assets/maxwell dance.gif" alt="Maxwell Dance" style="width: 100px; height: auto;">
-          </div> 
+          </div>
         </div>
 
         <!-- Library pane 
@@ -954,317 +1151,346 @@ image-rendering: -webkit-optimize-contrast;
             <iframe src="./Library/index.html" style="width: 100%; height: 600px; border: none;"></iframe>
           </div>
           -->
-          <!-- Vocabulario pane -->
-          <div id="vocab" class="activities-content">
-        <br>
-        <p class="activity-topic">Unidad 1</p>
-        <button class="activity-button" onclick="window.open('./Topics/Senderos_vocab/Spanish 1 - List 1.pdf', '_blank')">
-          <div class="activity-item">
-            <div class="activity-icon description">
-              <span class="material-icons">description</span>
+        <!-- Vocabulario pane -->
+        <div id="vocab" class="activities-content">
+          <br>
+          <p class="activity-topic">Unidad 1</p>
+          <button class="activity-button"
+            onclick="window.open('./Topics/Senderos_vocab/Spanish 1 - List 1.pdf', '_blank')">
+            <div class="activity-item">
+              <div class="activity-icon description">
+                <span class="material-icons">description</span>
+              </div>
+              <div class="activity-text">Unidad 1</div>
             </div>
-            <div class="activity-text">Unidad 1</div>
-          </div>
-        </button>
+          </button>
 
-        <button class="activity-button" onclick="window.open('./pages/games/vocabularyReview/index.html?set=greetings-goodbyes', '_blank')">
-          <div class="activity-item">
-            <div class="activity-icon model_training">
-              <span class="material-icons">model_training</span>
+          <button class="activity-button"
+            onclick="window.open('./pages/games/vocabularyReview/index.html?set=greetings-goodbyes', '_blank')">
+            <div class="activity-item">
+              <div class="activity-icon model_training">
+                <span class="material-icons">model_training</span>
+              </div>
+              <div class="activity-text">Saludos y Despedidas</div>
             </div>
-            <div class="activity-text">Saludos y Despedidas</div>
-          </div>
-        </button>
+          </button>
 
-        <button class="activity-button" onclick="window.open('./pages/games/vocabularyReview/index.html?set=introductions', '_blank')">
-          <div class="activity-item">
-            <div class="activity-icon model_training">
-              <span class="material-icons">model_training</span>
+          <button class="activity-button"
+            onclick="window.open('./pages/games/vocabularyReview/index.html?set=introductions', '_blank')">
+            <div class="activity-item">
+              <div class="activity-icon model_training">
+                <span class="material-icons">model_training</span>
+              </div>
+              <div class="activity-text">Introducciones</div>
             </div>
-            <div class="activity-text">Introducciones</div>
-          </div>
-        </button>
+          </button>
 
-        <button class="activity-button" onclick="window.open('./pages/games/vocabularyReview/index.html?set=courtesy-titles', '_blank')">
-          <div class="activity-item">
-            <div class="activity-icon model_training">
-              <span class="material-icons">model_training</span>
+          <button class="activity-button"
+            onclick="window.open('./pages/games/vocabularyReview/index.html?set=courtesy-titles', '_blank')">
+            <div class="activity-item">
+              <div class="activity-icon model_training">
+                <span class="material-icons">model_training</span>
+              </div>
+              <div class="activity-text">Títulos y Cortesía</div>
             </div>
-            <div class="activity-text">Títulos y Cortesía</div>
-          </div>
-        </button>
+          </button>
 
-        <button class="activity-button" onclick="window.open('./pages/games/vocabularyReview/index.html?set=questions-feelings', '_blank')">
-          <div class="activity-item">
-            <div class="activity-icon model_training">
-              <span class="material-icons">model_training</span>
+          <button class="activity-button"
+            onclick="window.open('./pages/games/vocabularyReview/index.html?set=questions-feelings', '_blank')">
+            <div class="activity-item">
+              <div class="activity-icon model_training">
+                <span class="material-icons">model_training</span>
+              </div>
+              <div class="activity-text">Preguntas y Sentimientos</div>
             </div>
-            <div class="activity-text">Preguntas y Sentimientos</div>
-          </div>
-        </button>
+          </button>
 
-        <button class="activity-button" onclick="window.open('./pages/games/vocabularyReview/index.html?set=nouns1', '_blank')">
-          <div class="activity-item">
-            <div class="activity-icon model_training">
-              <span class="material-icons">model_training</span>
+          <button class="activity-button"
+            onclick="window.open('./pages/games/vocabularyReview/index.html?set=nouns1', '_blank')">
+            <div class="activity-item">
+              <div class="activity-icon model_training">
+                <span class="material-icons">model_training</span>
+              </div>
+              <div class="activity-text">Sustantivos 1</div>
             </div>
-            <div class="activity-text">Sustantivos 1</div>
-          </div>
-        </button>
+          </button>
 
-        <button class="activity-button" onclick="window.open('./pages/games/vocabularyReview/index.html?set=nouns2', '_blank')">
-          <div class="activity-item">
-            <div class="activity-icon model_training">
-              <span class="material-icons">model_training</span>
+          <button class="activity-button"
+            onclick="window.open('./pages/games/vocabularyReview/index.html?set=nouns2', '_blank')">
+            <div class="activity-item">
+              <div class="activity-icon model_training">
+                <span class="material-icons">model_training</span>
+              </div>
+              <div class="activity-text">Sustantivos 2</div>
             </div>
-            <div class="activity-text">Sustantivos 2</div>
-          </div>
-        </button>
+          </button>
 
-      
 
-        <p class="activity-topic">Unidad 2</p>
-        <button class="activity-button" onclick="window.open('./Topics/Senderos_vocab/Spanish 1 - List 2.pdf', '_blank')">
-          <div class="activity-item">
-            <div class="activity-icon description">
-              <span class="material-icons">description</span>
+
+          <p class="activity-topic">Unidad 2</p>
+          <button class="activity-button"
+            onclick="window.open('./Topics/Senderos_vocab/Spanish 1 - List 2.pdf', '_blank')">
+            <div class="activity-item">
+              <div class="activity-icon description">
+                <span class="material-icons">description</span>
+              </div>
+              <div class="activity-text">Unidad 2</div>
             </div>
-            <div class="activity-text">Unidad 2</div>
-          </div>
-        </button>
-        <!-- Unidad 2 — practice sets -->
-<button class="activity-button" onclick="window.open('./pages/games/vocabularyReview/index.html?set=list2_en_el_aula', '_blank')">
-  <div class="activity-item">
-    <div class="activity-icon model_training"><span class="material-icons">model_training</span></div>
-    <div class="activity-text">En el aula</div>
-  </div>
-</button>
-
-<button class="activity-button" onclick="window.open('./pages/games/vocabularyReview/index.html?set=list2_en_la_escuela', '_blank')">
-  <div class="activity-item">
-    <div class="activity-icon model_training"><span class="material-icons">model_training</span></div>
-    <div class="activity-text">En la escuela</div>
-  </div>
-</button>
-
-<button class="activity-button" onclick="window.open('./pages/games/vocabularyReview/index.html?set=list2_las_materias', '_blank')">
-  <div class="activity-item">
-    <div class="activity-icon model_training"><span class="material-icons">model_training</span></div>
-    <div class="activity-text">Las materias</div>
-  </div>
-</button>
-
-<button class="activity-button" onclick="window.open('./pages/games/vocabularyReview/index.html?set=list2_preps_y_adverbios', '_blank')">
-  <div class="activity-item">
-    <div class="activity-icon model_training"><span class="material-icons">model_training</span></div>
-    <div class="activity-text">Preposiciones y adverbios</div>
-  </div>
-</button>
-
-<button class="activity-button" onclick="window.open('./pages/games/vocabularyReview/index.html?set=list2_palabras_adicionales', '_blank')">
-  <div class="activity-item">
-    <div class="activity-icon model_training"><span class="material-icons">model_training</span></div>
-    <div class="activity-text">Palabras adicionales</div>
-  </div>
-</button>
-
-<button class="activity-button" onclick="window.open('./pages/games/vocabularyReview/index.html?set=list2_verbos_set_1', '_blank')">
-  <div class="activity-item">
-    <div class="activity-icon model_training"><span class="material-icons">model_training</span></div>
-    <div class="activity-text">Verbos (Set 1)</div>
-  </div>
-</button>
-
-<button class="activity-button" onclick="window.open('./pages/games/vocabularyReview/index.html?set=list2_verbos_set_2', '_blank')">
-  <div class="activity-item">
-    <div class="activity-icon model_training"><span class="material-icons">model_training</span></div>
-    <div class="activity-text">Verbos (Set 2)</div>
-  </div>
-</button>
-
-<button class="activity-button" onclick="window.open('./pages/games/vocabularyReview/index.html?set=list2_dias_de_la_semana', '_blank')">
-  <div class="activity-item">
-    <div class="activity-icon model_training"><span class="material-icons">model_training</span></div>
-    <div class="activity-text">Días de la semana</div>
-  </div>
-</button>
-        <p class="activity-topic">Unidad 3</p>
-        <button class="activity-button" onclick="window.open('./Topics/Senderos_vocab/Spanish 1 - List 3.pdf', '_blank')">
-          <div class="activity-item">
-            <div class="activity-icon description">
-              <span class="material-icons">description</span>
+          </button>
+          <!-- Unidad 2 — practice sets -->
+          <button class="activity-button"
+            onclick="window.open('./pages/games/vocabularyReview/index.html?set=list2_en_el_aula', '_blank')">
+            <div class="activity-item">
+              <div class="activity-icon model_training"><span class="material-icons">model_training</span></div>
+              <div class="activity-text">En el aula</div>
             </div>
-            <div class="activity-text">Unidad 3</div>
-          </div>
-        </button>
+          </button>
 
-        <!-- Unidad 3 — practice sets -->
-<button class="activity-button" onclick="window.open('./pages/games/vocabularyReview/index.html?set=list3_familia_set_1', '_blank')">
-  <div class="activity-item">
-    <div class="activity-icon model_training"><span class="material-icons">model_training</span></div>
-    <div class="activity-text">La familia (Set 1)</div>
-  </div>
-</button>
-
-<button class="activity-button" onclick="window.open('./pages/games/vocabularyReview/index.html?set=list3_familia_set_2', '_blank')">
-  <div class="activity-item">
-    <div class="activity-icon model_training"><span class="material-icons">model_training</span></div>
-    <div class="activity-text">La familia (Set 2)</div>
-  </div>
-</button>
-
-<button class="activity-button" onclick="window.open('./pages/games/vocabularyReview/index.html?set=list3_otras_personas', '_blank')">
-  <div class="activity-item">
-    <div class="activity-icon model_training"><span class="material-icons">model_training</span></div>
-    <div class="activity-text">Otras personas</div>
-  </div>
-</button>
-
-<button class="activity-button" onclick="window.open('./pages/games/vocabularyReview/index.html?set=list3_profesiones', '_blank')">
-  <div class="activity-item">
-    <div class="activity-icon model_training"><span class="material-icons">model_training</span></div>
-    <div class="activity-text">Profesiones</div>
-  </div>
-</button>
-
-<button class="activity-button" onclick="window.open('./pages/games/vocabularyReview/index.html?set=list3_adjetivos_set_1', '_blank')">
-  <div class="activity-item">
-    <div class="activity-icon model_training"><span class="material-icons">model_training</span></div>
-    <div class="activity-text">Adjetivos (Set 1)</div>
-  </div>
-</button>
-
-<button class="activity-button" onclick="window.open('./pages/games/vocabularyReview/index.html?set=list3_adjetivos_set_2', '_blank')">
-  <div class="activity-item">
-    <div class="activity-icon model_training"><span class="material-icons">model_training</span></div>
-    <div class="activity-text">Adjetivos (Set 2)</div>
-  </div>
-</button>
-
-<button class="activity-button" onclick="window.open('./pages/games/vocabularyReview/index.html?set=list3_nacionalidades', '_blank')">
-  <div class="activity-item">
-    <div class="activity-icon model_training"><span class="material-icons">model_training</span></div>
-    <div class="activity-text">Nacionalidades</div>
-  </div>
-</button>
-
-<button class="activity-button" onclick="window.open('./pages/games/vocabularyReview/index.html?set=list3_verbos', '_blank')">
-  <div class="activity-item">
-    <div class="activity-icon model_training"><span class="material-icons">model_training</span></div>
-    <div class="activity-text">Verbos</div>
-  </div>
-</button>
-
-        <p class="activity-topic">Unidad 4</p>
-        <button class="activity-button" onclick="window.open('./Topics/Senderos_vocab/Spanish 1 - List 4.pdf', '_blank')">
-          <div class="activity-item">
-            <div class="activity-icon description">
-              <span class="material-icons">description</span>
+          <button class="activity-button"
+            onclick="window.open('./pages/games/vocabularyReview/index.html?set=list2_en_la_escuela', '_blank')">
+            <div class="activity-item">
+              <div class="activity-icon model_training"><span class="material-icons">model_training</span></div>
+              <div class="activity-text">En la escuela</div>
             </div>
-            <div class="activity-text">Unidad 4</div>
-          </div>
-        </button>
-        <p class="activity-topic">Unidad 5</p>
-        <button class="activity-button" onclick="window.open('./Topics/Senderos_vocab/Spanish 1 - List 5.pdf', '_blank')">
-          <div class="activity-item">
-            <div class="activity-icon description">
-              <span class="material-icons">description</span>
+          </button>
+
+          <button class="activity-button"
+            onclick="window.open('./pages/games/vocabularyReview/index.html?set=list2_las_materias', '_blank')">
+            <div class="activity-item">
+              <div class="activity-icon model_training"><span class="material-icons">model_training</span></div>
+              <div class="activity-text">Las materias</div>
             </div>
-            <div class="activity-text">Unidad 5</div>
-          </div>
-        </button>
-        <p class="activity-topic">Unidad 6</p>
-        <button class="activity-button" onclick="window.open('./Topics/Senderos_vocab/Spanish 1 - List 6.pdf', '_blank')">
-          <div class="activity-item">
-            <div class="activity-icon description">
-              <span class="material-icons">description</span>
+          </button>
+
+          <button class="activity-button"
+            onclick="window.open('./pages/games/vocabularyReview/index.html?set=list2_preps_y_adverbios', '_blank')">
+            <div class="activity-item">
+              <div class="activity-icon model_training"><span class="material-icons">model_training</span></div>
+              <div class="activity-text">Preposiciones y adverbios</div>
             </div>
-            <div class="activity-text">Unidad 6</div> 
-          </div>
-        </button>
+          </button>
+
+          <button class="activity-button"
+            onclick="window.open('./pages/games/vocabularyReview/index.html?set=list2_palabras_adicionales', '_blank')">
+            <div class="activity-item">
+              <div class="activity-icon model_training"><span class="material-icons">model_training</span></div>
+              <div class="activity-text">Palabras adicionales</div>
+            </div>
+          </button>
+
+          <button class="activity-button"
+            onclick="window.open('./pages/games/vocabularyReview/index.html?set=list2_verbos_set_1', '_blank')">
+            <div class="activity-item">
+              <div class="activity-icon model_training"><span class="material-icons">model_training</span></div>
+              <div class="activity-text">Verbos (Set 1)</div>
+            </div>
+          </button>
+
+          <button class="activity-button"
+            onclick="window.open('./pages/games/vocabularyReview/index.html?set=list2_verbos_set_2', '_blank')">
+            <div class="activity-item">
+              <div class="activity-icon model_training"><span class="material-icons">model_training</span></div>
+              <div class="activity-text">Verbos (Set 2)</div>
+            </div>
+          </button>
+
+          <button class="activity-button"
+            onclick="window.open('./pages/games/vocabularyReview/index.html?set=list2_dias_de_la_semana', '_blank')">
+            <div class="activity-item">
+              <div class="activity-icon model_training"><span class="material-icons">model_training</span></div>
+              <div class="activity-text">Días de la semana</div>
+            </div>
+          </button>
+          <p class="activity-topic">Unidad 3</p>
+          <button class="activity-button"
+            onclick="window.open('./Topics/Senderos_vocab/Spanish 1 - List 3.pdf', '_blank')">
+            <div class="activity-item">
+              <div class="activity-icon description">
+                <span class="material-icons">description</span>
+              </div>
+              <div class="activity-text">Unidad 3</div>
+            </div>
+          </button>
+
+          <!-- Unidad 3 — practice sets -->
+          <button class="activity-button"
+            onclick="window.open('./pages/games/vocabularyReview/index.html?set=list3_familia_set_1', '_blank')">
+            <div class="activity-item">
+              <div class="activity-icon model_training"><span class="material-icons">model_training</span></div>
+              <div class="activity-text">La familia (Set 1)</div>
+            </div>
+          </button>
+
+          <button class="activity-button"
+            onclick="window.open('./pages/games/vocabularyReview/index.html?set=list3_familia_set_2', '_blank')">
+            <div class="activity-item">
+              <div class="activity-icon model_training"><span class="material-icons">model_training</span></div>
+              <div class="activity-text">La familia (Set 2)</div>
+            </div>
+          </button>
+
+          <button class="activity-button"
+            onclick="window.open('./pages/games/vocabularyReview/index.html?set=list3_otras_personas', '_blank')">
+            <div class="activity-item">
+              <div class="activity-icon model_training"><span class="material-icons">model_training</span></div>
+              <div class="activity-text">Otras personas</div>
+            </div>
+          </button>
+
+          <button class="activity-button"
+            onclick="window.open('./pages/games/vocabularyReview/index.html?set=list3_profesiones', '_blank')">
+            <div class="activity-item">
+              <div class="activity-icon model_training"><span class="material-icons">model_training</span></div>
+              <div class="activity-text">Profesiones</div>
+            </div>
+          </button>
+
+          <button class="activity-button"
+            onclick="window.open('./pages/games/vocabularyReview/index.html?set=list3_adjetivos_set_1', '_blank')">
+            <div class="activity-item">
+              <div class="activity-icon model_training"><span class="material-icons">model_training</span></div>
+              <div class="activity-text">Adjetivos (Set 1)</div>
+            </div>
+          </button>
+
+          <button class="activity-button"
+            onclick="window.open('./pages/games/vocabularyReview/index.html?set=list3_adjetivos_set_2', '_blank')">
+            <div class="activity-item">
+              <div class="activity-icon model_training"><span class="material-icons">model_training</span></div>
+              <div class="activity-text">Adjetivos (Set 2)</div>
+            </div>
+          </button>
+
+          <button class="activity-button"
+            onclick="window.open('./pages/games/vocabularyReview/index.html?set=list3_nacionalidades', '_blank')">
+            <div class="activity-item">
+              <div class="activity-icon model_training"><span class="material-icons">model_training</span></div>
+              <div class="activity-text">Nacionalidades</div>
+            </div>
+          </button>
+
+          <button class="activity-button"
+            onclick="window.open('./pages/games/vocabularyReview/index.html?set=list3_verbos', '_blank')">
+            <div class="activity-item">
+              <div class="activity-icon model_training"><span class="material-icons">model_training</span></div>
+              <div class="activity-text">Verbos</div>
+            </div>
+          </button>
+
+          <p class="activity-topic">Unidad 4</p>
+          <button class="activity-button"
+            onclick="window.open('./Topics/Senderos_vocab/Spanish 1 - List 4.pdf', '_blank')">
+            <div class="activity-item">
+              <div class="activity-icon description">
+                <span class="material-icons">description</span>
+              </div>
+              <div class="activity-text">Unidad 4</div>
+            </div>
+          </button>
+          <p class="activity-topic">Unidad 5</p>
+          <button class="activity-button"
+            onclick="window.open('./Topics/Senderos_vocab/Spanish 1 - List 5.pdf', '_blank')">
+            <div class="activity-item">
+              <div class="activity-icon description">
+                <span class="material-icons">description</span>
+              </div>
+              <div class="activity-text">Unidad 5</div>
+            </div>
+          </button>
+          <p class="activity-topic">Unidad 6</p>
+          <button class="activity-button"
+            onclick="window.open('./Topics/Senderos_vocab/Spanish 1 - List 6.pdf', '_blank')">
+            <div class="activity-item">
+              <div class="activity-icon description">
+                <span class="material-icons">description</span>
+              </div>
+              <div class="activity-text">Unidad 6</div>
+            </div>
+          </button>
+        </div>
       </div>
-    </div>
-  <script>
-    document.addEventListener("DOMContentLoaded", () => {
-      const slider = document.getElementById('slider');
-      const slides = Array.from(slider.children);
-      const prevBtn = document.getElementById('prevBtn');
-      const nextBtn = document.getElementById('nextBtn');
-      const title = document.getElementById('juegosTitle');
-      let isTransitioning = false;
-      let currentIndex = 1;
-      const slideCount = slides.length;
+      <script>
+        document.addEventListener("DOMContentLoaded", () => {
+          const slider = document.getElementById('slider');
+          const slides = Array.from(slider.children);
+          const prevBtn = document.getElementById('prevBtn');
+          const nextBtn = document.getElementById('nextBtn');
+          const title = document.getElementById('juegosTitle');
+          let isTransitioning = false;
+          let currentIndex = 1;
+          const slideCount = slides.length;
 
-      const firstClone = slides[0].cloneNode(true);
-      const lastClone = slides[slideCount - 1].cloneNode(true);
-      slider.appendChild(firstClone);
-      slider.insertBefore(lastClone, slider.firstChild);
+          const firstClone = slides[0].cloneNode(true);
+          const lastClone = slides[slideCount - 1].cloneNode(true);
+          slider.appendChild(firstClone);
+          slider.insertBefore(lastClone, slider.firstChild);
 
-      const allSlides = Array.from(slider.children);
-      slider.style.transform = `translateX(-${currentIndex * 100}%)`;
-      title.textContent = allSlides[currentIndex].dataset.title;
+          const allSlides = Array.from(slider.children);
+          slider.style.transform = `translateX(-${currentIndex * 100}%)`;
+          title.textContent = allSlides[currentIndex].dataset.title;
 
-      prevBtn.addEventListener('click', () => moveSlide(-1));
-      nextBtn.addEventListener('click', () => moveSlide(1));
+          prevBtn.addEventListener('click', () => moveSlide(-1));
+          nextBtn.addEventListener('click', () => moveSlide(1));
 
-      function moveSlide(dir) {
-        if (isTransitioning) return;
-        isTransitioning = true;
-        currentIndex += dir;
-        slider.style.transition = 'transform 0.5s ease';
-        slider.style.transform = `translateX(-${currentIndex * 100}%)`;
-      }
+          function moveSlide(dir) {
+            if (isTransitioning) return;
+            isTransitioning = true;
+            currentIndex += dir;
+            slider.style.transition = 'transform 0.5s ease';
+            slider.style.transform = `translateX(-${currentIndex * 100}%)`;
+          }
 
-      slider.addEventListener('transitionend', () => {
-        if (currentIndex === 0) {
-          slider.style.transition = 'none';
-          currentIndex = slideCount;
-        } else if (currentIndex === slideCount + 1) {
-          slider.style.transition = 'none';
-          currentIndex = 1;
-        }
-        slider.style.transform = `translateX(-${currentIndex * 100}%)`;
-        title.textContent = allSlides[currentIndex].dataset.title;
-       	isTransitioning = false;
-      });
-    });
-/*
-    document.addEventListener("DOMContentLoaded", () => {
-      // Set the start date (e.g., January 1, 2025)
-      const startDate = new Date("2025-04-13");
-      const today = new Date();
-
-      // Calculate the number of days since the start date
-      const daysSinceStart = Math.floor((today - startDate) / (1000 * 60 * 60 * 24));
-
-      // Determine the frame (1 frame per 3 days)
-      const frame = Math.floor(daysSinceStart / 3) + 1; // Adjusted to start from frame 1
-
-      // Update the grass GIF to the correct frame
-      const flowerGif = document.getElementById("flowerGif");
-      flowerGif.src = `assets/GrassFrames/grass${frame}.png`;
-      
-    });
-*/
-    document.addEventListener("DOMContentLoaded", () => {
-      // … your Juegos carousel code …
-
-      // Tab‐switching for Activities
-      const tabs = document.querySelectorAll('.activities-tab');
-      const panes = document.querySelectorAll('.activities-content');
-      tabs.forEach(tab => {
-        tab.addEventListener('click', () => {
-          if (tab.classList.contains('active')) return;
-          // deactivate all
-          tabs.forEach(t => t.classList.remove('active'));
-          panes.forEach(p => p.classList.remove('active'));
-          // activate this one
-          tab.classList.add('active');
-          document.getElementById(tab.dataset.tab).classList.add('active');
+          slider.addEventListener('transitionend', () => {
+            if (currentIndex === 0) {
+              slider.style.transition = 'none';
+              currentIndex = slideCount;
+            } else if (currentIndex === slideCount + 1) {
+              slider.style.transition = 'none';
+              currentIndex = 1;
+            }
+            slider.style.transform = `translateX(-${currentIndex * 100}%)`;
+            title.textContent = allSlides[currentIndex].dataset.title;
+            isTransitioning = false;
+          });
         });
-      });
-    });
-   
-  </script>
+        /*
+            document.addEventListener("DOMContentLoaded", () => {
+              // Set the start date (e.g., January 1, 2025)
+              const startDate = new Date("2025-04-13");
+              const today = new Date();
+        
+              // Calculate the number of days since the start date
+              const daysSinceStart = Math.floor((today - startDate) / (1000 * 60 * 60 * 24));
+        
+              // Determine the frame (1 frame per 3 days)
+              const frame = Math.floor(daysSinceStart / 3) + 1; // Adjusted to start from frame 1
+        
+              // Update the grass GIF to the correct frame
+              const flowerGif = document.getElementById("flowerGif");
+              flowerGif.src = `assets/GrassFrames/grass${frame}.png`;
+              
+            });
+        */
+        document.addEventListener("DOMContentLoaded", () => {
+          // … your Juegos carousel code …
+
+          // Tab‐switching for Activities
+          const tabs = document.querySelectorAll('.activities-tab');
+          const panes = document.querySelectorAll('.activities-content');
+          tabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+              if (tab.classList.contains('active')) return;
+              // deactivate all
+              tabs.forEach(t => t.classList.remove('active'));
+              panes.forEach(p => p.classList.remove('active'));
+              // activate this one
+              tab.classList.add('active');
+              document.getElementById(tab.dataset.tab).classList.add('active');
+            });
+          });
+        });
+
+      </script>
 </body>
+
 </html>
