@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Random Country Picker</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;700&display=swap" rel="stylesheet">
+</head>
+
+<body>
+    <div class="app-container">
+        <header>
+            <h1>Country Picker</h1>
+        </header>
+
+        <main>
+            <div class="map-wrapper">
+                <!-- SVG will be injected here -->
+                <div id="map-container"></div>
+            </div>
+
+            <div class="controls-wrapper">
+                <div class="extra-countries">
+                    <div class="country-card" id="card-spain" data-country="Spain">
+                        <div class="flag-placeholder">🇪🇸</div>
+                        <span>Spain</span>
+                    </div>
+                    <div class="country-card" id="card-guinea" data-country="Equatorial Guinea">
+                        <div class="flag-placeholder">🇬🇶</div>
+                        <span>Equatorial Guinea</span>
+                    </div>
+                </div>
+
+                <div class="action-area">
+                    <div id="result-display" class="result-display">
+                        <span class="placeholder-text">Who's next?</span>
+                    </div>
+                    <button id="pick-btn" class="primary-btn">
+                        <span class="btn-text">Pick Country</span>
+                        <span class="btn-icon">🎲</span>
+                    </button>
+                    <div class="status-text" id="status-text">Countries remaining: <span id="count">--</span></div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+
+</html>

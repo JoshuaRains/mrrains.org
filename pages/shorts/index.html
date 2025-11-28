@@ -1,469 +1,612 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Vídeos Cortos con Preguntas</title>
+  <title>Shorts Activity</title>
   <style>
     :root {
-      --green-light: #79b791;
-      --green-dark: #517860;
-      --bg-gradient: linear-gradient(90deg, var(--green-light) 60%, var(--green-dark) 100%);
-      --text-color: #fff;
-      --card-bg: rgba(255, 255, 255, 0.1);
-      --card-hover: rgba(255, 255, 255, 0.2);
-      --border-radius: 8px;
-      --shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
-      --spacing: 1rem;
+      --bg-dark: #0f172a;
+      --bg-panel: rgba(30, 41, 59, 0.6);
+      --accent: #6366f1;
+      /* Indigo */
+      --accent-hover: #4f46e5;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --border: rgba(255, 255, 255, 0.08);
+      --shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
+      --radius: 12px;
     }
 
-    html, body { height: 100%; margin: 0; }
-    * { box-sizing: border-box; }
+    * {
+      box-sizing: border-box;
+    }
 
     body {
-      font-family: Arial, sans-serif;
-      background: var(--bg-gradient);
-      color: var(--text-color);
+      margin: 0;
+      height: 100vh;
+      background: radial-gradient(circle at top right, #1e293b, #0f172a);
+      color: var(--text-main);
+      font-family: system-ui, -apple-system, sans-serif;
+      overflow: hidden;
       display: flex;
       flex-direction: column;
-      overflow: hidden;
     }
 
     /* Header */
-    .header {
-      padding: var(--spacing);
+    header {
+      height: 64px;
+      padding: 0 24px;
       display: flex;
+      align-items: center;
       justify-content: space-between;
-      align-items: center;
-      background: rgba(0, 0, 0, 0.15);
-      box-shadow: var(--shadow);
-      flex-shrink: 0;
+      border-bottom: 1px solid var(--border);
+      background: rgba(15, 23, 42, 0.8);
+      backdrop-filter: blur(8px);
+      z-index: 10;
     }
-    .nav-buttons { display: flex; gap: 0.5rem; }
-    .nav-buttons button {
-      background-color: var(--card-bg);
-      border: 1px solid #fff;
-      color: var(--text-color);
-      padding: 0.5rem 1rem;
-      font-size: 1rem;
-      cursor: pointer;
-      border-radius: 4px;
-      transition: background 0.2s;
-    }
-    .nav-buttons button:hover:not(:disabled) { background-color: var(--card-hover); }
-    .nav-buttons button:disabled { opacity: 0.5; cursor: default; }
 
-    .volume-slider {
+    h1 {
+      font-size: 1.25rem;
+      font-weight: 600;
+      margin: 0;
+      background: linear-gradient(90deg, #fff, #94a3b8);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .controls {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+
+    button {
+      background: var(--bg-panel);
+      border: 1px solid var(--border);
+      color: var(--text-main);
+      padding: 8px 16px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 500;
+      transition: all 0.2s;
       display: flex;
       align-items: center;
-      gap: 0.5rem;
-      background: var(--card-bg);
-      padding: 0.5rem 1rem;
-      border-radius: 6px;
-      box-shadow: var(--shadow);
+      gap: 6px;
     }
-    .volume-slider label { font-size: 0.9rem; }
-    .volume-slider input[type="range"] { width: 100px; cursor: pointer; }
 
-    /* Main content */
+    button:hover:not(:disabled) {
+      background: rgba(255, 255, 255, 0.1);
+      border-color: rgba(255, 255, 255, 0.2);
+    }
+
+    button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    button.primary {
+      background: var(--accent);
+      border-color: transparent;
+    }
+
+    button.primary:hover:not(:disabled) {
+      background: var(--accent-hover);
+    }
+
+    /* Main Layout */
     main {
       flex: 1;
+      padding: 24px;
+      display: grid;
+      grid-template-columns: auto 1fr 1fr;
+      gap: 24px;
+      min-height: 0;
+      /* Important for scrolling */
+      max-width: 1600px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    /* Video Column */
+    .col-video {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .video-frame {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      max-height: 80vh;
+      aspect-ratio: 9/16;
+      background: #000;
+      border-radius: var(--radius);
+      overflow: hidden;
+      box-shadow: var(--shadow);
+      border: 1px solid var(--border);
+    }
+
+    #player {
+      width: 100%;
+      height: 100%;
+    }
+
+    /* Panels */
+    .panel {
+      background: var(--bg-panel);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
       display: flex;
       flex-direction: column;
       overflow: hidden;
-      padding: var(--spacing);
-      gap: var(--spacing);
+      backdrop-filter: blur(12px);
     }
 
-    /* Grid container — columns adjust dynamically via JS */
-    .video-and-panels {
-      display: grid;
-      gap: var(--spacing);
-      height: 100%;
-      min-height: 0;
-      align-items: stretch;
-      grid-template-columns: auto 1fr 0.9fr; /* default: video | questions | comments */
+    .panel-header {
+      padding: 16px;
+      border-bottom: 1px solid var(--border);
+      font-weight: 600;
+      font-size: 1.1rem;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(0, 0, 0, 0.2);
     }
 
-    /* Video */
-    .video-container {
-      position: relative;
-      background: #000;
-      border-radius: var(--border-radius);
-      overflow: hidden;
-      aspect-ratio: 9 / 16;
-      width: 100%;
-      max-width: calc(80vh * 9 / 16);
-      max-height: 80vh;
-      box-shadow: var(--shadow);
-      flex-shrink: 0;
-      margin: 0 auto;
-    }
-    .video-container iframe,
-    .video-container #player {
-      position: absolute;
-      inset: 0;
-      width: 100%;
-      height: 100%;
+    .panel-content {
+      flex: 1;
+      overflow-y: auto;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
     }
 
     /* Questions */
-    .questions {
-      display: flex;
-      flex-direction: column;
-      gap: var(--spacing);
-      overflow-y: auto;
-      padding-right: 0.5rem;
-      height: 100%;
+    .question-card {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 16px;
     }
-    .question {
-      background: var(--card-bg);
-      padding: var(--spacing);
-      border-radius: var(--border-radius);
-      box-shadow: var(--shadow);
+
+    .q-text {
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin-bottom: 12px;
+      line-height: 1.4;
     }
-    .question-text {
-      font-weight: bold;
-      margin-bottom: 0.5rem;
-      font-size: 2rem;   /* increased size */
-      line-height: 1.45;
-    }
+
     .answers {
       display: flex;
       flex-direction: column;
-      gap: 0.5rem;
-      margin-bottom: 0.75rem;
+      gap: 8px;
     }
-    .answers label {
+
+    .answer-opt {
       display: flex;
       align-items: center;
-      background: rgba(255, 255, 255, 0.05);
-      padding: 0.6rem 0.7rem;
+      padding: 10px 12px;
+      background: rgba(0, 0, 0, 0.2);
+      border: 1px solid transparent;
       border-radius: 6px;
       cursor: pointer;
-      transition: background 0.2s, border 0.2s;
-      font-size: 1.5rem;
-      border: 2px solid transparent;
-    }
-    .answers label:hover { background: rgba(255, 255, 255, 0.12); }
-    .answers input[type="radio"] { display: none; }
-    .answers label.selected {
-      background: rgba(255, 255, 255, 0.2);
-      border: 2px solid var(--green-light);
+      transition: all 0.2s;
     }
 
-    .timestamp {
-      background: var(--card-bg);
-      border: 1px solid #fff;
-      color: var(--text-color);
-      padding: 0.35rem 0.65rem;
-      font-size: 0.95rem;
-      border-radius: 6px;
-      cursor: pointer;
-      transition: background 0.2s;
-      align-self: flex-start;
+    .answer-opt:hover {
+      background: rgba(255, 255, 255, 0.05);
     }
-    .timestamp:hover { background: var(--card-hover); }
+
+    .answer-opt.selected {
+      background: rgba(99, 102, 241, 0.2);
+      border-color: var(--accent);
+      color: #fff;
+    }
+
+    .timestamp-btn {
+      margin-top: 12px;
+      font-size: 0.85rem;
+      padding: 4px 8px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border);
+      color: var(--accent);
+      width: fit-content;
+    }
 
     /* Comments */
-    .comments {
-      display: flex;
-      flex-direction: column;
-      gap: 0.9rem;
-      overflow-y: auto;
-      padding-right: 0.5rem;
-      height: 100%;
-      min-width: 0;
+    .comment-card {
+      background: rgba(255, 255, 255, 0.03);
+      border-radius: 8px;
+      padding: 12px;
+      border-left: 3px solid var(--accent);
     }
-    .comments-header {
-      font-weight: bold;
-            font-size: 2.5rem;   /* increased size */
 
-      opacity: 0.95;
-      letter-spacing: 0.2px;
-      background: rgba(255, 255, 255, 0.08);
-      padding: 0.6rem 0.8rem;
-      border-radius: 6px;
-      box-shadow: var(--shadow);
+    .comment-meta {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      margin-bottom: 6px;
     }
-    .comment {
-      background: var(--card-bg);
-      padding: 0.9rem;
-      border-radius: var(--border-radius);
-      box-shadow: var(--shadow);
-      font-size: 2rem;
-      line-height: 1.35;
+
+    .comment-author {
+      font-weight: 600;
+      color: var(--text-main);
+    }
+
+    .comment-body {
+      font-size: 0.95rem;
+      line-height: 1.5;
       white-space: pre-wrap;
     }
-    .comment .meta {
+
+    /* Loading / Error */
+    .overlay-msg {
+      position: absolute;
+      inset: 0;
       display: flex;
-      flex-wrap: wrap;
-      gap: 0.5rem 0.8rem;
-      margin-bottom: 0.45rem;
-      font-size: 1.5rem;
-      color: #dce5de;
-      opacity: 0.95;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: rgba(0, 0, 0, 0.8);
+      z-index: 20;
+      text-align: center;
+      padding: 20px;
     }
-    .comment .author { font-weight: bold; color: #fff; }
-    .comment .time { opacity: 0.9; }
+
+    .spinner {
+      width: 40px;
+      height: 40px;
+      border: 3px solid rgba(255, 255, 255, 0.1);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin-bottom: 16px;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    .hidden {
+      display: none !important;
+    }
 
     /* Responsive */
-    @media (max-width: 1100px) {
-      .video-and-panels { grid-template-columns: auto 1fr; } /* video | (one panel) */
+    @media (max-width: 1024px) {
+      main {
+        grid-template-columns: auto 1fr;
+      }
+
+      .col-comments {
+        display: none;
+      }
+
+      /* Hide comments on medium screens if needed, or stack */
     }
-    @media (max-width: 860px) {
-      .video-and-panels { grid-template-columns: 1fr; grid-auto-rows: min-content; }
-      .video-container { margin-bottom: 0.5rem; max-width: min(70vw, calc(80vh * 9 / 16)); }
-      .comments, .questions { max-height: 42vh; }
+
+    @media (max-width: 768px) {
+      main {
+        grid-template-columns: 1fr;
+        grid-template-rows: auto 1fr;
+      }
+
+      .video-frame {
+        max-height: 60vh;
+      }
     }
   </style>
 </head>
+
 <body>
-  <header class="header">
-    <div class="nav-buttons">
-      <button id="prevBtn">Anterior</button>
-      <button id="nextBtn">Siguiente</button>
-    </div>
-    <div class="volume-slider">
-      <label for="volumeRange">Volumen:</label>
-      <input type="range" id="volumeRange" min="0" max="100" value="50" />
+
+  <header>
+    <h1>Shorts Activity</h1>
+    <div class="controls">
+      <button id="prevBtn" disabled>← Prev</button>
+      <button id="nextBtn" class="primary">Next →</button>
+      <div style="width: 1px; height: 24px; background: var(--border); margin: 0 8px;"></div>
+      <label style="font-size: 0.9rem; color: var(--text-muted);">Vol</label>
+      <input type="range" id="volRange" min="0" max="100" value="100" style="width: 80px;">
     </div>
   </header>
 
-  <main>
-    <div id="grid" class="video-and-panels">
-      <div class="video-container"><div id="player"></div></div>
-      <div class="questions" id="questionsContainer"></div>
-      <div class="comments" id="commentsContainer"></div>
+  <main id="mainGrid">
+    <!-- Video Column -->
+    <div class="col-video">
+      <div class="video-frame">
+        <div id="player"></div>
+        <div id="loadingOverlay" class="overlay-msg">
+          <div class="spinner"></div>
+          <div>Loading Video...</div>
+        </div>
+        <div id="errorOverlay" class="overlay-msg hidden">
+          <div style="font-size: 2rem; margin-bottom: 8px;">⚠️</div>
+          <div id="errorText">Video Error</div>
+          <button onclick="retryVideo()" style="margin-top: 16px;">Retry</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Questions Panel -->
+    <div class="panel col-questions" id="panelQuestions">
+      <div class="panel-header">
+        <span>❓</span> Questions
+      </div>
+      <div class="panel-content" id="questionsList">
+        <!-- Questions injected here -->
+      </div>
+    </div>
+
+    <!-- Comments Panel -->
+    <div class="panel col-comments" id="panelComments">
+      <div class="panel-header">
+        <span>💬</span> Comments
+      </div>
+      <div class="panel-content" id="commentsList">
+        <!-- Comments injected here -->
+      </div>
     </div>
   </main>
 
   <script>
-    // --- URL param: which set to load ---
-    function getSetName() {
-      const params = new URLSearchParams(window.location.search);
-      return params.get('set') || 'shorts1'; // default
-    }
-
-    // --- Fetch the config JSON ---
-    async function fetchSlidesConfig() {
-      const setName = getSetName();
-      const url = `./shortsConfigs/${setName}.json`;
-      const response = await fetch(url);
-      if (!response.ok) {
-        alert('No se pudo cargar el archivo de preguntas.');
-        return null;
-      }
-      return await response.json();
-    }
-
+    // State
     let slidesData = [];
     let currentIndex = 0;
-    let player;
+    let player = null;
     let segmentTimer = null;
+    let isPlayerReady = false;
 
-    // --- YouTube API ready callback (assigned dynamically below) ---
-    function onYouTubeIframeAPIReady() {
-      if (slidesData.length === 0) return;
-      player = new YT.Player("player", {
+    // Config
+    const DEFAULT_SET = 'doomscrolling1'; // Changed from shorts1 to existing file
+
+    // Elements
+    const els = {
+      prevBtn: document.getElementById('prevBtn'),
+      nextBtn: document.getElementById('nextBtn'),
+      volRange: document.getElementById('volRange'),
+      questionsList: document.getElementById('questionsList'),
+      commentsList: document.getElementById('commentsList'),
+      panelQuestions: document.getElementById('panelQuestions'),
+      panelComments: document.getElementById('panelComments'),
+      loading: document.getElementById('loadingOverlay'),
+      error: document.getElementById('errorOverlay'),
+      errorText: document.getElementById('errorText'),
+      mainGrid: document.getElementById('mainGrid')
+    };
+
+    // Init
+    (async function init() {
+      try {
+        const params = new URLSearchParams(window.location.search);
+        const setName = params.get('set') || DEFAULT_SET;
+
+        const res = await fetch(`./shortsConfigs/${setName}.json`);
+        if (!res.ok) throw new Error(`Config not found: ${setName}`);
+
+        slidesData = await res.json();
+        if (!Array.isArray(slidesData) || !slidesData.length) throw new Error("Invalid or empty config");
+
+        // Load YouTube API
+        const tag = document.createElement('script');
+        tag.src = "https://www.youtube.com/iframe_api";
+        document.body.appendChild(tag);
+
+      } catch (e) {
+        showError(e.message);
+      }
+    })();
+
+    // YouTube API Callback
+    window.onYouTubeIframeAPIReady = function () {
+      player = new YT.Player('player', {
+        height: '100%',
+        width: '100%',
         videoId: slidesData[0].videoId,
         playerVars: {
-          playsinline: 1,
-          rel: 0,
-          modestbranding: 1,
-          controls: 1,     // hide native controls; we use our own UI
-          disablekb: 1,
-          fs: 0,
-          hl: "es",           // Spanish UI
-         cc_lang_pref: "es"  // prefer Spanish captions
+          'playsinline': 1,
+          'rel': 0,
+          'modestbranding': 1,
+          'controls': 1,
+          'fs': 0,
+          'hl': 'es',
+          'cc_lang_pref': 'es',
+          'origin': window.location.origin // Critical fix for some embeds
         },
-        host: "https://www.youtube-nocookie.com",
-        events: { onReady: onPlayerReady }
+        events: {
+          'onReady': onPlayerReady,
+          'onError': onPlayerError,
+          'onStateChange': onPlayerStateChange
+        }
       });
+    };
+
+    function onPlayerReady(event) {
+      isPlayerReady = true;
+      els.loading.classList.add('hidden');
+      player.setVolume(els.volRange.value);
+      loadSlide(0);
     }
 
-    function onPlayerReady() {
-      const volumeRange = document.getElementById("volumeRange");
-      player.setVolume(volumeRange.value);
-      volumeRange.addEventListener("input", () => player.setVolume(volumeRange.value));
-
-      renderQuestions(currentIndex);
-      renderComments(currentIndex);
-      updateLayout();       // adjust columns based on visibility
-      updateNavButtons();
+    function onPlayerError(event) {
+      let msg = "Unknown Error";
+      switch (event.data) {
+        case 2: msg = "Invalid Parameter"; break;
+        case 5: msg = "HTML5 Player Error"; break;
+        case 100: msg = "Video Not Found"; break;
+        case 101:
+        case 150: msg = "Embed Not Allowed"; break;
+      }
+      showError(`YouTube Error: ${msg} (${event.data})`);
     }
 
-    function renderQuestions(index) {
-      const container = document.getElementById("questionsContainer");
-      container.innerHTML = "";
+    function onPlayerStateChange(event) {
+      // Could handle auto-next here if desired
+    }
+
+    function loadSlide(index) {
+      if (index < 0 || index >= slidesData.length) return;
+      currentIndex = index;
+
+      // Update Buttons
+      els.prevBtn.disabled = index === 0;
+      els.nextBtn.disabled = index === slidesData.length - 1;
+
+      // Load Video
       const data = slidesData[index];
-      const hasQs = Array.isArray(data.questions) && data.questions.length > 0;
+      if (isPlayerReady) {
+        els.loading.classList.remove('hidden');
+        els.error.classList.add('hidden');
+        player.loadVideoById(data.videoId);
+        // Loading overlay will be hidden when video starts buffering/playing? 
+        // Actually loadVideoById doesn't fire onReady again.
+        // We can hide loading after a short delay or listen to state change.
+        setTimeout(() => els.loading.classList.add('hidden'), 500);
+      }
 
-      if (!hasQs) {
-        container.style.display = "none";
+      // Render Content
+      renderQuestions(data.questions);
+      renderComments(data.comments);
+      updateLayout(data);
+    }
+
+    function renderQuestions(questions) {
+      els.questionsList.innerHTML = '';
+      if (!questions || !questions.length) {
+        els.panelQuestions.style.display = 'none';
         return;
       }
-      container.style.display = "flex";
+      els.panelQuestions.style.display = 'flex';
 
-      data.questions.forEach((q, qIndex) => {
-        const qDiv = document.createElement("div");
-        qDiv.classList.add("question");
+      questions.forEach((q, qIdx) => {
+        const card = document.createElement('div');
+        card.className = 'question-card';
 
-        const qText = document.createElement("div");
-        qText.classList.add("question-text");
-        qText.textContent = q.text;
-        qDiv.appendChild(qText);
+        const text = document.createElement('div');
+        text.className = 'q-text';
+        text.textContent = q.text;
+        card.appendChild(text);
 
-        const answersDiv = document.createElement("div");
-        answersDiv.classList.add("answers");
-        q.answers.forEach((ans, aIndex) => {
-          const label = document.createElement("label");
-          const radio = document.createElement("input");
-          radio.type = "radio";
-          radio.name = `q-${index}-${qIndex}`;
-          radio.value = aIndex;
-          radio.checked = q.selectedIndex === aIndex;
-          radio.addEventListener("change", () => {
-            q.selectedIndex = aIndex;
-            answersDiv.querySelectorAll("label").forEach(l => l.classList.remove("selected"));
-            label.classList.add("selected");
-          });
-          label.appendChild(radio);
-          label.appendChild(document.createTextNode(ans));
-          answersDiv.appendChild(label);
+        const answersDiv = document.createElement('div');
+        answersDiv.className = 'answers';
+
+        q.answers.forEach((ans, aIdx) => {
+          const opt = document.createElement('div');
+          opt.className = 'answer-opt';
+          if (q.selectedIndex === aIdx) opt.classList.add('selected');
+
+          opt.textContent = ans;
+          opt.onclick = () => {
+            q.selectedIndex = aIdx;
+            // Redraw this card's options
+            Array.from(answersDiv.children).forEach((c, i) => {
+              c.classList.toggle('selected', i === aIdx);
+            });
+          };
+          answersDiv.appendChild(opt);
         });
-        qDiv.appendChild(answersDiv);
+        card.appendChild(answersDiv);
 
-        if (typeof q.timeStart === "number" && typeof q.timeEnd === "number") {
-          const tsButton = document.createElement("button");
-          tsButton.classList.add("timestamp");
-          tsButton.textContent = `▶︎ ${formatTime(q.timeStart)} - ${formatTime(q.timeEnd)}`;
-          tsButton.addEventListener("click", () => playSegment(q.timeStart, q.timeEnd));
-          qDiv.appendChild(tsButton);
+        if (q.timeStart !== undefined && q.timeEnd !== undefined) {
+          const btn = document.createElement('button');
+          btn.className = 'timestamp-btn';
+          btn.textContent = `▶ Play Segment (${formatTime(q.timeStart)} - ${formatTime(q.timeEnd)})`;
+          btn.onclick = () => playSegment(q.timeStart, q.timeEnd);
+          card.appendChild(btn);
         }
 
-        container.appendChild(qDiv);
+        els.questionsList.appendChild(card);
       });
     }
 
-    function renderComments(index) {
-      const container = document.getElementById("commentsContainer");
-      container.innerHTML = "";
-      const data = slidesData[index];
-      const hasComments = Array.isArray(data.comments) && data.comments.length > 0;
-
-      if (!hasComments) {
-        container.style.display = "none";
+    function renderComments(comments) {
+      els.commentsList.innerHTML = '';
+      if (!comments || !comments.length) {
+        els.panelComments.style.display = 'none';
         return;
       }
-      container.style.display = "flex";
+      els.panelComments.style.display = 'flex';
 
-      // Header
-      const header = document.createElement("div");
-      header.className = "comments-header";
-      header.textContent = "Comentarios";
-      container.appendChild(header);
+      comments.forEach(c => {
+        const card = document.createElement('div');
+        card.className = 'comment-card';
 
-      data.comments.forEach(c => {
-        const cDiv = document.createElement("div");
-        cDiv.classList.add("comment");
+        const meta = document.createElement('div');
+        meta.className = 'comment-meta';
+        meta.innerHTML = `<span class="comment-author">${c.author || 'User'}</span><span>${c.timeAgo || ''}</span>`;
 
-        const meta = document.createElement("div");
-        meta.classList.add("meta");
+        const body = document.createElement('div');
+        body.className = 'comment-body';
+        body.textContent = c.text;
 
-        const author = document.createElement("span");
-        author.classList.add("author");
-        author.textContent = c.author || "Anónimo";
-
-        const time = document.createElement("span");
-        time.classList.add("time");
-        time.textContent = c.timeAgo || "";
-
-        meta.appendChild(author);
-        meta.appendChild(time);
-        cDiv.appendChild(meta);
-
-        const text = document.createElement("div");
-        text.textContent = c.text || "";
-        cDiv.appendChild(text);
-
-        container.appendChild(cDiv);
+        card.appendChild(meta);
+        card.appendChild(body);
+        els.commentsList.appendChild(card);
       });
     }
 
-    function updateLayout() {
-      const grid = document.getElementById("grid");
-      const qs = document.getElementById("questionsContainer");
-      const cm = document.getElementById("commentsContainer");
+    function updateLayout(data) {
+      const hasQ = data.questions && data.questions.length > 0;
+      const hasC = data.comments && data.comments.length > 0;
 
-      const qsVisible = qs.style.display !== "none";
-      const cmVisible = cm.style.display !== "none";
-
-      if (qsVisible && cmVisible) {
-        // video | questions | comments
-        grid.style.gridTemplateColumns = "auto 1fr 0.9fr";
-      } else if (qsVisible && !cmVisible) {
-        // video | questions
-        grid.style.gridTemplateColumns = "auto 1fr";
-      } else if (!qsVisible && cmVisible) {
-        // video | comments
-        grid.style.gridTemplateColumns = "auto 1fr";
+      // CSS Grid Template adjustments
+      if (hasQ && hasC) {
+        els.mainGrid.style.gridTemplateColumns = "auto 1fr 1fr";
+      } else if (hasQ) {
+        els.mainGrid.style.gridTemplateColumns = "auto 1fr";
+      } else if (hasC) {
+        els.mainGrid.style.gridTemplateColumns = "auto 1fr";
       } else {
-        // video only
-        grid.style.gridTemplateColumns = "1fr";
+        els.mainGrid.style.gridTemplateColumns = "1fr";
       }
-    }
-
-    function formatTime(seconds) {
-      const mins = Math.floor(seconds / 60);
-      const secs = Math.floor(seconds % 60).toString().padStart(2, "0");
-      return `${mins}:${secs}`;
     }
 
     function playSegment(start, end) {
       if (!player) return;
-      clearInterval(segmentTimer);
+      if (segmentTimer) clearInterval(segmentTimer);
       player.seekTo(start, true);
       player.playVideo();
+
       segmentTimer = setInterval(() => {
         if (player.getCurrentTime() >= end) {
           player.pauseVideo();
           clearInterval(segmentTimer);
         }
-      }, 200);
+      }, 250);
     }
 
-    function loadVideoByIndex(index) {
-      const data = slidesData[index];
-      player.loadVideoById(data.videoId);
-      renderQuestions(index);
-      renderComments(index);
-      updateLayout();
-      updateNavButtons();
+    function formatTime(s) {
+      const m = Math.floor(s / 60);
+      const sec = Math.floor(s % 60).toString().padStart(2, '0');
+      return `${m}:${sec}`;
     }
 
-    function updateNavButtons() {
-      document.getElementById("prevBtn").disabled = currentIndex === 0;
-      document.getElementById("nextBtn").disabled = currentIndex === slidesData.length - 1;
+    function showError(msg) {
+      els.loading.classList.add('hidden');
+      els.error.classList.remove('hidden');
+      els.errorText.textContent = msg;
     }
 
-    document.getElementById("prevBtn").addEventListener("click", () => {
-      if (currentIndex > 0) { currentIndex--; loadVideoByIndex(currentIndex); }
-    });
-    document.getElementById("nextBtn").addEventListener("click", () => {
-      if (currentIndex < slidesData.length - 1) { currentIndex++; loadVideoByIndex(currentIndex); }
-    });
+    function retryVideo() {
+      els.error.classList.add('hidden');
+      loadSlide(currentIndex);
+    }
 
-    (async function init() {
-      slidesData = await fetchSlidesConfig();
-      if (!slidesData) return;
+    // Event Listeners
+    els.prevBtn.onclick = () => loadSlide(currentIndex - 1);
+    els.nextBtn.onclick = () => loadSlide(currentIndex + 1);
+    els.volRange.oninput = (e) => {
+      if (player) player.setVolume(e.target.value);
+    };
 
-      // Load YouTube API
-      const tag = document.createElement("script");
-      tag.src = "https://www.youtube.com/iframe_api";
-      document.body.appendChild(tag);
-      window.onYouTubeIframeAPIReady = onYouTubeIframeAPIReady;
-    })();
   </script>
 </body>
+
 </html>
