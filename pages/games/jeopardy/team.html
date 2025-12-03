@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8" />
+	<title>Jeopardy – Team Panel</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1" />
+	<link rel="stylesheet" href="shared-style.css" />
+</head>
+<body>
+<div class="team-wrapper">
+	<div class="team-card">
+		<h2 style="margin-bottom:0.4rem;">Team Panel</h2>
+		<div id="joinSection">
+			<div class="flex-col">
+				<label class="label">Join Code</label>
+				<input id="joinCodeInput" placeholder="ABCDE" maxlength="6" />
+			</div>
+			<div class="flex-col">
+				<label class="label">Team Name</label>
+				<input id="teamNameInput" placeholder="Los Tigres" />
+			</div>
+			<div class="flex-row" style="margin-top:0.6rem;">
+				<button id="joinBtn">Join Game</button>
+			</div>
+			<div id="joinError" style="color:var(--danger);font-size:0.85rem;margin-top:0.4rem;display:none;"></div>
+		</div>
+
+		<div id="gameSection" style="display:none;">
+			<div class="team-name-display" id="teamNameDisplay"></div>
+			<div class="team-instruction">
+				Press the big button or hit <b>spacebar</b> to buzz in when a clue is on the board.
+			</div>
+			<button class="buzz-button" id="buzzButton" disabled>BUZZ</button>
+			<div class="buzz-status-text" id="teamBuzzStatus">Waiting for the teacher to select a clue…</div>
+
+			<div class="final-section">
+				<div class="final-title">Final Jeopardy</div>
+				<div class="final-question" id="finalQuestionText" style="color:var(--text-muted);">
+					Not in Final Jeopardy yet.
+				</div>
+				<div id="finalInputSection" style="display:none;">
+					<div class="flex-row">
+						<div class="flex-col" style="flex:1;">
+							<label class="label">Wager</label>
+							<input class="wager-input" id="wagerInput" type="number" min="0" step="100" value="0" />
+						</div>
+					</div>
+					<div class="flex-col">
+						<label class="label">Your Answer (Spanish)</label>
+						<textarea id="finalAnswerInput" rows="2" placeholder="Es una pregunta..."></textarea>
+					</div>
+					<div class="flex-row" style="margin-top:0.4rem;">
+					          <button id="submitFinalBtn" class="small">Submit Final Answer</button>
+					</div>
+					<div id="finalStatusMsg" style="font-size:0.85rem;margin-top:0.3rem;color:var(--text-muted);"></div>
+				</div>
+			</div>
+
+		</div>
+	</div>
+</div>
+
+<script type="module">
+	import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
+	import {
+		getDatabase, ref, get, child, push, set, onValue, runTransaction, serverTimestamp
+	} from "https://www.gstatic.com/firebasejs/9.22.2/firebase-database.js";
+
+	const firebaseConfig = {
+    apiKey: "AIzaSyCEbHLRWZweJyhhtkLiRviFjInwEbDbubI",
+    authDomain: "jeopardy-f2335.firebaseapp.com",
+    projectId: "jeopardy-f2335",
+    storageBucket: "jeopardy-f2335.firebasestorage.app",
+    messagingSenderId: "334799466944",
+    appId: "1:334799466944:web:38893b047c956dafa19825"
+  };
+
+	const app = initializeApp(firebaseConfig);
+	const db = getDatabase(app);
+
+	const joinSection = document.getElementById("joinSection");
+	const gameSection = document.getElementById("gameSection");
+	const joinCodeInput = document.getElementById("joinCodeInput");
+	const teamNameInput = document.getElementById("teamNameInput");
+	const joinBtn = document.getElementById("joinBtn");
+	const joinError = document.getElementById("joinError");
+	const teamNameDisplay = document.getElementById("teamNameDisplay");
+	const buzzButton = document.getElementById("buzzButton");
+	const teamBuzzStatus = document.getElementById("teamBuzzStatus");
+	const finalQuestionText = document.getElementById("finalQuestionText");
+	const finalInputSection = document.getElementById("finalInputSection");
+	const wagerInput = document.getElementById("wagerInput");
+	const finalAnswerInput = document.getElementById("finalAnswerInput");
+	const submitFinalBtn = document.getElementById("submitFinalBtn");
+	const finalStatusMsg = document.getElementById("finalStatusMsg");
+
+	let currentGameCode = null;
+	let teamId = null;
+	let canBuzzNow = false;
+	let alreadyBuzzedForCurrentClue = false;
+	let finalState = null;
+
+	function showError(msg) {
+		joinError.textContent = msg;
+		joinError.style.display = "block";
+	}
+
+	function clearError() {
+		joinError.textContent = "";
+		joinError.style.display = "none";
+	}
+
+	async function joinGame() {
+		const code = joinCodeInput.value.trim().toUpperCase();
+		const name = (teamNameInput.value || "Team").trim();
+		if (!code) {
+			showError("Please enter the join code.");
+			return;
+		}
+		clearError();
+
+		const gameSnap = await get(ref(db, "jeopardyGames/" + code + "/meta"));
+		if (!gameSnap.exists()) {
+			showError("Game not found. Check the code.");
+			return;
+		}
+
+		const newTeamRef = push(ref(db, "jeopardyGames/" + code + "/scores"));
+		await set(newTeamRef, {
+			name,
+			score: 0
+		});
+
+		currentGameCode = code;
+		teamId = newTeamRef.key;
+		joinSection.style.display = "none";
+		gameSection.style.display = "block";
+		teamNameDisplay.textContent = name;
+		teamBuzzStatus.textContent = "Waiting for the teacher to select a clue…";
+
+		attachGameListeners();
+	}
+
+	function attachGameListeners() {
+		// Listen to currentClue
+		onValue(ref(db, "jeopardyGames/" + currentGameCode + "/currentClue"), (snap) => {
+			const val = snap.val() || { showing: false };
+			if (val.showing) {
+				canBuzzNow = true;
+				alreadyBuzzedForCurrentClue = false;
+				buzzButton.disabled = false;
+				buzzButton.classList.add("ready");
+				teamBuzzStatus.textContent = "Clue is active! Press spacebar or click to buzz in.";
+			} else {
+				canBuzzNow = false;
+				buzzButton.disabled = true;
+				buzzButton.classList.remove("ready");
+				teamBuzzStatus.textContent = "Waiting for the teacher to select a clue…";
+			}
+		});
+
+		// Listen to buzz state so we know if someone else beat us
+		onValue(ref(db, "jeopardyGames/" + currentGameCode + "/buzz"), (snap) => {
+			const val = snap.val();
+			if (!val || !val.teamId) {
+				if (canBuzzNow) {
+					teamBuzzStatus.textContent = "Clue active – buzz now!";
+				}
+				return;
+			}
+			if (val.teamId === teamId) {
+				teamBuzzStatus.textContent = "You buzzed in first! Wait for the teacher.";
+			} else {
+				teamBuzzStatus.textContent = "Another team buzzed first.";
+			}
+		});
+
+		// Final Jeopardy
+		onValue(ref(db, "jeopardyGames/" + currentGameCode + "/final"), (snap) => {
+			finalState = snap.val() || { inProgress: false, question: "" };
+			if (finalState.inProgress) {
+				finalQuestionText.textContent = finalState.question || "Final Jeopardy question...";
+				finalInputSection.style.display = "block";
+				finalStatusMsg.textContent = "Submit your wager and answer once.";
+			} else {
+				finalInputSection.style.display = "none";
+				if (finalState.question) {
+					finalQuestionText.textContent = finalState.question;
+				} else {
+					finalQuestionText.textContent = "Not in Final Jeopardy yet.";
+				}
+			}
+		});
+
+		// Final responses (we only check our own)
+		onValue(ref(db, "jeopardyGames/" + currentGameCode + "/finalResponses/" + teamId), (snap) => {
+			if (snap.exists()) {
+				finalStatusMsg.textContent = "Your Final Jeopardy answer has been submitted.";
+			}
+		});
+	}
+
+	function attemptBuzz() {
+		if (!currentGameCode || !teamId || !canBuzzNow || alreadyBuzzedForCurrentClue) return;
+		const buzzRef = ref(db, "jeopardyGames/" + currentGameCode + "/buzz");
+		runTransaction(buzzRef, (current) => {
+			if (current && current.teamId) {
+				// Someone already buzzed in
+				return current;
+			}
+			return {
+				teamId,
+				at: serverTimestamp()
+			};
+		});
+		alreadyBuzzedForCurrentClue = true;
+	}
+
+	function submitFinal() {
+		if (!currentGameCode || !teamId || !finalState || !finalState.inProgress) return;
+		const wager = parseInt(wagerInput.value || "0", 10) || 0;
+		const answer = finalAnswerInput.value.trim();
+		if (wager < 0) {
+			alert("Wager cannot be negative.");
+			return;
+		}
+		if (!answer) {
+			alert("Please type your answer.");
+			return;
+		}
+		const respRef = ref(db, "jeopardyGames/" + currentGameCode + "/finalResponses/" + teamId);
+		set(respRef, {
+			wager,
+			answer
+		}).then(() => {
+			finalStatusMsg.textContent = "Answer submitted. Wait for the teacher to reveal results.";
+		});
+	}
+
+	joinBtn.addEventListener("click", () => {
+		joinGame();
+	});
+
+	buzzButton.addEventListener("click", (e) => {
+		e.preventDefault();
+		attemptBuzz();
+	});
+
+	document.addEventListener("keydown", (e) => {
+		if (e.code === "Space") {
+			e.preventDefault();
+			attemptBuzz();
+		}
+	});
+
+	submitFinalBtn.addEventListener("click", () => {
+		submitFinal();
+	});
+</script>
+</body>
+</html>

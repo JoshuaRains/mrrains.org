@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8" />
+	<title>Jeopardy – Teacher Panel</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1" />
+	<link rel="stylesheet" href="shared-style.css" />
+</head>
+<body>
+<div class="teacher-layout">
+	<!-- LEFT: Setup & Controls -->
+	<div class="panel">
+		<div class="panel-header">
+			<h2>Teacher Panel</h2>
+			<small id="gameStatusLabel">No game yet</small>
+		</div>
+
+		<div class="flex-col">
+			<div class="label">Game Setup</div>
+			<div class="flex-row">
+				<button id="createGameBtn">Create New Game</button>
+				<button class="secondary small" id="openBoardBtn" disabled>Open Big Board</button>
+			</div>
+			<div class="flex-row">
+				<div class="label">Join Code:</div>
+				<div id="joinCodeDisplay" style="font-weight:700;font-size:1.1rem;color:var(--jeopardy-gold);">
+					----
+				</div>
+			</div>
+			<small style="color:var(--text-muted);">
+				Students go to the team page and enter this code. One computer per team.
+			</small>
+		</div>
+
+		<div class="flex-col">
+			<div class="label">Question Board Input</div>
+			<small style="color:var(--text-muted);line-height:1.4;">
+				Format: Each category is a block.<br>
+				First line = category name.<br>
+				Other lines = <b>value | clue text</b>.<br>
+				Blank line between categories.
+			</small>
+			<textarea id="boardInput" rows="10" placeholder="Example:
+Greetings
+100 | &quot;Hello&quot; in Spanish
+200 | How do you say &quot;good morning&quot;?
+
+School Objects
+100 | How do you say &quot;book&quot;?
+200 | How do you say &quot;pencil&quot;?"></textarea>
+			<div class="flex-row">
+				<button class="small secondary" id="loadDefaultBoardBtn">Load Sample Board</button>
+				<button class="small" id="saveBoardBtn" disabled>Save Board to Game</button>
+			</div>
+		</div>
+
+		<div class="flex-col">
+			<div class="label">Final Jeopardy</div>
+			<textarea id="finalQuestionInput" rows="3" placeholder="Type your Final Jeopardy question here..."></textarea>
+			<div class="flex-row">
+				<button class="small" id="startFinalBtn" disabled>Start Final Jeopardy</button>
+				<button class="small secondary" id="endFinalBtn" disabled>End Final Jeopardy</button>
+			</div>
+		</div>
+
+		<div class="flex-col">
+			<div class="label">Buzz Status</div>
+			<div class="buzz-status" id="buzzStatusBox">
+				Waiting for a clue to be selected.
+			</div>
+			<div class="flex-row" style="margin-top:0.4rem;">
+				<button class="small" id="markCorrectBtn" disabled>Correct (+)</button>
+				<button class="small danger" id="markIncorrectBtn" disabled>Incorrect (–)</button>
+				<button class="small secondary" id="clearBuzzBtn" disabled>Clear Buzz</button>
+			</div>
+		</div>
+	</div>
+
+	<!-- RIGHT: Mini Board + Scores + Final Responses -->
+	<div class="panel">
+		<div class="panel-header">
+			<h2>Board & Scores</h2>
+			<small class="badge" id="roundLabel">Regular Round</small>
+		</div>
+
+		<div class="scorebar" id="teacherScorebar">
+			<!-- team score pills -->
+		</div>
+
+		<div class="flex-row" style="margin-bottom:0.4rem;">
+			<small class="label" style="margin-right:auto;">Manual Score Adjust</small>
+			<small style="color:var(--text-muted);font-size:0.75rem;">
+				Click + / – to tweak team scores.
+			</small>
+		</div>
+
+		<div class="mini-board" id="miniBoard">
+			<!-- mini board cells -->
+		</div>
+
+		<div class="final-section">
+			<div class="final-title">Final Jeopardy Responses</div>
+			<div class="final-responses" id="finalResponsesContainer">
+				<em style="color:var(--text-muted);">Final Jeopardy not started yet.</em>
+			</div>
+		</div>
+	</div>
+</div>
+
+<script type="module">
+	// ==== FIREBASE SETUP ====
+	import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
+	import {
+		getDatabase, ref, set, update, onValue,
+		runTransaction, push, serverTimestamp
+	} from "https://www.gstatic.com/firebasejs/9.22.2/firebase-database.js";
+
+	const firebaseConfig = {
+    apiKey: "AIzaSyCEbHLRWZweJyhhtkLiRviFjInwEbDbubI",
+    authDomain: "jeopardy-f2335.firebaseapp.com",
+    projectId: "jeopardy-f2335",
+    storageBucket: "jeopardy-f2335.firebasestorage.app",
+    messagingSenderId: "334799466944",
+    appId: "1:334799466944:web:38893b047c956dafa19825"
+  };
+
+	const app = initializeApp(firebaseConfig);
+	const db = getDatabase(app);
+
+	// ==== DOM ELEMENTS ====
+	const createGameBtn = document.getElementById("createGameBtn");
+	const openBoardBtn = document.getElementById("openBoardBtn");
+	const saveBoardBtn = document.getElementById("saveBoardBtn");
+	const boardInput = document.getElementById("boardInput");
+	const loadDefaultBoardBtn = document.getElementById("loadDefaultBoardBtn");
+	const joinCodeDisplay = document.getElementById("joinCodeDisplay");
+	const gameStatusLabel = document.getElementById("gameStatusLabel");
+	const miniBoardEl = document.getElementById("miniBoard");
+	const teacherScorebar = document.getElementById("teacherScorebar");
+	const buzzStatusBox = document.getElementById("buzzStatusBox");
+	const markCorrectBtn = document.getElementById("markCorrectBtn");
+	const markIncorrectBtn = document.getElementById("markIncorrectBtn");
+	const clearBuzzBtn = document.getElementById("clearBuzzBtn");
+	const roundLabel = document.getElementById("roundLabel");
+	const finalQuestionInput = document.getElementById("finalQuestionInput");
+	const startFinalBtn = document.getElementById("startFinalBtn");
+	const endFinalBtn = document.getElementById("endFinalBtn");
+	const finalResponsesContainer = document.getElementById("finalResponsesContainer");
+
+	let currentGameCode = null;
+	let boardData = []; // [{name, clues:[{value,text,used:false}]}]
+	let currentClue = null; // {catIndex, clueIndex}
+	let latestScores = {};
+	let latestBuzz = null;
+	let latestFinal = null;
+	let latestFinalResponses = {};
+
+	// ==== HELPER FUNCTIONS ====
+	function generateGameCode() {
+		const letters = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+		let code = "";
+		for (let i = 0; i < 5; i++) {
+			code += letters[Math.floor(Math.random() * letters.length)];
+		}
+		return code;
+	}
+
+	function parseBoardText(text) {
+		const blocks = text.trim().split(/\n\s*\n/);
+		const parsed = [];
+		for (const block of blocks) {
+			const lines = block.split("\n").map(l => l.trim()).filter(l => l);
+			if (!lines.length) continue;
+			const name = lines[0];
+			const clues = [];
+			for (let i = 1; i < lines.length; i++) {
+				const line = lines[i];
+				const parts = line.split("|");
+				if (parts.length < 2) continue;
+				const value = parseInt(parts[0].trim(), 10) || 0;
+				const clueText = parts.slice(1).join("|").trim();
+				clues.push({ value, text: clueText, used: false });
+			}
+			if (clues.length) {
+				parsed.push({ name, clues });
+			}
+		}
+		return parsed;
+	}
+
+	function renderMiniBoard() {
+		miniBoardEl.innerHTML = "";
+		if (!boardData.length) {
+			miniBoardEl.innerHTML = '<div style="grid-column:1/-1;text-align:center;color:var(--text-muted);padding:0.5rem;">No board yet. Paste questions and click &quot;Save Board to Game&quot;.</div>';
+			return;
+		}
+		const maxClueCount = Math.max(...boardData.map(c => c.clues.length));
+		// Categories row
+		for (const cat of boardData) {
+			const div = document.createElement("div");
+			div.className = "mini-category";
+			div.textContent = cat.name;
+			miniBoardEl.appendChild(div);
+		}
+		// Fill categories up to 5 columns
+		for (let i = boardData.length; i < 5; i++) {
+			const div = document.createElement("div");
+			div.className = "mini-category";
+			div.textContent = "-";
+			miniBoardEl.appendChild(div);
+		}
+		// Rows
+		for (let row = 0; row < maxClueCount; row++) {
+			for (let col = 0; col < 5; col++) {
+				const div = document.createElement("div");
+				div.className = "mini-clue";
+				if (boardData[col] && boardData[col].clues[row]) {
+					const clue = boardData[col].clues[row];
+					div.textContent = clue.value || "";
+					if (clue.used) div.classList.add("used");
+					div.addEventListener("click", () => {
+						if (clue.used || !currentGameCode) return;
+						selectClue(col, row);
+					});
+				} else {
+					div.textContent = "";
+					div.style.opacity = "0.1";
+				}
+				miniBoardEl.appendChild(div);
+			}
+		}
+	}
+
+	function renderScores() {
+		teacherScorebar.innerHTML = "";
+		const entries = Object.entries(latestScores);
+		if (!entries.length) {
+			teacherScorebar.innerHTML = '<div style="color:var(--text-muted);font-size:0.85rem;">No teams joined yet.</div>';
+			return;
+		}
+		for (const [teamId, team] of entries) {
+			const pill = document.createElement("div");
+			pill.className = "score-pill";
+			const name = document.createElement("div");
+			name.className = "score-name";
+			name.textContent = team.name || "Team";
+
+			const score = document.createElement("div");
+			score.className = "score-value";
+			score.textContent = (team.score ?? 0) >= 0 ? "$" + (team.score ?? 0) : "-$" + Math.abs(team.score ?? 0);
+
+			const controls = document.createElement("div");
+			controls.style.display = "flex";
+			controls.style.gap = "0.25rem";
+
+			const minusBtn = document.createElement("button");
+			minusBtn.className = "small secondary";
+			minusBtn.textContent = "–";
+			minusBtn.addEventListener("click", () => adjustScore(teamId, -100));
+
+			const plusBtn = document.createElement("button");
+			plusBtn.className = "small secondary";
+			plusBtn.textContent = "+";
+			plusBtn.addEventListener("click", () => adjustScore(teamId, +100));
+
+			controls.appendChild(minusBtn);
+			controls.appendChild(plusBtn);
+
+			pill.appendChild(name);
+			pill.appendChild(score);
+			pill.appendChild(controls);
+			teacherScorebar.appendChild(pill);
+		}
+	}
+
+	function setBuzzStatus(text) {
+		buzzStatusBox.textContent = text;
+	}
+
+	function updateBuzzButtonsEnabled(enabled) {
+		markCorrectBtn.disabled = !enabled;
+		markIncorrectBtn.disabled = !enabled;
+		clearBuzzBtn.disabled = !enabled;
+	}
+
+	function getCurrentClueValue() {
+		if (!currentClue || !boardData[currentClue.catIndex] || !boardData[currentClue.catIndex].clues[currentClue.clueIndex]) {
+			return 0;
+		}
+		return boardData[currentClue.catIndex].clues[currentClue.clueIndex].value || 0;
+	}
+
+	// ==== FIREBASE INTERACTION ====
+	function createNewGame() {
+		const code = generateGameCode();
+		const gameRef = ref(db, "jeopardyGames/" + code);
+		const now = Date.now();
+		const initialData = {
+			meta: {
+				code,
+				createdAt: now
+			},
+			scores: {},
+			buzz: {
+				teamId: null,
+				at: null
+			},
+			currentClue: {
+				catIndex: null,
+				clueIndex: null,
+				showing: false
+			},
+			board: null,
+			final: {
+				inProgress: false,
+				question: "",
+				closed: false
+			}
+		};
+		set(gameRef, initialData).then(() => {
+			currentGameCode = code;
+			gameStatusLabel.textContent = "Game active";
+			joinCodeDisplay.textContent = code;
+			openBoardBtn.disabled = false;
+			saveBoardBtn.disabled = false;
+			startFinalBtn.disabled = false;
+			endFinalBtn.disabled = false;
+			attachGameListeners();
+		});
+	}
+
+	function attachGameListeners() {
+		if (!currentGameCode) return;
+		const gameRoot = ref(db, "jeopardyGames/" + currentGameCode);
+
+		// Scores
+		onValue(ref(db, "jeopardyGames/" + currentGameCode + "/scores"), (snap) => {
+			latestScores = snap.val() || {};
+			renderScores();
+		});
+
+		// Board
+		onValue(ref(db, "jeopardyGames/" + currentGameCode + "/board"), (snap) => {
+			boardData = snap.val() || [];
+			renderMiniBoard();
+		});
+
+		// Buzz
+		onValue(ref(db, "jeopardyGames/" + currentGameCode + "/buzz"), (snap) => {
+			latestBuzz = snap.val();
+			if (latestBuzz && latestBuzz.teamId) {
+				const team = latestScores[latestBuzz.teamId];
+				const name = team ? team.name : "Team";
+				setBuzzStatus("Buzzed in: " + name);
+				updateBuzzButtonsEnabled(true);
+			} else {
+				setBuzzStatus("No one has buzzed yet.");
+				updateBuzzButtonsEnabled(false);
+			}
+		});
+
+		// Current clue
+		onValue(ref(db, "jeopardyGames/" + currentGameCode + "/currentClue"), (snap) => {
+			const val = snap.val();
+			currentClue = val || { catIndex: null, clueIndex: null, showing: false };
+		});
+
+		// Final
+		onValue(ref(db, "jeopardyGames/" + currentGameCode + "/final"), (snap) => {
+			latestFinal = snap.val() || { inProgress: false, question: "", closed: false };
+			updateFinalUI();
+		});
+
+		onValue(ref(db, "jeopardyGames/" + currentGameCode + "/finalResponses"), (snap) => {
+			latestFinalResponses = snap.val() || {};
+			renderFinalResponses();
+		});
+	}
+
+	function saveBoardToGame() {
+		if (!currentGameCode) return;
+		const parsed = parseBoardText(boardInput.value || "");
+		if (!parsed.length) {
+			alert("No valid categories/clues found. Please check your format.");
+			return;
+		}
+		boardData = parsed;
+		renderMiniBoard();
+		set(ref(db, "jeopardyGames/" + currentGameCode + "/board"), boardData);
+	}
+
+	function selectClue(catIndex, clueIndex) {
+		if (!currentGameCode) return;
+		currentClue = { catIndex, clueIndex, showing: true };
+		// Reset buzz
+		set(ref(db, "jeopardyGames/" + currentGameCode + "/buzz"), {
+			teamId: null,
+			at: null
+		});
+		updateBuzzButtonsEnabled(false);
+		setBuzzStatus("Waiting for teams to buzz in (spacebar).");
+
+		// Mark on DB
+		update(ref(db, "jeopardyGames/" + currentGameCode + "/currentClue"), currentClue);
+
+		// Board will read boardData and show overlay
+	}
+
+	function adjustScore(teamId, delta) {
+		if (!currentGameCode) return;
+		const teamRef = ref(db, "jeopardyGames/" + currentGameCode + "/scores/" + teamId + "/score");
+		runTransaction(teamRef, (currentValue) => {
+			return (currentValue || 0) + delta;
+		});
+	}
+
+	function markCorrect() {
+		if (!currentGameCode || !latestBuzz || !latestBuzz.teamId) return;
+		const value = getCurrentClueValue();
+		adjustScore(latestBuzz.teamId, value);
+		// Mark clue as used
+		if (boardData[currentClue.catIndex] && boardData[currentClue.catIndex].clues[currentClue.clueIndex]) {
+			boardData[currentClue.catIndex].clues[currentClue.clueIndex].used = true;
+			set(ref(db, "jeopardyGames/" + currentGameCode + "/board"), boardData);
+		}
+		clearBuzz();
+	}
+
+	function markIncorrect() {
+		if (!currentGameCode || !latestBuzz || !latestBuzz.teamId) return;
+		const value = getCurrentClueValue();
+		adjustScore(latestBuzz.teamId, -value);
+		clearBuzz();
+	}
+
+	function clearBuzz() {
+		if (!currentGameCode) return;
+		set(ref(db, "jeopardyGames/" + currentGameCode + "/buzz"), {
+			teamId: null,
+			at: null
+		});
+		updateBuzzButtonsEnabled(false);
+		setBuzzStatus("Buzz cleared. You can let another team buzz or move on.");
+	}
+
+	function updateFinalUI() {
+		if (!latestFinal) return;
+		roundLabel.textContent = latestFinal.inProgress ? "Final Jeopardy" : "Regular Round";
+		if (latestFinal.inProgress) {
+			roundLabel.style.background = "rgba(245,197,24,0.2)";
+			roundLabel.style.color = "var(--jeopardy-gold)";
+			finalQuestionInput.value = latestFinal.question || "";
+		} else {
+			roundLabel.style.background = "";
+			roundLabel.style.color = "";
+		}
+	}
+
+	function renderFinalResponses() {
+		finalResponsesContainer.innerHTML = "";
+		if (!latestFinal || !latestFinal.inProgress) {
+			finalResponsesContainer.innerHTML = '<em style="color:var(--text-muted);">Final Jeopardy not started yet.</em>';
+			return;
+		}
+		const entries = Object.entries(latestFinalResponses);
+		if (!entries.length) {
+			finalResponsesContainer.innerHTML = '<em style="color:var(--text-muted);">No responses yet.</em>';
+			return;
+		}
+		for (const [teamId, resp] of entries) {
+			const team = latestScores[teamId] || { name: "Team" };
+			const div = document.createElement("div");
+			div.style.borderBottom = "1px solid rgba(255,255,255,0.1)";
+			div.style.padding = "0.35rem 0";
+
+			const header = document.createElement("div");
+			header.style.display = "flex";
+			header.style.justifyContent = "space-between";
+			header.style.alignItems = "center";
+
+			const namePart = document.createElement("div");
+			namePart.textContent = team.name + " – $" + (resp.wager || 0);
+
+			const controlPart = document.createElement("div");
+			controlPart.style.display = "flex";
+			controlPart.style.gap = "0.25rem";
+
+			const acceptBtn = document.createElement("button");
+			acceptBtn.className = "small";
+			acceptBtn.textContent = "Correct";
+			acceptBtn.addEventListener("click", () => {
+				adjustScore(teamId, resp.wager || 0);
+			});
+
+			const rejectBtn = document.createElement("button");
+			rejectBtn.className = "small danger";
+			rejectBtn.textContent = "Incorrect";
+			rejectBtn.addEventListener("click", () => {
+				adjustScore(teamId, -(resp.wager || 0));
+			});
+
+			controlPart.appendChild(acceptBtn);
+			controlPart.appendChild(rejectBtn);
+
+			header.appendChild(namePart);
+			header.appendChild(controlPart);
+
+			const answer = document.createElement("div");
+			answer.textContent = "Answer: " + (resp.answer || "");
+			answer.style.fontSize = "0.85rem";
+			answer.style.color = "#fdfdfd";
+			answer.style.marginTop = "0.25rem";
+
+			div.appendChild(header);
+			div.appendChild(answer);
+			finalResponsesContainer.appendChild(div);
+		}
+	}
+
+	function startFinalJeopardy() {
+		if (!currentGameCode) return;
+		const question = finalQuestionInput.value.trim();
+		if (!question) {
+			alert("Please type a Final Jeopardy question first.");
+			return;
+		}
+		update(ref(db, "jeopardyGames/" + currentGameCode + "/final"), {
+			inProgress: true,
+			question,
+			closed: false
+		});
+		set(ref(db, "jeopardyGames/" + currentGameCode + "/finalResponses"), null);
+	}
+
+	function endFinalJeopardy() {
+		if (!currentGameCode) return;
+		update(ref(db, "jeopardyGames/" + currentGameCode + "/final"), {
+			inProgress: false,
+			closed: true
+		});
+	}
+
+	// ==== EVENT LISTENERS ====
+	createGameBtn.addEventListener("click", () => {
+		createNewGame();
+	});
+
+	openBoardBtn.addEventListener("click", () => {
+		if (!currentGameCode) return;
+		window.open("board.html?code=" + encodeURIComponent(currentGameCode), "_blank");
+	});
+
+	saveBoardBtn.addEventListener("click", () => {
+		saveBoardToGame();
+	});
+
+	loadDefaultBoardBtn.addEventListener("click", () => {
+		boardInput.value = `Greetings
+100 | ¿Cómo se dice "hello" en español?
+200 | ¿Cómo se dice "good morning" en español?
+300 | ¿Cómo se dice "good night" en español?
+400 | ¿Cómo se dice "see you later" en español?
+
+School Objects
+100 | ¿Cómo se dice "book" en español?
+200 | ¿Cómo se dice "pencil" en español?
+300 | ¿Cómo se dice "backpack" en español?
+400 | ¿Cómo se dice "paper" en español?
+
+Classroom Phrases
+100 | ¿Cómo se dice "sit down" en español?
+200 | ¿Cómo se dice "open the book" en español?
+300 | ¿Cómo se dice "I don't understand" en español?
+400 | ¿Cómo se dice "Can I go to the bathroom?" en español?
+
+Numbers
+100 | ¿Cómo se dice el número 10 en español?
+200 | ¿Cómo se dice el número 20 en español?
+300 | ¿Cómo se dice el número 50 en español?
+400 | ¿Cómo se dice el número 100 en español?
+
+Family
+100 | ¿Cómo se dice "mother" en español?
+200 | ¿Cómo se dice "father" en español?
+300 | ¿Cómo se dice "brother" en español?
+400 | ¿Cómo se dice "grandmother" en español?`;
+	});
+
+	markCorrectBtn.addEventListener("click", () => {
+		markCorrect();
+	});
+	markIncorrectBtn.addEventListener("click", () => {
+		markIncorrect();
+	});
+	clearBuzzBtn.addEventListener("click", () => {
+		clearBuzz();
+	});
+
+	startFinalBtn.addEventListener("click", () => {
+		startFinalJeopardy();
+	});
+	endFinalBtn.addEventListener("click", () => {
+		endFinalJeopardy();
+	});
+</script>
+</body>
+</html>

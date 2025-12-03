@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8" />
+	<title>Jeopardy – Board</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1" />
+	<link rel="stylesheet" href="shared-style.css" />
+</head>
+<body>
+<div class="board-wrapper">
+	<div class="board-title" id="boardTitle">Jeopardy!</div>
+	<div class="scorebar" id="boardScorebar"></div>
+	<div class="jeopardy-board" id="jeopardyBoard"></div>
+</div>
+
+<div class="current-clue-overlay" id="clueOverlay">
+	<div class="current-clue-card">
+		<div class="current-clue-text" id="clueText"></div>
+		<div style="display:flex;justify-content:center;gap:1rem;align-items:center;">
+			<div class="badge" id="clueMeta"></div>
+			<small style="color:var(--text-muted);">
+				Teams: press <b>spacebar</b> on your computer to buzz in.
+			</small>
+		</div>
+	</div>
+</div>
+
+<script type="module">
+	import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
+	import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-database.js";
+
+	const firebaseConfig = {
+    apiKey: "AIzaSyCEbHLRWZweJyhhtkLiRviFjInwEbDbubI",
+    authDomain: "jeopardy-f2335.firebaseapp.com",
+    projectId: "jeopardy-f2335",
+    storageBucket: "jeopardy-f2335.firebasestorage.app",
+    messagingSenderId: "334799466944",
+    appId: "1:334799466944:web:38893b047c956dafa19825"
+  };
+
+	const app = initializeApp(firebaseConfig);
+	const db = getDatabase(app);
+
+	const urlParams = new URLSearchParams(window.location.search);
+	const gameCode = urlParams.get("code");
+	const boardEl = document.getElementById("jeopardyBoard");
+	const boardScorebar = document.getElementById("boardScorebar");
+	const clueOverlay = document.getElementById("clueOverlay");
+	const clueTextEl = document.getElementById("clueText");
+	const clueMetaEl = document.getElementById("clueMeta");
+
+	let boardData = [];
+	let scores = {};
+	let currentClue = { catIndex: null, clueIndex: null, showing: false };
+
+	function renderBoard() {
+		boardEl.innerHTML = "";
+		if (!boardData.length) {
+			boardEl.innerHTML = '<div style="grid-column:1/-1;text-align:center;color:var(--text-muted);padding:1rem;font-size:1.1rem;">Waiting for teacher to load the board…</div>';
+			return;
+		}
+		const maxClueCount = Math.max(...boardData.map(c => c.clues.length));
+		// Categories
+		for (const cat of boardData) {
+			const div = document.createElement("div");
+			div.className = "category-cell";
+			div.textContent = cat.name;
+			boardEl.appendChild(div);
+		}
+		for (let i = boardData.length; i < 5; i++) {
+			const div = document.createElement("div");
+			div.className = "category-cell";
+			div.textContent = "-";
+			boardEl.appendChild(div);
+		}
+		// Clue rows
+		for (let row = 0; row < maxClueCount; row++) {
+			for (let col = 0; col < 5; col++) {
+				const div = document.createElement("div");
+				div.className = "clue-cell";
+				if (boardData[col] && boardData[col].clues[row]) {
+					const clue = boardData[col].clues[row];
+					if (clue.used) div.classList.add("used");
+					const span = document.createElement("span");
+					span.textContent = "$" + (clue.value || 0);
+					div.appendChild(span);
+				} else {
+					div.textContent = "";
+					div.style.opacity = "0.1";
+				}
+				boardEl.appendChild(div);
+			}
+		}
+	}
+
+	function renderScores() {
+		boardScorebar.innerHTML = "";
+		const entries = Object.entries(scores);
+		if (!entries.length) {
+			boardScorebar.innerHTML = '<div style="color:var(--text-muted);font-size:0.85rem;">Waiting for teams to join…</div>';
+			return;
+		}
+		for (const [teamId, team] of entries) {
+			const pill = document.createElement("div");
+			pill.className = "score-pill";
+			const name = document.createElement("div");
+			name.className = "score-name";
+			name.textContent = team.name || "Team";
+			const value = document.createElement("div");
+			value.className = "score-value";
+			value.textContent = (team.score ?? 0) >= 0 ? "$" + (team.score ?? 0) : "-$" + Math.abs(team.score ?? 0);
+			pill.appendChild(name);
+			pill.appendChild(value);
+			boardScorebar.appendChild(pill);
+		}
+	}
+
+	function updateClueOverlay() {
+		if (!currentClue || currentClue.catIndex == null || currentClue.clueIndex == null || !currentClue.showing) {
+			clueOverlay.classList.remove("visible");
+			return;
+		}
+		const cat = boardData[currentClue.catIndex];
+		const clue = cat && cat.clues[currentClue.clueIndex];
+		if (!clue) {
+			clueOverlay.classList.remove("visible");
+			return;
+		}
+		clueTextEl.textContent = clue.text || "";
+		clueMetaEl.textContent = (cat.name || "") + " – $" + (clue.value || 0);
+		clueOverlay.classList.add("visible");
+	}
+
+	if (!gameCode) {
+		alert("No game code provided in URL.");
+	} else {
+		const baseRef = ref(db, "jeopardyGames/" + gameCode);
+
+		onValue(ref(db, "jeopardyGames/" + gameCode + "/board"), (snap) => {
+			boardData = snap.val() || [];
+			renderBoard();
+			updateClueOverlay();
+		});
+
+		onValue(ref(db, "jeopardyGames/" + gameCode + "/scores"), (snap) => {
+			scores = snap.val() || {};
+			renderScores();
+		});
+
+		onValue(ref(db, "jeopardyGames/" + gameCode + "/currentClue"), (snap) => {
+			currentClue = snap.val() || { catIndex: null, clueIndex: null, showing: false };
+			updateClueOverlay();
+		});
+
+		onValue(ref(db, "jeopardyGames/" + gameCode + "/final"), (snap) => {
+			const finalState = snap.val() || { inProgress: false };
+			const titleEl = document.getElementById("boardTitle");
+			if (finalState.inProgress) {
+				titleEl.textContent = "Final Jeopardy!";
+			} else {
+				titleEl.textContent = "Jeopardy!";
+			}
+		});
+	}
+</script>
+</body>
+</html>
