@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8" />
+	<title>Spanish-World GeoGuessr (Mapillary)</title>
+	<meta name="viewport" content="width=device-width,initial-scale=1" />
+
+	<!-- MapillaryJS -->
+	<link
+		rel="stylesheet"
+		href="https://unpkg.com/mapillary-js@4.1.2/dist/mapillary.css"
+	/>
+	<script src="https://unpkg.com/mapillary-js@4.1.2/dist/mapillary.js"></script>
+
+	<!-- Leaflet -->
+	<link
+		rel="stylesheet"
+		href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css"
+	/>
+	<script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js"></script>
+
+	<style>
+		html, body {
+			margin: 0;
+			padding: 0;
+			height: 100%;
+			font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+				Roboto, sans-serif;
+			background: #0f172a;
+			color: #e5e7eb;
+		}
+
+		#app {
+			display: flex;
+			flex-direction: column;
+			height: 100%;
+		}
+
+		header {
+			padding: 8px 16px;
+			background: linear-gradient(to right, #4f7a62, #5c8a6d);
+			color: #f9fafb;
+			display: flex;
+			align-items: center;
+			justify-content: space-between;
+			gap: 12px;
+		}
+
+		header h1 {
+			font-size: 18px;
+			margin: 0;
+			font-weight: 600;
+		}
+
+		header span {
+			font-size: 13px;
+			opacity: 0.9;
+		}
+
+		#round-info {
+			font-size: 13px;
+			color: #f9fafb;
+		}
+
+		/* MAIN LAYOUT: left = viewer, right = map + controls */
+		#content {
+			flex: 1;
+			display: flex;
+			flex-direction: row;
+			gap: 6px;
+			padding: 6px;
+			box-sizing: border-box;
+		}
+
+		#viewer-container {
+			flex: 3 1 0; /* ~60% */
+			min-width: 0;
+			border-radius: 10px;
+			overflow: hidden;
+			background: #020617;
+			box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+		}
+
+		#mly {
+			width: 100%;
+			height: 100%;
+		}
+
+		#right-panel {
+			flex: 2 1 0; /* ~40% */
+			display: flex;
+			flex-direction: column;
+			gap: 6px;
+			min-width: 0;
+		}
+
+		#controls {
+			display: flex;
+			align-items: flex-start;
+			gap: 10px;
+			font-size: 14px;
+		}
+
+		#status-area {
+			display: flex;
+			flex-direction: column;
+			gap: 4px;
+			flex: 1;
+			min-width: 0;
+		}
+
+		#status {
+			font-size: 14px;
+			color: #e5e7eb;
+		}
+
+		#search-progress {
+			display: flex;
+			flex-direction: column;
+			gap: 3px;
+		}
+
+		#search-progress-bar {
+			width: 100%;
+			height: 5px;
+			background: rgba(148, 163, 184, 0.3);
+			border-radius: 999px;
+			overflow: hidden;
+		}
+
+		#search-progress-fill {
+			height: 100%;
+			width: 0%;
+			background: #facc15;
+			transition: width 0.12s linear;
+		}
+
+		#search-progress-text {
+			font-size: 12px;
+			color: #9ca3af;
+			min-height: 1em;
+			white-space: nowrap;
+			overflow: hidden;
+			text-overflow: ellipsis;
+		}
+
+		button {
+			border: none;
+			border-radius: 999px;
+			padding: 6px 14px;
+			font-size: 14px;
+			cursor: pointer;
+			background: #5c8a6d;
+			color: #f9fafb;
+			font-weight: 600;
+			box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+			transition: transform 0.08s ease, box-shadow 0.08s ease,
+				background 0.08s ease;
+			white-space: nowrap;
+		}
+
+		button:hover {
+			transform: translateY(-1px);
+			box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
+			background: #6ca47f;
+		}
+
+		button:disabled {
+			opacity: 0.5;
+			cursor: default;
+			transform: none;
+			box-shadow: none;
+		}
+
+		#map {
+			flex: 1;
+			border-radius: 10px;
+			overflow: hidden;
+			box-shadow: 0 6px 16px rgba(0, 0, 0, 0.45);
+		}
+
+		/* Leaflet override so the map fills its container */
+		#map .leaflet-container,
+		.leaflet-container {
+			width: 100%;
+			height: 100%;
+		}
+
+		@media (max-width: 800px) {
+			header {
+				flex-direction: column;
+				align-items: flex-start;
+			}
+			#content {
+				flex-direction: column;
+			}
+			#viewer-container,
+			#right-panel {
+				min-height: 40vh;
+			}
+		}
+	</style>
+</head>
+<body>
+<div id="app">
+	<header>
+		<div>
+			<h1>Spanish-World Street View Guessing Game</h1>
+			<span>All locations are in the hearts of Spanish-speaking capital cities.</span>
+		</div>
+		<div id="round-info">Round: <span id="round-number">1</span></div>
+	</header>
+
+	<div id="content">
+		<div id="viewer-container">
+			<div id="mly"></div>
+		</div>
+
+		<div id="right-panel">
+			<div id="controls">
+				<button id="new-round">New round</button>
+				<div id="status-area">
+					<div id="status">
+						Click “New round” to start. Then click on the map to guess.
+					</div>
+					<div id="search-progress">
+						<div id="search-progress-bar">
+							<div id="search-progress-fill"></div>
+						</div>
+						<div id="search-progress-text"></div>
+					</div>
+				</div>
+			</div>
+			<div id="map"></div>
+		</div>
+	</div>
+</div>
+
+<script>
+	// 1. CONFIG
+	const MAPILLARY_TOKEN = "MLY|25490212330610336|3cfb225991ff7e92ec11a3b9439bffe6"; // <- replace this
+	const MAX_FETCH_ATTEMPTS = 12;      // how many spots to sample per round
+	const BBOX_HALF_SIZE = 0.007;       // degrees (~0.7 km) around each random point
+	const DENSITY_THRESHOLD = 10;       // prefer spots with many images in that tight box
+
+	// Spanish-speaking capital cities, with SMALL radii so we stay near the core/downtown.
+	const REGIONS = [
+		// Europe
+		{ name: "Madrid, España", country: "España", lat: 40.4168, lon: -3.7038, radius: 0.05 },
+
+		// North America
+		{ name: "Ciudad de México, México", country: "México", lat: 19.4326, lon: -99.1332, radius: 0.06 },
+		{ name: "Guatemala City, Guatemala", country: "Guatemala", lat: 14.6349, lon: -90.5069, radius: 0.04 },
+		{ name: "San Salvador, El Salvador", country: "El Salvador", lat: 13.6929, lon: -89.2182, radius: 0.04 },
+		{ name: "Tegucigalpa, Honduras", country: "Honduras", lat: 14.0723, lon: -87.1921, radius: 0.04 },
+		{ name: "Managua, Nicaragua", country: "Nicaragua", lat: 12.114,  lon: -86.2362, radius: 0.04 },
+		{ name: "San José, Costa Rica", country: "Costa Rica", lat: 9.9281, lon: -84.0907, radius: 0.03 },
+		{ name: "Ciudad de Panamá, Panamá", country: "Panamá", lat: 8.9824, lon: -79.5199, radius: 0.04 },
+		{ name: "La Habana, Cuba", country: "Cuba", lat: 23.1136, lon: -82.3666, radius: 0.03 },
+		{ name: "Santo Domingo, República Dominicana", country: "República Dominicana", lat: 18.4861, lon: -69.9312, radius: 0.04 },
+		{ name: "San Juan, Puerto Rico", country: "Puerto Rico", lat: 18.4655, lon: -66.1057, radius: 0.04 },
+
+		// South America
+		{ name: "Buenos Aires, Argentina", country: "Argentina", lat: -34.6037, lon: -58.3816, radius: 0.06 },
+		{ name: "Santiago, Chile", country: "Chile", lat: -33.4489, lon: -70.6693, radius: 0.06 },
+		{ name: "Lima, Perú", country: "Perú", lat: -12.0464, lon: -77.0428, radius: 0.06 },
+		{ name: "Bogotá, Colombia", country: "Colombia", lat: 4.7110, lon: -74.0721, radius: 0.06 },
+		{ name: "Quito, Ecuador", country: "Ecuador", lat: -0.1807, lon: -78.4678, radius: 0.04 },
+		{ name: "La Paz, Bolivia", country: "Bolivia", lat: -16.5, lon: -68.15, radius: 0.04 },
+		{ name: "Asunción, Paraguay", country: "Paraguay", lat: -25.2637, lon: -57.5759, radius: 0.04 },
+		{ name: "Montevideo, Uruguay", country: "Uruguay", lat: -34.9011, lon: -56.1645, radius: 0.04 },
+		{ name: "Caracas, Venezuela", country: "Venezuela", lat: 10.4806, lon: -66.9036, radius: 0.04 },
+
+		// Africa
+		{ name: "Malabo, Guinea Ecuatorial", country: "Guinea Ecuatorial", lat: 3.75, lon: 8.7833, radius: 0.03 }
+	];
+
+	// 2. GLOBAL STATE
+	let viewer = null;
+	let map = null;
+	let guessMarker = null;
+	let trueMarker = null;
+	let connectLine = null;
+	let currentTrueLatLng = null;
+	let currentRegion = null;
+	let roundNumber = 1;
+	let roundActive = false;
+
+	const statusEl = document.getElementById("status");
+	const roundNumberEl = document.getElementById("round-number");
+	const newRoundButton = document.getElementById("new-round");
+	const searchTextEl = document.getElementById("search-progress-text");
+	const searchFillEl = document.getElementById("search-progress-fill");
+
+	// 3. UTILS
+	function randomRegion() {
+		const idx = Math.floor(Math.random() * REGIONS.length);
+		return REGIONS[idx];
+	}
+
+	function randomInRange(center, radius) {
+		return center + (Math.random() * 2 - 1) * radius;
+	}
+
+	// Haversine distance in km
+	function haversineDistance(lat1, lon1, lat2, lon2) {
+		const toRad = deg => deg * Math.PI / 180;
+		const R = 6371; // km
+		const dLat = toRad(lat2 - lat1);
+		const dLon = toRad(lon2 - lon1);
+		const a =
+			Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+			Math.cos(toRad(lat1)) *
+			Math.cos(toRad(lat2)) *
+			Math.sin(dLon / 2) *
+			Math.sin(dLon / 2);
+		const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+		return R * c;
+	}
+
+	function setStatus(text) {
+		statusEl.textContent = text;
+	}
+
+	function clearMarkers() {
+		if (guessMarker) {
+			map.removeLayer(guessMarker);
+			guessMarker = null;
+		}
+		if (trueMarker) {
+			map.removeLayer(trueMarker);
+			trueMarker = null;
+		}
+		if (connectLine) {
+			map.removeLayer(connectLine);
+			connectLine = null;
+		}
+	}
+
+	function resetSearchProgress() {
+		searchTextEl.textContent = "";
+		searchFillEl.style.width = "0%";
+	}
+
+	function updateSearchProgress(attempt, total, foundCount) {
+		const pct = Math.round((attempt / total) * 100);
+		searchFillEl.style.width = pct + "%";
+		let text = `Searched ${attempt} of ${total} spots...`;
+		if (foundCount > 0) {
+			text += ` found ${foundCount} image${foundCount === 1 ? "" : "s"} here.`;
+		}
+		searchTextEl.textContent = text;
+	}
+
+	// 4. FETCH A HIGH-DENSITY IMAGE INSIDE ONE REGION (optionally pano-only)
+	async function fetchRandomDenseImageInRegion(region, onProgress, panoOnly) {
+		let bestCandidate = null;
+
+		for (let attempt = 1; attempt <= MAX_FETCH_ATTEMPTS; attempt++) {
+			const lat = randomInRange(region.lat, region.radius);
+			const lon = randomInRange(region.lon, region.radius);
+
+			const minLon = lon - BBOX_HALF_SIZE;
+			const maxLon = lon + BBOX_HALF_SIZE;
+			const minLat = lat - BBOX_HALF_SIZE;
+			const maxLat = lat + BBOX_HALF_SIZE;
+			const bbox = `${minLon},${minLat},${maxLon},${maxLat}`;
+
+			const url = new URL("https://graph.mapillary.com/images");
+			url.searchParams.set("access_token", MAPILLARY_TOKEN);
+			url.searchParams.set("fields", "id,computed_geometry");
+			url.searchParams.set("bbox", bbox);
+			url.searchParams.set("limit", "25");
+			if (panoOnly) {
+				url.searchParams.set("is_pano", "true");
+			}
+
+			let count = 0;
+
+			try {
+				const res = await fetch(url.toString());
+				if (!res.ok) {
+					console.warn("Mapillary API error:", res.status, await res.text());
+				} else {
+					const json = await res.json();
+					if (json.data && json.data.length) {
+						count = json.data.length;
+						// Pick a random image from this batch
+						const img = json.data[Math.floor(Math.random() * json.data.length)];
+						if (img.computed_geometry && img.computed_geometry.coordinates) {
+							const [imgLon, imgLat] = img.computed_geometry.coordinates;
+							const candidate = {
+								imageId: img.id,
+								lat: imgLat,
+								lon: imgLon,
+								count
+							};
+							if (!bestCandidate || candidate.count > bestCandidate.count) {
+								bestCandidate = candidate;
+							}
+							// If this area is dense enough, stop early
+							if (candidate.count >= DENSITY_THRESHOLD) {
+								if (onProgress) onProgress(attempt, MAX_FETCH_ATTEMPTS, count);
+								break;
+							}
+						}
+					}
+				}
+			} catch (err) {
+				console.error("Error talking to Mapillary:", err);
+			}
+
+			if (onProgress) onProgress(attempt, MAX_FETCH_ATTEMPTS, count);
+		}
+
+		return bestCandidate;
+	}
+
+	// 5. NEW ROUND
+	async function startNewRound() {
+		if (!MAPILLARY_TOKEN || MAPILLARY_TOKEN.indexOf("YOUR_MAPILLARY_TOKEN_HERE") !== -1) {
+			alert("Please set your Mapillary client access token in the code first.");
+			return;
+		}
+
+		newRoundButton.disabled = true;
+		roundActive = false;
+		clearMarkers();
+		resetSearchProgress();
+
+		currentRegion = randomRegion();
+
+		setStatus("Searching for a busy 360° street view in a Spanish-speaking capital city...");
+
+		// First try pano-only
+		let result = await fetchRandomDenseImageInRegion(
+			currentRegion,
+			updateSearchProgress,
+			true
+		);
+
+		// If no good pano found, fall back to any imagery
+		if (!result) {
+			resetSearchProgress();
+			setStatus("No 360° view found quickly. Searching for any busy street view...");
+			result = await fetchRandomDenseImageInRegion(
+				currentRegion,
+				updateSearchProgress,
+				false
+			);
+		}
+
+		if (!result) {
+			setStatus("Could not find imagery right now. Try again.");
+			newRoundButton.disabled = false;
+			return;
+		}
+
+		currentTrueLatLng = L.latLng(result.lat, result.lon);
+
+		// Initialize viewer if needed
+		if (!viewer) {
+			const Viewer = mapillary.Viewer;
+			viewer = new Viewer({
+				accessToken: MAPILLARY_TOKEN,
+				container: "mly"
+			});
+		}
+		try {
+			await viewer.moveTo(result.imageId);
+		} catch (e) {
+			console.error("Error moving viewer to image:", e);
+			setStatus("Error loading image. Try another round.");
+			newRoundButton.disabled = false;
+			return;
+		}
+
+		// Start zoomed out so they have to think about continent/region
+		map.setView([20, 0], 2);
+
+		roundActive = true;
+		setStatus(
+			"Round ready. Look around on the left, then click on the map where you think this is."
+		);
+		newRoundButton.disabled = false;
+	}
+
+	// 6. HANDLE MAP GUESSES
+	function onMapClick(e) {
+		if (!roundActive || !currentTrueLatLng) {
+			return;
+		}
+
+		clearMarkers();
+
+		const guessLatLng = e.latlng;
+
+		guessMarker = L.marker(guessLatLng, {
+			title: "Tu respuesta"
+		}).addTo(map);
+
+		trueMarker = L.marker(currentTrueLatLng, {
+			title: "Lugar correcto"
+		}).addTo(map);
+
+		connectLine = L.polyline([guessLatLng, currentTrueLatLng], {
+			color: "#f97316",
+			weight: 3,
+			opacity: 0.8
+		}).addTo(map);
+
+		const distKm = haversineDistance(
+			guessLatLng.lat,
+			guessLatLng.lng,
+			currentTrueLatLng.lat,
+			currentTrueLatLng.lng
+		);
+		const distRounded = Math.round(distKm);
+
+		const bounds = L.latLngBounds([guessLatLng, currentTrueLatLng]).pad(0.5);
+		map.fitBounds(bounds);
+
+		// Reveal the city AFTER the guess
+		setStatus(
+			`You were about ${distRounded} km away. Actual location: near ${currentRegion.name}.`
+		);
+
+		roundActive = false;
+		roundNumber += 1;
+		roundNumberEl.textContent = String(roundNumber);
+	}
+
+	// 7. INIT MAP + EVENTS
+	function init() {
+		map = L.map("map", {
+			worldCopyJump: true
+		}).setView([20, 0], 2);
+
+		L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+			attribution: "© OpenStreetMap contributors"
+		}).addTo(map);
+
+		map.on("click", onMapClick);
+
+		newRoundButton.addEventListener("click", startNewRound);
+	}
+
+	document.addEventListener("DOMContentLoaded", init);
+</script>
+</body>
+</html>
