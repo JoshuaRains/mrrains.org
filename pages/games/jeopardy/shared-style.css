@@ -135,16 +135,23 @@ textarea {
 .category-cell {
 	background: linear-gradient(to bottom, #163c9f, #061535);
 	font-size: clamp(0.8rem, 1.6vw, 1.1rem);
+	cursor: pointer;
 }
 
-.clue-cell.used {
+.clue-cell {
+	cursor: pointer;
+}
+
+/* Used questions greyed out but still clickable */
+.clue-cell.used,
+.mini-clue.used {
 	opacity: 0.25;
 	filter: grayscale(0.9);
 }
 
 /* DOLLAR AMOUNT */
 .clue-cell span {
-	font-size: clamp(0.9rem, 2vw, 1.4rem);
+	font-size: clamp(0.9rem, 2.2vw, 1.6rem);
 }
 
 /* CURRENT CLUE OVERLAY */
@@ -176,13 +183,77 @@ textarea {
 	text-align: center;
 	background: rgba(0, 0, 0, 0.7);
 	box-shadow: 0 0 40px rgba(0, 0, 0, 0.95);
+	/* Animation */
+	transform: scale(0.9);
+	opacity: 0;
+	transition: transform 0.25s ease-out, opacity 0.25s ease-out;
 }
 
+.current-clue-overlay.visible .current-clue-card {
+	transform: scale(1);
+	opacity: 1;
+}
+
+/* Bigger, more dramatic question text */
 .current-clue-text {
-	font-size: clamp(1.3rem, 2.6vw, 2.1rem);
+	font-size: clamp(1.8rem, 3.4vw, 3rem);
 	line-height: 1.4;
 	text-shadow: 2px 2px 0 #000;
 	margin-bottom: 1.5rem;
+}
+
+/* BUZZ ORDER PANEL */
+.buzz-order-container {
+	margin-top: 1.3rem;
+	padding-top: 0.8rem;
+	border-top: 1px dashed rgba(255, 255, 255, 0.2);
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 0.4rem;
+}
+
+.buzz-order-title {
+	font-size: 0.8rem;
+	text-transform: uppercase;
+	letter-spacing: 0.12em;
+	color: var(--jeopardy-gold-soft);
+}
+
+.buzz-order-chips {
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: center;
+	gap: 0.35rem;
+}
+
+.buzz-order-chip {
+	min-width: 90px;
+	padding: 0.25rem 0.6rem;
+	border-radius: 999px;
+	background: rgba(0, 0, 0, 0.55);
+	border: 1px solid rgba(255, 255, 255, 0.25);
+	font-size: 0.8rem;
+	display: flex;
+	align-items: center;
+	gap: 0.35rem;
+}
+
+.buzz-order-chip-index {
+	width: 18px;
+	height: 18px;
+	border-radius: 50%;
+	background: var(--jeopardy-gold);
+	color: #000;
+	font-size: 0.75rem;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	font-weight: 700;
+}
+
+.buzz-order-chip-name {
+	font-weight: 600;
 }
 
 /* SCOREBAR */
@@ -214,6 +285,14 @@ textarea {
 	font-weight: 700;
 	color: var(--jeopardy-gold);
 	text-shadow: 0 0 6px rgba(0, 0, 0, 0.9);
+}
+
+/* Final Jeopardy answer on board under team name */
+.final-answer-board {
+	font-size: 0.75rem;
+	color: var(--jeopardy-gold-soft);
+	margin-top: 0.15rem;
+	opacity: 0.9;
 }
 
 /* TEACHER LAYOUT */
@@ -293,6 +372,7 @@ textarea {
 	background: linear-gradient(to bottom, #193f9c, #071536);
 	color: var(--jeopardy-gold-soft);
 	font-weight: 700;
+	cursor: pointer;
 }
 
 .mini-clue {
@@ -300,12 +380,6 @@ textarea {
 	color: var(--jeopardy-gold-soft);
 	font-weight: 700;
 	cursor: pointer;
-}
-
-.mini-clue.used {
-	opacity: 0.25;
-	filter: grayscale(0.8);
-	cursor: default;
 }
 
 /* BUZZ STATUS */

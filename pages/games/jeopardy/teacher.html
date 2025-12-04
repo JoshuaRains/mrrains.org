@@ -43,7 +43,7 @@
 			<textarea id="boardInput" rows="10" placeholder="Example:
 Greetings
 100 | &quot;Hello&quot; in Spanish
-200 | How do you say &quot;good morning&quot;?
+200 | How do you say &quot;good morning&quot; in Spanish?
 
 School Objects
 100 | How do you say &quot;book&quot;?
@@ -60,6 +60,7 @@ School Objects
 			<div class="flex-row">
 				<button class="small" id="startFinalBtn" disabled>Start Final Jeopardy</button>
 				<button class="small secondary" id="endFinalBtn" disabled>End Final Jeopardy</button>
+				<button class="small secondary" id="playThemeBtn" disabled>Play Theme</button>
 			</div>
 		</div>
 
@@ -73,6 +74,10 @@ School Objects
 				<button class="small danger" id="markIncorrectBtn" disabled>Incorrect (–)</button>
 				<button class="small secondary" id="clearBuzzBtn" disabled>Clear Buzz</button>
 			</div>
+			<div class="flex-row" style="margin-top:0.4rem;">
+				<button class="small secondary" id="toggleTimerBtn" disabled>Start Timer</button>
+				<button class="small secondary" id="closeClueBtn" disabled>Back to Board</button>
+			</div>
 		</div>
 	</div>
 
@@ -83,9 +88,7 @@ School Objects
 			<small class="badge" id="roundLabel">Regular Round</small>
 		</div>
 
-		<div class="scorebar" id="teacherScorebar">
-			<!-- team score pills -->
-		</div>
+		<div class="scorebar" id="teacherScorebar"></div>
 
 		<div class="flex-row" style="margin-bottom:0.4rem;">
 			<small class="label" style="margin-right:auto;">Manual Score Adjust</small>
@@ -94,9 +97,7 @@ School Objects
 			</small>
 		</div>
 
-		<div class="mini-board" id="miniBoard">
-			<!-- mini board cells -->
-		</div>
+		<div class="mini-board" id="miniBoard"></div>
 
 		<div class="final-section">
 			<div class="final-title">Final Jeopardy Responses</div>
@@ -107,12 +108,15 @@ School Objects
 	</div>
 </div>
 
+<!-- Theme audio (put jeopardy-theme.mp3 in the same folder) -->
+<audio id="themeAudio" src="theme.mp3" preload="auto"></audio>
+
 <script type="module">
 	// ==== FIREBASE SETUP ====
 	import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
 	import {
 		getDatabase, ref, set, update, onValue,
-		runTransaction, push, serverTimestamp
+		runTransaction, push
 	} from "https://www.gstatic.com/firebasejs/9.22.2/firebase-database.js";
 
 	const firebaseConfig = {
@@ -141,19 +145,26 @@ School Objects
 	const markCorrectBtn = document.getElementById("markCorrectBtn");
 	const markIncorrectBtn = document.getElementById("markIncorrectBtn");
 	const clearBuzzBtn = document.getElementById("clearBuzzBtn");
+	const toggleTimerBtn = document.getElementById("toggleTimerBtn");
+	const closeClueBtn = document.getElementById("closeClueBtn");
 	const roundLabel = document.getElementById("roundLabel");
 	const finalQuestionInput = document.getElementById("finalQuestionInput");
 	const startFinalBtn = document.getElementById("startFinalBtn");
 	const endFinalBtn = document.getElementById("endFinalBtn");
 	const finalResponsesContainer = document.getElementById("finalResponsesContainer");
+	const playThemeBtn = document.getElementById("playThemeBtn");
+	const themeAudio = document.getElementById("themeAudio");
 
 	let currentGameCode = null;
 	let boardData = []; // [{name, clues:[{value,text,used:false}]}]
-	let currentClue = null; // {catIndex, clueIndex}
+	let currentClue = null; // {catIndex, clueIndex, showing}
 	let latestScores = {};
 	let latestBuzz = null;
 	let latestFinal = null;
 	let latestFinalResponses = {};
+	let latestTimer = { running: false, startedAt: null };
+	let latestFinalReveals = {};
+	let themePlaying = false;
 
 	// ==== HELPER FUNCTIONS ====
 	function generateGameCode() {
@@ -195,21 +206,25 @@ School Objects
 			return;
 		}
 		const maxClueCount = Math.max(...boardData.map(c => c.clues.length));
-		// Categories row
-		for (const cat of boardData) {
+
+		// Categories row (click to select first unused clue)
+		for (let col = 0; col < 5; col++) {
 			const div = document.createElement("div");
 			div.className = "mini-category";
-			div.textContent = cat.name;
+			if (boardData[col]) {
+				div.textContent = boardData[col].name;
+				div.addEventListener("click", () => {
+					if (!currentGameCode) return;
+					selectFirstUnusedClueInCategory(col);
+				});
+			} else {
+				div.textContent = "-";
+				div.style.opacity = "0.3";
+			}
 			miniBoardEl.appendChild(div);
 		}
-		// Fill categories up to 5 columns
-		for (let i = boardData.length; i < 5; i++) {
-			const div = document.createElement("div");
-			div.className = "mini-category";
-			div.textContent = "-";
-			miniBoardEl.appendChild(div);
-		}
-		// Rows
+
+		// Clue rows (greyed when used, still clickable)
 		for (let row = 0; row < maxClueCount; row++) {
 			for (let col = 0; col < 5; col++) {
 				const div = document.createElement("div");
@@ -219,7 +234,7 @@ School Objects
 					div.textContent = clue.value || "";
 					if (clue.used) div.classList.add("used");
 					div.addEventListener("click", () => {
-						if (clue.used || !currentGameCode) return;
+						if (!currentGameCode) return;
 						selectClue(col, row);
 					});
 				} else {
@@ -247,7 +262,8 @@ School Objects
 
 			const score = document.createElement("div");
 			score.className = "score-value";
-			score.textContent = (team.score ?? 0) >= 0 ? "$" + (team.score ?? 0) : "-$" + Math.abs(team.score ?? 0);
+			const val = team.score ?? 0;
+			score.textContent = val >= 0 ? "$" + val : "-$" + Math.abs(val);
 
 			const controls = document.createElement("div");
 			controls.style.display = "flex";
@@ -284,10 +300,104 @@ School Objects
 	}
 
 	function getCurrentClueValue() {
-		if (!currentClue || !boardData[currentClue.catIndex] || !boardData[currentClue.catIndex].clues[currentClue.clueIndex]) {
-			return 0;
+		if (!currentClue || currentClue.catIndex == null || currentClue.clueIndex == null) return 0;
+		const cat = boardData[currentClue.catIndex];
+		if (!cat || !cat.clues[currentClue.clueIndex]) return 0;
+		return cat.clues[currentClue.clueIndex].value || 0;
+	}
+
+	function selectFirstUnusedClueInCategory(catIndex) {
+		if (!boardData[catIndex]) return;
+		const clues = boardData[catIndex].clues || [];
+		if (!clues.length) return;
+		let rowIndex = 0;
+		for (let i = 0; i < clues.length; i++) {
+			if (!clues[i].used) {
+				rowIndex = i;
+				break;
+			}
 		}
-		return boardData[currentClue.catIndex].clues[currentClue.clueIndex].value || 0;
+		selectClue(catIndex, rowIndex);
+	}
+
+	function updateTimerButtonLabel() {
+		if (!toggleTimerBtn) return;
+		toggleTimerBtn.textContent = latestTimer.running ? "Stop Timer" : "Start Timer";
+		const canUse = currentClue && currentClue.showing;
+		toggleTimerBtn.disabled = !canUse;
+	}
+
+	function toggleTimer() {
+		if (!currentGameCode || !currentClue || !currentClue.showing) return;
+		if (latestTimer.running) {
+			update(ref(db, "jeopardyGames/" + currentGameCode + "/timer"), {
+				running: false,
+				startedAt: null
+			});
+		} else {
+			update(ref(db, "jeopardyGames/" + currentGameCode + "/timer"), {
+				running: true,
+				startedAt: Date.now()
+			});
+		}
+	}
+
+	function stopThemeIfPlaying() {
+		if (!themeAudio) return;
+		if (themePlaying) {
+			themeAudio.pause();
+			themeAudio.currentTime = 0;
+			themePlaying = false;
+			playThemeBtn.textContent = "Play Theme";
+		}
+	}
+
+	function toggleTheme() {
+		if (!themeAudio) return;
+		if (themePlaying) {
+			stopThemeIfPlaying();
+		} else {
+			themeAudio.currentTime = 0;
+			themeAudio.play().catch(() => {
+				// ignore autoplay errors; requires user gesture
+			});
+			themePlaying = true;
+			playThemeBtn.textContent = "Stop Theme";
+		}
+	}
+
+	function closeCurrentClue() {
+		if (!currentGameCode || !currentClue || currentClue.catIndex == null || currentClue.clueIndex == null) return;
+
+		// Mark this clue as used / grey
+		if (boardData[currentClue.catIndex] && boardData[currentClue.catIndex].clues[currentClue.clueIndex]) {
+			boardData[currentClue.catIndex].clues[currentClue.clueIndex].used = true;
+			set(ref(db, "jeopardyGames/" + currentGameCode + "/board"), boardData);
+		}
+
+		// Hide the clue on the big board
+		update(ref(db, "jeopardyGames/" + currentGameCode + "/currentClue"), {
+			...currentClue,
+			showing: false
+		});
+
+		// Stop & reset timer
+		update(ref(db, "jeopardyGames/" + currentGameCode + "/timer"), {
+			running: false,
+			startedAt: null
+		});
+
+		// Clear buzz + buzz list
+		set(ref(db, "jeopardyGames/" + currentGameCode + "/buzz"), {
+			teamId: null,
+			at: null
+		});
+		set(ref(db, "jeopardyGames/" + currentGameCode + "/buzzList"), null);
+
+		updateBuzzButtonsEnabled(false);
+		setBuzzStatus("Back to board. Select another clue when ready.");
+		closeClueBtn.disabled = true;
+		updateTimerButtonLabel();
 	}
 
 	// ==== FIREBASE INTERACTION ====
@@ -315,7 +425,13 @@ School Objects
 				inProgress: false,
 				question: "",
 				closed: false
-			}
+			},
+			timer: {
+				running: false,
+				startedAt: null
+			},
+			buzzList: null,
+			finalReveals: null
 		};
 		set(gameRef, initialData).then(() => {
 			currentGameCode = code;
@@ -325,27 +441,24 @@ School Objects
 			saveBoardBtn.disabled = false;
 			startFinalBtn.disabled = false;
 			endFinalBtn.disabled = false;
+			playThemeBtn.disabled = false;
 			attachGameListeners();
 		});
 	}
 
 	function attachGameListeners() {
 		if (!currentGameCode) return;
-		const gameRoot = ref(db, "jeopardyGames/" + currentGameCode);
 
-		// Scores
 		onValue(ref(db, "jeopardyGames/" + currentGameCode + "/scores"), (snap) => {
 			latestScores = snap.val() || {};
 			renderScores();
 		});
 
-		// Board
 		onValue(ref(db, "jeopardyGames/" + currentGameCode + "/board"), (snap) => {
 			boardData = snap.val() || [];
 			renderMiniBoard();
 		});
 
-		// Buzz
 		onValue(ref(db, "jeopardyGames/" + currentGameCode + "/buzz"), (snap) => {
 			latestBuzz = snap.val();
 			if (latestBuzz && latestBuzz.teamId) {
@@ -359,13 +472,18 @@ School Objects
 			}
 		});
 
-		// Current clue
 		onValue(ref(db, "jeopardyGames/" + currentGameCode + "/currentClue"), (snap) => {
 			const val = snap.val();
 			currentClue = val || { catIndex: null, clueIndex: null, showing: false };
+
+			const showing = currentClue && currentClue.showing;
+			closeClueBtn.disabled = !showing;
+			updateTimerButtonLabel();
+			if (!showing) {
+				updateBuzzButtonsEnabled(false);
+			}
 		});
 
-		// Final
 		onValue(ref(db, "jeopardyGames/" + currentGameCode + "/final"), (snap) => {
 			latestFinal = snap.val() || { inProgress: false, question: "", closed: false };
 			updateFinalUI();
@@ -374,6 +492,16 @@ School Objects
 		onValue(ref(db, "jeopardyGames/" + currentGameCode + "/finalResponses"), (snap) => {
 			latestFinalResponses = snap.val() || {};
 			renderFinalResponses();
+		});
+
+		onValue(ref(db, "jeopardyGames/" + currentGameCode + "/finalReveals"), (snap) => {
+			latestFinalReveals = snap.val() || {};
+			renderFinalResponses(); // to update Reveal buttons
+		});
+
+		onValue(ref(db, "jeopardyGames/" + currentGameCode + "/timer"), (snap) => {
+			latestTimer = snap.val() || { running: false, startedAt: null };
+			updateTimerButtonLabel();
 		});
 	}
 
@@ -392,18 +520,21 @@ School Objects
 	function selectClue(catIndex, clueIndex) {
 		if (!currentGameCode) return;
 		currentClue = { catIndex, clueIndex, showing: true };
-		// Reset buzz
+
+		// Reset buzz + buzz order list
 		set(ref(db, "jeopardyGames/" + currentGameCode + "/buzz"), {
 			teamId: null,
 			at: null
 		});
+		set(ref(db, "jeopardyGames/" + currentGameCode + "/buzzList"), null);
+
 		updateBuzzButtonsEnabled(false);
 		setBuzzStatus("Waiting for teams to buzz in (spacebar).");
 
-		// Mark on DB
 		update(ref(db, "jeopardyGames/" + currentGameCode + "/currentClue"), currentClue);
 
-		// Board will read boardData and show overlay
+		closeClueBtn.disabled = false;
+		updateTimerButtonLabel();
 	}
 
 	function adjustScore(teamId, delta) {
@@ -418,11 +549,6 @@ School Objects
 		if (!currentGameCode || !latestBuzz || !latestBuzz.teamId) return;
 		const value = getCurrentClueValue();
 		adjustScore(latestBuzz.teamId, value);
-		// Mark clue as used
-		if (boardData[currentClue.catIndex] && boardData[currentClue.catIndex].clues[currentClue.clueIndex]) {
-			boardData[currentClue.catIndex].clues[currentClue.clueIndex].used = true;
-			set(ref(db, "jeopardyGames/" + currentGameCode + "/board"), boardData);
-		}
 		clearBuzz();
 	}
 
@@ -485,6 +611,21 @@ School Objects
 			controlPart.style.display = "flex";
 			controlPart.style.gap = "0.25rem";
 
+			const revealBtn = document.createElement("button");
+			revealBtn.className = "small secondary";
+			const revealed = !!(latestFinalReveals && latestFinalReveals[teamId]);
+			revealBtn.textContent = revealed ? "Revealed" : "Reveal on Board";
+			revealBtn.disabled = revealed;
+			revealBtn.addEventListener("click", () => {
+				if (!currentGameCode) return;
+				const data = {
+					answer: resp.answer || "",
+					wager: resp.wager || 0,
+					revealed: true
+				};
+				set(ref(db, "jeopardyGames/" + currentGameCode + "/finalReveals/" + teamId), data);
+			});
+
 			const acceptBtn = document.createElement("button");
 			acceptBtn.className = "small";
 			acceptBtn.textContent = "Correct";
@@ -499,6 +640,7 @@ School Objects
 				adjustScore(teamId, -(resp.wager || 0));
 			});
 
+			controlPart.appendChild(revealBtn);
 			controlPart.appendChild(acceptBtn);
 			controlPart.appendChild(rejectBtn);
 
@@ -530,6 +672,7 @@ School Objects
 			closed: false
 		});
 		set(ref(db, "jeopardyGames/" + currentGameCode + "/finalResponses"), null);
+		set(ref(db, "jeopardyGames/" + currentGameCode + "/finalReveals"), null);
 	}
 
 	function endFinalJeopardy() {
@@ -538,6 +681,7 @@ School Objects
 			inProgress: false,
 			closed: true
 		});
+		stopThemeIfPlaying();
 	}
 
 	// ==== EVENT LISTENERS ====
@@ -555,35 +699,40 @@ School Objects
 	});
 
 	loadDefaultBoardBtn.addEventListener("click", () => {
-		boardInput.value = `Greetings
+		boardInput.value = `Saludos y despedidas
 100 | ¿Cómo se dice "hello" en español?
 200 | ¿Cómo se dice "good morning" en español?
 300 | ¿Cómo se dice "good night" en español?
 400 | ¿Cómo se dice "see you later" en español?
+500 | ¿Cómo se dice "nice to meet you" en español?
 
-School Objects
+En la clase
+100 | ¿Cómo se dice "sit down" en español?
+200 | ¿Cómo se dice "open your book" en español?
+300 | ¿Cómo se dice "raise your hand" en español?
+400 | ¿Cómo se dice "I don't understand" en español?
+500 | ¿Cómo se dice "Can you repeat, please?" en español?
+
+Objetos de la escuela
 100 | ¿Cómo se dice "book" en español?
 200 | ¿Cómo se dice "pencil" en español?
-300 | ¿Cómo se dice "backpack" en español?
-400 | ¿Cómo se dice "paper" en español?
+300 | ¿Cómo se dice "notebook" en español?
+400 | ¿Cómo se dice "backpack" en español?
+500 | ¿Cómo se dice "pencil sharpener" en español?
 
-Classroom Phrases
-100 | ¿Cómo se dice "sit down" en español?
-200 | ¿Cómo se dice "open the book" en español?
-300 | ¿Cómo se dice "I don't understand" en español?
-400 | ¿Cómo se dice "Can I go to the bathroom?" en español?
+La familia
+100 | Es la madre de tu madre.
+200 | Es el hijo de tu tío.
+300 | Es la hermana de tu padre.
+400 | Es el padre de tu padre.
+500 | Es el hijo único de tus padres.
 
-Numbers
-100 | ¿Cómo se dice el número 10 en español?
-200 | ¿Cómo se dice el número 20 en español?
-300 | ¿Cómo se dice el número 50 en español?
-400 | ¿Cómo se dice el número 100 en español?
-
-Family
-100 | ¿Cómo se dice "mother" en español?
-200 | ¿Cómo se dice "father" en español?
-300 | ¿Cómo se dice "brother" en español?
-400 | ¿Cómo se dice "grandmother" en español?`;
+Verbos -AR (presente)
+100 | Conjuga "hablar" para: yo.
+200 | Conjuga "caminar" para: nosotros.
+300 | Conjuga "usar" para: ella.
+400 | Conjuga "buscar" para: ustedes (y’all).
+500 | Conjuga "mirar" para: tú.`;
 	});
 
 	markCorrectBtn.addEventListener("click", () => {
@@ -599,9 +748,29 @@ Family
 	startFinalBtn.addEventListener("click", () => {
 		startFinalJeopardy();
 	});
+
 	endFinalBtn.addEventListener("click", () => {
 		endFinalJeopardy();
 	});
+
+	toggleTimerBtn.addEventListener("click", () => {
+		toggleTimer();
+	});
+
+	closeClueBtn.addEventListener("click", () => {
+		closeCurrentClue();
+	});
+
+	playThemeBtn.addEventListener("click", () => {
+		toggleTheme();
+	});
+
+	if (themeAudio) {
+		themeAudio.addEventListener("ended", () => {
+			themePlaying = false;
+			playThemeBtn.textContent = "Play Theme";
+		});
+	}
 </script>
 </body>
 </html>

@@ -27,6 +27,7 @@
 
 		<div id="gameSection" style="display:none;">
 			<div class="team-name-display" id="teamNameDisplay"></div>
+			<div class="badge" id="teamScoreBadge">Score: $0</div>
 			<div class="team-instruction">
 				Press the big button or hit <b>spacebar</b> to buzz in when a clue is on the board.
 			</div>
@@ -46,11 +47,11 @@
 						</div>
 					</div>
 					<div class="flex-col">
-						<label class="label">Your Answer (Spanish)</label>
-						<textarea id="finalAnswerInput" rows="2" placeholder="Es una pregunta..."></textarea>
+						<label class="label">Your Answer</label>
+						<textarea id="finalAnswerInput" rows="2" placeholder="type here..."></textarea>
 					</div>
 					<div class="flex-row" style="margin-top:0.4rem;">
-					          <button id="submitFinalBtn" class="small">Submit Final Answer</button>
+						<button id="submitFinalBtn" class="small">Submit Final Answer</button>
 					</div>
 					<div id="finalStatusMsg" style="font-size:0.85rem;margin-top:0.3rem;color:var(--text-muted);"></div>
 				</div>
@@ -63,7 +64,7 @@
 <script type="module">
 	import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
 	import {
-		getDatabase, ref, get, child, push, set, onValue, runTransaction, serverTimestamp
+		getDatabase, ref, get, push, set, onValue, runTransaction, serverTimestamp
 	} from "https://www.gstatic.com/firebasejs/9.22.2/firebase-database.js";
 
 	const firebaseConfig = {
@@ -85,6 +86,7 @@
 	const joinBtn = document.getElementById("joinBtn");
 	const joinError = document.getElementById("joinError");
 	const teamNameDisplay = document.getElementById("teamNameDisplay");
+	const teamScoreBadge = document.getElementById("teamScoreBadge");
 	const buzzButton = document.getElementById("buzzButton");
 	const teamBuzzStatus = document.getElementById("teamBuzzStatus");
 	const finalQuestionText = document.getElementById("finalQuestionText");
@@ -99,6 +101,7 @@
 	let canBuzzNow = false;
 	let alreadyBuzzedForCurrentClue = false;
 	let finalState = null;
+	let currentScoreValue = 0; // track team's live score for wager limit
 
 	function showError(msg) {
 		joinError.textContent = msg;
@@ -142,7 +145,20 @@
 	}
 
 	function attachGameListeners() {
-		// Listen to currentClue
+		// Our own score
+		onValue(ref(db, "jeopardyGames/" + currentGameCode + "/scores/" + teamId), (snap) => {
+			const data = snap.val();
+			if (!data) return;
+			const score = data.score || 0;
+			currentScoreValue = score; // keep live score for wager limit
+			teamScoreBadge.textContent =
+				"Score: " + (score >= 0 ? "$" + score : "-$" + Math.abs(score));
+
+			// Optional: if you want to hint max wager
+			// wagerInput.placeholder = "Max: " + Math.max(0, currentScoreValue);
+		});
+
+		// Listen to current clue
 		onValue(ref(db, "jeopardyGames/" + currentGameCode + "/currentClue"), (snap) => {
 			const val = snap.val() || { showing: false };
 			if (val.showing) {
@@ -192,7 +208,7 @@
 			}
 		});
 
-		// Final responses (we only check our own)
+		// Our own final response
 		onValue(ref(db, "jeopardyGames/" + currentGameCode + "/finalResponses/" + teamId), (snap) => {
 			if (snap.exists()) {
 				finalStatusMsg.textContent = "Your Final Jeopardy answer has been submitted.";
@@ -202,10 +218,19 @@
 
 	function attemptBuzz() {
 		if (!currentGameCode || !teamId || !canBuzzNow || alreadyBuzzedForCurrentClue) return;
+
+		// Record this buzz in the buzz order list
+		const buzzListRef = ref(db, "jeopardyGames/" + currentGameCode + "/buzzList");
+		push(buzzListRef, {
+			teamId,
+			at: serverTimestamp()
+		});
+
+		// Try to claim "first buzz" slot
 		const buzzRef = ref(db, "jeopardyGames/" + currentGameCode + "/buzz");
 		runTransaction(buzzRef, (current) => {
 			if (current && current.teamId) {
-				// Someone already buzzed in
+				// Someone already buzzed in; keep them as first
 				return current;
 			}
 			return {
@@ -213,17 +238,27 @@
 				at: serverTimestamp()
 			};
 		});
+
 		alreadyBuzzedForCurrentClue = true;
 	}
 
 	function submitFinal() {
 		if (!currentGameCode || !teamId || !finalState || !finalState.inProgress) return;
-		const wager = parseInt(wagerInput.value || "0", 10) || 0;
-		const answer = finalAnswerInput.value.trim();
+		let wager = parseInt(wagerInput.value || "0", 10);
+		if (isNaN(wager)) wager = 0;
+
+		// Enforce wager <= current score (Jeopardy style)
+		const maxWager = Math.max(0, currentScoreValue);
+		if (wager > maxWager) {
+			alert("You can't wager more than your current score. Max wager: $" + maxWager);
+			return;
+		}
 		if (wager < 0) {
 			alert("Wager cannot be negative.");
 			return;
 		}
+
+		const answer = finalAnswerInput.value.trim();
 		if (!answer) {
 			alert("Please type your answer.");
 			return;
@@ -257,5 +292,6 @@
 		submitFinal();
 	});
 </script>
+
 </body>
 </html>

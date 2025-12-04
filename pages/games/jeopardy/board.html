@@ -15,6 +15,9 @@
 
 <div class="current-clue-overlay" id="clueOverlay">
 	<div class="current-clue-card">
+		<div id="clueTimerDisplay"
+		     style="font-size:1.2rem;font-weight:700;color:var(--jeopardy-gold-soft);margin-bottom:0.6rem;display:none;">
+		</div>
 		<div class="current-clue-text" id="clueText"></div>
 		<div style="display:flex;justify-content:center;gap:1rem;align-items:center;">
 			<div class="badge" id="clueMeta"></div>
@@ -22,12 +25,17 @@
 				Teams: press <b>spacebar</b> on your computer to buzz in.
 			</small>
 		</div>
+
+		<div class="buzz-order-container" id="buzzOrderContainer" style="display:none;">
+			<div class="buzz-order-title">Orden de timbres</div>
+			<div class="buzz-order-chips" id="buzzOrderChips"></div>
+		</div>
 	</div>
 </div>
 
 <script type="module">
 	import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
-	import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-database.js";
+	import { getDatabase, ref, onValue, update, set } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-database.js";
 
 	const firebaseConfig = {
     apiKey: "AIzaSyCEbHLRWZweJyhhtkLiRviFjInwEbDbubI",
@@ -48,10 +56,21 @@
 	const clueOverlay = document.getElementById("clueOverlay");
 	const clueTextEl = document.getElementById("clueText");
 	const clueMetaEl = document.getElementById("clueMeta");
+	const boardTitleEl = document.getElementById("boardTitle");
+	const clueTimerDisplay = document.getElementById("clueTimerDisplay");
+	const buzzOrderContainer = document.getElementById("buzzOrderContainer");
+	const buzzOrderChips = document.getElementById("buzzOrderChips");
 
 	let boardData = [];
 	let scores = {};
 	let currentClue = { catIndex: null, clueIndex: null, showing: false };
+	let timerState = { running: false, startedAt: null };
+	let timerIntervalId = null;
+	let buzzListData = {};
+	let finalState = { inProgress: false, question: "", closed: false };
+	let finalReveals = {};
+
+	const TIMER_DURATION_MS = 15000; // 15-second countdown
 
 	function renderBoard() {
 		boardEl.innerHTML = "";
@@ -60,19 +79,23 @@
 			return;
 		}
 		const maxClueCount = Math.max(...boardData.map(c => c.clues.length));
-		// Categories
-		for (const cat of boardData) {
+
+		// Categories row (click to open first unused clue)
+		for (let col = 0; col < 5; col++) {
 			const div = document.createElement("div");
 			div.className = "category-cell";
-			div.textContent = cat.name;
+			if (boardData[col]) {
+				div.textContent = boardData[col].name;
+				div.addEventListener("click", () => {
+					selectFirstUnusedClueInCategory(col);
+				});
+			} else {
+				div.textContent = "-";
+				div.style.opacity = "0.3";
+			}
 			boardEl.appendChild(div);
 		}
-		for (let i = boardData.length; i < 5; i++) {
-			const div = document.createElement("div");
-			div.className = "category-cell";
-			div.textContent = "-";
-			boardEl.appendChild(div);
-		}
+
 		// Clue rows
 		for (let row = 0; row < maxClueCount; row++) {
 			for (let col = 0; col < 5; col++) {
@@ -84,6 +107,9 @@
 					const span = document.createElement("span");
 					span.textContent = "$" + (clue.value || 0);
 					div.appendChild(span);
+					div.addEventListener("click", () => {
+						selectClue(col, row);
+					});
 				} else {
 					div.textContent = "";
 					div.style.opacity = "0.1";
@@ -103,39 +129,183 @@
 		for (const [teamId, team] of entries) {
 			const pill = document.createElement("div");
 			pill.className = "score-pill";
+
+			const left = document.createElement("div");
+			left.style.display = "flex";
+			left.style.flexDirection = "column";
+			left.style.gap = "0.1rem";
+
 			const name = document.createElement("div");
 			name.className = "score-name";
 			name.textContent = team.name || "Team";
-			const value = document.createElement("div");
-			value.className = "score-value";
-			value.textContent = (team.score ?? 0) >= 0 ? "$" + (team.score ?? 0) : "-$" + Math.abs(team.score ?? 0);
-			pill.appendChild(name);
-			pill.appendChild(value);
+
+			if (finalState && finalState.inProgress || (finalState && finalState.closed)) {
+				// we want the name + maybe final answer under it
+			}
+
+			left.appendChild(name);
+
+			// If this team has a revealed final answer, show it under the name
+			if (finalReveals && finalReveals[teamId] && finalReveals[teamId].answer) {
+				const answerDiv = document.createElement("div");
+				answerDiv.className = "final-answer-board";
+				answerDiv.textContent = "Final: " + finalReveals[teamId].answer;
+				left.appendChild(answerDiv);
+			}
+
+			const score = document.createElement("div");
+			score.className = "score-value";
+			const val = team.score ?? 0;
+			score.textContent = val >= 0 ? "$" + val : "-$" + Math.abs(val);
+
+			pill.appendChild(left);
+			pill.appendChild(score);
 			boardScorebar.appendChild(pill);
 		}
+	}
+
+	function selectFirstUnusedClueInCategory(catIndex) {
+		if (!boardData[catIndex]) return;
+		const clues = boardData[catIndex].clues || [];
+		if (!clues.length) return;
+		let rowIndex = 0;
+		for (let i = 0; i < clues.length; i++) {
+			if (!clues[i].used) {
+				rowIndex = i;
+				break;
+			}
+		}
+		selectClue(catIndex, rowIndex);
+	}
+
+	function selectClue(catIndex, clueIndex) {
+		if (!gameCode) return;
+
+		// Reset buzz + buzz list
+		set(ref(db, "jeopardyGames/" + gameCode + "/buzz"), {
+			teamId: null,
+			at: null
+		});
+		set(ref(db, "jeopardyGames/" + gameCode + "/buzzList"), null);
+
+		// Tell everyone which clue is showing
+		update(ref(db, "jeopardyGames/" + gameCode + "/currentClue"), {
+			catIndex,
+			clueIndex,
+			showing: true
+		});
+	}
+
+	function updateTimerUI() {
+		if (!timerState.running || !currentClue || !currentClue.showing) {
+			clueTimerDisplay.style.display = "none";
+			clueTimerDisplay.textContent = "";
+			if (timerIntervalId) {
+				clearInterval(timerIntervalId);
+				timerIntervalId = null;
+			}
+			return;
+		}
+
+		clueTimerDisplay.style.display = "block";
+
+		if (timerIntervalId) return;
+
+		timerIntervalId = setInterval(() => {
+			const now = Date.now();
+			const started = timerState.startedAt || now;
+			const elapsed = Math.max(0, now - started);
+			const remaining = Math.max(0, TIMER_DURATION_MS - elapsed);
+			const seconds = Math.ceil(remaining / 1000);
+			clueTimerDisplay.textContent = "⏱ " + seconds + " s";
+
+			if (remaining <= 0) {
+				clearInterval(timerIntervalId);
+				timerIntervalId = null;
+			}
+		}, 100);
+	}
+
+	function renderBuzzOrder() {
+		// Show only if a clue is showing and we have data
+		if (!currentClue || !currentClue.showing || !buzzListData || !Object.keys(buzzListData).length) {
+			buzzOrderContainer.style.display = "none";
+			buzzOrderChips.innerHTML = "";
+			return;
+		}
+
+		const entries = Object.values(buzzListData).filter(e => e && e.teamId);
+		if (!entries.length) {
+			buzzOrderContainer.style.display = "none";
+			buzzOrderChips.innerHTML = "";
+			return;
+		}
+
+		// Get earliest buzz per team
+		const firstByTeam = new Map();
+		for (const entry of entries) {
+			const teamId = entry.teamId;
+			if (!teamId) continue;
+			const at = typeof entry.at === "number" ? entry.at : Number.MAX_SAFE_INTEGER;
+			if (!firstByTeam.has(teamId) || at < firstByTeam.get(teamId).at) {
+				firstByTeam.set(teamId, { teamId, at });
+			}
+		}
+
+		const ordered = Array.from(firstByTeam.values()).sort((a, b) => (a.at || 0) - (b.at || 0));
+		if (!ordered.length) {
+			buzzOrderContainer.style.display = "none";
+			buzzOrderChips.innerHTML = "";
+			return;
+		}
+
+		buzzOrderContainer.style.display = "flex";
+		buzzOrderChips.innerHTML = "";
+
+		ordered.forEach((item, index) => {
+			const chip = document.createElement("div");
+			chip.className = "buzz-order-chip";
+
+			const idx = document.createElement("div");
+			idx.className = "buzz-order-chip-index";
+			idx.textContent = index + 1;
+
+			const name = document.createElement("div");
+			name.className = "buzz-order-chip-name";
+			const team = scores[item.teamId];
+			name.textContent = team && team.name ? team.name : "Equipo";
+
+			chip.appendChild(idx);
+			chip.appendChild(name);
+			buzzOrderChips.appendChild(chip);
+		});
 	}
 
 	function updateClueOverlay() {
 		if (!currentClue || currentClue.catIndex == null || currentClue.clueIndex == null || !currentClue.showing) {
 			clueOverlay.classList.remove("visible");
+			updateTimerUI();
+			renderBuzzOrder();
 			return;
 		}
 		const cat = boardData[currentClue.catIndex];
 		const clue = cat && cat.clues[currentClue.clueIndex];
 		if (!clue) {
 			clueOverlay.classList.remove("visible");
+			updateTimerUI();
+			renderBuzzOrder();
 			return;
 		}
 		clueTextEl.textContent = clue.text || "";
 		clueMetaEl.textContent = (cat.name || "") + " – $" + (clue.value || 0);
 		clueOverlay.classList.add("visible");
+		updateTimerUI();
+		renderBuzzOrder();
 	}
 
 	if (!gameCode) {
 		alert("No game code provided in URL.");
 	} else {
-		const baseRef = ref(db, "jeopardyGames/" + gameCode);
-
 		onValue(ref(db, "jeopardyGames/" + gameCode + "/board"), (snap) => {
 			boardData = snap.val() || [];
 			renderBoard();
@@ -145,6 +315,7 @@
 		onValue(ref(db, "jeopardyGames/" + gameCode + "/scores"), (snap) => {
 			scores = snap.val() || {};
 			renderScores();
+			renderBuzzOrder();
 		});
 
 		onValue(ref(db, "jeopardyGames/" + gameCode + "/currentClue"), (snap) => {
@@ -153,13 +324,28 @@
 		});
 
 		onValue(ref(db, "jeopardyGames/" + gameCode + "/final"), (snap) => {
-			const finalState = snap.val() || { inProgress: false };
-			const titleEl = document.getElementById("boardTitle");
+			finalState = snap.val() || { inProgress: false, question: "", closed: false };
 			if (finalState.inProgress) {
-				titleEl.textContent = "Final Jeopardy!";
+				boardTitleEl.textContent = "Final Jeopardy!";
 			} else {
-				titleEl.textContent = "Jeopardy!";
+				boardTitleEl.textContent = "Jeopardy!";
 			}
+			renderScores();
+		});
+
+		onValue(ref(db, "jeopardyGames/" + gameCode + "/timer"), (snap) => {
+			timerState = snap.val() || { running: false, startedAt: null };
+			updateTimerUI();
+		});
+
+		onValue(ref(db, "jeopardyGames/" + gameCode + "/buzzList"), (snap) => {
+			buzzListData = snap.val() || {};
+			renderBuzzOrder();
+		});
+
+		onValue(ref(db, "jeopardyGames/" + gameCode + "/finalReveals"), (snap) => {
+			finalReveals = snap.val() || {};
+			renderScores();
 		});
 	}
 </script>
