@@ -1082,11 +1082,8 @@
 		}
 
 		/* ---------- Subtitles Logic ---------- */
-let recognition;
-let recognizing = false;       // speech recognition currently active
-let ccEnabled = false;         // CC button ON/OFF
-let pushToTalkActive = false;  // PageUp is held down
-
+		let recognition;
+		let recognizing = false;
 
 		if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
 			const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -1100,9 +1097,7 @@ let pushToTalkActive = false;  // PageUp is held down
 			recognition.onresult = async (event) => {
 				let interimTranscript = '';
 				let finalTranscript = '';
-				if (!ccEnabled || !pushToTalkActive) {
-						return;
-					}
+
 				// MDN-style accumulation: interim = live phrase, final = committed text
 				for (let i = event.resultIndex; i < event.results.length; ++i) {
 					const res = event.results[i];
@@ -1168,52 +1163,35 @@ let pushToTalkActive = false;  // PageUp is held down
 			};
 
 			recognition.onend = () => {
-	if (ccEnabled) {
-		try { recognition.start(); } catch {}
-		recognizing = true;
-	}
-};
-
-
+				if (recognizing) {
+					recognition.start();
+				}
+			};
 		} else {
 			ccBtn.style.display = 'none';
 			console.warn('Web Speech API not supported');
 		}
 
+		function toggleCC(forceState) {
+			if (!recognition) return;
 
-function toggleCC(forceState) {
-	if (!recognition) return;
+			const newState = forceState !== undefined ? forceState : !recognizing;
 
-	const newState = forceState !== undefined ? forceState : !ccEnabled;
-
-	if (newState) {
-		ccEnabled = true;
-		ccBtn.classList.add('active');
-		subtitleOverlay.style.display = 'block';
-
-		// start mic ONCE and leave it running
-		if (!recognizing) {
-			try { recognition.start(); } catch {}
-			recognizing = true;
+			if (newState) {
+				recognition.start();
+				recognizing = true;
+				ccBtn.classList.add('active');
+				subtitleOverlay.style.display = 'block';
+			} else {
+				recognizing = false;
+				recognition.stop();
+				ccBtn.classList.remove('active');
+				subtitleOverlay.style.display = 'none';
+				// Clear both lines
+				ccEsLine.textContent = '';
+				ccEnLine.textContent = '';
+			}
 		}
-
-	} else {
-		ccEnabled = false;
-		pushToTalkActive = false;
-
-		ccBtn.classList.remove('active');
-		subtitleOverlay.style.display = 'none';
-
-		// DO NOT stop mic unless CC is disabled
-		try { recognition.stop(); } catch {}
-		recognizing = false;
-
-		ccEsLine.textContent = '';
-		ccEnLine.textContent = '';
-	}
-}
-
-
 
 
 		ccBtn.addEventListener('click', () => toggleCC());
@@ -1266,7 +1244,6 @@ function toggleCC(forceState) {
 				else startTimer();
 			}
 		});
-		
 
 		overlay.addEventListener('click', e => {
 			if (e.target === overlay) overlay.classList.remove('show');
@@ -1333,25 +1310,6 @@ function toggleCC(forceState) {
 			saveConfig();
 			buildTimeline();
 		});
-
-		// PUSH-TO-TALK WITH PAGE UP
-document.addEventListener('keydown', (e) => {
-	if (e.key === 'PageUp') {
-		pushToTalkActive = true;
-	}
-});
-
-document.addEventListener('keyup', (e) => {
-	if (e.key === 'PageUp') {
-		pushToTalkActive = false;
-
-		// Clear live subtitles the moment user releases PageUp
-		ccEsLine.textContent = '';
-		ccEnLine.textContent = '';
-	}
-});
-
-
 
 		/* ---------- Init ---------- */
 		loadConfig();
