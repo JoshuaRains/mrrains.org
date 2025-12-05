@@ -1082,8 +1082,11 @@
 		}
 
 		/* ---------- Subtitles Logic ---------- */
-		let recognition;
-		let recognizing = false;
+let recognition;
+let recognizing = false;       // speech recognition currently active
+let ccEnabled = false;         // CC button ON/OFF
+let pushToTalkActive = false;  // PageUp is held down
+
 
 		if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
 			const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -1163,35 +1166,44 @@
 			};
 
 			recognition.onend = () => {
-				if (recognizing) {
-					recognition.start();
-				}
-			};
+	// Only restart if CC enabled *and* PageUp still held down
+	if (ccEnabled && pushToTalkActive) {
+		try { recognition.start(); } catch {}
+	} else {
+		recognizing = false;
+	}
+};
+
 		} else {
 			ccBtn.style.display = 'none';
 			console.warn('Web Speech API not supported');
 		}
 
 		function toggleCC(forceState) {
-			if (!recognition) return;
+	if (!recognition) return;
 
-			const newState = forceState !== undefined ? forceState : !recognizing;
+	const newState = forceState !== undefined ? forceState : !ccEnabled;
 
-			if (newState) {
-				recognition.start();
-				recognizing = true;
-				ccBtn.classList.add('active');
-				subtitleOverlay.style.display = 'block';
-			} else {
-				recognizing = false;
-				recognition.stop();
-				ccBtn.classList.remove('active');
-				subtitleOverlay.style.display = 'none';
-				// Clear both lines
-				ccEsLine.textContent = '';
-				ccEnLine.textContent = '';
-			}
-		}
+	if (newState) {
+		// CC enabled, but only listen when PageUp is held
+		ccEnabled = true;
+		ccBtn.classList.add('active');
+		subtitleOverlay.style.display = 'block';
+	} else {
+		// Fully shut down subtitles
+		ccEnabled = false;
+		pushToTalkActive = false;
+		recognizing = false;
+
+		try { recognition.stop(); } catch {}
+
+		ccBtn.classList.remove('active');
+		subtitleOverlay.style.display = 'none';
+		ccEsLine.textContent = '';
+		ccEnLine.textContent = '';
+	}
+}
+
 
 
 		ccBtn.addEventListener('click', () => toggleCC());
@@ -1244,6 +1256,7 @@
 				else startTimer();
 			}
 		});
+		
 
 		overlay.addEventListener('click', e => {
 			if (e.target === overlay) overlay.classList.remove('show');
@@ -1310,6 +1323,30 @@
 			saveConfig();
 			buildTimeline();
 		});
+
+		// PUSH-TO-TALK WITH PAGE UP
+document.addEventListener('keydown', (e) => {
+	if (e.key === 'PageUp' && ccEnabled && recognition) {
+
+		// Avoid repeated starts from key auto-repeat
+		if (pushToTalkActive) return;
+
+		pushToTalkActive = true;
+		recognizing = true;
+
+		try { recognition.start(); } catch {}
+	}
+});
+
+document.addEventListener('keyup', (e) => {
+	if (e.key === 'PageUp' && recognition) {
+		pushToTalkActive = false;
+		recognizing = false;
+
+		try { recognition.stop(); } catch {}
+	}
+});
+
 
 		/* ---------- Init ---------- */
 		loadConfig();
