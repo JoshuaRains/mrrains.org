@@ -1,0 +1,1354 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1" />
+	<title>Class Timeline + Slides</title>
+
+	<style>
+		:root {
+			color-scheme: dark;
+			--green: #36c269;
+			--green-weak: #2a9b53;
+			--ink: #e9eef4;
+			--panel: #141922;
+			--muted: #9aa6b2;
+			--shadow: 0 10px 30px rgba(0, 0, 0, .35);
+
+			--bar-h: 24px;
+			/* Slightly thinner for modern look */
+			--topbar-pad-x: clamp(16px, 4vw, 48px);
+			--topbar-pad-top: 48px;
+		}
+
+		* {
+			box-sizing: border-box;
+		}
+
+		html,
+		body {
+			height: 100%;
+			margin: 0;
+		}
+
+		body {
+			color: var(--ink);
+			font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+			background: url('../../assets/Machu_Picchu.jpg') center/cover no-repeat fixed;
+		}
+
+		/* Layout: top progress, middle slides, floating controls */
+		.app {
+			min-height: 100vh;
+			display: grid;
+			grid-template-rows: auto 1fr;
+			position: relative;
+		}
+
+
+		/* ---------- Top progress bar ---------- */
+		.topbar {
+			padding:
+				var(--topbar-pad-top) max(var(--topbar-pad-x), env(safe-area-inset-right)) 6px max(var(--topbar-pad-x), env(safe-area-inset-left));
+		}
+
+		.progress-wrap {
+			position: relative;
+			height: max(88px, calc(var(--bar-h) * 3.1));
+			/* room for staggered labels */
+			width: 100%;
+			max-width: 1200px;
+			margin-inline: auto;
+		}
+
+		/* Track */
+		.progress-track {
+			position: absolute;
+			left: 0;
+			right: 0;
+			top: 50%;
+			transform: translateY(-50%);
+			height: var(--bar-h);
+			border-radius: 4px;
+			/* Soft square */
+			background: linear-gradient(180deg, #202735, #1a2130);
+			box-shadow: 0 0 0 1px #202838 inset;
+			overflow: hidden;
+		}
+
+		/* Fill */
+		.progress-fill {
+			position: absolute;
+			left: 0;
+			top: 0;
+			bottom: 0;
+			width: 0%;
+			background: linear-gradient(90deg, var(--green-weak), var(--green));
+			border-radius: 4px;
+			/* Match track */
+			transition: width .25s linear;
+			z-index: 2;
+			box-shadow: 0 0 10px rgba(54, 194, 105, 0.2);
+		}
+
+		/* No more caps */
+		.progress-fill::before,
+		.progress-fill::after {
+			display: none;
+		}
+
+		/* Free Time Red Bar */
+		.progress-free {
+			position: absolute;
+			right: 0;
+			top: 0;
+			bottom: 0;
+			width: 0%;
+			background: #e54d2e;
+			transition: width .25s linear;
+			z-index: 1;
+		}
+
+		/* Checkpoints */
+		.checklayer {
+			position: absolute;
+			inset: 0;
+			pointer-events: none;
+			z-index: 10;
+		}
+
+		.cp {
+			position: absolute;
+			top: 50%;
+			transform: translate(-50%, -50%);
+		}
+
+		/* No offsets for first/last - pixel perfect math */
+		.cp.first {
+			transform: translate(-50%, -50%);
+		}
+
+		.cp.last {
+			transform: translate(-50%, -50%);
+		}
+
+		.cp-dot {
+			width: 2px;
+			height: 36px;
+			/* Taller than bar for tick mark effect */
+			background: #4b5563;
+			transition: background .25s ease, transform .3s ease, box-shadow .25s ease;
+			border-radius: 1px;
+		}
+
+		.cp.completed .cp-dot {
+			background: #fff;
+			box-shadow: 0 0 8px rgba(255, 255, 255, 0.6);
+			transform: scaleY(1.1);
+		}
+
+		.cp-label {
+			position: absolute;
+			left: 50%;
+			transform: translateX(-50%);
+			white-space: nowrap;
+			font-weight: 700;
+			font-size: 1.1rem;
+			/* Slightly smaller for cleaner look */
+			letter-spacing: .2px;
+			color: #9ca3af;
+			opacity: .9;
+			background: rgba(17, 24, 39, .85);
+			backdrop-filter: blur(4px);
+			border: 1px solid rgba(255, 255, 255, .1);
+			border-radius: 6px;
+			/* Square-ish */
+			padding: 4px 10px;
+			pointer-events: auto;
+			transition: color .2s, border-color .2s, opacity .2s;
+		}
+
+		.cp-label.top {
+			bottom: calc(100% + 12px);
+			/* More spacing for ticks */
+		}
+
+		.cp-label.bottom {
+			top: calc(100% + 12px);
+		}
+
+		.cp-label.active {
+			color: #ffffff;
+			border-color: rgba(255, 255, 255, .3);
+			opacity: 1;
+		}
+
+		.cp-label.completed {
+			color: var(--green);
+			border-color: rgba(54, 194, 105, .3);
+		}
+
+		.cp.first .cp-label {
+			transform: none;
+			left: 0;
+		}
+
+		.cp.last .cp-label {
+			transform: translateX(-100%);
+			left: 100%;
+		}
+
+		/* Slides */
+		.slides-area {
+			min-height: 0;
+			display: flex;
+			align-items: stretch;
+			justify-content: center;
+			padding: 6px max(var(--topbar-pad-x), env(safe-area-inset-right)) 6px max(var(--topbar-pad-x), env(safe-area-inset-left));
+		}
+
+		.slides-frame {
+			width: min(100%);
+			height: 100%;
+			border: 0;
+			border-radius: 12px;
+			box-shadow: var(--shadow);
+			background: rgba(0, 0, 0, .15);
+		}
+
+		/* Controls */
+		.controls {
+			position: fixed;
+			bottom: 10px;
+			left: 50%;
+			transform: translateX(-50%) scale(calc(1 / var(--zoom)));
+			transform-origin: center;
+
+			display: flex;
+			align-items: center;
+			/* ⬅ make all children vertically centered */
+			gap: 12px;
+			font-size: 14px;
+			pointer-events: none;
+			z-index: 9999;
+			flex-wrap: nowrap;
+			/* ⬅ never wrap onto multiple lines */
+
+		}
+
+
+
+		.btn,
+		.btn,
+		.btn-accent {
+			pointer-events: auto;
+			background: #ffffff;
+			color: #2f2f2f;
+			border: none;
+			border-radius: 20px;
+			padding: 8px 10px;
+			font-weight: 600;
+			font-size: 14px;
+			line-height: 1;
+			cursor: pointer;
+			transition: none;
+
+			/* 👇 NEW: never wrap the button text */
+			white-space: nowrap;
+		}
+
+
+		.btn:hover,
+		.btn-accent:hover {
+			background: #ffffff;
+			color: #2f2f2f;
+		}
+
+		/* Button Groups */
+		.btn-group {
+			display: inline-flex;
+			align-items: center;
+			background: #ffffff;
+			border-radius: 20px;
+			padding: 2px;
+			gap: 2px;
+			pointer-events: auto;
+
+			/* 👇 NEW: don’t let the whole pill shrink */
+			flex: 0 0 auto;
+		}
+
+		.btn-group .btn {
+			border-radius: 16px;
+			background: transparent;
+			padding: 6px 10px;
+
+			/* 👇 NEW: don’t let individual buttons collapse */
+			flex: 0 0 auto;
+		}
+
+
+		.btn-group .btn:hover {
+			background: #f0f0f0;
+		}
+
+		/* Pause Button */
+		#pauseBtn {
+			min-width: 80px;
+		}
+
+		#pauseBtn.timing {
+			background: var(--green);
+			color: #fff;
+		}
+
+		.vol {
+			pointer-events: auto;
+			appearance: none;
+			height: 20px;
+			/* ⬅ a bit taller so it matches button height visually */
+			width: 160px;
+			border-radius: 999px;
+			background: #2b3444;
+			outline: none;
+			flex: 0 0 auto;
+			/* ⬅ don’t let flexbox squish it */
+			white-space: nowrap;
+			/* ⬅ text in buttons stays on one line */
+		}
+
+
+		.vol::-webkit-slider-thumb {
+			appearance: none;
+			width: 18px;
+			height: 18px;
+			border-radius: 50%;
+			background: white;
+			cursor: pointer;
+		}
+
+		/* Config Overlay */
+		.overlay {
+			position: fixed;
+			inset: 0;
+			background: rgba(10, 12, 16, .6);
+			backdrop-filter: blur(6px);
+			display: none;
+			align-items: center;
+			justify-content: center;
+			padding: clamp(10px, 2vw, 24px);
+			z-index: 60;
+		}
+
+		.overlay.show {
+			display: flex;
+		}
+
+		.cfg {
+			width: min(100%, 880px);
+			background: var(--panel);
+			border: 1px solid rgba(255, 255, 255, .08);
+			border-radius: 18px;
+			box-shadow: var(--shadow);
+			padding: clamp(16px, 3vw, 28px);
+			display: grid;
+			gap: 16px;
+		}
+
+		.cfg .field {
+			display: grid;
+			gap: 8px;
+		}
+
+		.cfg label {
+			font-size: .95rem;
+			color: var(--muted);
+			font-weight: 700;
+		}
+
+		.rows {
+			display: grid;
+			gap: 10px;
+			max-height: min(60vh, 360px);
+			overflow: auto;
+			padding-right: 4px;
+		}
+
+		.row {
+			display: grid;
+			grid-template-columns: 40px 1fr 100px 40px;
+			gap: 8px;
+			align-items: center;
+		}
+
+		input[type="text"],
+		input[type="url"],
+		input[type="number"],
+		input[type="time"] {
+			width: 100%;
+			background: #0f141e;
+			color: var(--ink);
+			border: 1px solid #2a3445;
+			border-radius: 12px;
+			padding: 12px;
+			font-size: 15px;
+			outline: none;
+		}
+
+		input:focus {
+			border-color: var(--green);
+			box-shadow: 0 0 0 3px rgba(54, 194, 105, .12);
+		}
+
+		.add-btn {
+			padding: 10px 14px;
+			border-radius: 10px;
+			border: 1px dashed #2a3445;
+			background: #0f141e;
+			color: var(--ink);
+			cursor: pointer;
+		}
+
+		.cfg-actions {
+			display: flex;
+			gap: 10px;
+			justify-content: flex-end;
+		}
+
+		.primary {
+			background: linear-gradient(180deg, #193524, #132b1c);
+			border: 1px solid rgba(54, 194, 105, .5);
+			color: var(--ink);
+			border-radius: 12px;
+			padding: 12px 18px;
+			font-weight: 800;
+			cursor: pointer;
+		}
+
+		.ghost {
+			background: transparent;
+			border: 1px solid #2a3445;
+			color: var(--ink);
+			border-radius: 12px;
+			padding: 12px 18px;
+			cursor: pointer;
+		}
+
+		.ft-config {
+			display: grid;
+			grid-template-columns: auto 1fr;
+			gap: 12px;
+			align-items: center;
+			padding: 12px;
+			background: rgba(255, 255, 255, .03);
+			border-radius: 12px;
+		}
+
+		.total-time {
+			font-size: 1.1rem;
+			font-weight: 800;
+			color: var(--green);
+			text-align: right;
+			padding: 10px 0;
+			border-top: 1px solid rgba(255, 255, 255, .1);
+			margin-top: 10px;
+		}
+
+		.move-btns {
+			display: flex;
+			flex-direction: column;
+			gap: 2px;
+		}
+
+		.move-btn {
+			background: transparent;
+			border: none;
+			color: var(--muted);
+			cursor: pointer;
+			font-size: 10px;
+			padding: 2px;
+			line-height: 1;
+		}
+
+		.move-btn:hover {
+			color: #fff;
+		}
+
+		@media (max-width: 640px) {
+			.progress-wrap {
+				height: max(96px, calc(var(--bar-h) * 3.4));
+			}
+
+			.cp-label {
+				font-size: 1.05rem;
+			}
+
+			.vol {
+				width: 120px;
+			}
+		}
+
+		/* Subtitles */
+		.subtitle-overlay {
+			position: absolute;
+			bottom: 80px;
+			left: 50%;
+			transform: translateX(-50%);
+			width: 80%;
+			text-align: center;
+			font-size: 2rem;
+			font-weight: 700;
+			color: #ffffff;
+			text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8), 0 0 10px rgba(0, 0, 0, 0.5);
+			pointer-events: none;
+			z-index: 40;
+			min-height: 1.2em;
+			line-height: 1.4;
+		}
+
+		#ccBtn.active {
+			background: var(--green);
+			color: #fff;
+		}
+	</style>
+</head>
+
+<body>
+	<div class="app">
+		<!-- Top progress bar -->
+		<div class="topbar">
+			<div class="progress-wrap">
+				<div class="progress-track">
+					<div class="progress-fill" id="progressFill"></div>
+					<div class="progress-free" id="progressFree"></div>
+				</div>
+				<div class="checklayer" id="checkLayer" aria-hidden="true"></div>
+			</div>
+		</div>
+
+		<!-- Slides area -->
+		<div class="slides-area">
+			<iframe class="slides-frame" id="slidesFrame" loading="lazy"
+				allow="autoplay; fullscreen; clipboard-write; encrypted-media; picture-in-picture; screen-wake-lock"
+				sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-presentation allow-downloads"
+				src="">
+			</iframe>
+			<!-- Subtitle Overlay -->
+			<div id="subtitleOverlay" class="subtitle-overlay">
+				<div id="ccEs"></div>
+				<div id="ccEn"></div>
+			</div>
+		</div>
+
+		<!-- Controls -->
+		<div class="controls">
+			<button class="btn" id="restartBtn">Restart</button>
+
+			<div class="btn-group">
+				<button class="btn" id="backBtn">-1m</button>
+				<button class="btn" id="fwdBtn">+1m</button>
+			</div>
+
+			<button class="btn" id="pauseBtn">Pause</button>
+
+			<div class="btn-group">
+				<button class="btn" id="ftSubBtn" title="Less Free Time">-f</button>
+				<button class="btn" id="ftAddBtn" title="More Free Time">+f</button>
+			</div>
+
+			<button class="btn" id="ccBtn" title="Toggle Subtitles">CC</button>
+
+			<select class="btn" id="ccMode" title="Subtitle Mode">
+				<option value="es">ES → ES</option>
+				<option value="es-en">ES → EN</option>
+			</select>
+
+			<button class="btn btn-accent" id="toggleBtn">Start</button>
+
+			<input class="vol" id="vol" type="range" min="0" max="1" step="0.01" value="0.6" title="Volume" />
+		</div>
+	</div>
+
+	<!-- Config overlay -->
+	<div class="overlay" id="overlay">
+		<div class="cfg">
+			<div class="field">
+				<label for="slidesUrl">Slides URL (embed link)</label>
+				<input type="url" id="slidesUrl" placeholder="https://…/embed?…" />
+			</div>
+
+			<div class="rows" id="rows"></div>
+
+			<div class="ft-config">
+				<input type="checkbox" id="ftEnabled" style="width:20px; height:20px;">
+				<div style="display:grid; gap:4px;">
+					<label for="ftEnabled" style="margin:0; cursor:pointer;">Enable Free Time Reward</label>
+					<div style="display:flex; align-items:center; gap:10px;">
+						<span style="font-size:0.9rem; color:var(--muted);">Duration (min):</span>
+						<input type="number" id="ftMinutes" value="5" step="0.5" min="0"
+							style="width:80px; padding:6px;">
+					</div>
+				</div>
+			</div>
+
+			<div class="total-time" id="totalTimeDisplay">Total: 0m</div>
+
+			<div style="display:flex; align-items:center; justify-content:space-between;">
+				<button class="add-btn" id="addRow">+ Add section</button>
+				<div style="color:var(--muted); font-size:.9rem;">Minutes can be decimals (e.g., 7.5)</div>
+			</div>
+
+			<hr style="border:0; border-top:1px solid rgba(255,255,255,.1); margin:0; width:100%;">
+
+			<div class="field">
+				<label>Schedule (Auto-Start/Pause)</label>
+				<div class="rows" id="schedRows" style="max-height: 160px;"></div>
+				<button class="add-btn" id="addSchedRow" style="width:fit-content;">+ Add Trigger</button>
+			</div>
+
+			<div class="cfg-actions">
+				<button class="ghost" id="clearAll">Clear</button>
+				<button class="primary" id="startNow">Start</button>
+			</div>
+		</div>
+	</div>
+
+	<audio id="ding" preload="auto" src="../../../assets/timer.mp3"></audio>
+
+	<!-- Everything below is a JS module so we can import Transformers.js -->
+	<script type="module">
+		import { pipeline, env } from 'https://cdn.jsdelivr.net/npm/@xenova/transformers@2.17.1';
+
+
+		function getZoom() {
+			return window.devicePixelRatio || 1;
+		}
+
+		function updateZoomVar() {
+			document.documentElement.style.setProperty('--zoom', getZoom());
+		}
+		window.addEventListener('resize', updateZoomVar);
+		updateZoomVar();
+
+		/* ---------- State ---------- */
+		let sections = [];
+		let schedule = []; // { time: "HH:MM", action: "start"|"pause" }
+		let slidesURL = "";
+		let freeTimeEnabled = false;
+		let freeTimeMinutes = 5;
+
+		let running = false;
+		let paused = false;
+		let startTs = 0;
+		let elapsedMs = 0;
+		let rafId = null;
+
+		let totalMs = 0;
+		let starts = [];
+		let ends = [];
+		let lastChimedIndex = -1;
+		const EPS = 60;
+
+		/* ---------- Elements ---------- */
+		const overlay = document.getElementById('overlay');
+		const rowsEl = document.getElementById('rows');
+		const schedRowsEl = document.getElementById('schedRows');
+		const addRowBtn = document.getElementById('addRow');
+		const addSchedRowBtn = document.getElementById('addSchedRow');
+		const startNowBtn = document.getElementById('startNow');
+		const clearAllBtn = document.getElementById('clearAll');
+		const toggleBtn = document.getElementById('toggleBtn');
+		const restartBtn = document.getElementById('restartBtn');
+		const backBtn = document.getElementById('backBtn');
+		const fwdBtn = document.getElementById('fwdBtn');
+		const pauseBtn = document.getElementById('pauseBtn');
+		const ftSubBtn = document.getElementById('ftSubBtn');
+		const ftAddBtn = document.getElementById('ftAddBtn');
+		const ccBtn = document.getElementById('ccBtn');
+		const subtitleOverlay = document.getElementById('subtitleOverlay');
+		const ccModeSelect = document.getElementById('ccMode');
+		let ccMode = 'es'; // "es" or "es-en"
+		const ccEsLine = document.getElementById('ccEs');
+		const ccEnLine = document.getElementById('ccEn');
+
+		const progressFill = document.getElementById('progressFill');
+		const progressFree = document.getElementById('progressFree');
+		const checkLayer = document.getElementById('checkLayer');
+
+		const audioEl = document.getElementById('ding');
+		const volEl = document.getElementById('vol');
+
+		const slidesInput = document.getElementById('slidesUrl');
+		const slidesFrame = document.getElementById('slidesFrame');
+		const ftEnabledInput = document.getElementById('ftEnabled');
+		const ftMinutesInput = document.getElementById('ftMinutes');
+		const totalTimeDisplay = document.getElementById('totalTimeDisplay');
+
+		ccModeSelect.addEventListener('change', (e) => {
+			ccMode = e.target.value;
+		});
+
+		/* ---------- Persistence ---------- */
+		const LS_KEY = 'classTimelineConfig.v2';
+		function saveConfig() {
+			const payload = { sections, schedule, slidesURL, freeTimeEnabled, freeTimeMinutes };
+			localStorage.setItem(LS_KEY, JSON.stringify(payload));
+			updateTotalTime();
+		}
+		function loadConfig() {
+			try {
+				const raw = localStorage.getItem(LS_KEY);
+				if (raw) {
+					const data = JSON.parse(raw);
+					if (Array.isArray(data)) {
+						sections = data.filter(s => s && (s.name ?? '') !== '');
+					} else if (data && typeof data === 'object') {
+						sections = Array.isArray(data.sections) ? data.sections : [];
+						schedule = Array.isArray(data.schedule) ? data.schedule : [];
+						slidesURL = typeof data.slidesURL === 'string' ? data.slidesURL : '';
+						freeTimeEnabled = !!data.freeTimeEnabled;
+						freeTimeMinutes = Number(data.freeTimeMinutes) || 5;
+						sections = sections.filter(s => s && (s.name ?? '') !== '');
+					}
+				}
+			} catch { }
+			if (!sections.length) {
+				sections = [
+					{ name: 'Bellwork', minutes: 8 },
+					{ name: 'Review', minutes: 17 },
+					{ name: 'New Content', minutes: 20 },
+					{ name: 'Practice', minutes: 22 },
+					{ name: 'Exit Ticket', minutes: 10 },
+					{ name: 'Reflection', minutes: 5 },
+				];
+			}
+			slidesInput.value = slidesURL || "";
+			slidesFrame.src = slidesURL || "";
+			ftEnabledInput.checked = freeTimeEnabled;
+			ftMinutesInput.value = freeTimeMinutes;
+			updateTotalTime();
+		}
+
+		/* ---------- Time math ---------- */
+		function computeTotals() {
+			let sectionTotal = sections.reduce((sum, s) => sum + (Number(s.minutes) || 0) * 60000, 0);
+			let ftMs = (freeTimeEnabled ? (Number(freeTimeMinutes) || 0) * 60000 : 0);
+			totalMs = sectionTotal + ftMs;
+
+			starts = [];
+			ends = [];
+			let acc = 0;
+			for (let i = 0; i < sections.length; i++) {
+				starts.push(acc);
+				const len = (Number(sections[i].minutes) || 0) * 60000;
+				acc += len;
+				ends.push(acc);
+			}
+			if (freeTimeEnabled && ftMs > 0) {
+				starts.push(sectionTotal);
+				ends.push(totalMs);
+			}
+		}
+
+		function updateTotalTime() {
+			let sectionTotal = sections.reduce((sum, s) => sum + (Number(s.minutes) || 0), 0);
+			let ft = (freeTimeEnabled ? (Number(freeTimeMinutes) || 0) : 0);
+			totalTimeDisplay.textContent = `Total: ${(sectionTotal + ft).toFixed(1)}m`;
+		}
+
+		/* ---------- Builders ---------- */
+		function buildConfigRows() {
+			rowsEl.innerHTML = '';
+			sections.forEach((s, i) => {
+				const row = document.createElement('div');
+				row.className = 'row';
+				row.innerHTML = `
+					<div class="move-btns">
+						<button class="move-btn up">▲</button>
+						<button class="move-btn down">▼</button>
+					</div>
+					<input type="text" placeholder="Section name" value="${s.name}">
+					<input type="number" step="0.5" min="0" placeholder="Minutes" value="${s.minutes}">
+					<button class="icon-btn" title="Remove">🗑️</button>
+				`;
+				const [moveDiv, nameInput, minInput, delBtn] = row.children;
+				moveDiv.querySelector('.up').addEventListener('click', () => moveSection(i, -1));
+				moveDiv.querySelector('.down').addEventListener('click', () => moveSection(i, 1));
+
+				nameInput.addEventListener('input', e => { s.name = e.target.value; saveConfig(); buildTimeline(); });
+				minInput.addEventListener('input', e => { s.minutes = e.target.value; saveConfig(); buildTimeline(); });
+				delBtn.addEventListener('click', () => { sections.splice(i, 1); saveConfig(); buildConfigRows(); buildTimeline(); });
+				rowsEl.appendChild(row);
+			});
+		}
+
+		function buildScheduleRows() {
+			schedRowsEl.innerHTML = '';
+			schedule.forEach((item, i) => {
+				const row = document.createElement('div');
+				row.className = 'row';
+				row.style.gridTemplateColumns = '1fr 100px 40px';
+				row.innerHTML = `
+					<input type="time" value="${item.time}">
+					<select style="background:#0f141e; color:var(--ink); border:1px solid #2a3445; border-radius:12px; padding:12px; outline:none;">
+						<option value="start" ${item.action === 'start' ? 'selected' : ''}>Start</option>
+						<option value="pause" ${item.action === 'pause' ? 'selected' : ''}>Pause</option>
+					</select>
+					<button class="icon-btn" title="Remove">🗑️</button>
+				`;
+				const [timeInput, actionSelect, delBtn] = row.children;
+				timeInput.addEventListener('input', e => { item.time = e.target.value; saveConfig(); });
+				actionSelect.addEventListener('change', e => { item.action = e.target.value; saveConfig(); });
+				delBtn.addEventListener('click', () => { schedule.splice(i, 1); saveConfig(); buildScheduleRows(); });
+				schedRowsEl.appendChild(row);
+			});
+		}
+
+		function moveSection(index, dir) {
+			if (index + dir < 0 || index + dir >= sections.length) return;
+			const temp = sections[index];
+			sections[index] = sections[index + dir];
+			sections[index + dir] = temp;
+			saveConfig();
+			buildConfigRows();
+			buildTimeline();
+		}
+
+		function buildTimeline() {
+			computeTotals();
+			checkLayer.innerHTML = '';
+			if (!sections.length && !freeTimeEnabled) return;
+
+			const percents = starts.slice(0, sections.length).map(ms => (ms / totalMs) * 100);
+
+			sections.forEach((s, i) => {
+				const cp = document.createElement('div');
+				cp.className = 'cp';
+				if (i === 0) cp.classList.add('first');
+				if (!freeTimeEnabled && i === sections.length - 1) cp.classList.add('last');
+
+				const dot = document.createElement('div');
+				dot.className = 'cp-dot';
+				dot.dataset.index = i;
+
+				const label = document.createElement('div');
+				label.className = 'cp-label ' + (i % 2 === 0 ? 'top' : 'bottom');
+				label.textContent = s.name || 'Untitled';
+
+				cp.appendChild(dot);
+				cp.appendChild(label);
+				cp.style.left = `${percents[i]}%`;
+				checkLayer.appendChild(cp);
+			});
+
+			if (freeTimeEnabled) {
+				const ftStartMs = starts[sections.length];
+				const cp = document.createElement('div');
+				cp.className = 'cp';
+				cp.style.left = `${(ftStartMs / totalMs) * 100}%`;
+
+				const dot = document.createElement('div');
+				dot.className = 'cp-dot';
+
+				const label = document.createElement('div');
+				label.className = 'cp-label bottom';
+				label.textContent = 'Free Time';
+				label.style.color = '#e54d2e';
+
+				cp.appendChild(dot);
+				cp.appendChild(label);
+				checkLayer.appendChild(cp);
+			}
+
+			updateCompletionUI(true);
+		}
+
+		/* ---------- Audio ---------- */
+		function setVolume(v) { audioEl.volume = Math.max(0, Math.min(1, v)); }
+		volEl.addEventListener('input', e => setVolume(parseFloat(e.target.value) || 0));
+
+		/* ---------- Scheduler ---------- */
+		let lastTriggeredTime = "";
+		setInterval(() => {
+			const now = new Date();
+			const hh = String(now.getHours()).padStart(2, '0');
+			const mm = String(now.getMinutes()).padStart(2, '0');
+			const timeStr = `${hh}:${mm}`;
+
+			if (timeStr === lastTriggeredTime) return;
+
+			const item = schedule.find(x => x.time === timeStr);
+			if (item) {
+				lastTriggeredTime = timeStr;
+				if (item.action === 'start') {
+					if (!running) startTimer();
+				} else if (item.action === 'pause') {
+					if (running) pauseTimer();
+				}
+			}
+		}, 1000);
+
+		/* ---------- Timer Logic ---------- */
+		function tick() {
+			if (!running) return;
+			const now = Date.now();
+			elapsedMs = now - startTs;
+
+			if (elapsedMs >= totalMs && totalMs > 0) {
+				elapsedMs = totalMs;
+				pauseTimer();
+				if (lastChimedIndex < starts.length) {
+					audioEl.currentTime = 0;
+					audioEl.play().catch(() => { });
+					lastChimedIndex = starts.length;
+				}
+			}
+
+			updateCompletionUI();
+			rafId = requestAnimationFrame(tick);
+		}
+
+		function updateCompletionUI(force = false) {
+			if (!totalMs) {
+				progressFill.style.width = '0%';
+				progressFree.style.width = '0%';
+				return;
+			}
+
+			let sectionTotal = sections.reduce((sum, s) => sum + (Number(s.minutes) || 0) * 60000, 0);
+			let greenMs = Math.min(elapsedMs, sectionTotal);
+			let redMs = Math.max(0, elapsedMs - sectionTotal);
+
+			let greenPct = (greenMs / totalMs) * 100;
+			let redPct = (redMs / totalMs) * 100;
+
+			progressFill.style.width = `${greenPct}%`;
+
+			progressFree.style.right = 'auto';
+			progressFree.style.left = `${(sectionTotal / totalMs) * 100}%`;
+			progressFree.style.width = `${redPct}%`;
+
+			let currentIdx = -1;
+			for (let i = 0; i < starts.length; i++) {
+				if (elapsedMs >= starts[i] - EPS) currentIdx = i;
+			}
+
+			if (currentIdx > lastChimedIndex && running) {
+				if (lastChimedIndex !== -1) {
+					audioEl.currentTime = 0;
+					audioEl.play().catch(() => { });
+				}
+				lastChimedIndex = currentIdx;
+			}
+
+			const labels = document.querySelectorAll('.cp-label');
+			labels.forEach((lbl, i) => {
+				if (i < sections.length) {
+					if (elapsedMs >= starts[i] && elapsedMs < ends[i]) {
+						lbl.classList.add('active');
+						lbl.classList.remove('completed');
+					} else if (elapsedMs >= ends[i]) {
+						lbl.classList.remove('active');
+						lbl.classList.add('completed');
+					} else {
+						lbl.classList.remove('active');
+						lbl.classList.remove('completed');
+					}
+				} else {
+					if (freeTimeEnabled && i === sections.length) {
+						if (elapsedMs >= starts[i]) {
+							lbl.classList.add('active');
+						} else {
+							lbl.classList.remove('active');
+						}
+					}
+				}
+			});
+
+			const dots = document.querySelectorAll('.cp');
+			dots.forEach((dot, i) => {
+				let time = starts[i];
+				if (elapsedMs >= time) {
+					dot.classList.add('completed');
+				} else {
+					dot.classList.remove('completed');
+				}
+			});
+		}
+
+		function startTimer() {
+			if (running) return;
+			if (elapsedMs >= totalMs) {
+				elapsedMs = 0;
+				lastChimedIndex = -1;
+				updateCompletionUI();
+			}
+			running = true;
+			paused = false;
+			startTs = Date.now() - elapsedMs;
+			toggleBtn.textContent = "Stop";
+			toggleBtn.style.background = "#e54d2e";
+			toggleBtn.style.color = "#fff";
+			pauseBtn.textContent = "Pause";
+			pauseBtn.classList.remove('timing');
+			overlay.classList.remove('show');
+			tick();
+		}
+
+		function pauseTimer() {
+			running = false;
+			paused = true;
+			cancelAnimationFrame(rafId);
+			toggleBtn.textContent = "Start";
+			toggleBtn.style.background = "#ffffff";
+			toggleBtn.style.color = "#2f2f2f";
+			pauseBtn.textContent = "Resume";
+			pauseBtn.classList.add('timing');
+		}
+
+		function resetTimer() {
+			running = false;
+			paused = false;
+			cancelAnimationFrame(rafId);
+			elapsedMs = 0;
+			lastChimedIndex = -1;
+			updateCompletionUI();
+			toggleBtn.textContent = "Start";
+			toggleBtn.style.background = "#ffffff";
+			toggleBtn.style.color = "#2f2f2f";
+			pauseBtn.textContent = "Pause";
+			pauseBtn.classList.remove('timing');
+		}
+
+		function adjustTime(deltaMs) {
+			elapsedMs += deltaMs;
+			if (elapsedMs < 0) elapsedMs = 0;
+			if (elapsedMs > totalMs) elapsedMs = totalMs;
+			if (running) {
+				startTs = Date.now() - elapsedMs;
+			}
+			updateCompletionUI();
+		}
+
+		/* ---------- ES -> EN translation with Transformers.js ---------- */
+		let hfTranslator = null;
+		let hfLoading = false;
+
+		async function ensureTransformersTranslator() {
+			if (hfTranslator) return hfTranslator;
+			if (hfLoading) {
+				while (hfLoading && !hfTranslator) {
+					await new Promise(r => setTimeout(r, 100));
+				}
+				return hfTranslator;
+			}
+
+			hfLoading = true;
+			try {
+				env.allowLocalModels = false; // remote only
+				console.log('Loading Transformers.js translation model…');
+				hfTranslator = await pipeline('translation', 'Xenova/opus-mt-es-en');
+				console.log('Transformers.js model ready');
+				return hfTranslator;
+			} catch (err) {
+				console.error('Error loading Transformers.js model:', err);
+				hfTranslator = null;
+				return null;
+			} finally {
+				hfLoading = false;
+			}
+		}
+
+		async function translateEsToEn(text) {
+			text = text.trim();
+			if (!text) return text;
+			const translator = await ensureTransformersTranslator();
+			if (!translator) return text;
+
+			try {
+				const out = await translator(text, {
+					do_sample: false,
+					num_beams: 1,
+				});
+				if (Array.isArray(out) && out[0] && out[0].translation_text) {
+					return out[0].translation_text;
+				}
+				return typeof out === 'string' ? out : text;
+			} catch (err) {
+				console.error('Translation error:', err);
+				return text;
+			}
+		}
+
+		/* ---------- Subtitles Logic ---------- */
+		/* ---------- Subtitles Logic ---------- */
+let recognition;
+let recognizing = false;       // speech recognition currently active
+let ccEnabled = false;         // CC button ON/OFF
+let pushToTalkActive = false;  // PageUp is held down
+
+
+		if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+			const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+			recognition = new SpeechRecognition();
+			recognition.continuous = true;
+			recognition.interimResults = true;
+			recognition.lang = 'es-MX';
+
+			let lastTranslatedEs = '';   // remember last fully-translated Spanish sentence
+
+			recognition.onresult = async (event) => {
+				let interimTranscript = '';
+				let finalTranscript = '';
+
+				// MDN-style accumulation: interim = live phrase, final = committed text
+				for (let i = event.resultIndex; i < event.results.length; ++i) {
+					const res = event.results[i];
+					const text = res[0].transcript;
+
+					if (res.isFinal) {
+						finalTranscript += text;
+					} else {
+						interimTranscript += text;
+					}
+				}
+
+				// Nothing to show?
+				if (!interimTranscript && !finalTranscript) return;
+
+				// This is the "live" Spanish line (grows as you speak)
+				const liveSpanish = (interimTranscript || finalTranscript).trim();
+
+				// --- Mode 1: ES -> ES (only Spanish captions) ---
+				if (ccMode === 'es') {
+					ccEsLine.textContent = liveSpanish;
+					ccEnLine.textContent = ''; // make sure English line is empty
+					return;
+				}
+
+				// --- Mode 2: ES -> EN (double captions) ---
+				if (ccMode === 'es-en') {
+					// 1) Always show live Spanish on top
+					ccEsLine.textContent = liveSpanish;
+
+					// 2) Only translate when we have NEW final text
+					//    (so we don't spam translations for every interim update)
+					const finalClean = finalTranscript.trim();
+					if (!finalClean) return;
+
+					// If it's the same final phrase we already translated, do nothing
+					if (finalClean === lastTranslatedEs) return;
+
+					lastTranslatedEs = finalClean;
+
+					// Optional: clear old English until new translation arrives
+					ccEnLine.textContent = '';
+
+					// 3) Translate and then show English beneath
+					const translated = await translateEsToEn(finalClean);
+
+					// Only update if we are still in ES-EN mode and this is still
+					// the latest final Spanish we know about
+					if (ccMode === 'es-en' && lastTranslatedEs === finalClean) {
+						ccEnLine.textContent = translated;
+					}
+				}
+			};
+
+
+
+			recognition.onerror = (event) => {
+				console.error('Speech recognition error', event.error);
+				if (event.error === 'not-allowed') {
+					alert('Microphone access denied. Please allow microphone access to use subtitles.');
+					toggleCC(false);
+				}
+			};
+
+			recognition.onend = () => {
+	// Only restart if CC enabled *and* PageUp still held down
+	if (ccEnabled && pushToTalkActive) {
+		try { recognition.start(); } catch {}
+	} else {
+		recognizing = false;
+	}
+};
+
+
+		function toggleCC(forceState) {
+	if (!recognition) return;
+
+	const newState = forceState !== undefined ? forceState : !ccEnabled;
+
+	if (newState) {
+		// CC enabled, but only listen when PageUp is held
+		ccEnabled = true;
+		ccBtn.classList.add('active');
+		subtitleOverlay.style.display = 'block';
+	} else {
+		// Fully shut down subtitles
+		ccEnabled = false;
+		pushToTalkActive = false;
+		recognizing = false;
+
+		try { recognition.stop(); } catch {}
+
+		ccBtn.classList.remove('active');
+		subtitleOverlay.style.display = 'none';
+		ccEsLine.textContent = '';
+		ccEnLine.textContent = '';
+	}
+}
+
+
+
+		ccBtn.addEventListener('click', () => toggleCC());
+		ccModeSelect.addEventListener('change', (e) => {
+			ccMode = e.target.value;
+			ccEsLine.textContent = '';
+			ccEnLine.textContent = '';
+		});
+
+		/* ---------- Event Listeners ---------- */
+
+// PUSH-TO-TALK WITH PAGE UP
+document.addEventListener('keydown', (e) => {
+	if (e.key === 'PageUp' && ccEnabled && recognition) {
+
+		// Avoid repeated starts from key auto-repeat
+		if (pushToTalkActive) return;
+
+		pushToTalkActive = true;
+		recognizing = true;
+
+		try { recognition.start(); } catch {}
+	}
+});
+
+document.addEventListener('keyup', (e) => {
+	if (e.key === 'PageUp' && recognition) {
+		pushToTalkActive = false;
+		recognizing = false;
+
+		try { recognition.stop(); } catch {}
+	}
+});
+
+		toggleBtn.addEventListener('click', () => {
+			if (running) {
+				// Stop -> reset timer, then open config
+				resetTimer();
+				overlay.classList.add('show');
+				buildConfigRows();
+				buildScheduleRows();
+			} else {
+				startTimer();
+			}
+		});
+
+		pauseBtn.addEventListener('click', () => {
+			if (running) pauseTimer();
+			else if (paused) startTimer();
+		});
+
+		restartBtn.addEventListener('click', resetTimer);
+		backBtn.addEventListener('click', () => adjustTime(-60000));
+		fwdBtn.addEventListener('click', () => adjustTime(60000));
+
+		ftSubBtn.addEventListener('click', () => {
+			freeTimeMinutes = Math.max(0, (Number(freeTimeMinutes) || 0) - 1);
+			saveConfig();
+			buildTimeline();
+		});
+		ftAddBtn.addEventListener('click', () => {
+			freeTimeMinutes = (Number(freeTimeMinutes) || 0) + 1;
+			saveConfig();
+			buildTimeline();
+		});
+
+		// Config UI
+		document.addEventListener('keydown', e => {
+			if (e.key === 'Escape') overlay.classList.remove('show');
+			if (e.key === ' ' && e.target.tagName !== 'INPUT') {
+				e.preventDefault();
+				if (running) pauseTimer();
+				else if (paused) startTimer();
+				else startTimer();
+			}
+		});
+
+		overlay.addEventListener('click', e => {
+			if (e.target === overlay) overlay.classList.remove('show');
+		});
+
+		document.querySelector('.topbar').addEventListener('dblclick', () => {
+			overlay.classList.add('show');
+			buildConfigRows();
+			buildScheduleRows();
+		});
+
+		document.addEventListener('keydown', e => {
+			if (e.key === 'c' && e.target.tagName !== 'INPUT') {
+				overlay.classList.add('show');
+				buildConfigRows();
+				buildScheduleRows();
+			}
+		});
+
+		addRowBtn.addEventListener('click', () => {
+			sections.push({ name: 'New Section', minutes: 10 });
+			saveConfig();
+			buildConfigRows();
+			buildTimeline();
+		});
+
+		addSchedRowBtn.addEventListener('click', () => {
+			schedule.push({ time: "08:00", action: "start" });
+			saveConfig();
+			buildScheduleRows();
+		});
+
+		startNowBtn.addEventListener('click', () => {
+			overlay.classList.remove('show');
+			resetTimer();
+			startTimer();
+		});
+
+		clearAllBtn.addEventListener('click', () => {
+			if (confirm('Clear all sections?')) {
+				sections = [];
+				schedule = [];
+				saveConfig();
+				buildConfigRows();
+				buildScheduleRows();
+				buildTimeline();
+			}
+		});
+
+		slidesInput.addEventListener('change', e => {
+			slidesURL = e.target.value;
+			slidesFrame.src = slidesURL;
+			saveConfig();
+		});
+
+		ftEnabledInput.addEventListener('change', e => {
+			freeTimeEnabled = e.target.checked;
+			saveConfig();
+			buildTimeline();
+		});
+
+		ftMinutesInput.addEventListener('change', e => {
+			freeTimeMinutes = e.target.value;
+			saveConfig();
+			buildTimeline();
+		});
+
+		/* ---------- Init ---------- */
+		loadConfig();
+		buildTimeline();
+		setVolume(parseFloat(volEl.value) || 0.6);
+	</script>
+</body>
+
+</html>
