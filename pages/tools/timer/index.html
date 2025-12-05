@@ -1100,7 +1100,9 @@ let pushToTalkActive = false;  // PageUp is held down
 			recognition.onresult = async (event) => {
 				let interimTranscript = '';
 				let finalTranscript = '';
-
+				if (!ccEnabled || !pushToTalkActive) {
+						return;
+					}
 				// MDN-style accumulation: interim = live phrase, final = committed text
 				for (let i = event.resultIndex; i < event.results.length; ++i) {
 					const res = event.results[i];
@@ -1166,43 +1168,51 @@ let pushToTalkActive = false;  // PageUp is held down
 			};
 
 			recognition.onend = () => {
-	// Only restart if CC enabled *and* PageUp still held down
-	if (ccEnabled && pushToTalkActive) {
+	if (ccEnabled) {
 		try { recognition.start(); } catch {}
-	} else {
-		recognizing = false;
+		recognizing = true;
 	}
 };
+
 
 		} else {
 			ccBtn.style.display = 'none';
 			console.warn('Web Speech API not supported');
 		}
+let pushToTalkActive = false; // true = user holding PageUp
 
-		function toggleCC(forceState) {
+function toggleCC(forceState) {
 	if (!recognition) return;
 
 	const newState = forceState !== undefined ? forceState : !ccEnabled;
 
 	if (newState) {
-		// CC enabled, but only listen when PageUp is held
 		ccEnabled = true;
 		ccBtn.classList.add('active');
 		subtitleOverlay.style.display = 'block';
+
+		// start mic ONCE and leave it running
+		if (!recognizing) {
+			try { recognition.start(); } catch {}
+			recognizing = true;
+		}
+
 	} else {
-		// Fully shut down subtitles
 		ccEnabled = false;
 		pushToTalkActive = false;
-		recognizing = false;
-
-		try { recognition.stop(); } catch {}
 
 		ccBtn.classList.remove('active');
 		subtitleOverlay.style.display = 'none';
+
+		// DO NOT stop mic unless CC is disabled
+		try { recognition.stop(); } catch {}
+		recognizing = false;
+
 		ccEsLine.textContent = '';
 		ccEnLine.textContent = '';
 	}
 }
+
 
 
 
@@ -1326,26 +1336,21 @@ let pushToTalkActive = false;  // PageUp is held down
 
 		// PUSH-TO-TALK WITH PAGE UP
 document.addEventListener('keydown', (e) => {
-	if (e.key === 'PageUp' && ccEnabled && recognition) {
-
-		// Avoid repeated starts from key auto-repeat
-		if (pushToTalkActive) return;
-
+	if (e.key === 'PageUp') {
 		pushToTalkActive = true;
-		recognizing = true;
-
-		try { recognition.start(); } catch {}
 	}
 });
 
 document.addEventListener('keyup', (e) => {
-	if (e.key === 'PageUp' && recognition) {
+	if (e.key === 'PageUp') {
 		pushToTalkActive = false;
-		recognizing = false;
 
-		try { recognition.stop(); } catch {}
+		// Clear live subtitles the moment user releases PageUp
+		ccEsLine.textContent = '';
+		ccEnLine.textContent = '';
 	}
 });
+
 
 
 		/* ---------- Init ---------- */
