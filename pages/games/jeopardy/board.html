@@ -10,14 +10,13 @@
 <div class="board-wrapper">
 	<div class="board-title" id="boardTitle">Jeopardy!</div>
 	<div class="scorebar" id="boardScorebar"></div>
+	<div class="final-question-display" id="finalQuestionDisplay"></div>
 	<div class="jeopardy-board" id="jeopardyBoard"></div>
 </div>
 
 <div class="current-clue-overlay" id="clueOverlay">
 	<div class="current-clue-card">
-		<div id="clueTimerDisplay"
-		     style="font-size:1.2rem;font-weight:700;color:var(--jeopardy-gold-soft);margin-bottom:0.6rem;display:none;">
-		</div>
+		<div id="clueTimerDisplay" style="display:none;"></div>
 		<div class="current-clue-text" id="clueText"></div>
 		<div style="display:flex;justify-content:center;gap:1rem;align-items:center;">
 			<div class="badge" id="clueMeta"></div>
@@ -27,7 +26,7 @@
 		</div>
 
 		<div class="buzz-order-container" id="buzzOrderContainer" style="display:none;">
-			<div class="buzz-order-title">Order</div>
+			<div class="buzz-order-title">Buzz order</div>
 			<div class="buzz-order-chips" id="buzzOrderChips"></div>
 		</div>
 	</div>
@@ -35,7 +34,7 @@
 
 <script type="module">
 	import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
-	import { getDatabase, ref, onValue, update, set } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-database.js";
+	import { getDatabase, ref, onValue, set, update } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-database.js";
 
 	const firebaseConfig = {
     apiKey: "AIzaSyCEbHLRWZweJyhhtkLiRviFjInwEbDbubI",
@@ -46,11 +45,15 @@
     appId: "1:334799466944:web:38893b047c956dafa19825"
   };
 
+	const OFFLINE_THRESHOLD_MS = 15000;
+	const TIMER_DURATION_MS = 15000;
+
 	const app = initializeApp(firebaseConfig);
 	const db = getDatabase(app);
 
 	const urlParams = new URLSearchParams(window.location.search);
 	const gameCode = urlParams.get("code");
+
 	const boardEl = document.getElementById("jeopardyBoard");
 	const boardScorebar = document.getElementById("boardScorebar");
 	const clueOverlay = document.getElementById("clueOverlay");
@@ -60,6 +63,7 @@
 	const clueTimerDisplay = document.getElementById("clueTimerDisplay");
 	const buzzOrderContainer = document.getElementById("buzzOrderContainer");
 	const buzzOrderChips = document.getElementById("buzzOrderChips");
+	const finalQuestionDisplay = document.getElementById("finalQuestionDisplay");
 
 	let boardData = [];
 	let scores = {};
@@ -67,10 +71,13 @@
 	let timerState = { running: false, startedAt: null };
 	let timerIntervalId = null;
 	let buzzListData = {};
-	let finalState = { inProgress: false, question: "", closed: false };
+	let finalState = { inProgress: false, question: "", questionRevealed: false, closed: false };
 	let finalReveals = {};
 
-	const TIMER_DURATION_MS = 15000; // 15-second countdown
+	function isOfflineTeam(team) {
+		if (!team || !team.lastSeen) return false;
+		return Date.now() - team.lastSeen > OFFLINE_THRESHOLD_MS;
+	}
 
 	function renderBoard() {
 		boardEl.innerHTML = "";
@@ -80,7 +87,7 @@
 		}
 		const maxClueCount = Math.max(...boardData.map(c => c.clues.length));
 
-		// Categories row (click to open first unused clue)
+		// Categories
 		for (let col = 0; col < 5; col++) {
 			const div = document.createElement("div");
 			div.className = "category-cell";
@@ -96,7 +103,7 @@
 			boardEl.appendChild(div);
 		}
 
-		// Clue rows
+		// Clues
 		for (let row = 0; row < maxClueCount; row++) {
 			for (let col = 0; col < 5; col++) {
 				const div = document.createElement("div");
@@ -129,6 +136,7 @@
 		for (const [teamId, team] of entries) {
 			const pill = document.createElement("div");
 			pill.className = "score-pill";
+			if (isOfflineTeam(team)) pill.classList.add("offline");
 
 			const left = document.createElement("div");
 			left.style.display = "flex";
@@ -138,14 +146,8 @@
 			const name = document.createElement("div");
 			name.className = "score-name";
 			name.textContent = team.name || "Team";
-
-			if (finalState && finalState.inProgress || (finalState && finalState.closed)) {
-				// we want the name + maybe final answer under it
-			}
-
 			left.appendChild(name);
 
-			// If this team has a revealed final answer, show it under the name
 			if (finalReveals && finalReveals[teamId] && finalReveals[teamId].answer) {
 				const answerDiv = document.createElement("div");
 				answerDiv.className = "final-answer-board";
@@ -181,14 +183,12 @@
 	function selectClue(catIndex, clueIndex) {
 		if (!gameCode) return;
 
-		// Reset buzz + buzz list
 		set(ref(db, "jeopardyGames/" + gameCode + "/buzz"), {
 			teamId: null,
 			at: null
 		});
 		set(ref(db, "jeopardyGames/" + gameCode + "/buzzList"), null);
 
-		// Tell everyone which clue is showing
 		update(ref(db, "jeopardyGames/" + gameCode + "/currentClue"), {
 			catIndex,
 			clueIndex,
@@ -227,7 +227,6 @@
 	}
 
 	function renderBuzzOrder() {
-		// Show only if a clue is showing and we have data
 		if (!currentClue || !currentClue.showing || !buzzListData || !Object.keys(buzzListData).length) {
 			buzzOrderContainer.style.display = "none";
 			buzzOrderChips.innerHTML = "";
@@ -241,7 +240,6 @@
 			return;
 		}
 
-		// Get earliest buzz per team
 		const firstByTeam = new Map();
 		for (const entry of entries) {
 			const teamId = entry.teamId;
@@ -273,7 +271,7 @@
 			const name = document.createElement("div");
 			name.className = "buzz-order-chip-name";
 			const team = scores[item.teamId];
-			name.textContent = team && team.name ? team.name : "Equipo";
+			name.textContent = team && team.name ? team.name : "Team";
 
 			chip.appendChild(idx);
 			chip.appendChild(name);
@@ -303,6 +301,20 @@
 		renderBuzzOrder();
 	}
 
+	function updateFinalDisplay() {
+		if (!finalState || !finalState.inProgress) {
+			boardTitleEl.textContent = "Jeopardy!";
+			finalQuestionDisplay.textContent = "";
+			return;
+		}
+		boardTitleEl.textContent = "Final Jeopardy!";
+		if (!finalState.questionRevealed) {
+			finalQuestionDisplay.textContent = "Final Jeopardy – Place your wagers now.";
+		} else {
+			finalQuestionDisplay.textContent = finalState.question || "";
+		}
+	}
+
 	if (!gameCode) {
 		alert("No game code provided in URL.");
 	} else {
@@ -324,12 +336,8 @@
 		});
 
 		onValue(ref(db, "jeopardyGames/" + gameCode + "/final"), (snap) => {
-			finalState = snap.val() || { inProgress: false, question: "", closed: false };
-			if (finalState.inProgress) {
-				boardTitleEl.textContent = "Final Jeopardy!";
-			} else {
-				boardTitleEl.textContent = "Jeopardy!";
-			}
+			finalState = snap.val() || { inProgress: false, question: "", questionRevealed: false, closed: false };
+			updateFinalDisplay();
 			renderScores();
 		});
 

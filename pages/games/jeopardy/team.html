@@ -2,61 +2,71 @@
 <html lang="en">
 <head>
 	<meta charset="utf-8" />
-	<title>Jeopardy – Team Panel</title>
+	<title>Jeopardy – Team</title>
 	<meta name="viewport" content="width=device-width, initial-scale=1" />
 	<link rel="stylesheet" href="shared-style.css" />
 </head>
 <body>
 <div class="team-wrapper">
 	<div class="team-card">
-		<h2 style="margin-bottom:0.4rem;">Team Panel</h2>
+		<!-- JOIN SECTION -->
 		<div id="joinSection">
-			<div class="flex-col">
-				<label class="label">Join Code</label>
-				<input id="joinCodeInput" placeholder="ABCDE" maxlength="6" />
+			<h2>Join Game</h2>
+			<div class="team-instruction">
+				Enter the join code from the teacher. Then choose a team (country).
 			</div>
 			<div class="flex-col">
-				<label class="label">Team Name</label>
-				<input id="teamNameInput" placeholder="Los Tigres" />
+				<label class="label" for="joinCodeInput">Join Code</label>
+				<input id="joinCodeInput" type="text" placeholder="ABCDE" maxlength="8" />
 			</div>
-			<div class="flex-row" style="margin-top:0.6rem;">
-				<button id="joinBtn">Join Game</button>
+			<div class="flex-row">
+				<button id="connectBtn">Connect</button>
+				<small id="joinError" style="color:var(--danger);display:none;"></small>
 			</div>
-			<div id="joinError" style="color:var(--danger);font-size:0.85rem;margin-top:0.4rem;display:none;"></div>
+
+			<div id="teamSelectSection" class="team-select-section" style="display:none;">
+				<div class="label">Choose Your Team</div>
+				<small style="color:var(--text-muted);font-size:0.78rem;">
+					Green = disconnected team you can rejoin. Gray = already taken.
+				</small>
+				<div class="team-select-grid" id="teamSelectGrid"></div>
+			</div>
 		</div>
 
+		<!-- GAME SECTION -->
 		<div id="gameSection" style="display:none;">
 			<div class="team-name-display" id="teamNameDisplay"></div>
-			<div class="badge" id="teamScoreBadge">Score: $0</div>
 			<div class="team-instruction">
-				Press the big button or hit <b>spacebar</b> to buzz in when a clue is on the board.
+				Press the buzzer (or spacebar) when a clue is active. Watch the cooldown timer above.
 			</div>
-			<button class="buzz-button" id="buzzButton" disabled>BUZZ</button>
-			<div class="buzz-status-text" id="teamBuzzStatus">Waiting for the teacher to select a clue…</div>
+			<div id="teamScoreBadge" style="font-size:0.9rem;margin-bottom:0.3rem;"></div>
+			<div id="cooldownDisplay" class="cooldown-timer"></div>
+
+			<button id="buzzButton" class="buzz-button" disabled>Buzz</button>
+			<div id="teamBuzzStatus" class="buzz-status-text"></div>
 
 			<div class="final-section">
 				<div class="final-title">Final Jeopardy</div>
-				<div class="final-question" id="finalQuestionText" style="color:var(--text-muted);">
+				<div id="finalQuestionText" class="final-question">
 					Not in Final Jeopardy yet.
 				</div>
-				<div id="finalInputSection" style="display:none;">
-					<div class="flex-row">
-						<div class="flex-col" style="flex:1;">
-							<label class="label">Wager</label>
-							<input class="wager-input" id="wagerInput" type="number" min="0" step="100" value="0" />
-						</div>
-					</div>
-					<div class="flex-col">
-						<label class="label">Your Answer</label>
-						<textarea id="finalAnswerInput" rows="2" placeholder="type here..."></textarea>
-					</div>
-					<div class="flex-row" style="margin-top:0.4rem;">
-						<button id="submitFinalBtn" class="small">Submit Final Answer</button>
-					</div>
-					<div id="finalStatusMsg" style="font-size:0.85rem;margin-top:0.3rem;color:var(--text-muted);"></div>
-				</div>
-			</div>
 
+				<div id="finalWagerArea" class="flex-row" style="margin-bottom:0.4rem;display:none;">
+					<small>Wager:</small>
+					<input id="wagerInput" class="wager-input" type="number" min="0" />
+					<button class="small" id="submitWagerBtn">Submit Wager</button>
+				</div>
+
+				<div id="finalAnswerArea" class="flex-col" style="display:none;">
+					<small class="label">Your Answer</small>
+					<textarea id="finalAnswerInput" rows="2" placeholder="Type your complete answer here..."></textarea>
+					<div class="flex-row" style="margin-top:0.3rem;">
+						<button class="small" id="submitFinalAnswerBtn">Submit Answer</button>
+					</div>
+				</div>
+
+				<div id="finalStatusMsg" style="font-size:0.8rem;color:var(--text-muted);margin-top:0.4rem;"></div>
+			</div>
 		</div>
 	</div>
 </div>
@@ -64,7 +74,7 @@
 <script type="module">
 	import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
 	import {
-		getDatabase, ref, get, push, set, onValue, runTransaction, serverTimestamp
+		getDatabase, ref, get, onValue, push, set, runTransaction, update, serverTimestamp
 	} from "https://www.gstatic.com/firebasejs/9.22.2/firebase-database.js";
 
 	const firebaseConfig = {
@@ -79,29 +89,72 @@
 	const app = initializeApp(firebaseConfig);
 	const db = getDatabase(app);
 
+	const OFFLINE_THRESHOLD_MS = 15000;
+	const BUZZ_COOLDOWN_MS = 4000;
+
+	// Preset team list: Spanish-speaking countries (English + flag)
+	const TEAMS = [
+		{ id: "mexico", label: "Mexico 🇲🇽" },
+		{ id: "spain", label: "Spain 🇪🇸" },
+		{ id: "argentina", label: "Argentina 🇦🇷" },
+		{ id: "colombia", label: "Colombia 🇨🇴" },
+		{ id: "chile", label: "Chile 🇨🇱" },
+		{ id: "peru", label: "Peru 🇵🇪" },
+		{ id: "venezuela", label: "Venezuela 🇻🇪" },
+		{ id: "ecuador", label: "Ecuador 🇪🇨" },
+		{ id: "guatemala", label: "Guatemala 🇬🇹" },
+		{ id: "cuba", label: "Cuba 🇨🇺" },
+		{ id: "dominican_republic", label: "Dominican Republic 🇩🇴" },
+		{ id: "puerto_rico", label: "Puerto Rico 🇵🇷" },
+		{ id: "bolivia", label: "Bolivia 🇧🇴" },
+		{ id: "honduras", label: "Honduras 🇭🇳" },
+		{ id: "paraguay", label: "Paraguay 🇵🇾" },
+		{ id: "uruguay", label: "Uruguay 🇺🇾" },
+		{ id: "costa_rica", label: "Costa Rica 🇨🇷" },
+		{ id: "panama", label: "Panama 🇵🇦" },
+		{ id: "nicaragua", label: "Nicaragua 🇳🇮" },
+		{ id: "el_salvador", label: "El Salvador 🇸🇻" },
+		{ id: "equatorial_guinea", label: "Equatorial Guinea 🇬🇶" }
+	];
+
+	// DOM
 	const joinSection = document.getElementById("joinSection");
 	const gameSection = document.getElementById("gameSection");
 	const joinCodeInput = document.getElementById("joinCodeInput");
-	const teamNameInput = document.getElementById("teamNameInput");
-	const joinBtn = document.getElementById("joinBtn");
+	const connectBtn = document.getElementById("connectBtn");
 	const joinError = document.getElementById("joinError");
+	const teamSelectSection = document.getElementById("teamSelectSection");
+	const teamSelectGrid = document.getElementById("teamSelectGrid");
+
 	const teamNameDisplay = document.getElementById("teamNameDisplay");
 	const teamScoreBadge = document.getElementById("teamScoreBadge");
+	const cooldownDisplay = document.getElementById("cooldownDisplay");
 	const buzzButton = document.getElementById("buzzButton");
-	const teamBuzzStatus = document.getElementById("teamBuzzStatus");
+
 	const finalQuestionText = document.getElementById("finalQuestionText");
-	const finalInputSection = document.getElementById("finalInputSection");
+	const finalWagerArea = document.getElementById("finalWagerArea");
 	const wagerInput = document.getElementById("wagerInput");
+	const submitWagerBtn = document.getElementById("submitWagerBtn");
+	const finalAnswerArea = document.getElementById("finalAnswerArea");
 	const finalAnswerInput = document.getElementById("finalAnswerInput");
-	const submitFinalBtn = document.getElementById("submitFinalBtn");
+	const submitFinalAnswerBtn = document.getElementById("submitFinalAnswerBtn");
 	const finalStatusMsg = document.getElementById("finalStatusMsg");
 
 	let currentGameCode = null;
 	let teamId = null;
+	let teamLabel = null;
 	let canBuzzNow = false;
 	let alreadyBuzzedForCurrentClue = false;
 	let finalState = null;
-	let currentScoreValue = 0; // track team's live score for wager limit
+	let currentScoreValue = 0;
+	let scoresSnapshot = {};
+	let finalResponsesForTeam = null;
+
+	let heartbeatIntervalId = null;
+
+	// Cooldown
+	let lastBuzzAttemptAt = 0;
+	let cooldownIntervalId = null;
 
 	function showError(msg) {
 		joinError.textContent = msg;
@@ -113,126 +166,255 @@
 		joinError.style.display = "none";
 	}
 
-	async function joinGame() {
+	function isOfflineTeamRecord(rec) {
+		if (!rec || !rec.lastSeen) return false;
+		return Date.now() - rec.lastSeen > OFFLINE_THRESHOLD_MS;
+	}
+
+	async function connectToGame() {
 		const code = joinCodeInput.value.trim().toUpperCase();
-		const name = (teamNameInput.value || "Team").trim();
 		if (!code) {
 			showError("Please enter the join code.");
 			return;
 		}
 		clearError();
 
-		const gameSnap = await get(ref(db, "jeopardyGames/" + code + "/meta"));
-		if (!gameSnap.exists()) {
+		const metaSnap = await get(ref(db, "jeopardyGames/" + code + "/meta"));
+		if (!metaSnap.exists()) {
 			showError("Game not found. Check the code.");
 			return;
 		}
 
-		const newTeamRef = push(ref(db, "jeopardyGames/" + code + "/scores"));
-		await set(newTeamRef, {
-			name,
-			score: 0
-		});
-
 		currentGameCode = code;
-		teamId = newTeamRef.key;
-		joinSection.style.display = "none";
-		gameSection.style.display = "block";
-		teamNameDisplay.textContent = name;
-		teamBuzzStatus.textContent = "Waiting for the teacher to select a clue…";
+		teamSelectSection.style.display = "block";
 
-		attachGameListeners();
+		onValue(ref(db, "jeopardyGames/" + currentGameCode + "/scores"), (snap) => {
+			scoresSnapshot = snap.val() || {};
+			renderTeamChoices();
+		});
 	}
 
-	function attachGameListeners() {
-		// Our own score
+	function renderTeamChoices() {
+		teamSelectGrid.innerHTML = "";
+		for (const team of TEAMS) {
+			const card = document.createElement("div");
+			card.className = "team-select-card";
+			card.dataset.teamId = team.id;
+
+			const nameEl = document.createElement("div");
+			nameEl.className = "team-select-name";
+			nameEl.textContent = team.label;
+
+			const statusEl = document.createElement("div");
+			statusEl.className = "team-select-status";
+
+			const dot = document.createElement("div");
+			dot.className = "team-status-dot";
+
+			const rec = scoresSnapshot[team.id];
+			let clickable = false;
+			let statusText = "Available";
+
+			if (!rec) {
+				dot.style.background = "#aaa";
+				statusText = "Available";
+				clickable = true;
+			} else {
+				const offline = isOfflineTeamRecord(rec);
+				if (offline) {
+					dot.style.background = "#2bb673";
+					statusText = "Rejoin";
+					card.classList.add("rejoin");
+					clickable = true;
+				} else {
+					dot.style.background = "#e74c3c";
+					statusText = "In game";
+					card.classList.add("disabled");
+					clickable = false;
+				}
+			}
+
+			statusEl.appendChild(dot);
+			const textSpan = document.createElement("span");
+			textSpan.textContent = statusText;
+			statusEl.appendChild(textSpan);
+
+			card.appendChild(nameEl);
+			card.appendChild(statusEl);
+
+			if (clickable) {
+				card.addEventListener("click", () => joinAsTeam(team.id));
+			}
+
+			teamSelectGrid.appendChild(card);
+		}
+	}
+
+	async function joinAsTeam(chosenId) {
+		if (!currentGameCode) return;
+		const teamConfig = TEAMS.find(t => t.id === chosenId);
+		if (!teamConfig) return;
+
+		const path = "jeopardyGames/" + currentGameCode + "/scores/" + chosenId;
+		const snap = await get(ref(db, path));
+		let existing = snap.val();
+
+		if (!existing) {
+			await set(ref(db, path), {
+				name: teamConfig.label,
+				score: 0,
+				lastSeen: Date.now()
+			});
+		} else {
+			await update(ref(db, path), {
+				lastSeen: Date.now()
+			});
+		}
+
+		teamId = chosenId;
+		teamLabel = teamConfig.label;
+
+		joinSection.style.display = "none";
+		gameSection.style.display = "block";
+
+		teamNameDisplay.textContent = teamLabel;
+
+		attachGameListenersForTeam();
+		startHeartbeat();
+
+		updateCooldownUI(true);
+	}
+
+	function startHeartbeat() {
+		if (heartbeatIntervalId) clearInterval(heartbeatIntervalId);
+		if (!currentGameCode || !teamId) return;
+		heartbeatIntervalId = setInterval(() => {
+			update(ref(db, "jeopardyGames/" + currentGameCode + "/scores/" + teamId), {
+				lastSeen: Date.now()
+			});
+		}, 5000);
+		update(ref(db, "jeopardyGames/" + currentGameCode + "/scores/" + teamId), {
+			lastSeen: Date.now()
+		});
+	}
+
+	function attachGameListenersForTeam() {
 		onValue(ref(db, "jeopardyGames/" + currentGameCode + "/scores/" + teamId), (snap) => {
 			const data = snap.val();
 			if (!data) return;
 			const score = data.score || 0;
-			currentScoreValue = score; // keep live score for wager limit
-			teamScoreBadge.textContent =
-				"Score: " + (score >= 0 ? "$" + score : "-$" + Math.abs(score));
-
-			// Optional: if you want to hint max wager
-			// wagerInput.placeholder = "Max: " + Math.max(0, currentScoreValue);
+			currentScoreValue = score;
+			teamScoreBadge.textContent = "Score: " + (score >= 0 ? "$" + score : "-$" + Math.abs(score));
 		});
 
-		// Listen to current clue
 		onValue(ref(db, "jeopardyGames/" + currentGameCode + "/currentClue"), (snap) => {
 			const val = snap.val() || { showing: false };
 			if (val.showing) {
 				canBuzzNow = true;
 				alreadyBuzzedForCurrentClue = false;
-				buzzButton.disabled = false;
-				buzzButton.classList.add("ready");
-				teamBuzzStatus.textContent = "Clue is active! Press spacebar or click to buzz in.";
+				if (!isOnCooldown()) buzzButton.classList.add("ready");
 			} else {
 				canBuzzNow = false;
-				buzzButton.disabled = true;
 				buzzButton.classList.remove("ready");
-				teamBuzzStatus.textContent = "Waiting for the teacher to select a clue…";
 			}
 		});
 
-		// Listen to buzz state so we know if someone else beat us
 		onValue(ref(db, "jeopardyGames/" + currentGameCode + "/buzz"), (snap) => {
-			const val = snap.val();
-			if (!val || !val.teamId) {
-				if (canBuzzNow) {
-					teamBuzzStatus.textContent = "Clue active – buzz now!";
-				}
-				return;
-			}
-			if (val.teamId === teamId) {
-				teamBuzzStatus.textContent = "You buzzed in first! Wait for the teacher.";
-			} else {
-				teamBuzzStatus.textContent = "Another team buzzed first.";
-			}
+			// We no longer show "you buzzed in first" or similar text.
+			// This listener can be left empty or removed if not needed.
 		});
 
-		// Final Jeopardy
 		onValue(ref(db, "jeopardyGames/" + currentGameCode + "/final"), (snap) => {
-			finalState = snap.val() || { inProgress: false, question: "" };
-			if (finalState.inProgress) {
-				finalQuestionText.textContent = finalState.question || "Final Jeopardy question...";
-				finalInputSection.style.display = "block";
-				finalStatusMsg.textContent = "Submit your wager and answer once.";
-			} else {
-				finalInputSection.style.display = "none";
-				if (finalState.question) {
-					finalQuestionText.textContent = finalState.question;
-				} else {
-					finalQuestionText.textContent = "Not in Final Jeopardy yet.";
-				}
-			}
+			finalState = snap.val() || {
+				inProgress: false,
+				question: "",
+				questionRevealed: false,
+				closed: false
+			};
+			updateFinalUI();
 		});
 
-		// Our own final response
 		onValue(ref(db, "jeopardyGames/" + currentGameCode + "/finalResponses/" + teamId), (snap) => {
-			if (snap.exists()) {
-				finalStatusMsg.textContent = "Your Final Jeopardy answer has been submitted.";
-			}
+			finalResponsesForTeam = snap.val() || null;
+			updateFinalResponseStatus();
 		});
 	}
 
-	function attemptBuzz() {
-		if (!currentGameCode || !teamId || !canBuzzNow || alreadyBuzzedForCurrentClue) return;
+	// BUZZER COOLDOWN
 
-		// Record this buzz in the buzz order list
+	function isOnCooldown() {
+		const now = Date.now();
+		return now - lastBuzzAttemptAt < BUZZ_COOLDOWN_MS;
+	}
+
+	function updateCooldownUI(initial = false) {
+		const update = () => {
+			const now = Date.now();
+			const elapsed = now - lastBuzzAttemptAt;
+			const remaining = BUZZ_COOLDOWN_MS - elapsed;
+
+			if (!teamId || !currentGameCode) {
+				// Not joined yet: keep buzzer off.
+				cooldownDisplay.textContent = "";
+				buzzButton.disabled = true;
+				buzzButton.classList.remove("cooldown");
+				buzzButton.textContent = "Buzz";
+				return;
+			}
+
+			if (remaining > 0) {
+				const seconds = (remaining / 1000).toFixed(1);
+				cooldownDisplay.textContent = "Cooldown: " + seconds + " s";
+				buzzButton.classList.add("cooldown");
+				buzzButton.textContent = "❌ Buzz";
+				// IMPORTANT: we leave the button ENABLED so clicks still reset the timer.
+				buzzButton.disabled = false;
+			} else {
+				cooldownDisplay.textContent = "Ready to buzz!";
+				buzzButton.classList.remove("cooldown");
+				buzzButton.textContent = "Buzz";
+				buzzButton.disabled = false;
+			}
+		};
+
+		if (initial) update();
+
+		if (cooldownIntervalId) clearInterval(cooldownIntervalId);
+		cooldownIntervalId = setInterval(() => {
+			update();
+			if (!isOnCooldown()) {
+				clearInterval(cooldownIntervalId);
+				cooldownIntervalId = null;
+			}
+		}, 100);
+	}
+
+	function handleBuzzPress() {
+		// Must be in a game + team to do anything:
+		if (!teamId || !currentGameCode) return;
+
+		// Check whether we were already on cooldown BEFORE this press:
+		const wasOnCooldown = isOnCooldown();
+
+		// Every press (space or click) resets/starts cooldown:
+		lastBuzzAttemptAt = Date.now();
+		updateCooldownUI();
+
+		// If clue isn't active, or we already buzzed for this clue, or we were on cooldown
+		// at the moment of pressing, don't actually buzz in:
+		if (!canBuzzNow || alreadyBuzzedForCurrentClue || wasOnCooldown) return;
+
+		// Record buzz order
 		const buzzListRef = ref(db, "jeopardyGames/" + currentGameCode + "/buzzList");
 		push(buzzListRef, {
 			teamId,
 			at: serverTimestamp()
 		});
 
-		// Try to claim "first buzz" slot
+		// Attempt to claim "first buzz"
 		const buzzRef = ref(db, "jeopardyGames/" + currentGameCode + "/buzz");
 		runTransaction(buzzRef, (current) => {
-			if (current && current.teamId) {
-				// Someone already buzzed in; keep them as first
-				return current;
-			}
+			if (current && current.teamId) return current;
 			return {
 				teamId,
 				at: serverTimestamp()
@@ -242,12 +424,96 @@
 		alreadyBuzzedForCurrentClue = true;
 	}
 
-	function submitFinal() {
+	// FINAL JEOPARDY PHASED FLOW
+
+	function updateFinalUI() {
+		if (!finalState || !finalState.inProgress) {
+			finalQuestionText.textContent = "Not in Final Jeopardy yet.";
+			finalWagerArea.style.display = "none";
+			finalAnswerArea.style.display = "none";
+			finalStatusMsg.textContent = "";
+			return;
+		}
+
+		if (!finalState.questionRevealed) {
+			finalQuestionText.textContent = "Final Jeopardy – Place your wager. Question not shown yet.";
+			finalWagerArea.style.display = "flex";
+			finalAnswerArea.style.display = "none";
+		} else {
+			finalQuestionText.textContent = finalState.question || "Final Jeopardy question...";
+			finalWagerArea.style.display = "flex";
+			finalAnswerArea.style.display = "flex";
+		}
+		updateFinalResponseStatus();
+	}
+
+	function updateFinalResponseStatus() {
+		if (!finalState || !finalState.inProgress) {
+			finalStatusMsg.textContent = "";
+			return;
+		}
+		if (!finalResponsesForTeam) {
+			if (!finalState.questionRevealed) {
+				finalStatusMsg.textContent = "Choose your wager and submit.";
+			} else {
+				finalStatusMsg.textContent = "Submit your wager and answer.";
+			}
+			wagerInput.disabled = false;
+			submitWagerBtn.disabled = false;
+			finalAnswerInput.disabled = !finalState.questionRevealed;
+			submitFinalAnswerBtn.disabled = !finalState.questionRevealed;
+			return;
+		}
+
+		const hasWager = typeof finalResponsesForTeam.wager === "number";
+		const hasAnswer = typeof finalResponsesForTeam.answer === "string" && finalResponsesForTeam.answer.trim() !== "";
+
+		if (hasWager) {
+			wagerInput.value = finalResponsesForTeam.wager;
+		}
+
+		if (!finalState.questionRevealed) {
+			if (hasWager) {
+				finalStatusMsg.textContent = "Wager submitted. Wait for the teacher to reveal the question.";
+				wagerInput.disabled = true;
+				submitWagerBtn.disabled = true;
+			} else {
+				finalStatusMsg.textContent = "Choose your wager and submit.";
+				wagerInput.disabled = false;
+				submitWagerBtn.disabled = false;
+			}
+			finalAnswerInput.disabled = true;
+			submitFinalAnswerBtn.disabled = true;
+		} else {
+			if (hasWager && hasAnswer) {
+				finalStatusMsg.textContent = "Your Final Jeopardy answer has been submitted.";
+				wagerInput.disabled = true;
+				submitWagerBtn.disabled = true;
+				finalAnswerInput.disabled = true;
+				submitFinalAnswerBtn.disabled = true;
+				finalAnswerInput.value = finalResponsesForTeam.answer;
+			} else if (hasWager && !hasAnswer) {
+				finalStatusMsg.textContent = "Question revealed. Submit your answer.";
+				wagerInput.disabled = true;
+				submitWagerBtn.disabled = true;
+				finalAnswerInput.disabled = false;
+				submitFinalAnswerBtn.disabled = false;
+			} else {
+				finalStatusMsg.textContent = "Submit your wager and then your answer.";
+				wagerInput.disabled = false;
+				submitWagerBtn.disabled = false;
+				finalAnswerInput.disabled = !finalState.questionRevealed;
+				submitFinalAnswerBtn.disabled = !finalState.questionRevealed;
+			}
+		}
+	}
+
+	function submitWager() {
 		if (!currentGameCode || !teamId || !finalState || !finalState.inProgress) return;
+
 		let wager = parseInt(wagerInput.value || "0", 10);
 		if (isNaN(wager)) wager = 0;
 
-		// Enforce wager <= current score (Jeopardy style)
 		const maxWager = Math.max(0, currentScoreValue);
 		if (wager > maxWager) {
 			alert("You can't wager more than your current score. Max wager: $" + maxWager);
@@ -258,11 +524,31 @@
 			return;
 		}
 
-		const answer = finalAnswerInput.value.trim();
+		const respRef = ref(db, "jeopardyGames/" + currentGameCode + "/finalResponses/" + teamId);
+		set(respRef, {
+			wager,
+			answer: finalResponsesForTeam && finalResponsesForTeam.answer ? finalResponsesForTeam.answer : ""
+		}).then(() => {
+			finalStatusMsg.textContent = "Wager submitted. Wait for the teacher to reveal the question.";
+		});
+	}
+
+	function submitFinalAnswer() {
+		if (!currentGameCode || !teamId || !finalState || !finalState.inProgress || !finalState.questionRevealed) return;
+		const answer = (finalAnswerInput.value || "").trim();
 		if (!answer) {
-			alert("Please type your answer.");
+			alert("Please type your complete answer.");
 			return;
 		}
+
+		let wager = 0;
+		if (finalResponsesForTeam && typeof finalResponsesForTeam.wager === "number") {
+			wager = finalResponsesForTeam.wager;
+		} else {
+			const maxWager = Math.max(0, currentScoreValue);
+			wager = Math.min(maxWager, parseInt(wagerInput.value || "0", 10) || 0);
+		}
+
 		const respRef = ref(db, "jeopardyGames/" + currentGameCode + "/finalResponses/" + teamId);
 		set(respRef, {
 			wager,
@@ -272,26 +558,37 @@
 		});
 	}
 
-	joinBtn.addEventListener("click", () => {
-		joinGame();
+	// EVENTS
+
+	connectBtn.addEventListener("click", () => {
+		connectToGame();
+	});
+
+	document.addEventListener("keydown", (e) => {
+		if (e.key === "Enter" && document.activeElement === joinCodeInput) {
+			e.preventDefault();
+			connectToGame();
+		}
+		if (e.code === "Space") {
+			e.preventDefault();
+			handleBuzzPress();
+		}
 	});
 
 	buzzButton.addEventListener("click", (e) => {
 		e.preventDefault();
-		attemptBuzz();
+		handleBuzzPress();
 	});
 
-	document.addEventListener("keydown", (e) => {
-		if (e.code === "Space") {
-			e.preventDefault();
-			attemptBuzz();
-		}
+	submitWagerBtn.addEventListener("click", () => {
+		submitWager();
 	});
 
-	submitFinalBtn.addEventListener("click", () => {
-		submitFinal();
+	submitFinalAnswerBtn.addEventListener("click", () => {
+		submitFinalAnswer();
 	});
 </script>
+
 
 </body>
 </html>
