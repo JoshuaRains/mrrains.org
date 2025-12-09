@@ -564,9 +564,6 @@
 				<option value="es-en">ES → EN</option>
 			</select>
 
-			<button class="btn" id="ccSmaller" title="Smaller subtitles">A-</button>
-<button class="btn" id="ccLarger" title="Larger subtitles">A+</button>
-
 			<button class="btn btn-accent" id="toggleBtn">Start</button>
 
 			<input class="vol" id="vol" type="range" min="0" max="1" step="0.01" value="0.6" title="Volume" />
@@ -617,9 +614,7 @@
 		</div>
 	</div>
 
-	<audio id="ding" preload="auto" src="../../../assets/nfl.mp3"></audio>
-<!-- New: clicker sound (ArrowRight) -->
-<audio id="clickerSound" preload="auto" src="../../../assets/cave.mp3"></audio>
+	<audio id="ding" preload="auto" src="../../../assets/timer.mp3"></audio>
 
 	<!-- Everything below is a JS module so we can import Transformers.js -->
 	<script type="module">
@@ -674,28 +669,15 @@
 		const subtitleOverlay = document.getElementById('subtitleOverlay');
 		const ccModeSelect = document.getElementById('ccMode');
 		let ccMode = 'es'; // "es" or "es-en"
-		// Whether recognition is actively listening (ArrowLeft toggles this)
-		let ccListening = true;
-
 		const ccEsLine = document.getElementById('ccEs');
 		const ccEnLine = document.getElementById('ccEn');
-
-		const ccSmallerBtn = document.getElementById('ccSmaller');
-const ccLargerBtn = document.getElementById('ccLarger');
-let subtitleFontSize = 2;
-
-function updateSubtitleFontSize() {
-	subtitleOverlay.style.fontSize = subtitleFontSize + 'rem';
-}
 
 		const progressFill = document.getElementById('progressFill');
 		const progressFree = document.getElementById('progressFree');
 		const checkLayer = document.getElementById('checkLayer');
 
 		const audioEl = document.getElementById('ding');
-const clickerAudioEl = document.getElementById('clickerSound'); // NEW
-const volEl = document.getElementById('vol');
-
+		const volEl = document.getElementById('vol');
 
 		const slidesInput = document.getElementById('slidesUrl');
 		const slidesFrame = document.getElementById('slidesFrame');
@@ -1100,8 +1082,12 @@ const volEl = document.getElementById('vol');
 		}
 
 		/* ---------- Subtitles Logic ---------- */
-		let recognition;
-		let recognizing = false;
+		/* ---------- Subtitles Logic ---------- */
+let recognition;
+let recognizing = false;       // speech recognition currently active
+let ccEnabled = false;         // CC button ON/OFF
+let pushToTalkActive = false;  // PageUp is held down
+
 
 		if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
 			const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -1113,8 +1099,6 @@ const volEl = document.getElementById('vol');
 			let lastTranslatedEs = '';   // remember last fully-translated Spanish sentence
 
 			recognition.onresult = async (event) => {
-
-
 				let interimTranscript = '';
 				let finalTranscript = '';
 
@@ -1183,84 +1167,39 @@ const volEl = document.getElementById('vol');
 			};
 
 			recognition.onend = () => {
-				// Only auto-restart if CC is on AND listening is enabled
-				if (recognizing && ccListening) {
-					recognition.start();
-				}
-			};
+	// Only restart if CC enabled *and* PageUp still held down
+	if (ccEnabled && pushToTalkActive) {
+		try { recognition.start(); } catch {}
+	} else {
+		recognizing = false;
+	}
+};
 
-		} else {
-			ccBtn.style.display = 'none';
-			console.warn('Web Speech API not supported');
-		}
-
-
-
-
-		function toggleSubtitleListening() {
-			if (!recognition) return;
-			// Only makes sense if CC is actually on
-			if (!recognizing) return;
-
-			ccListening = !ccListening;
-			console.log('Subtitle listening:', ccListening ? 'ON' : 'OFF');
-
-			if (ccListening) {
-				// Start a fresh recognition session; onend will keep it going
-				try {
-					recognition.start();
-				} catch (e) {
-					console.warn('Recognition start error (maybe already running):', e);
-				}
-			} else {
-				// Stop recognition so it doesn't buffer anything while "muted"
-				try {
-					recognition.abort();
-				} catch (e) {
-					console.warn('Recognition abort error:', e);
-				}
-				// Optional: if you want to clear text when you mute, uncomment:
-				// ccEsLine.textContent = '';
-				// ccEnLine.textContent = '';
-			}
-		}
 
 		function toggleCC(forceState) {
-			if (!recognition) return;
+	if (!recognition) return;
 
-			const newState = forceState !== undefined ? forceState : !recognizing;
+	const newState = forceState !== undefined ? forceState : !ccEnabled;
 
-			recognizing = newState;
+	if (newState) {
+		// CC enabled, but only listen when PageUp is held
+		ccEnabled = true;
+		ccBtn.classList.add('active');
+		subtitleOverlay.style.display = 'block';
+	} else {
+		// Fully shut down subtitles
+		ccEnabled = false;
+		pushToTalkActive = false;
+		recognizing = false;
 
-			if (recognizing) {
-				// Turning CC ON
-				ccBtn.classList.add('active');
-				subtitleOverlay.style.display = 'block';
+		try { recognition.stop(); } catch {}
 
-				// Only start recognition if listening is enabled
-				if (ccListening) {
-					try {
-						recognition.start();
-					} catch (e) {
-						console.warn('Recognition start error (maybe already running):', e);
-					}
-				}
-			} else {
-				// Turning CC OFF completely
-				ccListening = true; // reset so next time CC is on, it's listening by default
-
-				try {
-					recognition.abort(); // hard stop, discard pending
-				} catch (e) {
-					console.warn('Recognition abort error:', e);
-				}
-
-				ccBtn.classList.remove('active');
-				subtitleOverlay.style.display = 'none';
-				ccEsLine.textContent = '';
-				ccEnLine.textContent = '';
-			}
-		}
+		ccBtn.classList.remove('active');
+		subtitleOverlay.style.display = 'none';
+		ccEsLine.textContent = '';
+		ccEnLine.textContent = '';
+	}
+}
 
 
 
@@ -1272,6 +1211,30 @@ const volEl = document.getElementById('vol');
 		});
 
 		/* ---------- Event Listeners ---------- */
+
+// PUSH-TO-TALK WITH PAGE UP
+document.addEventListener('keydown', (e) => {
+	if (e.key === 'PageUp' && ccEnabled && recognition) {
+
+		// Avoid repeated starts from key auto-repeat
+		if (pushToTalkActive) return;
+
+		pushToTalkActive = true;
+		recognizing = true;
+
+		try { recognition.start(); } catch {}
+	}
+});
+
+document.addEventListener('keyup', (e) => {
+	if (e.key === 'PageUp' && recognition) {
+		pushToTalkActive = false;
+		recognizing = false;
+
+		try { recognition.stop(); } catch {}
+	}
+});
+
 		toggleBtn.addEventListener('click', () => {
 			if (running) {
 				// Stop -> reset timer, then open config
@@ -1305,7 +1268,15 @@ const volEl = document.getElementById('vol');
 		});
 
 		// Config UI
-
+		document.addEventListener('keydown', e => {
+			if (e.key === 'Escape') overlay.classList.remove('show');
+			if (e.key === ' ' && e.target.tagName !== 'INPUT') {
+				e.preventDefault();
+				if (running) pauseTimer();
+				else if (paused) startTimer();
+				else startTimer();
+			}
+		});
 
 		overlay.addEventListener('click', e => {
 			if (e.target === overlay) overlay.classList.remove('show');
@@ -1317,6 +1288,13 @@ const volEl = document.getElementById('vol');
 			buildScheduleRows();
 		});
 
+		document.addEventListener('keydown', e => {
+			if (e.key === 'c' && e.target.tagName !== 'INPUT') {
+				overlay.classList.add('show');
+				buildConfigRows();
+				buildScheduleRows();
+			}
+		});
 
 		addRowBtn.addEventListener('click', () => {
 			sections.push({ name: 'New Section', minutes: 10 });
@@ -1366,70 +1344,10 @@ const volEl = document.getElementById('vol');
 			buildTimeline();
 		});
 
-
-		document.addEventListener('keydown', e => {
-			const tag = e.target.tagName;
-			const isTyping = tag === 'INPUT' || tag === 'TEXTAREA' || e.target.isContentEditable;
-
-			// Close overlay
-			if (e.key === 'Escape') {
-				overlay.classList.remove('show');
-			}
-
-			// Spacebar: play/pause timer (only when not typing)
-			if (e.key === ' ' && !isTyping) {
-				e.preventDefault();
-				if (running) pauseTimer();
-				else if (paused) startTimer();
-				else startTimer();
-			}
-
-			// 'c': open config (only when not typing)
-			if (e.key === 'c' && !isTyping) {
-				overlay.classList.add('show');
-				buildConfigRows();
-				buildScheduleRows();
-			}
-
-			// ⬅ ArrowLeft: toggle subtitle listening ON/OFF without touching the overlay
-			if (e.key === 'ArrowLeft' && !isTyping) {
-				toggleSubtitleListening();
-			}
-				// ➡ ArrowRight: play clicker sound
-	if (e.key === 'ArrowRight' && !isTyping) {
-		if (clickerAudioEl) {
-			try {
-				clickerAudioEl.currentTime = 0;
-				clickerAudioEl.play().catch(() => {});
-			} catch (err) {
-				console.warn('Clicker sound play error:', err);
-			}
-		}
-	}
-
-		});
-
-
-ccSmallerBtn.addEventListener('click', () => {
-	// Min 1rem
-	subtitleFontSize = Math.max(1, subtitleFontSize - 0.25);
-	updateSubtitleFontSize();
-});
-
-ccLargerBtn.addEventListener('click', () => {
-	// Max 4rem
-	subtitleFontSize = Math.min(4, subtitleFontSize + 0.25);
-	updateSubtitleFontSize();
-});
-
-
-
 		/* ---------- Init ---------- */
 		loadConfig();
 		buildTimeline();
 		setVolume(parseFloat(volEl.value) || 0.6);
-		updateSubtitleFontSize();
-
 	</script>
 </body>
 
