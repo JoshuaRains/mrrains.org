@@ -1,0 +1,433 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width,initial-scale=1" />
+	<title>Random Desk Picker</title>
+	<style>
+		html, body{
+			height:100%;
+			margin:0;
+			background:#fff;
+			overflow:hidden;
+		}
+		body{ outline:none; }
+
+		#wrap{
+			width:100vw;
+			height:100vh;
+			display:flex;
+			align-items:center;
+			justify-content:center;
+		}
+
+		#svgObj{
+			width:100vw;
+			height:100vh;
+			border:0;
+			display:block;
+		}
+	</style>
+</head>
+<body tabindex="0">
+	<div id="wrap">
+		<object id="svgObj" type="image/svg+xml" data="./desks.svg"></object>
+	</div>
+
+	<script>
+		(() => {
+			const obj = document.getElementById("svgObj");
+			const wrap = document.getElementById("wrap");
+			const svgNS = "http://www.w3.org/2000/svg";
+
+			// =========================================================
+			// TUNE THIS:
+			// Total duration of the “spin” animation, in milliseconds.
+			// Default = 1 second.
+			const SPIN_DURATION_MS = 1000;
+			// =========================================================
+
+			// Keep the most recent N selections excluded from future picks (behind the scenes only).
+			const RECENT_EXCLUDE_COUNT = 2;
+
+			function grabFocus(){
+				try { window.focus(); } catch {}
+				try { document.body.focus({preventScroll:true}); } catch {}
+				try { obj.focus?.({preventScroll:true}); } catch {}
+			}
+			grabFocus();
+			wrap.addEventListener("pointerdown", grabFocus);
+			window.addEventListener("focus", grabFocus);
+
+			function injectSvgStyle(svg){
+				const style = document.createElementNS(svgNS, "style");
+				style.textContent = `
+					svg { width: 100%; height: 100%; display:block; }
+
+					.desk-shape{
+						transition: fill 90ms linear, filter 90ms linear, stroke 90ms linear, opacity 90ms linear;
+						cursor: pointer;
+					}
+
+					/* Manually excluded by click */
+					.desk-excluded{
+						fill: #d1d5db !important;
+						stroke: rgba(17,24,39,.18) !important;
+						stroke-width: 2px !important;
+						filter: none !important;
+						opacity: .65 !important;
+					}
+
+					/* During scrolling */
+					.desk-active{
+						fill:#3b82f6 !important;
+						stroke: rgba(59,130,246,.60) !important;
+						stroke-width: 6px !important;
+						filter: drop-shadow(0 10px 16px rgba(59,130,246,.35)) !important;
+						opacity: 1 !important;
+					}
+
+					/* Final selection */
+					.desk-final{
+						fill:#22c55e !important;
+						stroke: rgba(34,197,94,.60) !important;
+						stroke-width: 7px !important;
+						filter: drop-shadow(0 12px 18px rgba(34,197,94,.35)) !important;
+						opacity: 1 !important;
+					}
+				`;
+				svg.insertBefore(style, svg.firstChild);
+			}
+
+			function hexNorm(c){
+				if(!c) return "";
+				c = String(c).trim();
+				if(/^#[0-9a-fA-F]{6}$/.test(c)) return c.toUpperCase();
+				return c;
+			}
+
+			function isLikelyDeskFill(el){
+				const attrFill = hexNorm(el.getAttribute("fill"));
+				if(attrFill === "#F5DE5B") return true;
+
+				try{
+					const cs = el.ownerSVGElement?.ownerDocument?.defaultView?.getComputedStyle(el);
+					if(!cs) return false;
+					const fill = cs.fill;
+					const m = fill.match(/^rgb\((\d+),\s*(\d+),\s*(\d+)\)$/);
+					if(!m) return false;
+					const r = +m[1], g = +m[2], b = +m[3];
+					return (r > 200 && g > 170 && b < 140);
+				}catch{
+					return false;
+				}
+			}
+
+			function getBBoxSafe(el){
+				try{ return el.getBBox(); } catch { return null; }
+			}
+
+			function computeSpinOrder(desks, svg){
+				let frontPoint = null;
+				const texts = Array.from(svg.querySelectorAll("text"));
+				const frontText = texts.find(t => (t.textContent || "").trim().toLowerCase() === "front");
+				if(frontText){
+					const bb = getBBoxSafe(frontText);
+					if(bb) frontPoint = { x: bb.x + bb.width/2, y: bb.y + bb.height/2 };
+				}
+
+				const center = desks.reduce((acc, d) => ({x: acc.x + d.cx, y: acc.y + d.cy}), {x:0, y:0});
+				center.x /= Math.max(1, desks.length);
+				center.y /= Math.max(1, desks.length);
+
+				const refVec = frontPoint ? { x: frontPoint.x - center.x, y: frontPoint.y - center.y } : { x: 0, y: 1 };
+				const refAng = Math.atan2(refVec.y, refVec.x);
+
+				function angleClockwiseFromRef(d){
+					const vx = d.cx - center.x;
+					const vy = d.cy - center.y;
+					const ang = Math.atan2(vy, vx);
+					let rel = refAng - ang;
+					while(rel < 0) rel += Math.PI * 2;
+					while(rel >= Math.PI * 2) rel -= Math.PI * 2;
+					return rel;
+				}
+
+				desks.sort((a,b) => {
+					const aa = angleClockwiseFromRef(a);
+					const bb = angleClockwiseFromRef(b);
+					if(aa !== bb) return aa - bb;
+					const ra = (a.cx-center.x)**2 + (a.cy-center.y)**2;
+					const rb = (b.cx-center.x)**2 + (b.cy-center.y)**2;
+					return ra - rb;
+				});
+
+				return desks;
+			}
+
+			function randInt(min, maxInclusive){
+				return Math.floor(Math.random() * (maxInclusive - min + 1)) + min;
+			}
+
+			function buildDelaySchedule(totalSteps, totalMs){
+				const p = 3.0;
+				const base = 0.35;
+				const extra = 3.2;
+
+				let weights = new Array(totalSteps).fill(1);
+				let sum = 0;
+
+				for(let i = 0; i < totalSteps; i++){
+					const t = (totalSteps <= 1) ? 1 : (i / (totalSteps - 1));
+					const w = base + Math.pow(t, p) * extra;
+					weights[i] = w;
+					sum += w;
+				}
+
+				let delays = weights.map(w => (w / sum) * totalMs);
+
+				let floored = delays.map(d => Math.floor(d));
+				let used = floored.reduce((a,b) => a + b, 0);
+				let remainder = totalMs - used;
+
+				let frac = delays.map((d, i) => ({i, f: d - Math.floor(d)}));
+				frac.sort((a,b) => b.f - a.f);
+
+				for(let k = 0; k < remainder; k++){
+					floored[frac[k % frac.length].i] += 1;
+				}
+
+				// Minimum per-step delay for visible stepping
+				for(let i = 0; i < floored.length; i++){
+					if(floored[i] < 8) floored[i] = 8;
+				}
+
+				// Re-normalize to totalMs
+				let sum2 = floored.reduce((a,b) => a + b, 0);
+				if(sum2 !== totalMs){
+					let scaled = floored.map(d => (d / sum2) * totalMs);
+					let f2 = scaled.map(d => Math.floor(d));
+					let used2 = f2.reduce((a,b) => a + b, 0);
+					let rem2 = totalMs - used2;
+
+					let frac2 = scaled.map((d, i) => ({i, f: d - Math.floor(d)})).sort((a,b) => b.f - a.f);
+					for(let k = 0; k < rem2; k++){
+						f2[frac2[k % frac2.length].i] += 1;
+					}
+					floored = f2;
+				}
+
+				return floored;
+			}
+
+			function setup(svg, svgDoc){
+				injectSvgStyle(svg);
+
+				// Prefer explicit markers if you ever add them: [data-desk], .desk, [id*="desk"].
+				let candidates = [
+					...Array.from(svg.querySelectorAll('[data-desk]')),
+					...Array.from(svg.querySelectorAll('.desk')),
+					...Array.from(svg.querySelectorAll('[id*="desk" i]'))
+				];
+
+				// Fallback: yellow-ish shapes.
+				if(candidates.length === 0){
+					const shapes = Array.from(svg.querySelectorAll("path, polygon, rect"));
+					candidates = shapes.filter(isLikelyDeskFill);
+				}
+
+				// Deduplicate
+				const seen = new Set();
+				const deskEls = candidates.filter(el => (seen.has(el) ? false : (seen.add(el), true)));
+
+				let allDesks = [];
+				for(const el of deskEls){
+					const bb = getBBoxSafe(el);
+					if(!bb || bb.width <= 0 || bb.height <= 0) continue;
+					el.classList.add("desk-shape");
+					allDesks.push({
+						el,
+						bb,
+						cx: bb.x + bb.width/2,
+						cy: bb.y + bb.height/2
+					});
+				}
+				if(allDesks.length === 0){
+					console.warn("No desks detected in desks.svg.");
+					return;
+				}
+
+				allDesks = computeSpinOrder(allDesks, svg);
+
+				// Manual exclusion state (visual grey)
+				const excluded = new Set(); // desk objects
+
+				// Recent selection memory (behind the scenes only)
+				let recent = []; // desk objects, most recent first, length <= RECENT_EXCLUDE_COUNT
+
+				let spinning = false;
+				let currentIndexInActive = -1;
+
+				function isRecent(d){
+					return recent.includes(d);
+				}
+
+				function getActiveDesks(){
+					// Exclude manual exclusions AND the recent picks (but recent picks are not greyed out).
+					return allDesks.filter(d => !excluded.has(d) && !isRecent(d));
+				}
+
+				function clearHighlightClasses(){
+					for(const d of allDesks){
+						d.el.classList.remove("desk-active");
+						d.el.classList.remove("desk-final");
+					}
+				}
+
+				function refreshExcludedClass(d){
+					if(excluded.has(d)) d.el.classList.add("desk-excluded");
+					else d.el.classList.remove("desk-excluded");
+				}
+
+				// Click to toggle manual exclusion (ignored while spinning)
+				for(const d of allDesks){
+					d.el.addEventListener("click", (e) => {
+						e.stopPropagation();
+						if(spinning) return;
+
+						if(excluded.has(d)){
+							excluded.delete(d);
+						}else{
+							excluded.add(d);
+						}
+
+						refreshExcludedClass(d);
+
+						// If it was highlighted/final, clear those classes for clarity.
+						d.el.classList.remove("desk-active");
+						d.el.classList.remove("desk-final");
+
+						grabFocus();
+					});
+					refreshExcludedClass(d);
+				}
+
+				function setActiveDesk(activeList, idx){
+					for(const d of allDesks) d.el.classList.remove("desk-active");
+					const d = activeList[idx];
+					if(d) d.el.classList.add("desk-active");
+				}
+
+				function setFinalDesk(activeList, idx){
+					clearHighlightClasses();
+					const d = activeList[idx];
+					if(d) d.el.classList.add("desk-final");
+				}
+
+				function pushRecent(deskObj){
+					if(RECENT_EXCLUDE_COUNT <= 0) return;
+
+					recent = recent.filter(x => x !== deskObj);
+					recent.unshift(deskObj);
+					if(recent.length > RECENT_EXCLUDE_COUNT){
+						recent.length = RECENT_EXCLUDE_COUNT;
+					}
+				}
+
+				function startSpin(){
+					if(spinning) return;
+
+					const active = getActiveDesks();
+					const n = active.length;
+
+					if(n === 0){
+						console.warn("No selectable desks (all manually excluded or blocked by recent picks).");
+						return;
+					}
+
+					spinning = true;
+					clearHighlightClasses();
+
+					const target = randInt(0, n - 1);
+
+					const hopsPerDesk = 0.8; // tweak if desired
+					let totalSteps = Math.max(n + 6, Math.round(n * hopsPerDesk) + 12);
+
+					const startIdx = (currentIndexInActive < 0 || currentIndexInActive >= n)
+						? randInt(0, n - 1)
+						: currentIndexInActive;
+
+					let endIdx = (startIdx + totalSteps) % n;
+					let adjust = (target - endIdx + n) % n;
+					totalSteps += adjust;
+
+					const delays = buildDelaySchedule(totalSteps, SPIN_DURATION_MS);
+
+					let step = 0;
+					let idx = startIdx;
+
+					setActiveDesk(active, idx);
+
+					function tick(){
+						idx = (idx + 1) % n;
+						currentIndexInActive = idx;
+						setActiveDesk(active, idx);
+
+						if(step >= totalSteps - 1){
+							setFinalDesk(active, idx);
+							spinning = false;
+
+							const chosen = active[idx];
+							if(chosen){
+								pushRecent(chosen); // exclude behind-the-scenes next time
+							}
+							return;
+						}
+
+						const dly = delays[step] || 16;
+						step++;
+						setTimeout(tick, dly);
+					}
+
+					setTimeout(tick, 10);
+				}
+
+				function onKey(e){
+					if(e.code === "Space" || e.key === " "){
+						e.preventDefault();
+						startSpin();
+					}
+				}
+
+				window.addEventListener("keydown", onKey, {capture:true});
+				document.addEventListener("keydown", onKey, {capture:true});
+				document.body.addEventListener("keydown", onKey, {capture:true});
+				if(svgDoc) svgDoc.addEventListener("keydown", onKey, {capture:true});
+
+				svg.addEventListener("pointerdown", grabFocus);
+				grabFocus();
+			}
+
+			obj.addEventListener("load", () => {
+				grabFocus();
+
+				const svgDoc = obj.contentDocument;
+				if(!svgDoc){
+					console.warn("Could not access desks.svg DOM. If opened via file://, serve over http(s).");
+					return;
+				}
+				const svg = svgDoc.querySelector("svg");
+				if(!svg){
+					console.warn("No <svg> root found in ./desks.svg");
+					return;
+				}
+
+				svg.setAttribute("tabindex", "0");
+				try { svg.focus({preventScroll:true}); } catch {}
+
+				setup(svg, svgDoc);
+			});
+		})();
+	</script>
+</body>
+</html>
