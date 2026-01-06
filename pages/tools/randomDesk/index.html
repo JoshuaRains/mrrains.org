@@ -27,9 +27,31 @@
 			border:0;
 			display:block;
 		}
+
+		/* Minimal file picker in top-left */
+		#filePickWrap{
+			position:fixed;
+			top:10px;
+			left:10px;
+			z-index:9999;
+			background:rgba(255,255,255,.72);
+			backdrop-filter: blur(6px);
+			border:1px solid rgba(0,0,0,.10);
+			border-radius:10px;
+			padding:6px 8px;
+			box-shadow: 0 10px 30px rgba(0,0,0,.10);
+		}
+		#filePick{
+			font: 12px/1.2 system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+			color:#111827;
+		}
 	</style>
 </head>
 <body tabindex="0">
+	<div id="filePickWrap" title="Choose a different SVG seating chart (optional)">
+		<input id="filePick" type="file" accept=".svg,image/svg+xml" />
+	</div>
+
 	<div id="wrap">
 		<object id="svgObj" type="image/svg+xml" data="./desks.svg"></object>
 	</div>
@@ -38,6 +60,7 @@
 		(() => {
 			const obj = document.getElementById("svgObj");
 			const wrap = document.getElementById("wrap");
+			const filePick = document.getElementById("filePick");
 			const svgNS = "http://www.w3.org/2000/svg";
 
 			// =========================================================
@@ -49,6 +72,9 @@
 
 			// Keep the most recent N selections excluded from future picks (behind the scenes only).
 			const RECENT_EXCLUDE_COUNT = 2;
+
+			// If you load a custom SVG, the click-exclusions + recent picks reset (by design).
+			let currentObjectURL = null;
 
 			function grabFocus(){
 				try { window.focus(); } catch {}
@@ -197,12 +223,10 @@
 					floored[frac[k % frac.length].i] += 1;
 				}
 
-				// Minimum per-step delay for visible stepping
 				for(let i = 0; i < floored.length; i++){
 					if(floored[i] < 8) floored[i] = 8;
 				}
 
-				// Re-normalize to totalMs
 				let sum2 = floored.reduce((a,b) => a + b, 0);
 				if(sum2 !== totalMs){
 					let scaled = floored.map(d => (d / sum2) * totalMs);
@@ -220,23 +244,31 @@
 				return floored;
 			}
 
-			function setup(svg, svgDoc){
+			function bootWithSvgDocument(svgDoc){
+				const svg = svgDoc.querySelector("svg");
+				if(!svg){
+					console.warn("No <svg> root found in the loaded SVG.");
+					return;
+				}
+
+				// Make SVG focusable for key capture in some browsers.
+				svg.setAttribute("tabindex", "0");
+				try { svg.focus({preventScroll:true}); } catch {}
+
 				injectSvgStyle(svg);
 
-				// Prefer explicit markers if you ever add them: [data-desk], .desk, [id*="desk"].
+				// Find desks
 				let candidates = [
 					...Array.from(svg.querySelectorAll('[data-desk]')),
 					...Array.from(svg.querySelectorAll('.desk')),
 					...Array.from(svg.querySelectorAll('[id*="desk" i]'))
 				];
 
-				// Fallback: yellow-ish shapes.
 				if(candidates.length === 0){
 					const shapes = Array.from(svg.querySelectorAll("path, polygon, rect"));
 					candidates = shapes.filter(isLikelyDeskFill);
 				}
 
-				// Deduplicate
 				const seen = new Set();
 				const deskEls = candidates.filter(el => (seen.has(el) ? false : (seen.add(el), true)));
 
@@ -245,37 +277,23 @@
 					const bb = getBBoxSafe(el);
 					if(!bb || bb.width <= 0 || bb.height <= 0) continue;
 					el.classList.add("desk-shape");
-					allDesks.push({
-						el,
-						bb,
-						cx: bb.x + bb.width/2,
-						cy: bb.y + bb.height/2
-					});
+					allDesks.push({ el, bb, cx: bb.x + bb.width/2, cy: bb.y + bb.height/2 });
 				}
 				if(allDesks.length === 0){
-					console.warn("No desks detected in desks.svg.");
+					console.warn("No desks detected in SVG.");
 					return;
 				}
 
 				allDesks = computeSpinOrder(allDesks, svg);
 
-				// Manual exclusion state (visual grey)
-				const excluded = new Set(); // desk objects
-
-				// Recent selection memory (behind the scenes only)
-				let recent = []; // desk objects, most recent first, length <= RECENT_EXCLUDE_COUNT
-
+				// Per-chart state (resets when a new SVG is loaded)
+				const excluded = new Set();
+				let recent = [];
 				let spinning = false;
 				let currentIndexInActive = -1;
 
-				function isRecent(d){
-					return recent.includes(d);
-				}
-
-				function getActiveDesks(){
-					// Exclude manual exclusions AND the recent picks (but recent picks are not greyed out).
-					return allDesks.filter(d => !excluded.has(d) && !isRecent(d));
-				}
+				function isRecent(d){ return recent.includes(d); }
+				function getActiveDesks(){ return allDesks.filter(d => !excluded.has(d) && !isRecent(d)); }
 
 				function clearHighlightClasses(){
 					for(const d of allDesks){
@@ -289,21 +307,16 @@
 					else d.el.classList.remove("desk-excluded");
 				}
 
-				// Click to toggle manual exclusion (ignored while spinning)
 				for(const d of allDesks){
 					d.el.addEventListener("click", (e) => {
 						e.stopPropagation();
 						if(spinning) return;
 
-						if(excluded.has(d)){
-							excluded.delete(d);
-						}else{
-							excluded.add(d);
-						}
+						if(excluded.has(d)) excluded.delete(d);
+						else excluded.add(d);
 
 						refreshExcludedClass(d);
 
-						// If it was highlighted/final, clear those classes for clarity.
 						d.el.classList.remove("desk-active");
 						d.el.classList.remove("desk-final");
 
@@ -326,12 +339,9 @@
 
 				function pushRecent(deskObj){
 					if(RECENT_EXCLUDE_COUNT <= 0) return;
-
 					recent = recent.filter(x => x !== deskObj);
 					recent.unshift(deskObj);
-					if(recent.length > RECENT_EXCLUDE_COUNT){
-						recent.length = RECENT_EXCLUDE_COUNT;
-					}
+					if(recent.length > RECENT_EXCLUDE_COUNT) recent.length = RECENT_EXCLUDE_COUNT;
 				}
 
 				function startSpin(){
@@ -341,7 +351,7 @@
 					const n = active.length;
 
 					if(n === 0){
-						console.warn("No selectable desks (all manually excluded or blocked by recent picks).");
+						console.warn("No selectable desks (all excluded or blocked by recent picks).");
 						return;
 					}
 
@@ -350,7 +360,7 @@
 
 					const target = randInt(0, n - 1);
 
-					const hopsPerDesk = 0.8; // tweak if desired
+					const hopsPerDesk = 0.8;
 					let totalSteps = Math.max(n + 6, Math.round(n * hopsPerDesk) + 12);
 
 					const startIdx = (currentIndexInActive < 0 || currentIndexInActive >= n)
@@ -378,9 +388,7 @@
 							spinning = false;
 
 							const chosen = active[idx];
-							if(chosen){
-								pushRecent(chosen); // exclude behind-the-scenes next time
-							}
+							if(chosen) pushRecent(chosen);
 							return;
 						}
 
@@ -399,34 +407,52 @@
 					}
 				}
 
+				// Attach key handler to multiple scopes so it works regardless of focus.
 				window.addEventListener("keydown", onKey, {capture:true});
 				document.addEventListener("keydown", onKey, {capture:true});
 				document.body.addEventListener("keydown", onKey, {capture:true});
-				if(svgDoc) svgDoc.addEventListener("keydown", onKey, {capture:true});
+				svgDoc.addEventListener("keydown", onKey, {capture:true});
 
 				svg.addEventListener("pointerdown", grabFocus);
 				grabFocus();
 			}
 
+			// Default load: ./desks.svg
 			obj.addEventListener("load", () => {
 				grabFocus();
-
 				const svgDoc = obj.contentDocument;
 				if(!svgDoc){
-					console.warn("Could not access desks.svg DOM. If opened via file://, serve over http(s).");
+					console.warn("Could not access SVG DOM. If opened via file://, serve over http(s).");
 					return;
 				}
-				const svg = svgDoc.querySelector("svg");
-				if(!svg){
-					console.warn("No <svg> root found in ./desks.svg");
-					return;
-				}
-
-				svg.setAttribute("tabindex", "0");
-				try { svg.focus({preventScroll:true}); } catch {}
-
-				setup(svg, svgDoc);
+				bootWithSvgDocument(svgDoc);
 			});
+
+			// Optional load from local file
+			filePick.addEventListener("change", () => {
+				const file = filePick.files && filePick.files[0];
+				if(!file){
+					// If cleared, revert to default desks.svg
+					if(currentObjectURL){
+						URL.revokeObjectURL(currentObjectURL);
+						currentObjectURL = null;
+					}
+					obj.data = "./desks.svg";
+					return;
+				}
+
+				if(currentObjectURL){
+					URL.revokeObjectURL(currentObjectURL);
+					currentObjectURL = null;
+				}
+
+				currentObjectURL = URL.createObjectURL(file);
+				obj.data = currentObjectURL;
+				grabFocus();
+			});
+
+			// Clicking the file input should not accidentally trigger the desk picker focus issues.
+			filePick.addEventListener("pointerdown", (e) => e.stopPropagation());
 		})();
 	</script>
 </body>

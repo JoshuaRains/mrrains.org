@@ -636,11 +636,11 @@
             <!-- Slip #1: header + body -->
 
 
-            <div class="slip" style="bottom: 20px; left: 50px;">
+            <div class="slip" style="top: 70px; left: 50px;">
               <div class="pin"></div>
-              <h3 style="margin: 0 0 6px; font-size: 16px; color: #333;">Navigation:</h3>
+              <h3 style="margin: 0 0 6px; font-size: 16px; color: #333;">Welcome!:</h3>
               <p style="margin: 0; font-size: 14px; color: #555;">
-                View the daily activities below under "Spanish I"<br>
+                Welcome to Spanish 2!<br>
               </p>
             </div>
 
@@ -739,21 +739,20 @@
               src="assets/vector_icons/colors.svg" alt="color demo">
             <p>Color Wheel</p>
           </button>
-          <button class="game-item" onclick="location.href='./pages/tools/studentdrivenvocabulary/index.html'"><img
-              src="assets/vector_icons/vote.svg" alt="vote on vocab">
-            <p>Vocab Vote</p>
-          </button>
-          <button class="game-item" onclick="location.href='./pages/tools/timer/index.html'"><img
+          
+          <button class="game-item" onclick="location.href='./pages/tools/slides/index.html'"><img
               src="assets/vector_icons/BathroomTimer.svg" alt="slides timer">
             <p>Class Slides</p>
           </button>
 
+          <button class="game-item" onclick="location.href='./pages/tools/randomDesk'"><img
+              src="assets/vector_icons/desk.svg" alt="slides timer">
+            <p>Random Desk Selector</p>
+          </button>
+
           <!-- <button class="game-item" onclick="location.href='./pages/maps/mapgame/index.html'"><img src="assets/vector_icons/MapGame.svg" alt="0-30"><p>Map Game</p></button> -->
           <!-- <button class="game-item" onclick="location.href='pages/Countries'"><img src="assets/Countries.png" alt="30-100"><p>Countries Culture</p></button> -->
-          <button class="game-item" onclick="location.href='./pages/tools/weatherforecast/5.html'"><img
-              src="assets/vector_icons/MapWeather.svg" alt="30-100">
-            <p>Forecast Activity</p>
-          </button>
+          
 
           <!-- <button class="game-item" onclick="location.href='./pages/maps/countries/index.html'"><img src="assets/vector_icons/Countries.svg" alt="30-100"><p>Countries Info</p></button> -->
           <button class="game-item"
@@ -778,10 +777,6 @@
             <p>Castles</p>
           </button>
 
-          <button class="game-item" onclick="location.href='./pages/games/geoguesser'"><img
-              src="assets/vector_icons/Countries.svg" alt="Random Country">
-            <p>Geoguesser</p>
-          </button>
         </div>
 
 
@@ -792,16 +787,39 @@
     <div class="activities">
       <!-- Tab Headers -->
       <div class="activities-tabs">
-        <button class="activities-tab active" data-tab="spanish1">Spanish I</button>
-        <button class="activities-tab" data-tab="spanish2">Spanish II</button>
+        <button class="activities-tab active" data-tab="spanish2">Spanish II</button>
+        <button class="activities-tab " data-tab="spanish1">Spanish I</button>
+        
         <!--<button class="activities-tab" data-tab="library">Biblioteca</button> -->
         <button class="activities-tab" data-tab="vocab">Vocabulario</button>
       </div>
 
       <!-- Tab Contents -->
       <div class="activities-contents">
-        <!-- Spanish I pane (default) -->
-        <div id="spanish1" class="activities-content active">
+        
+        <!-- Spanish II pane -->
+        <div id="spanish2" class="activities-content active">
+          <br>
+          <br>
+          
+
+          <div style="display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%;">
+            <p class="activity-topic" style="margin: 0;">Welcome to Spanish II </p>
+            <img src="assets/maxwell dance.gif" alt="Maxwell Dance" style="width: 100px; height: auto;">
+          </div>
+
+          <button class="activity-button"
+            onclick="window.open('./pages/games/pos/index.html', '_blank')">
+            <div class="activity-item">
+              <div class="activity-icon model_training">
+                <span class="material-icons">model_training</span>
+              </div>
+              <div class="activity-text">POS System</div>
+            </div>
+          </button>
+        </div>
+<!-- Spanish I pane (default) -->
+        <div id="spanish1" class="activities-content ">
           <br>
           <br>
           <br>
@@ -1168,16 +1186,6 @@
 
 
         </div>
-        <!-- Spanish II pane -->
-        <div id="spanish2" class="activities-content">
-          <br>
-          <br>
-          <div style="display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%;">
-            <p class="activity-topic" style="margin: 0;">Nothing here yet...</p>
-            <img src="assets/maxwell dance.gif" alt="Maxwell Dance" style="width: 100px; height: auto;">
-          </div>
-        </div>
-
         <!-- Library pane 
           <div id="library" class="activities-content">
             <iframe src="./Library/index.html" style="width: 100%; height: 600px; border: none;"></iframe>
