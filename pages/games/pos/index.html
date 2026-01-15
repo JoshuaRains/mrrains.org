@@ -33,7 +33,7 @@ html, body{
 /* WIDTH UNCHANGED */
 .terminal{
 	width:1080px;
-	height:90vh;                 /* total height = screen minus margins */
+	height:90vh;
 	background:linear-gradient(#202834,#141a22);
 	border-radius:22px;
 	padding:16px;
@@ -74,7 +74,7 @@ html, body{
 	display:grid;
 	grid-template-columns:1.1fr 1fr;
 	gap:10px;
-	min-height:0;   /* CRITICAL for inner scrolling */
+	min-height:0;
 }
 
 /* === LEFT === */
@@ -144,6 +144,32 @@ html, body{
 .lineRow .price{
 	text-align:right;
 }
+
+/* Name cell layout for modifier rows (text + minus button) */
+.nameWrap{
+	display:flex;
+	align-items:center;
+	justify-content:space-between;
+	gap:8px;
+}
+.minusBtn{
+	width:22px;
+	height:18px;
+	display:flex;
+	align-items:center;
+	justify-content:center;
+	border-radius:6px;
+	border:1px solid #7a2c2c;
+	background:linear-gradient(#d24a4a,#a92f2f);
+	color:#fff;
+	cursor:pointer;
+	user-select:none;
+	font-family:var(--mono);
+	font-size:12px;
+	line-height:1;
+	flex:0 0 auto;
+}
+.minusBtn:active{ transform:translateY(1px); }
 
 /* Totals never scroll */
 .totals{
@@ -273,7 +299,6 @@ input{
 .red{background:linear-gradient(#d24a4a,#a92f2f);color:#fff;}
 .dark{background:linear-gradient(#343f4c,#1e2731);color:#e8eef7;}
 .amber{background:linear-gradient(#d7a33d,#b07c16);}
-
 </style>
 </head>
 
@@ -343,83 +368,94 @@ input{
 (function(){
 	const TAX_RATE = 0.0875;
 
+	/* Every ingredient has a specific price.
+	   Sauces are only a few cents, and all different. */
+	const ING = {
+		cheese:		{label:"Cheese",	price:0.75},
+		bacon:		{label:"Bacon",		price:1.25},
+		lettuce:	{label:"Lettuce",	price:0.15},
+		tomato:		{label:"Tomato",	price:0.20},
+		onion:		{label:"Onion",		price:0.15},
+		pickles:	{label:"Pickles",	price:0.15},
+		mayo:		{label:"Mayo",		price:0.05}, // sauce cents
+		ketchup:	{label:"Ketchup",	price:0.03}, // sauce cents
+		mustard:	{label:"Mustard",	price:0.02}, // sauce cents
+		jalapenos:	{label:"Jalapeños",	price:0.35}
+	};
+
+	const DEFAULT_BUILD = {
+		"Hamburger": ["lettuce","tomato","pickles","onion","ketchup","mustard"],
+		"Cheeseburger": ["cheese","tomato","lettuce","pickles","onion","ketchup","mustard"],
+		"Chicken Sandwich": ["lettuce","tomato","pickles","mayo"]
+	};
+
+	function extraName(key){ return "Extra " + ING[key].label; }
+
 	const MENU = {
-	Main: [
-		{name:"Hamburger",price:1.10},
-		{name:"Cheeseburger",price:1.45},
-		{name:"Combo Meal",price:5.49}
-	],
+		Main: [
+			{name:"Hamburger",price:4.29},
+			{name:"Cheeseburger",price:4.79},
+			{name:"Chicken Sandwich",price:5.69},
 
-	Sides: [
-		{name:"Fries (Reg)",price:1.29},
-		{name:"Fries (Lrg)",price:1.79},
-		{name:"Rings (Reg)",price:1.39},
-		{name:"Rings (Lrg)",price:1.89}
-	],
+			{name:"Chicken Nuggets (5 pc)",price:3.50},
+			{name:"Chicken Nuggets (10 pc)",price:7.00},
+			{name:"Chicken Nuggets (20 pc)",price:14.00}
 
-	Drinks: [
-		{name:"Coca-Cola (Reg)",price:1.59},
-		{name:"Coca-Cola (Lrg)",price:2.09},
+		],
 
-		{name:"Diet Coke (Reg)",price:1.59},
-		{name:"Diet Coke (Lrg)",price:2.09},
+		Sides: [
+			{name:"Fries (Reg)",price:2.49},
+			{name:"Fries (Lrg)",price:3.29},
+			{name:"Rings (Reg)",price:2.79},
+			{name:"Rings (Lrg)",price:3.59}
+		],
 
-		{name:"Coke Zero (Reg)",price:1.59},
-		{name:"Coke Zero (Lrg)",price:2.09},
+		Drinks: [
+			{name:"Coca-Cola (Reg)",price:2.29},
+			{name:"Coca-Cola (Lrg)",price:2.89},
 
-		{name:"Sprite (Reg)",price:1.59},
-		{name:"Sprite (Lrg)",price:2.09},
+			{name:"Diet Coke (Reg)",price:2.29},
+			{name:"Diet Coke (Lrg)",price:2.89},
 
-		{name:"Fanta (Reg)",price:1.59},
-		{name:"Fanta (Lrg)",price:2.09},
+			{name:"Coke Zero (Reg)",price:2.29},
+			{name:"Coke Zero (Lrg)",price:2.89},
 
-		{name:"Dr Pepper (Reg)",price:1.59},
-		{name:"Dr Pepper (Lrg)",price:2.09},
+			{name:"Sprite (Reg)",price:2.29},
+			{name:"Sprite (Lrg)",price:2.89},
 
-		{name:"Water",price:0.00}
-	],
+			{name:"Fanta (Reg)",price:2.29},
+			{name:"Fanta (Lrg)",price:2.89},
 
-	"Add-ons": [
+			{name:"Dr Pepper (Reg)",price:2.29},
+			{name:"Dr Pepper (Lrg)",price:2.89},
 
-		{name:"Add Cheese",price:0.35,modifier:true},
-		{name:"Add Bacon",price:0.75,modifier:true},
+			{name:"Water",price:0.00}
+		],
 
-		{name:"Add Lettuce",price:0.00,modifier:true},
-		{name:"Add Tomato",price:0.00,modifier:true},
-		{name:"Add Onion",price:0.00,modifier:true},
-		{name:"Add Pickles",price:0.00,modifier:true},
+		"Add-ons": [] // built below (extras only)
+	};
 
-		{name:"Add Mayo",price:0.00,modifier:true},
-		{name:"Add Ketchup",price:0.00,modifier:true},
-		{name:"Add Mustard",price:0.00,modifier:true},
-
-		{name:"Add Jalapeños",price:0.10,modifier:true},
-
-		{name:"Extra Ice",price:0.00,modifier:true},
-		{name:"No Ice",price:0.00,modifier:true}
-	],
-
-	Remove: [
-		{name:"No Lettuce",price:0.00,modifier:true},
-		{name:"No Tomato",price:0.00,modifier:true},
-		{name:"No Onion",price:0.00,modifier:true},
-		{name:"No Pickles",price:0.00,modifier:true},
-
-		{name:"No Mayo",price:0.00,modifier:true},
-		{name:"No Ketchup",price:0.00,modifier:true},
-		{name:"No Mustard",price:0.00,modifier:true},
-
-		{name:"No Cheese",price:0.00,modifier:true},
-		{name:"No Bacon",price:0.00,modifier:true},
-
-		{name:"No Jalapeños",price:0.00,modifier:true}
-	]
-};
-
+	(function buildAddOns(){
+		const add = [];
+		Object.keys(ING).forEach(key=>{
+			add.push({
+				name: extraName(key),
+				price: ING[key].price,
+				modifier: true,
+				modType: "extra",
+				ingKey: key
+			});
+		});
+		// Optional drink ice modifiers (priced)
+		add.push({name:"Extra Ice", price:0.01, modifier:true, modType:"drink"});
+		add.push({name:"No Ice", price:0.00, modifier:true, modType:"drink"});
+		MENU["Add-ons"] = add;
+	})();
 
 	let category="Main";
 	let lines=[];
 	let selected=-1;
+	let nextGroupId=1;
 
 	const el={
 		lines:document.getElementById("lines"),
@@ -434,11 +470,43 @@ input{
 		cat:document.getElementById("catLabel")
 	};
 
-	function fmt(n){return "$"+n.toFixed(2);}
+	function fmt(n){
+		const sign = n < 0 ? "-" : "";
+		return sign + "$" + Math.abs(n).toFixed(2);
+	}
+
+	function baseIndexFromSelection(idx){
+		if(idx < 0) return -1;
+		if(!lines[idx]) return -1;
+		if(!lines[idx].modifier) return idx;
+		let i = idx-1;
+		while(i >= 0 && lines[i].modifier) i--;
+		return i;
+	}
+
+	function getBlockRange(baseIndex){
+		let start = baseIndex;
+		let end = baseIndex;
+		while(end+1 < lines.length && lines[end+1].modifier) end++;
+		return {start, end};
+	}
+
+	function blockUnitTotal(baseIndex){
+		const r = getBlockRange(baseIndex);
+		let unit = 0;
+		for(let i=r.start;i<=r.end;i++){
+			unit += lines[i].price; // base + modifiers (per 1 item)
+		}
+		return unit;
+	}
 
 	function totals(){
-		let s=0;
-		lines.forEach(l=>s+=l.price*l.qty);
+		let s = 0;
+		for(let i=0;i<lines.length;i++){
+			if(lines[i].modifier) continue;
+			const unit = blockUnitTotal(i);
+			s += unit * lines[i].qty;
+		}
 		return {sub:s,tax:s*TAX_RATE,total:s*(1+TAX_RATE)};
 	}
 
@@ -457,15 +525,144 @@ input{
 		updateChange();
 	}
 
+	function insertModifierAfterBlock(baseIdx, obj){
+		const r = getBlockRange(baseIdx);
+		lines.splice(r.end+1, 0, obj);
+	}
+
+	function addBaseItem(it){
+		const groupId = nextGroupId++;
+		const build = DEFAULT_BUILD[it.name] || null;
+
+		if(build && build.length){
+			let buildSum = 0;
+			build.forEach(k=>buildSum += ING[k].price);
+			const core = Math.max(0, it.price - buildSum);
+
+			lines.push({
+				name: it.name,
+				price: core,         // core portion
+				qty: 1,
+				modifier: false,
+				groupId,
+				buildable: true
+			});
+			selected = lines.length-1;
+
+			build.forEach(k=>{
+				lines.push({
+					name: ING[k].label,
+					price: ING[k].price, // show real price
+					qty: 1,
+					modifier: true,
+					modKind: "included",
+					ingKey: k,
+					groupId
+				});
+			});
+		}else{
+			// Non-build item: no default sublist
+			lines.push({
+				name: it.name,
+				price: it.price,
+				qty: 1,
+				modifier: false,
+				groupId,
+				buildable: false
+			});
+			selected = lines.length-1;
+		}
+	}
+
+	function removeModifierAt(index){
+		if(index < 0 || index >= lines.length) return;
+		if(!lines[index].modifier) return;
+
+		// Remove the modifier line entirely
+		lines.splice(index, 1);
+
+		// Adjust selection safely
+		if(selected >= lines.length) selected = lines.length-1;
+	}
+
 	function renderLines(){
 		el.lines.innerHTML="";
-		lines.forEach((l,i)=>{
-			let r=document.createElement("div");
-			r.className="lineRow"+(l.modifier?" modifier":"")+(i===selected?" active":"");
-			r.innerHTML="<div class='name'>"+l.name+"</div><div class='qty'>"+(l.modifier?"":l.qty)+"</div><div class='price'>"+fmt(l.price*l.qty)+"</div>";
-			r.onclick=function(){selected=i;renderLines();};
+
+		for(let i=0;i<lines.length;i++){
+			const l = lines[i];
+			const r = document.createElement("div");
+
+			const isActive = (i===selected);
+			r.className = "lineRow" + (l.modifier ? " modifier" : "") + (isActive ? " active" : "");
+
+			// Determine base qty for display of modifier totals
+			const baseIdx = l.modifier ? baseIndexFromSelection(i) : i;
+			const baseQty = (baseIdx >= 0 && lines[baseIdx] && !lines[baseIdx].modifier) ? lines[baseIdx].qty : 1;
+
+			let qtyCell = l.modifier ? "" : l.qty;
+
+			// Price display:
+			// - Base line shows the FULL item total (unit block total * qty)
+			// - Modifier line shows its own (price * base qty)
+			let priceDisplay = 0;
+			if(!l.modifier){
+				priceDisplay = blockUnitTotal(i) * l.qty;
+			}else{
+				priceDisplay = l.price * baseQty;
+			}
+
+			if(l.modifier){
+				const nameCell = document.createElement("div");
+				nameCell.className = "name";
+
+				const wrap = document.createElement("div");
+				wrap.className = "nameWrap";
+
+				const txt = document.createElement("div");
+				txt.textContent = l.name;
+
+				const btn = document.createElement("div");
+				btn.className = "minusBtn";
+				btn.textContent = "−";
+				btn.title = "Remove";
+
+				btn.onclick = function(ev){
+					ev.stopPropagation();
+					removeModifierAt(i);
+					renderLines();
+					renderTotals();
+					el.status.textContent = "Removed " + l.name + ".";
+				};
+
+				wrap.appendChild(txt);
+				wrap.appendChild(btn);
+				nameCell.appendChild(wrap);
+
+				r.appendChild(nameCell);
+			}else{
+				r.innerHTML =
+					"<div class='name'>"+l.name+"</div>" +
+					"<div class='qty'>"+qtyCell+"</div>" +
+					"<div class='price'>"+fmt(priceDisplay)+"</div>";
+				r.onclick = function(){ selected=i; renderLines(); };
+				el.lines.appendChild(r);
+				continue;
+			}
+
+			const qtyDiv = document.createElement("div");
+			qtyDiv.className = "qty";
+			qtyDiv.textContent = "";
+
+			const priceDiv = document.createElement("div");
+			priceDiv.className = "price";
+			priceDiv.textContent = fmt(priceDisplay);
+
+			r.appendChild(qtyDiv);
+			r.appendChild(priceDiv);
+
+			r.onclick = function(){ selected=i; renderLines(); };
 			el.lines.appendChild(r);
-		});
+		}
 	}
 
 	function renderItems(){
@@ -474,16 +671,52 @@ input{
 			let k=document.createElement("div");
 			k.className="key";
 			k.textContent=it.name;
+
 			k.onclick=function(){
+				const baseIdx = baseIndexFromSelection(selected);
+
 				if(it.modifier){
-					if(selected<0 || lines[selected].modifier){el.status.textContent="Select base item first.";return;}
-					lines.splice(selected+1,0,{name:it.name,price:it.price,qty:1,modifier:true});
+					if(baseIdx < 0){
+						el.status.textContent="Select a base item first.";
+						return;
+					}
+
+					if(it.modType === "extra"){
+						if(!lines[baseIdx].buildable){
+							el.status.textContent="This item can't take burger condiments.";
+							return;
+						}
+						insertModifierAfterBlock(baseIdx, {
+							name: extraName(it.ingKey),
+							price: it.price,
+							qty: 1,
+							modifier: true,
+							modKind: "extra",
+							ingKey: it.ingKey,
+							groupId: lines[baseIdx].groupId
+						});
+						el.status.textContent="Added "+extraName(it.ingKey)+".";
+					}else if(it.modType === "drink"){
+						// Keep simple drink modifiers available (optional)
+						insertModifierAfterBlock(baseIdx, {
+							name: it.name,
+							price: it.price,
+							qty: 1,
+							modifier: true,
+							modKind: "drink",
+							groupId: lines[baseIdx].groupId
+						});
+						el.status.textContent="Added "+it.name+".";
+					}
 				}else{
-					lines.push({name:it.name,price:it.price,qty:1});
-					selected=lines.length-1;
+					addBaseItem(it);
+					el.status.textContent="Added "+it.name+".";
 				}
-				renderLines();renderTotals();
+
+				renderLines();
+				renderTotals();
 			};
+
 			el.itemGrid.appendChild(k);
 		});
 	}
@@ -505,19 +738,60 @@ input{
 	}
 
 	document.getElementById("voidLast").onclick=function(){
-		lines.pop();renderLines();renderTotals();
+		if(!lines.length) return;
+		const last = lines.length-1;
+		if(lines[last].modifier){
+			lines.pop();
+		}else{
+			const r = getBlockRange(last);
+			lines.splice(r.start, r.end-r.start+1);
+		}
+		selected = Math.min(selected, lines.length-1);
+		renderLines();
+		renderTotals();
 	};
+
 	document.getElementById("voidItem").onclick=function(){
-		if(selected>=0){lines.splice(selected,1);selected=-1;renderLines();renderTotals();}
+		if(selected<0) return;
+		const baseIdx = baseIndexFromSelection(selected);
+		if(baseIdx < 0) return;
+		const r = getBlockRange(baseIdx);
+		lines.splice(r.start, r.end-r.start+1);
+		selected = -1;
+		renderLines();
+		renderTotals();
 	};
+
 	document.getElementById("qtyPlus").onclick=function(){
-		if(selected>=0&&!lines[selected].modifier){lines[selected].qty++;renderLines();renderTotals();}
+		if(selected>=0){
+			const baseIdx = baseIndexFromSelection(selected);
+			if(baseIdx >= 0 && !lines[baseIdx].modifier){
+				lines[baseIdx].qty++;
+				renderLines();
+				renderTotals();
+			}
+		}
 	};
+
 	document.getElementById("qtyMinus").onclick=function(){
-		if(selected>=0&&!lines[selected].modifier&&lines[selected].qty>1){lines[selected].qty--;renderLines();renderTotals();}
+		if(selected>=0){
+			const baseIdx = baseIndexFromSelection(selected);
+			if(baseIdx >= 0 && !lines[baseIdx].modifier && lines[baseIdx].qty>1){
+				lines[baseIdx].qty--;
+				renderLines();
+				renderTotals();
+			}
+		}
 	};
+
 	document.getElementById("clearCheck").onclick=function(){
-		lines=[];selected=-1;el.cash.value="";el.change.textContent="$0.00";renderLines();renderTotals();
+		lines=[];
+		selected=-1;
+		el.cash.value="";
+		el.change.textContent="$0.00";
+		el.status.textContent="Ready.";
+		renderLines();
+		renderTotals();
 	};
 
 	el.cash.addEventListener("input",updateChange);
