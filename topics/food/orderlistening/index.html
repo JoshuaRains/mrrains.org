@@ -1,0 +1,670 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1" />
+	<title>Listen and Check</title>
+
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link href="https://fonts.googleapis.com/css2?family=Silkscreen:wght@400;700&display=swap" rel="stylesheet">
+	<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght@24,600" />
+
+	<style>
+		:root{
+			--bg: linear-gradient(to bottom, #517860, #5c8a6d);
+			--panel: rgba(10, 14, 18, .55);
+			--panel2: rgba(10, 14, 18, .35);
+			--line: rgba(255,255,255,.18);
+
+			--ink: #f4fbf6;
+			--muted: rgba(244,251,246,.78);
+
+			--good: #36c269;
+			--bad: #ff4d4d;
+
+			--shadow: 0 18px 60px rgba(0,0,0,.38);
+			--shadow2: 0 10px 30px rgba(0,0,0,.28);
+
+			--radius-xl: 22px;
+			--radius-lg: 18px;
+
+			--font-head: "Silkscreen", system-ui, Arial, sans-serif;
+			--font-ui: system-ui, Segoe UI, Roboto, Arial, sans-serif;
+
+			--btn-bg: rgba(255,255,255,.10);
+			--btn-bg-hover: rgba(255,255,255,.15);
+		}
+
+		html,body{
+			height:100%;
+			margin:0;
+			font-family: var(--font-ui);
+			color: var(--ink);
+			background: var(--bg);
+		}
+
+		.wrap{
+			min-height:100%;
+			display:flex;
+			align-items:center;
+			justify-content:center;
+			padding:24px;
+			box-sizing:border-box;
+		}
+
+		.card{
+			width:min(980px, 96vw);
+			border:1px solid var(--line);
+			border-radius: var(--radius-xl);
+			box-shadow: var(--shadow);
+			overflow:hidden;
+			background: var(--panel);
+			backdrop-filter: blur(8px);
+		}
+
+		.top{
+			display:flex;
+			align-items:center;
+			justify-content:space-between;
+			gap:14px;
+			padding:14px 16px;
+			border-bottom:1px solid var(--line);
+			background: rgba(0,0,0,.18);
+		}
+
+		.title{
+			font-family: var(--font-head);
+			font-size: 16px;
+			letter-spacing: .2px;
+		}
+
+		.hud{
+			display:flex;
+			gap:12px;
+			align-items:center;
+			flex-wrap:wrap;
+			justify-content:flex-end;
+			font-family: var(--font-head);
+			font-size: 12px;
+			color: rgba(244,251,246,.92);
+		}
+
+		.pill{
+			border:1px solid rgba(255,255,255,.18);
+			background: rgba(255,255,255,.08);
+			border-radius:999px;
+			padding:8px 12px;
+			box-shadow: var(--shadow2);
+			white-space:nowrap;
+		}
+
+		.btn{
+			appearance:none;
+			border:1px solid var(--line);
+			background: var(--btn-bg);
+			color: var(--ink);
+			padding:10px 14px;
+			border-radius: 999px;
+			font-family: var(--font-head);
+			font-size: 13px;
+			cursor:pointer;
+			box-shadow: var(--shadow2);
+		}
+		.btn:hover{ background: var(--btn-bg-hover); }
+		.btn[disabled]{ opacity:.45; cursor:not-allowed; box-shadow:none; }
+
+		.main{ padding:16px; }
+
+		.panel{
+			border:1px solid var(--line);
+			border-radius: var(--radius-xl);
+			padding:16px;
+			background: var(--panel2);
+			box-shadow: var(--shadow2);
+			display:flex;
+			flex-direction:column;
+			gap:14px;
+		}
+
+		.speakerRow{ display:flex; justify-content:center; }
+
+		.speaker{
+			width: 112px;
+			height: 112px;
+			border-radius: 999px;
+			border:1px solid rgba(255,255,255,.22);
+			background: radial-gradient(circle at 30% 30%, rgba(54,194,105,.30), rgba(255,255,255,.06) 56%, rgba(0,0,0,.10));
+			display:flex;
+			align-items:center;
+			justify-content:center;
+			box-shadow: 0 18px 55px rgba(0,0,0,.30);
+			cursor:pointer;
+			user-select:none;
+			transition: transform .08s ease, filter .12s ease;
+		}
+		.speaker:hover{ filter: brightness(1.05); }
+		.speaker:active{ transform: scale(.985); }
+
+		.material-symbols-rounded{
+			font-size: 56px;
+			color: rgba(255,255,255,.94);
+			text-shadow: 0 10px 24px rgba(0,0,0,.25);
+		}
+
+		.hint{
+			text-align:center;
+			color: var(--muted);
+			font-size: 13px;
+			line-height: 1.35;
+		}
+
+		.warn{
+			border:1px solid rgba(255,77,77,.55);
+			background: rgba(255,77,77,.10);
+			border-radius: var(--radius-lg);
+			padding:10px 12px;
+			color: var(--ink);
+			font-size: 12px;
+			line-height: 1.35;
+			display:none;
+		}
+		.warn.on{ display:block; }
+
+		.textBox{
+			border:1px solid rgba(255,255,255,.14);
+			background: rgba(255,255,255,.06);
+			border-radius: var(--radius-lg);
+			padding:12px;
+			min-height: 72px;
+		}
+		.textBox .es{
+			font-family: var(--font-ui);
+			font-size: 16px;
+			font-weight: 800;
+			line-height: 1.35;
+			margin:0 0 6px 0;
+			color: rgba(255,255,255,.95);
+		}
+		.textBox .en{
+			margin:0;
+			font-family: var(--font-ui);
+			color: var(--muted);
+			font-size: 14px;
+			line-height: 1.35;
+		}
+		.textBox.dim .es,
+		.textBox.dim .en{ opacity:.22; }
+
+		.grid{
+			display:grid;
+			grid-template-columns: repeat(2, minmax(0, 1fr));
+			gap:12px 14px;
+		}
+		@media (max-width: 620px){
+			.grid{ grid-template-columns: 1fr; }
+		}
+
+		.item{
+			border:1px solid rgba(255,255,255,.18);
+			border-radius: var(--radius-lg);
+			padding:12px 12px;
+			background: rgba(255,255,255,.06);
+			display:flex;
+			gap:10px;
+			align-items:center;
+			transition: background .12s ease, border-color .12s ease;
+			position:relative;
+		}
+		.item:hover{
+			background: rgba(255,255,255,.085);
+			border-color: rgba(255,255,255,.25);
+		}
+
+		.item input{
+			width: 18px;
+			height: 18px;
+			cursor:pointer;
+			accent-color: #36c269;
+			flex: 0 0 auto;
+		}
+
+		/* ENGLISH checkbox labels */
+		.item .label{
+			font-family: var(--font-ui);
+			font-size: 16px;
+			font-weight: 700;
+		}
+
+		.item.correct{
+			border-color: rgba(54,194,105,.85);
+			background: rgba(54,194,105,.16);
+		}
+		.item.wrong,
+		.item.missed{
+			border-color: rgba(255,77,77,.85);
+			background: rgba(255,77,77,.16);
+		}
+		.item.missed{
+			background: rgba(255,77,77,.10);
+			box-shadow: inset 0 0 0 2px rgba(255,77,77,.10);
+		}
+
+		.penalty{
+			position:absolute;
+			top:10px;
+			right:10px;
+			font-family: var(--font-head);
+			font-size: 12px;
+			padding:6px 10px;
+			border-radius: 999px;
+			border:1px solid rgba(255,77,77,.65);
+			background: rgba(255,77,77,.20);
+			color: rgba(255,255,255,.95);
+			display:none;
+		}
+		.item.wrong .penalty,
+		.item.missed .penalty{
+			display:block;
+		}
+
+		.actions{
+			display:flex;
+			gap:12px;
+			flex-wrap:wrap;
+			justify-content:center;
+			padding-top: 2px;
+		}
+
+		.roundDone{
+			display:none;
+			border:1px solid rgba(255,255,255,.14);
+			background: rgba(255,255,255,.06);
+			border-radius: var(--radius-lg);
+			padding:12px;
+			text-align:center;
+		}
+		.roundDone.on{ display:block; }
+		.roundDone .big{
+			font-family: var(--font-head);
+			font-size: 14px;
+			margin:0 0 6px 0;
+		}
+		.roundDone .small{
+			margin:0;
+			color: var(--muted);
+			font-size: 13px;
+			line-height: 1.35;
+		}
+	</style>
+</head>
+
+<body>
+	<div class="wrap">
+		<div class="card">
+			<div class="top">
+				<div class="title">Listen and Check</div>
+				<div class="hud">
+					<div class="pill" id="qPill">Q 1/10</div>
+					<div class="pill" id="tPill">Time 00:00</div>
+					<button class="btn" id="restartBtn" type="button" style="display:none;">NEW ROUND</button>
+				</div>
+			</div>
+
+			<div class="main">
+				<div class="panel">
+					<div class="speakerRow">
+						<div class="speaker" id="speakBtn" title="Play audio">
+							<span class="material-symbols-rounded" aria-hidden="true">volume_up</span>
+						</div>
+					</div>
+
+					<div class="hint" id="hint">Replay the audio as many times as you want.</div>
+					<div class="warn" id="warnBox"></div>
+
+					<div class="textBox dim" id="textBox">
+						<p class="es" id="sentence">…</p>
+						<p class="en" id="translation">…</p>
+					</div>
+
+					<div class="grid" id="grid"></div>
+
+					<div class="actions">
+						<button class="btn" id="submitBtn" type="button">SUBMIT</button>
+						<button class="btn" id="nextBtn" type="button" style="display:none;">NEXT</button>
+					</div>
+
+					<div class="roundDone" id="roundDone">
+						<p class="big">Round Complete</p>
+						<p class="small" id="roundDoneText"></p>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<audio id="player" preload="none"></audio>
+
+	<script>
+		const GAME_JSON_URL = "./audio/game_orders.json";
+		const AUDIO_DIR = "./audio/";
+
+		let GAME = null;
+		let ING_BY_ID = new Map();
+
+		let ROUND_QUESTIONS = 10;
+		let PENALTY_SECONDS = 30;
+		let MAX_CHOICES = 14;
+
+		let roundIndex = 0;
+		let roundOrders = [];
+		let current = null;
+
+		let timerStartMs = 0;
+		let timerId = null;
+		let penaltySeconds = 0;
+
+		const el = {
+			qPill: document.getElementById("qPill"),
+			tPill: document.getElementById("tPill"),
+			restartBtn: document.getElementById("restartBtn"),
+
+			speakBtn: document.getElementById("speakBtn"),
+			hint: document.getElementById("hint"),
+			warnBox: document.getElementById("warnBox"),
+
+			textBox: document.getElementById("textBox"),
+			sentence: document.getElementById("sentence"),
+			translation: document.getElementById("translation"),
+
+			grid: document.getElementById("grid"),
+			submitBtn: document.getElementById("submitBtn"),
+			nextBtn: document.getElementById("nextBtn"),
+
+			roundDone: document.getElementById("roundDone"),
+			roundDoneText: document.getElementById("roundDoneText"),
+
+			player: document.getElementById("player")
+		};
+
+		function shuffle(arr){
+			for(let i = arr.length - 1; i > 0; i--){
+				const j = Math.floor(Math.random() * (i + 1));
+				[arr[i], arr[j]] = [arr[j], arr[i]];
+			}
+			return arr;
+		}
+
+		function pad2(n){ return String(n).padStart(2,"0"); }
+
+		function fmtMs(ms){
+			const s = Math.max(0, Math.floor(ms / 1000));
+			const m = Math.floor(s / 60);
+			const r = s % 60;
+			return `${pad2(m)}:${pad2(r)}`;
+		}
+
+		function getElapsedMs(){
+			return performance.now() - timerStartMs;
+		}
+
+		function getDisplayedMs(){
+			return getElapsedMs() + (penaltySeconds * 1000);
+		}
+
+		function updateTimerText(){
+			el.tPill.textContent = "Time " + fmtMs(getDisplayedMs());
+		}
+
+		function startTimer(){
+			stopTimer();
+			timerStartMs = performance.now();
+			timerId = setInterval(updateTimerText, 250);
+			updateTimerText();
+		}
+
+		function stopTimer(){
+			if(timerId){
+				clearInterval(timerId);
+				timerId = null;
+			}
+		}
+
+		function setWarning(msg){
+			el.warnBox.textContent = msg;
+			el.warnBox.classList.add("on");
+		}
+
+		function clearWarning(){
+			el.warnBox.classList.remove("on");
+			el.warnBox.textContent = "";
+		}
+
+		function resetTextBox(){
+			el.textBox.classList.add("dim");
+			el.sentence.textContent = "…";
+			el.translation.textContent = "…";
+		}
+
+		function revealTextBox(order){
+			el.textBox.classList.remove("dim");
+			el.sentence.textContent = order.spanish || "";
+			el.translation.textContent = order.english || "";
+		}
+
+		function lockCheckboxes(){
+			for(const node of el.grid.querySelectorAll(".item input[type='checkbox']")){
+				node.disabled = true;
+			}
+		}
+
+		function clearUIForQuestion(){
+			clearWarning();
+			resetTextBox();
+
+			el.submitBtn.disabled = false;
+			el.nextBtn.style.display = "none";
+
+			el.roundDone.classList.remove("on");
+			el.restartBtn.style.display = "none";
+
+			el.grid.innerHTML = "";
+		}
+
+		function pickOrdersForRound(){
+			const orders = (GAME && Array.isArray(GAME.orders)) ? GAME.orders : [];
+			const copy = orders.slice();
+			shuffle(copy);
+
+			// Use unique as much as possible
+			return copy.slice(0, Math.min(ROUND_QUESTIONS, copy.length));
+		}
+
+		function renderCheckboxes(order){
+			el.grid.innerHTML = "";
+
+			const total = Array.isArray(order.total_ingredients) ? order.total_ingredients.slice() : [];
+			const correct = Array.isArray(order.correct_ingredients) ? order.correct_ingredients.slice() : [];
+
+			const correctSet = new Set(correct);
+
+			// Build choice list: all correct + random distractors up to MAX_CHOICES
+			const choices = [];
+			for(const id of correct){
+				if(!choices.includes(id)) choices.push(id);
+			}
+
+			const distractors = total.filter(id => !correctSet.has(id));
+			shuffle(distractors);
+
+			while(choices.length < MAX_CHOICES && distractors.length){
+				choices.push(distractors.pop());
+			}
+
+			shuffle(choices);
+
+			for(const id of choices){
+				const ing = ING_BY_ID.get(id);
+				const labelText = ing ? ing.en : id;
+
+				const wrap = document.createElement("label");
+				wrap.className = "item";
+				wrap.setAttribute("data-id", id);
+
+				const cb = document.createElement("input");
+				cb.type = "checkbox";
+
+				const text = document.createElement("div");
+				text.className = "label";
+				text.textContent = labelText;
+
+				const penalty = document.createElement("div");
+				penalty.className = "penalty";
+				penalty.textContent = "+30s";
+
+				wrap.appendChild(cb);
+				wrap.appendChild(text);
+				wrap.appendChild(penalty);
+				el.grid.appendChild(wrap);
+			}
+		}
+
+		function applyPenalty(count){
+			if(count <= 0) return;
+			penaltySeconds += (count * PENALTY_SECONDS);
+			updateTimerText();
+		}
+
+		function loadCurrentQuestion(){
+			clearUIForQuestion();
+
+			current = roundOrders[roundIndex] || null;
+			el.qPill.textContent = `Q ${roundIndex + 1}/${ROUND_QUESTIONS}`;
+
+			if(!current){
+				setWarning("Could not load a question.");
+				return;
+			}
+
+			renderCheckboxes(current);
+			el.hint.textContent = "Replay the audio as many times as you want.";
+		}
+
+		function startRound(){
+			roundIndex = 0;
+			penaltySeconds = 0;
+
+			roundOrders = pickOrdersForRound();
+			ROUND_QUESTIONS = roundOrders.length || ROUND_QUESTIONS;
+
+			el.qPill.textContent = `Q 1/${ROUND_QUESTIONS}`;
+			startTimer();
+			loadCurrentQuestion();
+		}
+
+		function submit(){
+			if(!current) return;
+
+			const correct = Array.isArray(current.correct_ingredients) ? current.correct_ingredients : [];
+			const correctSet = new Set(correct);
+
+			let incorrectParts = 0;
+
+			for(const node of el.grid.querySelectorAll(".item")){
+				const id = node.getAttribute("data-id");
+				const cb = node.querySelector("input[type='checkbox']");
+				const checked = cb ? cb.checked : false;
+				const should = correctSet.has(id);
+
+				node.classList.remove("correct", "wrong", "missed");
+
+				if(checked && should){
+					node.classList.add("correct");
+				}else if(checked && !should){
+					node.classList.add("wrong");
+					incorrectParts++;
+				}else if(!checked && should){
+					node.classList.add("missed");
+					incorrectParts++;
+				}
+			}
+
+			applyPenalty(incorrectParts);
+			lockCheckboxes();
+
+			el.submitBtn.disabled = true;
+			revealTextBox(current);
+
+			const isLast = (roundIndex + 1) >= ROUND_QUESTIONS;
+			if(isLast){
+				stopTimer();
+				el.nextBtn.style.display = "none";
+				el.restartBtn.style.display = "inline-block";
+				el.roundDone.classList.add("on");
+				el.roundDoneText.textContent = "Final time: " + fmtMs(getDisplayedMs()) + " (penalties included)";
+				el.hint.textContent = "Round complete. Click NEW ROUND.";
+			}else{
+				el.nextBtn.style.display = "inline-block";
+				el.hint.textContent = "Click NEXT for the next question.";
+			}
+		}
+
+		function next(){
+			const isLast = (roundIndex + 1) >= ROUND_QUESTIONS;
+			if(isLast) return;
+			roundIndex++;
+			loadCurrentQuestion();
+		}
+
+		async function playAudio(){
+			if(!current) return;
+
+			const src = AUDIO_DIR + (current.audio || "");
+			if(!current.audio){
+				setWarning("Audio missing.");
+				return;
+			}
+
+			clearWarning();
+
+			try{
+				el.player.pause();
+				el.player.src = src;
+				await el.player.play();
+			}catch(e){
+				setWarning("Audio could not play.");
+			}
+		}
+
+		async function init(){
+			try{
+				const res = await fetch(GAME_JSON_URL, { cache: "no-store" });
+				if(!res.ok) throw new Error("HTTP " + res.status);
+				GAME = await res.json();
+
+				ROUND_QUESTIONS = (GAME.meta && GAME.meta.round_questions) ? GAME.meta.round_questions : ROUND_QUESTIONS;
+				PENALTY_SECONDS = (GAME.meta && GAME.meta.penalty_seconds_per_incorrect_part) ? GAME.meta.penalty_seconds_per_incorrect_part : PENALTY_SECONDS;
+				MAX_CHOICES = (GAME.meta && GAME.meta.max_checkbox_choices) ? GAME.meta.max_checkbox_choices : MAX_CHOICES;
+
+				ING_BY_ID = new Map();
+				for(const ing of (GAME.ingredients || [])){
+					ING_BY_ID.set(ing.id, ing);
+				}
+
+			}catch(e){
+				setWarning("Could not load the game file.");
+				return;
+			}
+
+			startRound();
+		}
+
+		el.speakBtn.addEventListener("click", playAudio);
+		el.submitBtn.addEventListener("click", submit);
+		el.nextBtn.addEventListener("click", next);
+		el.restartBtn.addEventListener("click", startRound);
+
+		init();
+	</script>
+</body>
+</html>

@@ -1,0 +1,2646 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1" />
+	<title>Lifeprint Picker (LLM Top 5 Only)</title>
+	<style>
+		:root{
+			--bg:#0b0f14;
+			--panel:#111823;
+			--ink:#e9eef4;
+			--muted:#9aa6b2;
+			--border:#223044;
+			--btn:#1a2535;
+			--btn2:#22324a;
+			--accent:#36c269;
+			--bad:#ff5c5c;
+			--shadow: 0 12px 30px rgba(0,0,0,.35);
+			font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+		}
+		html, body{ height:100%; margin:0; background:var(--bg); color:var(--ink); }
+		.wrap{ max-width: 860px; margin: 0 auto; padding: 24px 16px 40px; }
+		.card{
+			background:var(--panel);
+			border:1px solid var(--border);
+			border-radius:14px;
+			box-shadow:var(--shadow);
+			padding:16px;
+		}
+		.row{ display:flex; gap:10px; align-items:center; }
+		input[type="text"]{
+			flex:1;
+			height:44px;
+			border-radius:10px;
+			border:1px solid var(--border);
+			background:#0d131c;
+			color:var(--ink);
+			padding:0 12px;
+			font-size:16px;
+			outline:none;
+		}
+		button{
+			height:44px;
+			border-radius:10px;
+			border:1px solid var(--border);
+			background:var(--btn);
+			color:var(--ink);
+			padding:0 14px;
+			font-size:15px;
+			cursor:pointer;
+		}
+		button:hover{ background:var(--btn2); }
+		.status{ margin-top:10px; font-size:13px; color:var(--muted); min-height: 18px; }
+		.results{ margin-top:14px; display:flex; flex-direction:column; gap:10px; }
+		.resultBtn{
+			display:flex;
+			align-items:center;
+			justify-content:space-between;
+			gap:12px;
+			width:100%;
+			text-align:left;
+			height:auto;
+			padding:12px 12px;
+		}
+		.meta{ display:flex; flex-direction:column; gap:4px; overflow:hidden; }
+		.meta .label{
+			font-size:14px;
+			color:var(--ink);
+			white-space:nowrap;
+			overflow:hidden;
+			text-overflow:ellipsis;
+		}
+		.meta .url{
+			font-size:12px;
+			color:var(--muted);
+			white-space:nowrap;
+			overflow:hidden;
+			text-overflow:ellipsis;
+		}
+		.badge{
+			font-size:12px;
+			padding:4px 8px;
+			border-radius:999px;
+			border:1px solid var(--border);
+			color:var(--muted);
+			white-space:nowrap;
+		}
+		.badge.good{ border-color: rgba(54,194,105,.35); color: var(--accent); }
+		.badge.warn{ border-color: rgba(255,92,92,.35); color: var(--bad); }
+	</style>
+</head>
+<body>
+	<div class="wrap">
+		<div class="card">
+			<div class="row">
+				<input id="q" type="text" placeholder='Type a word or phrase (e.g., "in reality", "take off")' />
+				<button id="go">Search</button>
+			</div>
+			<div class="status" id="status"></div>
+			<div class="results" id="results"></div>
+		</div>
+	</div>
+
+	<script type="module">
+		import * as webllm from "https://esm.run/@mlc-ai/web-llm";
+
+		// =============================
+		// Paste your dictionary list here (one entry per line)
+		// =============================
+		const DICTIONARY_RAW = String.raw`
+ABC's
+ABBREVIATE
+ABORTION
+ABOUT
+ABOVE
+ABUSE
+ACADEMIC
+ACCEPT
+ACCENT
+ACCIDENT
+accompany-[see WITH]
+ACCOMPLICE
+ACCOMPLISH
+ACCOUNTANT
+ACQUAINTANCE
+ACQUIRE
+ACROSS
+ACT
+ACTIVE
+ACTOR
+ACTUALLY
+ADD
+ADDICT
+add-to
+ADDRESS
+administration-[see MANAGER]
+ADMIT
+adopt-[see TAKE-UP]
+ADOPT
+ADULT
+advise/advice-[see COUNSEL]
+AFRAID-[scared]
+AFRICA
+AFTER
+AFTERNOON-[every afternoon]
+AGAIN-[repeat]
+AGAINST-[opposed/anti/con]
+AGENT
+AGGRESSIVE
+AGREE
+AI
+AIDE
+AIR
+AIR CONDITIONING
+AIRPLANE
+ALABAMA
+ALASKA
+ALCOHOL
+ALCOHOLIC
+ALLERGIC
+ALL
+ALLIGATOR
+all-over/-dom-[see FIELD]
+ALLOW-[permit]
+almost-[see EASY]
+alone-[see SINGLE]
+A-LOT
+ALMOST
+ALOHA
+ALPHABET
+ALRIGHT
+ALSO
+ALTOGETHER-[total, sum]
+ALWAYS
+AM (not ASL)
+AMAZON
+ambulance-[see LIGHT]
+AMERICA
+American
+American: Native American
+Amish
+AMOUNT
+an (not ASL)
+AND
+ANGEL
+ANGRY
+ANIMAL
+ANIMALS
+annually
+ANOTHER
+ANSWER
+ANT
+ANTHROPOLOGY
+ANY
+ANXIOUS
+APARTMENT
+APE
+APOSTROPHE
+APOSTROPHE S / "'S"
+APPEAR
+APPLAUSE
+APPLE
+APPLY
+APPOINTMENT
+APPRECIATE
+APPROXIMATELY
+ARE (Not ASL)
+AREA
+ARGUE
+ARIZONA
+ARKANSAS
+ARMADILLO
+ARMY
+around-[see APPROXIMATELY]
+ARRIVE
+art-[see DRAW]
+ARTHRITIS
+article/column-[see CL:C]
+ARTICLE-[column]
+ARTIFICIAL INTELLIGENCE
+ASK-[ask-to, inquire, request]
+ASSAULT
+ASSIGNMENT
+ASSOCIATE
+ASSOCIATION
+ASTERISK
+AT
+ATM
+ATLANTA
+ATTENTION
+AUDIENCE
+AUNT
+AUSTRALIA
+AUTISM
+AUTUMN
+AVERAGE
+AVOCADO
+AWAY
+AWESOME
+AWFUL-[terrible]
+AWKWARD-[clumsy]
+BABY (4)
+BABYSITTER
+BACHELOR
+BACK-[#BACK]
+BACKORDER
+BACKPACK
+BACK-STAB
+BAD
+BAG
+BAIL
+BAKE
+BALD
+BALL
+BALLOON
+BALTIMORE
+BANANA
+BANDAGE
+BANGLADESH
+BANK-[#BANK-(lexicalized)]
+BAPTIZE
+BARBER
+BASEBALL
+BASEMENT
+BASKET
+BASKETBALL
+BASSOON
+BAT
+BATHROOM
+BATHTUB
+BATTERY
+be-[ "be verbs"]
+BEACH
+BEAR
+BEARD
+BEAUTIFUL
+BEAVER
+BECOME
+because
+bed
+bed-"go make your bed"
+BEDROOM
+BEE
+BEEF
+been
+BEER
+BEFORE
+begin / start
+BEHAVE
+BEHAVIOR
+behind-[see WITH]
+BELIEVE
+BELL
+BELLYBUTTON
+below
+BELT
+BENCH
+beneath-[see below]
+BERRY
+BEST
+BETTER
+between
+BICEPS
+BICYCLE-[bike, ride-bike]
+BIG
+BIG-DIPPER
+BIKINI
+BINOCULARS
+BIRD
+BIRTH-[born]
+BIRTHDAY
+BISON
+BITE
+BLACK
+BLACKBOARD
+BLAME-[fault, see
+BLANKET
+BLOCK
+BLOOD
+blood: "draw-blood"
+blouse-[see SHIRT]
+BLOW-DRY
+BLUE
+BLUE-RAY
+BLURT
+BO STAFF
+BOAT
+BOAR
+BODY
+body-parts
+BOIL
+BOLD
+BOLOGNA
+BOOK-[open book, close book, bookstore]
+BOOKSTORE
+boots
+BOUQUET
+BORED
+born
+borrow-[see LOAN]
+BOSS
+BOSTON
+both
+bother
+bottle-[see CUP]
+bottom
+BOWEL MOVEMENT
+BOWL
+BOWLING
+bow-tie
+BOX
+BOY-[male, man]
+BOYFRIEND
+bracelet
+BRA
+BRAIN
+BRANCH
+BRAVE
+BRAZIL
+BREAD
+BREAK
+BREAK-DOWN
+BREAK-UP
+BREAKFAST
+BREASTFEED
+BREATHE
+BRIDESMAID
+BRIDGE
+BRIGHT
+BRING-[carry]
+BROCCOLI
+BROKE-(financially)
+BRONCHIECTASIS
+BROTHER-[boy, male, man, same, right]
+BROWN
+BRUISE
+BRUSH
+BRUSH-TEETH
+BS
+BUFFALO
+BUG
+BUILD
+BUILDING
+BULL
+BULLY
+BUM
+BUNK-BED
+BURRITO
+BUS
+BUSINESS-[busy]
+BUSY-[#BUSY-(lexicalized)]
+BUT
+BUTTER
+BUTTERFLY
+BUTTON
+buy
+BUZZ-CUT
+BY
+BY-A-HAIR-[close!]
+CABINET-[cupboard]
+CAFETERIA-[restaurant, bachelor]
+CAFFEINE
+CAKE
+CALIFORNIA-[gold]
+CALL
+calm-down-[see DOWN]
+CAMP-[TENT]
+CAMPER
+CAN-[able, may, possible]
+can-(container)-[see CUP]
+CANADA
+CANCEL
+CANCER
+candidate-[see APPLY]
+CANDY
+CAN'T
+CAP
+CAR/[ DRIVE]
+CARD
+CARPOOL
+CARE
+CAREFUL
+CARELESS
+CARPENTER-[do woodwork]
+CARIBOU
+CARPOOL
+CARTOON
+CASE
+CAT-[kitten]
+CATEGORY
+CATERPILLAR
+CAUCASIAN
+CAUSE
+CAVE
+CELEBRATE
+CELL-PHONE
+CEMETERY
+CENTER
+CENTS
+CENTURY
+CEREAL
+CHAIN
+chair-[see SIT]
+CHAMELEON
+CHAMP or CHAMPION
+CHANCE
+CHANGE-[adapt, convert, COINS]
+CHARACTER
+CHARGE
+CHASE
+CHAT
+CHEAP
+CHEAT
+CHECK (envelope / card)
+CHEESE
+CHESS
+CHEETAH
+CHEW
+CHICAGO
+CHICKEN
+CHICKEN_NUGGETS
+CHIHUAHUA
+CHILD
+CHIMNEY
+CHINA-[Chinese, Asian]
+CHIPMUNK
+CHIPS
+CHRIST
+CHRISTMAS
+CHOCOLATE
+CHRONIC
+CHURCH
+CIGARETTE
+CITY
+CL:A
+CL:1
+CL:3
+CL:4-["line of people," "curtains"]
+CL:5-[scads of]
+CL:B-[roof, flat, wall]
+CL:C-[thick things, round pole-like things]
+CL:G-[thinness] 
+CL:L(bent)-[large, big-headed/egoistic/conceited, check, card, square]
+CL:R-[rope-like, braided, twisted]
+CL:V-[stand, walk-to, lay down, toss-and-turn, dive, jump, skate board, scooter, get up]
+CL-claw-3
+class-[see FAMILY]
+Classifiers
+CLASS
+CLASS-[group]
+CLASSROOM
+CLAW-3
+CLEAN
+Clean up your new cooking school papers before leaving.
+CLEAR
+CLEVER
+CLIMB
+CLOCK
+CLOSE
+CLOSE-CAPTIONED
+CLOSE-THE-WINDOW
+CLOSET
+CLOTHES-[DRESS]
+CLOTHES
+CLOUD(S)
+CLOUDY
+CLUB-[#CLUB-(lexicalized)]
+CLUSTER
+COAT-[jacket]
+COAT-animal
+COCOON
+COCHLEAR IMPLANT
+COCKROACH
+COFFEE
+COIN
+COINS-[Also see CL:F]
+COKE
+COLD-[REFRIGERATOR]
+COLLECT
+COLLEGE-[university]
+COLOR
+COLORADO
+COLORING
+COMB
+COME/[GO]-[come on, go-there, go-to, attend]
+COME-ON [see come/go]
+COMMON SENSE
+COMMUNICATION
+COMMUTE
+COMPLAIN
+COMPLIMENT
+COMPUTER
+CONCLUDE
+CONFESS
+CONFLICT
+CONGRATULATIONS
+CONNECT
+CONNECTICUT
+CONSTRUCTION
+CONTAINER
+CONTENTION
+CONTEXT
+CONTINENT
+CONTINUE
+CONVINCE
+COOK
+COOKIE
+COOL (temperature)
+COOL (spiffy)
+COPE
+COPY
+CORN
+CORNER
+CORRECT
+COST-[tax, fine, fee]
+COUCH
+COUGH
+COUNSEL
+COUNT-[accountant]
+count-on-[DEPEND]
+COUNTRY
+COUNTRIES
+court-[see IF]
+COUSIN
+COVER-[shell]
+COW
+COWBOY
+CRAB
+CRACK
+CRASH
+CRAZY-[nuts, crazy-about]
+CREATE
+CREATOR
+CREDENTIAL
+CRITICIZE
+CROCHET
+CROCODILE
+CROSSWALK
+CRUEL
+CRUSH
+CRYPTO
+CRY (4)
+CULTURE
+CUBBY
+CUP
+CUPCAKE
+CURIOUS
+CURLY-HAIR
+CURTAINS
+CUTE-[sugar]
+Cut it out!
+DAD
+DAILY
+DAIRY
+DALLAS
+DANCE
+DANCER
+DANDELION
+DANGER
+DARK
+DATE
+daughter-[see BABY]
+DAWN
+DAY
+DAYS OF THE WEEK
+DEAD
+DEADLINE
+DEAF
+DEAFHOOD
+DEAFNESS
+DEAF-SCHOOL
+DEAR
+DECIDE-[determine]
+DECLINE
+DECIMAL
+DECORATE
+DECREASE
+DEER
+DEFAULT
+DEGREE
+DEGREE-[educational]
+DELAWARE
+DELICIOUS
+DENTIST
+DENY
+DEPEND
+DEPLETE-[run-out-of]
+DEPOSIT
+DEPRESSED
+DESSERT
+desk-[see TABLE]
+DESTROY
+DETECTIVE
+DETROIT
+DEVELOP
+diabetes
+DIAPER
+dictionary
+DIDN'T
+DIE
+DIET
+DIFFERENT
+DIFFICULT
+DIG
+DINING ROOM
+DINNER
+DINOSAUR
+DIPLOMA
+DIRT
+DIRTY
+DIRTY-MINDED
+DISABLED
+DISAGREE
+DISAPPEAR
+DISCOVER
+DISCUSS
+DISGUSTED
+DISH-[plate]
+DISNEYLAND
+DISPARAGE
+DISTANCE
+DIVIDE
+DIVORCE
+DIZZY
+DO
+DO-what? [#DO-(lexicalized)]
+DOCTOR
+DOG
+DOLL
+DOLLAR
+DOLPHIN
+DONE-(FINISH)
+DONKEY-[stubborn]
+DON'T
+don't-CARE
+don't-FORGET
+don't-HAVE
+don't-KNOW
+don't-LIKE
+don't-MIND
+don't-WANT
+DONUT
+DOOR-[open, open door, close door]
+DORM
+DOTS
+DOUGH
+DOWN-[downstairs, CALM-DOWN]
+DOWN-SYNDROME
+DOZEN
+DRAGONFLY
+Dr. PEPPER
+DRAW-[art]
+DRAW-OUT
+DRAWER-[open drawer, close drawer]
+DREAM
+DRESS
+DRESSER
+DRESSING ROOM
+DRIBBLE
+DRILL
+DRINK
+DRIVE
+DROP
+DRUNK
+DRYER-[dry]
+DUCK
+DUDE
+dump
+DURING-[while]
+DUTY-[obligation]
+DVD
+EACH
+EAGLE
+EARLY
+EARN
+EARS
+EARTH-[planet]
+EARTH-QUAKE-[planet]
+EAST
+EASTER
+EASY-[ALMOST]
+EAT-[food]
+EAT-YOUR-WORDS
+EBOLA
+EGG
+EITHER
+ELECTRICITY
+ELEPHANT
+ELEPHANT SEAL
+ELEMENTARY
+ELEVATOR
+ELiS
+ELK
+ELOPE
+EMAIL
+EMBARRASSED
+EMBASSY
+EMERGENCY
+EMOTION
+EMPTY
+ENCORE
+ENCOURAGE
+END
+ENGLAND-[English, British]
+ENGLISH
+ENJOY-[appreciate]
+ENOUGH-[good-enough, PLENTY]
+enter-[see IN]
+ENTHUSIASTIC
+ENVIRONMENT
+EQUAL-[fair, level]
+ERASE
+ESCAPE
+ESTABLISH-[set-up]
+ETCETERA
+ETERNITY
+EURO
+EUROPE
+EVAPORATE
+EVERY
+EVERYDAY
+EVERYWHERE
+EXACT-[perfect]
+EXAGGERATE
+EXAM
+example -[see SHOW]
+exchange-[see TRADE]
+EXCITED
+EXCUSE-[lay-off/pardon/release/] (4)
+EXERCISE
+EXIT
+EXPAND
+EXPENSIVE
+EXPERIENCE
+EXPERT
+EXPIRE
+EXPLAIN-[describe, directions]
+EXPRESS
+EYES
+FACE
+FACEBOOK
+FACTORY
+FAIL
+FAIRY
+fall-[see AUTUMN, see CL:V]
+FALL
+FALL-IN-LOVE
+FALL-FROM-GRACE
+FALSE
+FAMILIAR
+FAMILY-[class, group, team, category, cluster]
+FAMILY ROOM
+FANCY
+FAR-("A" hand, "Index finger)-[distant]
+FARM
+FART
+FAST-[quick, speed, immediately]
+FAT-[obese]
+FATHER
+FAULT
+FAVORITE-[prefer]
+FEAR
+FEATHER
+FEDERAL
+FEED-[nourish, SPEND]
+FEEL
+FEET
+FENCE
+FERRET
+FEW-[several]
+FICTION
+FIELD-[all-over, -dom, -HOOD, land, area, ground]
+FIGHT
+figure-out
+FILE
+FILLER-SIGNS
+FIND-[discover, pick-up]
+FINE/[COOL, swell]
+fingerspell
+Fingerspelling-Workshop
+FINISH-(done)
+FIRE-(terminate)-[excommunicate]
+FIRE
+FIREMAN
+FIREFIGHTER
+FIREFLY
+FIREWORKS
+FIRST
+FISH
+FISHERMAN
+FIX-[#FIX]
+FLAMINGO
+FLASH-LIGHTS
+FLAT-(TIRE) (SURFACE)
+FLATTERY
+FLOOR
+FLOPPY DISK
+FLORIDA
+FLOWER
+FLUNK
+FLY-(insect)
+FLY
+FOLLOW (also see: [WITH]
+food-[see EAT]
+FOOL
+FOOT
+FOOTBALL
+FOR-[what for]
+FORCE
+FOREST
+FOREVER
+FORGET
+FORGIVE
+FORK
+FORMAL
+FOX
+Fractions-[see numbers]
+FREE-[independent, liberated, safe]
+FREEWAY-[highway]
+FREEZE
+FRENCH-FRIES
+FRENCH-TOAST
+FRESHMAN
+FRIDAY
+FRIEND-[good-friend, boy-friend, girl-friend] (4)
+FRIENDLY-[pleasant, cheerful]
+FRISBEE
+FROG
+FROM
+FROM-TIME-TO-TIME
+FROM-NOW-ON
+FRONT
+FRUGAL
+FRUIT
+FRUSTRATED
+FULL
+FUN
+FUNNY
+FURNITURE
+FUTURE-[later, will, someday, far in the future]
+GALLAUDET
+GALLON
+GAME-[challenge]
+GARAGE
+GARBAGE
+GARLIC
+GAS -[gasoline]
+GAS -[fart]
+GAS-STATION
+GAY
+GENDER
+GENTLE
+GEORGIA
+GERMANY
+GET-[acquire]
+GET-ALONG
+GET-ON
+GET-IN
+GHOST
+GIANT
+GIRAFFE
+GIRL-[woman, lady]
+GIRLFRIEND
+GIVE-[hand to]
+GIVE-UP-[sacrifice]
+glass-[see CUP]
+GLASSES / Moses / (Also see: Gallaudet )
+GO-[also see COME]
+GO-AHEAD
+GO-TO-BED
+GOAL
+GOAT
+GOD
+GOD: "God is awesome"
+GOLD/SILVER
+GONE-[absent, DEPLETE, run- out- of]
+GOOD
+GOOD HEAVENS
+GOOD-NIGHT
+GOOD-NIGHT-MOON
+GOODBYE
+GOODY-GOODY-TWO-DHOES
+GORILLA
+GOSSIP
+GOVERNMENT
+GR8
+GRACE
+GRACEFUL
+GRADE
+GRADUATE
+GRAIN
+granddaughter
+GRANDPA
+GRANDMA
+grandson
+GRANT-give
+GRAPES
+GRAPH
+GRASS-[hay]
+GRATITUDE
+GRAVE
+GRAVY
+GRAY
+GREAT-[wonderful]
+GREEN
+GRILLED CHEESE SANDWICH
+GRITS
+group-[see FAMILY]
+GROW
+GUARDED
+GUEST
+GUARDED
+GUINEA-PIG
+GYM
+GYMNASTICS
+HABIT
+HABIT-[religious-garment]
+HAIR
+HAIR-buzz
+HAIRCUT
+HAIR-RAISING
+HALF
+HALF-HOUR
+HALL
+HALLOWEEN
+HAM
+HAMBURGER
+HAMMER
+HAMSTER
+HAND
+HAND SANITIZER
+HANDS
+handshapes
+HANUKKAH (or Chanukah)
+HAPPEN
+HAPPY
+HARD-[tough, difficult, problem]
+HARD-OF-HEARING
+HAT
+HAUNTED-HOUSE
+HAVE
+have-to [see NEED/must]
+HAWAII
+HE
+HEAD
+HEAD-COLD
+HEADPHONES
+HEAL / HEALTHY
+health-[see BODY]
+HEAR-[sound]
+HEARD
+HEARING
+HEARING-AID
+HEARING-IMPAIRED (not recommended)
+HEARING-MIND (Hearing in the head) (Hearing minded)
+HEART
+HEART-ATTACK
+HEAVY
+HEAVY-EQUIPMENT
+HEDGEHOG
+Helen Keller
+HELICOPTER
+HELLO
+HELP
+HEN
+HERE
+HERMIT
+HEY
+HI
+HIDE
+HIGH
+HIGH-SCHOOL
+hike-[see cl:v]
+HIPPIE
+HIPPOPOTAMUS
+HIRE-[invite, introduce, welcome]
+his-[see possession]
+HISTORY
+HIT
+HOCKEY
+Holiday
+HOLLAND
+Holocaust
+HOME
+HOMEWORK
+HONEY-I-SHRUNK-THE-AUDIENCE
+HONOR
+HORSE
+HOSPICE
+HOSPITAL
+HOT
+HOT-AIR-BALLOON
+HOTEL
+HOTDOG
+HOUR-[1/2-HOUR, numerical incorporation]
+HOUSE
+HOUSEHOLD
+HOUSTON
+HOW
+HOW-ARE-YOU?
+HOW-MUCH
+HOW-MANY
+How was your day?
+HUG
+HUH?
+HUMBLE
+HUMMINGBIRD
+HUMP
+HUNGRY-[wish]
+HURRY-[rush]
+HURT [pain, injury]
+HUSH
+husband-[see MARRIAGE]
+I or "me"
+"I am"
+I-Pad
+ICE-[#ICE-(lexicalized)]
+ICE-CREAM
+ice-skate-[see ROLLER-BLADE]
+IDAHO
+IDEA
+IDENTITY
+IF-[#IF-(lexicalized)]
+IGUANA
+ILLINOIS
+IMMIGRANT
+IMMIGRATION
+IMPORTANT-[value, cost, worth]
+IMPOSSIBLE
+IMPRESSED
+IMPROVE
+IN
+INCH
+INCOMPETENT-[not-good-at, inept]
+INCREASE
+Indexing- [them, they, those, us, we, you-all, that]
+INDIA
+INDIAN
+INDIANA
+INFECTION
+INHERIT
+INK
+IN-LAW
+INNOCENT
+inspiration-[see FIRE]
+INSPIRE
+INSTITUTE
+INSTRUMENT
+INSULT
+INTEREST
+INTERESTING
+INTERMINABLE
+INTERNET
+INTERPRETER
+INTERRUPT-[bother]
+INTERSECT-[graph]
+intersection/crossroads-[see CONFLICT page]
+INTERSECTION
+INTERVIEW
+INTRUDE
+INVENT
+INVEST
+INVESTIGATE-[RESEARCH, check]
+INVISIBLE
+INVOLVED
+IRELAND
+is-[How to handle "be verbs"]
+ish (-ish)
+ISLAND
+ISRAEL
+ISSUES
+IT
+ITALY
+ITCH
+its-[see possession]
+IX
+JACKET
+JAIL
+JANITOR
+JAPAN
+JEALOUS
+JEHOVAH'S WITNESSES
+JELLYFISH
+JESUS
+JET-SKI
+JEWISH
+JOB-[#JOB-(lexicalized)]
+JOIN
+JOKE
+joking-[TEASE]
+judge-[see IF]
+JUICE
+JUMP
+JUNIOR
+JUST
+KANGAROO
+KEEP-[TAKE-CARE-OF, LEND, borrow, type]
+KETCHUP
+KEYBOARD
+KEYS
+KILL
+KISS
+KITCHEN
+KITE
+KITTEN
+KNIFE
+KNIT
+KNOW-[don't know, know-that, know-nothing, familiar, aware]
+KOALA
+KOREA
+KWANZAA
+LA-LA-LA
+LAB
+LABOR-DAY
+LADY
+large-[see big]
+LAID-OFF
+LAID-OUT
+LAME
+LANGUAGE
+LAST
+LATE
+LATER
+LAUGH
+LAUNDRY
+LAUNDRY ROOM
+LAW - [legal, Rule, Principle]
+LAWYER
+LAY [also see: cl:v]
+LAYER
+LAZY
+LEARN
+LEAP
+LEAVE-[depart] LEAVE-[leave-behind, abandon]
+LEAVE-behind, see: ABANDON
+LEBANON
+LECTURE-[speech, talk]
+LEFT-[right]
+LEG
+LEMON
+LESBIAN
+LESSON-[course, list, make-list]
+LET'S
+LETTER
+LETTER Lexicalized Signs-Workshop
+LIBRARY-[library+er]
+LIE
+LIE-DOWN
+LIGHT-[lamp, lights-on, lights-off, headlights, BRIGHT, LIGHT-A-MATCH, emergency vehicle, ambulance]
+LIGHT-WEIGHT
+LIKE
+LIKELY
+LIME
+LIMOUSINE
+line of work-[see MAIN]
+LINGUISTICS
+LINK
+LION
+LIPREAD
+LIST
+LITTLE-[little-bit]
+LIVE-[life, address]
+LIVING ROOM
+LIZARD
+LLAMA
+LOAN-[borrow, lend, keep]
+LOCAL
+LOCATED-at
+LOCATIONS: [top, bottom, side, beneath]
+LOCK
+LOCKED
+LONELY
+LONG-HAIR
+LONG
+LONG: "A long time ago."
+look [see: see]
+LOOK
+LOOK-AT-THAT
+LOOK-AROUND
+LOOK-LIKE
+LOOK-up
+LOOKS
+Los Angeles
+LOST
+LOSE
+LOUD
+LOUSY
+LOVE (4)
+LOW
+LUCK
+LUNCH
+Ma'am
+MACARONI-SALAD
+MACHINE-[factory]
+MAD-[angry]
+MAGICIAN
+MAGNET
+MAIL
+MAIN-[profession, major]
+major-[see MAIN]
+MAJORITY
+MAINE
+MAKE
+MAKE-OUT
+MAN
+MANAGER-[administration, rule-over, reign]
+MANY
+MARRY: "You mind if I marry your daughter?"
+MARRIAGE-[husband, wife, marry, married, spouse]
+MARTIAL ARTS
+MARSHMALLOW
+MATCH-[roommate, combine]
+MATH-[algebra, calculus, trigonometry, geometry]
+MAYBE-[may, might]
+MAYONNAISE
+ME
+MEAN-[cruel, PURPOSE]
+MEAN-(meaning)-[what is the meaning of, purpose] (1)
+MEANING
+MEASURE-[engineer]
+MEASURE
+MEAT-[steak, beef, context]
+MECHANIC-[wrench]
+MEDICINE
+MEDIUM
+MEERKAT
+MEET (1)
+MEETING
+MEMBER-[congress, faculty, senate, staff]
+member]
+MEMORIAL DAY
+MEMORIZE
+MENINGITIS
+MENSTRUAL-PERIOD
+METAL
+METHOD
+MEXICO
+MICHIGAN
+MICROPHONE
+MICROWAVE
+MIDDLE-[center]
+MIDNIGHT
+MILE
+MILK
+MINGLE
+MINUS
+MINUTE
+MISCHIEVOUS-[devil]
+MISS-(emotion)
+MISS-OUT-[guess]
+MISSIONARY-[preacher, pastor]
+MISTAKE
+MITTENS
+MOCK
+MOLE
+MOM [grandma]
+MONDAY
+MONEY-[BUY, purchase, shopping]
+MONITOR
+MONKEY
+MONSTER
+MONTH-[monthly, rent, MONTH-NEXT]
+MOOD
+MOON
+MOOSE
+MORE
+MORON
+MORNING-[EVERY-MORNING, ALL-MORNING]
+MORPHEME
+MOSQUITO
+MOST
+MOTH
+MOTIVATE
+MOTOR-[machine, engine]
+MOTORCYCLE
+MOUNTAIN
+MOUSE
+MOUSE_PAD
+MOUTH
+MOVE
+MOVIE
+Mr.
+Mrs.
+Ms.
+MUCH
+multiply
+MURDER
+MUSIC-[song, sing, singer, POETRY]
+must-[see NEED]
+MUSTACHE
+MUSTARD
+MUTE
+ñ
+NAIL
+NAILS
+NAME-[called] (1)
+NATION
+NATIVE-AMERICAN [Indian]
+NATURE
+NEAR-[close]
+NECKLACE
+NEED-[must, have-to, should, ought-to]
+Negation [not, don't, reversal of orientation]
+NEGATIVE
+NEIGHBOR- [NEXT-TO]
+NEITHER
+NEPHEW
+NERVOUS
+NEVER
+NEW
+NEWSPAPER
+NEW ORLEANS
+NEW YEAR'S DAY
+NEW-YORK
+newspaper-[see PRINTER]
+NEXT
+next-to/beside-[see NEIGHBOR]
+NICE-[clean] (1)
+NIECE
+NIGHT-[ALL-NIGHT, EVERY-NIGHT, evening]
+NO
+NO-GOOD-[#NG-(lexicalized)]
+NOBODY
+NOISE
+NONE
+NONEXISTENT
+NOON
+NORMAL-[of-course, natural, ordinary]
+NORTH
+NORTH AMERICA
+NOSE
+NOT
+NOT-MATTER
+NOT-YET
+NOTHING
+NOTHING-TO-IT
+NOTICE
+NOUN
+NOW-[present]
+NUMBER
+numbers
+NUMERICAL- INCORPORATION
+NURSE Also see: DOCTOR
+NURSING-HOME
+OBAMA
+OBEY
+OBTRUSIVE
+OCEAN/sea
+OCCUPY-Wall-Street
+OCTOPUS
+ODD
+OF
+OFFER
+OFFICE
+OFFICIAL
+OFTEN
+OH-GEE
+OH-I-SEE
+OKAY
+OLD
+OLYMPICS
+ON/[OFF]
+ONCE
+ONE: The perfect one for me
+ONE-MORE
+ONION
+ONLINE
+ONLY, SOMETHING]
+OPEN
+OPPOSITE-[across from, allergic, agree, disagree, STRUGGLE]
+OR
+ORDER
+ORANGE
+order-[see ANSWER]
+ordinary-[see REGULAR, see NORMAL]
+ORGAN
+ORGAN-[body]
+ORTHODOX
+OTHER
+OUNCE
+OUR-[also see POSSESSION]
+OUT - also see [see IN]
+OUTSIDE
+OVEN
+OVER-[across, cross]
+OWE-[bill, due, debt]
+OWN
+OWL
+PACIFIER
+PAGE
+PAH!
+PAIN
+PAINTER-[paint]
+PAIR
+PALE
+PANCAKE
+PANDA
+PANTOMIME
+PANTRY
+PANTS
+PAPER-[page, look-up, dictionary]
+PARAMEDIC
+PARAMETERS
+PARANOID
+PARDON
+PARK
+PARK-car
+PARKING- LOT
+PARKING PERMIT
+parents
+PARTNER
+PARTY
+PASS
+PASSWORD
+PAST
+PASTOR
+PATIENCE
+PATIENT
+PATRONIZE-[FREQUENT]
+PAUSE
+PAY
+PAY-ATTENTION-[focus, concentrate]
+PEACH
+PEANUT-BUTTER
+PEAR
+PEAS
+PEN
+PENCIL-[write]
+PENGUIN
+PEOPLE
+PEPPER
+PEPPERONI
+PEPSI
+PERCENT
+PERFECT
+PERIOD
+permanent
+permit-[see ALLOW]
+PERSON
+PET
+PHEASANT
+PHILADELPHIA
+PHONE
+PHONEME / phonology
+PHOTOGRAPHY
+PHYSICS
+PICKLE
+PICK-UP
+PICTURE-[photographer]
+PIE
+PIG
+PIG-OUT
+PILGRIM
+PILL-[TAKE-PILL]
+PILLAR
+PILOT
+PINEAPPLE
+PIPELINE
+PITTSBURGH
+PIZZA
+PIZZA-(deep_dish)
+place-[see AREA]
+PLACES
+PLAID
+PLAN
+PLANT
+plate-[see DISH]
+PLATYPUS
+PLAY-(TOYS, party)
+PLAY-CARDS-[card, check]
+PLEASE (1)
+PLEASURE (1)
+plenty-[see ENOUGH]
+PLIERS
+profession or professional-[see MAIN]
+PLUG-[plug-in, unplug]
+PLUMBER
+PLUS-[positive]
+POCKET
+POETRY
+POINT
+point-of-view
+POLAND
+POLE
+POLICE-[cop, sheriff, DETECTIVE]
+POLITE
+POLITICS-[politic, political]
+POOP
+POP-[soda]
+POPCORN
+POPULATION
+Possession: [have, own, her, his, its, mine, my, our, their, your, yours]
+POSSIBLE
+POSSUM-[opossum]
+POST-[put up a poster, bulletin+board]
+POSTAL-WORKER
+POST-OFFICE
+POSTPONE-[put-off]
+POTATO
+POUND-[lb, weight, weigh]
+POUR
+PRACTICE-[training]
+PRACTICE-WHAT-YOU-PREACH
+PREACHER
+PREFER
+PREGNANT
+PRESCRIPTION
+PRESIDENT-[superintendent]
+PRESSURE-[stress]
+PRETTY-[beautiful, handsome, good looking]
+PRETTY-GOOD
+PRETZEL
+PREVENT
+PRIEST
+PRINCIPAL
+PRINCIPLE
+PRINTER-[newspaper, publish, news]
+PRIOR-to
+PRISON-[jail, in-jail]
+PRIVATE
+PRIVATE EYE
+PROBLEM
+PROCEED-[go-ahead-with, get-along, go-on]
+PROGRAM
+PROMISE
+Pronominalization and Indexing: [it, he, me, she, him, her, this, you]
+PROOF
+PROOFING
+PROUD
+PSYCHOLOGY
+PUCK
+PUDDING
+PULL
+PUMPKIN
+PUNCH
+PURPLE
+PURPOSE
+PURSE
+PUSH
+PUT-[put-on, put-away, move]
+PUT-DOWN
+PUZZLE
+QM-wig
+QUESTION-MARK
+QUICK
+QUIET
+QUIT-[join, PARTICIPATE]
+QUIZ
+QUOTE
+RABBI
+RABBIT
+RACCOON
+race/compete-[see WITH]
+RADIATE
+RADIATOR
+RACE-[compete]
+RAIN
+RAISED-[grow-up]
+RAT
+RATE
+READ
+READY
+REAL
+realize-[see REASON]
+REALLY
+REASON-[realize]
+REBEL
+RECENT
+RECIPE
+RECOMMEND
+RECORD
+RECOVERY
+RED
+REFER
+REFRIGERATOR
+REGISTER
+REGULAR-[ordinary, righteous]
+REJECT
+RELATIONSHIP
+relieve-[see SATISFIED]
+RELIEVED
+REMEMBER
+replace-[see TRADE]
+REQUEST
+RESEARCH
+RESERVE, reservation also see: APPOINTMENT
+RESIDENTIAL-(general)
+RESIDENTIAL-SCHOOL-FOR-THE-DEAF
+RESPECT
+RESPONSIBLE-[fault]
+RESPONSIBLE
+REST-[relax]
+RESTAURANT
+RESTROOM
+RESULT
+RESUME
+RETIRE
+REVIEW
+REUNION
+RHINO-[rhinoceros]
+RICE
+RICH
+RIDE-ON/IN
+RIGHT-[alright, right-(direction), right-(correct), rights-(societal)]
+RINGING
+RIVER
+ROAD
+ROBOT
+ROCK
+ROCKET
+RODEO
+ROOF
+ROLLER-BLADE-[ice-skate, roller-skate]
+ROOM
+ROOMMATE
+ROOMMATE
+ROOSTER
+ROOT BEER
+Ross Dress For Less
+ROW
+RUBBER
+RUDE
+RUIN-[spoil]
+RULE
+rule-[see LAW]
+RUN-[...]
+RUN-OUT-OF-[deplete]
+rural (see COUNTRY)
+RUSSIA
+RUST
+SAD
+SALAD
+SALESPERSON
+SALT
+SAME:-[me-same-as-you, me-too, similar]
+SAMHAINOPHOBIA
+SAND
+SANDWICH
+SANITIZER-[hand-sanitizer]
+SANTA CLAUS
+SATISFIED
+SATURDAY
+SAUSAGE
+SAVE
+SAW
+SAY
+SCADS
+SCAN
+SCAR
+SCARECROW
+scared-[see AFRAID]
+SCARF
+SCHEDULE
+SCHOOL-[academic]
+SCIENTIST
+SCISSORS
+SCOOTER
+SCORE
+SCORPION
+SCOTLAND
+SCREWDRIVER
+SCUBA
+SEARCH-[look for, examine seek]
+SEASON
+SEASONING
+SEA-HORSE
+SEAL
+SEA LION
+SEA TURTLE
+SECOND
+SECOND-HAND
+SECRET
+SECRETARY
+SEE-[look-at, watch, let's-see]
+SEED
+SEEK
+SEEM
+SEIZE-[take-over, arrest]
+SEIZURE
+SELF
+SELF-STUDY
+SELFISH
+SEMESTER
+SENSE
+SEND-[mail]
+SENIOR
+SENTENCE
+SEPARATE-[apart]
+SET or "set up)  See ESTABLISH
+SERENDIPITY
+SERENITY
+SERIOUS
+SERMON
+SERVICE
+SEVERAL
+SEW
+S E X
+SHADE
+SHADOW
+SHAPE
+SHARE
+SHARK
+SHAVE
+SHE
+SHEEP
+SHHH!
+shelf-[see CL:B]
+SHIRT-[blouse]
+SHINE
+SHOCKED
+SHOES
+SHOP
+shopping-[see MONEY]
+SHORT-[short-stature, short-duration, short-sleeve]
+SHORTCOMINGS
+SHORT-HAIR
+should-[see NEED]
+SHOW-[example, demonstrate]
+SHOWER
+SHOW-UP-[appear, disappear, vanish]
+SHRIMP
+SHUT-DOWN-[power-outage, power-off, turn-off, blow-out]
+SHUT-UP
+SHY
+SICK
+side-[see LOCATIONS]
+SIDEWALK
+sign (street)-(street sign)
+SIGN-[sign language, signing] (1)
+SILLY
+SIMPLE
+SINCE
+SINGAPORE
+SINGER
+SINGLE
+SINK
+SIR
+SISTER [girl, female]
+SIT
+SKATEBOARDING
+SKATING-[ice-skating, rollerblading]
+SKI
+SKILL-[good-at, talent, EXPERT]
+SKIN
+SKINNED
+SKINNY
+SKIRT
+SKUNK
+SKY
+SKYSCRAPER
+SLEEP-[sleepy, over-sleep, sunrise]
+SLIDE
+SLIPPED
+SLIPPED-MY-MIND
+SLOPPY
+SLOTH
+SLOW
+SMALL
+SMART
+SMELL
+SMOKE
+SMOOTH
+SNACK
+SNAKE
+snob
+SNOW
+SNOWBOARD
+SO
+SO-SO-[sort-of]
+SOAP
+SOCCER
+SOCIALIZE
+SOCIOPATH
+SOCKS
+SOFT-[wet, humid]
+SOFTBALL
+SOFTWARE
+SOME
+SOMEDAY
+SOMEONE
+SOMETHING
+SOMETIMES
+SON also see [BABY]
+SOON
+SOPHOMORE
+SORE-THROAT
+SORRY-[apologize, regret]
+sound-[see HEAR]
+SOUP
+SOUTH
+SOUTH AMERICA
+SPAGHETTI
+SPAIN
+SPANISH
+SPARKLE
+SPECIALIZE
+SPEECH-IMPAIRED
+SPELL
+SPEND
+spend-[see FEED]
+SPICY
+SPIDER
+SPILL/SPREAD
+SPINE
+SPIRIT / soul / spiritual / ghost
+SPIT
+spoil-[see RUIN]
+SPOON-[soup}
+SPRING-[grow, PLANT, bush]
+SQUANDER
+SQUARE-[sign, black+board, perimeter]
+SQUASH
+SQUIRREL
+STAGE
+STAIRS
+STAND [also see CL:V]
+STAR
+start-[begin, initiate]
+STATE
+State Employment Vocabulary
+STATIONERY
+STAY
+STEAL
+STENOTYPE-[stenography]
+STEPFATHER
+STEPMOTHER
+STILL
+STING
+STINK
+STOMACH
+STOP (4)
+STORE
+STORAGE
+STORM
+STOVE
+STOVE
+STRAIGHT
+STRAIGHT-HAIR
+STRANGE
+STRAWBERRY
+STREET
+STRICT
+STRIPES
+STROKE
+STRONG-[WELL, brave, courageous, recover]
+struggle-[see OPPOSITE]
+STRUGGLE
+STUBBORN -[donkey]
+STUCK
+STUCK-UP
+STUDENT
+STUDY
+STUPID-[DUMB]
+subordinate-[see WITH]
+SUBSCRIBE-[get-regularly, SSI, welfare]
+SUBTRACT
+SUBWAY
+SUCCEED-[finally, success, FAMOUS, Pah!]
+SUFFER
+sugar-[see cute]
+SUGGEST-[offer, propose]
+SUITCASE
+SUMMER
+SUN
+SUNDAY
+SUNRISE
+SUPERVISOR
+SUPPORT-[pro, loyal]
+SUPPOSE-[IF]
+sure-[see TRUE]
+SURF
+SURGERY
+SURPRISE
+SUSPECT
+SWEET
+SWEEP
+SWEETHEART
+SWIM
+SWING
+SYMBOL
+SYMPATHY [poor-baby, sympathize-with, grace, compassion]
+SYNTHETIC
+TABLE-[desk]
+TABLESPOON
+TACO
+TAKE
+TAKE-AWAY
+TAKE-EASY
+TAKE-CARE-OF
+TAKE-TURNS
+TAKE-UP
+TALENT
+TALK
+Talk-to-yourself-(HERMIT)
+TALK-WITH
+TALL
+TAMALE / tamales
+TAPE
+TASTE
+TATTLE/SQUEAL
+TAX
+TEA
+TEAM
+TEACHER [teach, agent]-[-er]-[professor, educate]
+team-[see FAMILY]
+TEASE
+TEASPOON
+TECHNOLOGY
+TEETH
+TEENAGER
+TECHNICAL-[method, technique]
+TELEVISION
+TELEPHONE
+TELL
+TELLER-fs
+TEMPERATURE
+TEMPLE
+TEMPTATION
+TEND-TO
+TERRIBLE
+TERRORIST
+TEST-[exam, quiz]
+TEST
+TEXAS
+THAI-FOOD (Thai food)
+THAILAND
+THAN
+THANKSGIVING
+THANK-YOU [good] (1)
+THAT
+that-[see indexing]
+THAT'S-LIFE-[#TL-(lexicalized)]
+THE
+THEATER-[act, actor, drama, play, show]
+THEIR
+THEN
+THERE
+THEREABOUTS
+THEY
+THICK
+THIEF
+THEIR-[see possession]
+THIN-[CL:G]
+THING
+THINGAMAJIG
+THINK-[brain, mind, think-about, wonder]
+THINK-SAME-[agree]
+THIRSTY-[crave]
+THIS
+THORN
+THREE
+Three wise men brought frankincense, myrrh, and gold.
+THROAT
+THRONE
+THROUGH
+THROW-[throw-away]
+THUMB-DOWN [thumbs-down]
+THURSDAY
+TICKLE
+TICKET-[give-ticket]
+TIE
+TIGER
+TIME-[general]
+Time_"From_time_to_time"
+Time_"TIME-PERIOD"
+TIME-OUT
+times (multiply)
+TIRED-[exhausted]
+title-[see QUOTE]
+TO
+TOO
+TOAST
+TODAY
+together-[see WITH]
+TOILET
+TOLERATE
+TOMORROW-[daily, everyday]
+TOOL
+TOOTH
+TOOTHPASTE
+TOO-MUCH
+top-[see LOCATIONS]
+TOPIC
+TOTAL-[sum]
+TOUCH-[dwell-on]
+TOUGH
+TOWEL
+TOY
+TRADE-[replace, exchange]
+TRAFFIC
+TRAIN
+TRAIN-GONE
+training-[see PRACTICE]
+TRANSFER-[switch-over]
+TRANSGENDER
+TRAVEL-[trip]
+TREAT
+TREE-[park, forest]
+TRIAL
+Trick-or-Treat
+trip-[see TRAVEL]
+TRUCK
+TRUE-[sure, really, real]
+Trump
+TRY
+TTY-[teletypewriter]
+TV
+TUESDAY
+TURKEY
+TURN-[turn-on, turn-of, knob/switch]
+TURN-TAKING-alternating
+TURTLE
+TWO
+TYPE-[keyboard, typewriter]
+UGLY
+UNCANNY
+UM
+UMBRELLA
+UNCLE (4)UNDERESTIMATE
+UNDERSTAND (1)
+UNDERWEAR
+UNICORN
+UNITED STATES
+UNIVERSITY
+UP-[upstairs]
+UP
+UP-TO-NOW
+UPSET
+URINATE
+USB_drive
+USE
+USED-(second_hand)
+UTAH
+VACATION-[off work, holiday]
+VACUUM
+VANILLA
+VARIOUS
+VEGAN
+VEGETABLE
+VEGETARIAN
+VERY
+VET
+VETERAN
+VICE-PRESIDENT
+VICTORY
+VIDEO
+VIDEO-GAME
+VIDEO-PHONE
+VIDEO-RECORD
+VIDEO-TAPE
+VIEWPOINT
+VIOLENCE
+VIRTUAL
+VISIT
+VITAMIN
+VLOG
+VOLLEYBALL
+volunteer-[see APPLY]
+VOLUNTEER
+VOMIT-[detest]
+VOTE
+VOWEL
+WADDLE
+WAGON-[discussion]
+WAIST
+WAIT
+WAITER/WAITRESS-[serve, servant]
+WAKE-UP
+wake-up-[see SURPRISE]
+WALK-TO-[walk]
+wall-[see CL:B]
+WALL
+WALRUS
+WANT-[don't-want, desire](4)
+WARM
+WARN/CAUTION
+WAS
+WASH (4)
+WASH-CLOTHES
+WASH-DISHES
+WASHING-MACHINE
+WASHINGTON
+WASHINGTON-DC
+WATCH-[wristwatch, bracelet]
+WATCH
+WATER
+WATER-FOUNTAIN
+WAVE-NO
+WAY-[hall, street, road, avenue]
+WAY
+WE
+we/us-[see INDEXING]
+WEAK-[vulnerable]
+WEAR-OUT-[burnout, fall-apart]
+WEATHER-[wind, breeze]
+WEB
+WEBCAM
+WEBSITE
+WEDNESDAY
+WEEK
+WEEK-(advanced)
+WEEK-NEXT
+WEEK-LAST
+WEEKEND
+WEEKLY-[every-WEEK]
+WEIGH
+WEIRD
+WELCOME
+WELD-[welder]
+WERE
+WEST
+WET-WIPES
+WHALE
+WHAT
+WHAT-DO
+WHAT-KIND-[type, style]
+WHAT'S-UP
+WHEN
+WHENEVER
+WHERE
+WHICH
+WHISPER
+WHITE
+WHITE-PERSON
+WHO
+WHOA
+WHY
+WHY-[rhetorical]
+WICCA
+WIDOW
+WIFE
+WILDERNESS
+will-[see FUTURE]
+WILLING
+WIN
+WIND
+WINDOW-[open-window, close-window]
+WINE-[beer]
+WINTER
+WISH
+WITCH
+WITH
+WITH- advanced discussion: [in-front-of, behind, follow, catch-up, chase, fall-behind, accompany, together, go-with, go-steady, race, compete, subordinate]
+WITHOUT
+WOAH
+WOLF
+WOLF-DOWN
+WOMAN
+WOMB
+wonder-[see THINK]
+WONDERFUL
+WON'T-[refuse]
+WOOD
+WORD
+WORK
+WORLD
+WORLD WIDE WEB
+WORM
+WORRY
+WORSE-[figure, times]
+WOULD
+WOW
+WRENCH
+WRESTLE-[wrestler, wrestling]
+WRITE
+WRONG
+WWW
+WYOMING
+X-RAY
+YEAR-[annually, last-year, next-year, numerical incorporation]
+YEAR-"3 years ago"
+YELL
+YELLOW
+YES/NO
+YESTERDAY
+YOGURT
+you-[see INDEXING]
+YOUNG
+YOUR [also see possession]
+ZEBRA
+ZERO
+ZILCH
+ZIP
+ZOMBIE
+ZZ
+`;
+
+		// =============================
+		// Config
+		// =============================
+		const MODEL_ID = "Qwen2.5-0.5B-Instruct-q4f16_1-MLC";
+		const LIFEPRINT_SIGN_BASE = "https://www.lifeprint.com/asl101/pages-signs";
+		const PREFILTER_LIMIT = 25;	// keep prompt small for small local models
+		const TOP_N = 5;			// show only top 5 LLM results
+
+		// =============================
+		// UI
+		// =============================
+		const $q = document.getElementById("q");
+		const $go = document.getElementById("go");
+		const $status = document.getElementById("status");
+		const $results = document.getElementById("results");
+
+		function setStatus(text){ $status.textContent = text || ""; }
+		function clearResults(){ $results.innerHTML = ""; }
+		function openNewTab(url){ window.open(url, "_blank", "noopener,noreferrer"); }
+
+		// =============================
+		// Dictionary parsing & normalization
+		// =============================
+		function normalizeQuery(s){
+			return (s || "")
+				.trim()
+				.replace(/\s+/g, " ")
+				.replace(/[“”]/g, '"')
+				.replace(/[‘’]/g, "'")
+				.toLowerCase();
+		}
+
+		function stripNotes(entry){
+			let s = entry.trim();
+			s = s.replace(/\s*\(\d+\)\s*$/g, "");
+			s = s.replace(/\s*\[[^\]]*\]\s*/g, " ");
+			s = s.replace(/\s*-\s*\[[^\]]*\]\s*/g, " ");
+			s = s.replace(/\s*Also see:.*$/i, "");
+			s = s.replace(/\s+/g, " ").trim();
+			return s;
+		}
+
+		function explodeAlternates(core){
+			const parts = [];
+			const slashParts = core.split("/").map(x => x.trim()).filter(Boolean);
+			for (const sp of slashParts){
+				const colonParts = sp.split(":").map(x => x.trim()).filter(Boolean);
+				for (const cp of colonParts) parts.push(cp);
+			}
+			if (!parts.length) parts.push(core);
+
+			const keys = [];
+			const seen = new Set();
+			for (const p of parts){
+				const k = normalizeQuery(p)
+					.replace(/^[^a-z0-9]+|[^a-z0-9]+$/g, "")
+					.trim();
+				if (k && !seen.has(k)){
+					seen.add(k);
+					keys.push(k);
+				}
+			}
+			return keys.length ? keys : [normalizeQuery(core)];
+		}
+
+		function parseDictionary(raw){
+			const lines = raw.split("\n").map(l => l.trim()).filter(l => l.length > 0);
+			const entries = [];
+			for (const line of lines){
+				const core = stripNotes(line);
+				if (!core) continue;
+				entries.push({ original: line, core, keys: explodeAlternates(core) });
+			}
+			return entries;
+		}
+
+		const DICTIONARY = parseDictionary(DICTIONARY_RAW);
+
+		// =============================
+		// URL generation from entry
+		// =============================
+		function slugifyForLifeprint(s){
+			return (s || "")
+				.toLowerCase()
+				.replace(/&/g, "and")
+				.replace(/["']/g, "")
+				.replace(/[^a-z0-9]+/g, "-")
+				.replace(/^-+|-+$/g, "");
+		}
+
+		function letterFolderFromSlug(slug){
+			const m = slug.match(/[a-z]/i);
+			return m ? m[0].toLowerCase() : "misc";
+		}
+
+		function buildLifeprintUrl(slug){
+			const letter = letterFolderFromSlug(slug);
+			return `${LIFEPRINT_SIGN_BASE}/${letter}/${slug}.htm`;
+		}
+
+		function entryToUrl(entry){
+			// Primary URL only (keep UI simple)
+			const slug = slugifyForLifeprint(entry.core);
+			if (!slug) return "";
+			return buildLifeprintUrl(slug);
+		}
+
+		// =============================
+		// Prefilter (keeps prompt small; LLM does semantic ranking)
+		// =============================
+		function scoreEntry(query, entry){
+			const q = normalizeQuery(query);
+			if (!q) return 0;
+
+			const qTokens = q.split(" ").filter(Boolean);
+			let best = 0;
+
+			for (const key of entry.keys){
+				if (!key) continue;
+
+				if (key === q) best = Math.max(best, 1000);
+				if (key.startsWith(q)) best = Math.max(best, 650);
+				if (q.startsWith(key)) best = Math.max(best, 600);
+				if (key.includes(q)) best = Math.max(best, 420);
+
+				const kTokens = key.split(" ").filter(Boolean);
+				let overlap = 0;
+				for (const t of qTokens){
+					if (kTokens.includes(t)) overlap++;
+				}
+				best = Math.max(best, overlap * 120);
+
+				const lenDelta = Math.abs(key.length - q.length);
+				best = Math.max(best, Math.max(0, 120 - lenDelta * 8));
+			}
+
+			return best;
+		}
+
+		function prefilterCandidates(query){
+			const q = normalizeQuery(query);
+
+			const scoredAll = DICTIONARY
+				.map(e => ({ e, s: scoreEntry(q, e) }))
+				.sort((a,b) => b.s - a.s);
+
+			const filtered = scoredAll
+				.filter(x => x.s > 0)
+				.slice(0, PREFILTER_LIMIT)
+				.map(x => x.e);
+
+			if (filtered.length) return filtered;
+
+			// Weak fallback: still provide candidates so LLM can do semantic approximation
+			return scoredAll.slice(0, PREFILTER_LIMIT).map(x => x.e);
+		}
+
+		// =============================
+		// LLM (local) + robust parsing
+		// =============================
+		let engine = null;
+		let engineReady = false;
+		let engineLoading = false;
+
+		async function ensureEngine(){
+			if (engineReady) return engine;
+			if (engineLoading) return null;
+
+			engineLoading = true;
+			setStatus("Loading local LLM (first run downloads model assets) …");
+
+			try{
+				const initProgressCallback = (p) => {
+					const pct = (p.progress * 100).toFixed(0);
+					setStatus(`Loading local LLM: ${pct}% — ${p.text || ""}`.trim());
+				};
+				engine = await webllm.CreateMLCEngine(MODEL_ID, { initProgressCallback });
+				engineReady = true;
+				setStatus("LLM ready.");
+				return engine;
+			}catch(err){
+				console.error(err);
+				setStatus("LLM failed to load.");
+				engine = null;
+				engineReady = false;
+				return null;
+			}finally{
+				engineLoading = false;
+			}
+		}
+
+function extractJsonIntArray(text){
+	if (!text) return null;
+	let s = String(text).trim();
+
+	// Remove fenced code blocks, keep inner content
+	s = s.replace(/```[\s\S]*?```/g, (block) => {
+		return block.replace(/^```[a-zA-Z]*\n?/, "").replace(/```$/, "");
+	}).trim();
+
+	// Grab first bracketed array
+	const m = s.match(/\[[\s\S]*\]/);
+	if (!m) return null;
+
+	let candidate = m[0].trim();
+
+	// Remove trailing commas
+	candidate = candidate.replace(/,\s*\]/g, "]");
+
+	try{
+		const parsed = JSON.parse(candidate);
+		if (!Array.isArray(parsed)) return null;
+
+		// Accept numbers or numeric strings
+		const ints = parsed.map(v => {
+			if (typeof v === "number") return v;
+			if (typeof v === "string" && v.trim().match(/^\d+$/)) return Number(v.trim());
+			return NaN;
+		});
+
+		if (ints.some(n => !Number.isFinite(n))) return null;
+		return ints;
+	}catch{
+		return null;
+	}
+}
+
+
+async function llmRankByMeaning(engine, phrase, candidates){
+	// Candidates are numbered 1..N in the prompt.
+	const N = candidates.length;
+
+	const system = [
+		"You are selecting the closest-matching ASL dictionary entry by MEANING.",
+		"",
+		"Critical rules:",
+		"1) Choose by meaning, not by shared letters or first word.",
+		"2) Strongly avoid function-word matches like: in, on, at, to, of, the, a, an, and, or, but, as, is, are, was, were.",
+		"   Only choose a function word if the user is explicitly asking about that function word itself.",
+		"3) For phrases like 'in reality' choose the closest single-word meaning (e.g., REALLY / ACTUALLY) if available.",
+		"",
+		"Output format (MANDATORY):",
+		"- Output ONLY a JSON array of INTEGERS.",
+		"- Each integer must be between 1 and " + N + " (inclusive).",
+		"- Return EXACTLY 5 integers, ranked best to worst.",
+		"- First character must be '[' and last character must be ']'.",
+		"- No markdown, no commentary, no extra text."
+	].join("\n");
+
+	const user = [
+		`English input (meaning to match): "${phrase}"`,
+		"",
+		"Candidate entries (choose by number ONLY):",
+		...candidates.map((c, i) => `${i + 1}. ${c.core}`),
+		"",
+		"Return the JSON array of 5 integers now."
+	].join("\n");
+
+	// First attempt
+	let reply = await engine.chat.completions.create({
+		messages: [
+			{ role: "system", content: system },
+			{ role: "user", content: user },
+		],
+		temperature: 0.0,
+	});
+
+	let text = reply?.choices?.[0]?.message?.content || "";
+	let arr = extractJsonIntArray(text);
+
+	// One hard retry if needed
+	if (!arr){
+		reply = await engine.chat.completions.create({
+			messages: [
+				{ role: "system", content: system },
+				{ role: "user", content: user },
+				{ role: "user", content: "Output ONLY the JSON array of 5 integers. No other text." },
+			],
+			temperature: 0.0,
+		});
+		text = reply?.choices?.[0]?.message?.content || "";
+		arr = extractJsonIntArray(text);
+	}
+
+	if (!arr) return null;
+
+	// sanitize to [1..N], unique, preserve order
+	const out = [];
+	const seen = new Set();
+	for (const x of arr){
+		const n = Number(x);
+		if (Number.isInteger(n) && n >= 1 && n <= N && !seen.has(n)){
+			seen.add(n);
+			out.push(n);
+		}
+		if (out.length >= TOP_N) break;
+	}
+
+	// Ensure we always return 5 indexes (fallback to 1..N)
+	for (let i = 1; out.length < TOP_N && i <= N; i++){
+		if (!seen.has(i)) out.push(i);
+	}
+
+	return out; // integer indexes
+}
+
+
+		// =============================
+		// Render top 5 only (from LLM)
+		// =============================
+		function renderTop5(entries, topCore){
+			clearResults();
+
+			if (!entries.length){
+				const div = document.createElement("div");
+				div.style.color = "var(--muted)";
+				div.style.fontSize = "14px";
+				div.textContent = "No results.";
+				$results.appendChild(div);
+				return;
+			}
+
+			for (const entry of entries.slice(0, TOP_N)){
+				const url = entryToUrl(entry);
+
+				const btn = document.createElement("button");
+				btn.className = "resultBtn";
+				btn.type = "button";
+
+				const meta = document.createElement("div");
+				meta.className = "meta";
+
+				const label = document.createElement("div");
+				label.className = "label";
+				label.textContent = entry.core;
+
+				const u = document.createElement("div");
+				u.className = "url";
+				u.textContent = url || "(no URL generated)";
+
+				meta.appendChild(label);
+				meta.appendChild(u);
+
+				const badge = document.createElement("div");
+				badge.className = "badge";
+				if (topCore && entry.core === topCore){
+					badge.classList.add("good");
+					badge.textContent = "Top match";
+				}else{
+					badge.textContent = "Open";
+				}
+
+				btn.appendChild(meta);
+				btn.appendChild(badge);
+
+				btn.addEventListener("click", () => {
+					if (url) openNewTab(url);
+				});
+
+				$results.appendChild(btn);
+			}
+		}
+
+		// =============================
+		// Search flow (NO pre-LLM display)
+		// =============================
+		async function runSearch(){
+			clearResults();
+
+			if (!DICTIONARY.length || (DICTIONARY.length === 1 && DICTIONARY[0].core === "PASTE YOUR LIST HERE")){
+				setStatus("Paste your dictionary list into DICTIONARY_RAW in the HTML file first.");
+				return;
+			}
+
+			const phrase = normalizeQuery($q.value);
+			if (!phrase){
+				setStatus("Type a word or phrase first.");
+				return;
+			}
+
+			setStatus("Finding best matches…");
+
+			const candidates = prefilterCandidates(phrase);
+			if (!candidates.length){
+				setStatus("No candidates available.");
+				return;
+			}
+
+			const eng = await ensureEngine();
+			if (!eng){
+				setStatus("LLM unavailable.");
+				return;
+			}
+
+			setStatus("Ranking by meaning (LLM)…");
+
+			const rankedIdx = await llmRankByMeaning(eng, phrase, candidates);
+if (!rankedIdx){
+	setStatus("LLM response could not be parsed.");
+	return;
+}
+
+// Map indexes -> entries (1-based -> 0-based)
+const rankedEntries = rankedIdx
+	.map(i => candidates[i - 1])
+	.filter(Boolean);
+
+setStatus(`Showing top ${Math.min(TOP_N, rankedEntries.length)} results.`);
+renderTop5(rankedEntries, rankedEntries[0]?.core || null);
+
+		}
+
+		$go.addEventListener("click", runSearch);
+		$q.addEventListener("keydown", (e) => { if (e.key === "Enter") runSearch(); });
+
+		setStatus("Ready. Paste your dictionary list into DICTIONARY_RAW, then search.");
+	</script>
+</body>
+</html>

@@ -1,0 +1,27 @@
+{
+  "starters": [
+    "Me gustaría una ensalada con",
+    "Me da una ensalada con",
+    "Quiero una ensalada con"
+  ],
+  "ingredients": [
+    { "es": "zanahoria", "en": "carrot" },
+    { "es": "tomate", "en": "tomato" },
+    { "es": "lechuga", "en": "lettuce" },
+    { "es": "cebolla", "en": "onion" },
+    { "es": "maíz", "en": "corn" },
+    { "es": "brócoli", "en": "broccoli" },
+    { "es": "espinaca", "en": "spinach" },
+    { "es": "pepino", "en": "cucumber" },
+    { "es": "pollo", "en": "chicken" },
+    { "es": "huevos", "en": "eggs" },
+    { "es": "queso", "en": "cheese" }
+  ],
+  "settings": {
+    "optionCount": 10,
+    "minTargets": 2,
+    "maxTargets": 5,
+    "defaultRate": 1.0,
+    "lang": "es-ES"
+  }
+}

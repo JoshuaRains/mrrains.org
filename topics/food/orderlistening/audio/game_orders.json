@@ -1,0 +1,794 @@
+{
+  "meta": {
+    "title": "Soup / Salad / Burger Listening Checkboxes",
+    "round_questions": 10,
+    "penalty_seconds_per_incorrect_part": 30,
+    "max_checkbox_choices": 14,
+    "audio_dir": "./audio/"
+  },
+  "ingredients": [
+    { "id": "lettuce", "en": "lettuce", "es": "lechuga" },
+    { "id": "tomato", "en": "tomato", "es": "tomate" },
+    { "id": "onion", "en": "onion", "es": "cebolla" },
+    { "id": "cheese", "en": "cheese", "es": "queso" },
+    { "id": "pepper", "en": "pepper", "es": "pimiento" },
+    { "id": "spinach", "en": "spinach", "es": "espinaca" },
+    { "id": "cucumber", "en": "cucumber", "es": "pepino" },
+    { "id": "corn", "en": "corn", "es": "maíz" },
+    { "id": "chicken", "en": "chicken", "es": "pollo" },
+    { "id": "rice", "en": "rice", "es": "arroz" },
+    { "id": "beans", "en": "beans", "es": "frijoles" },
+    { "id": "potato", "en": "potato", "es": "papa" },
+    { "id": "carrot", "en": "carrot", "es": "zanahoria" },
+    { "id": "broccoli", "en": "broccoli", "es": "brócoli" },
+    { "id": "pasta", "en": "pasta", "es": "pasta" },
+    { "id": "fish", "en": "fish", "es": "pescado" },
+    { "id": "eggs", "en": "eggs", "es": "huevos" },
+    { "id": "beef", "en": "beef", "es": "carne de res" },
+    { "id": "meat", "en": "meat", "es": "carne" },
+    { "id": "pork", "en": "pork", "es": "cerdo" },
+
+    { "id": "apple", "en": "apple", "es": "manzana" },
+    { "id": "grapes", "en": "grapes", "es": "uvas" },
+    { "id": "strawberry", "en": "strawberry", "es": "fresa" },
+    { "id": "pineapple", "en": "pineapple", "es": "piña" },
+    { "id": "pear", "en": "pear", "es": "pera" },
+    { "id": "peach", "en": "peach", "es": "durazno" },
+    { "id": "orange", "en": "orange", "es": "naranja" },
+    { "id": "lemon", "en": "lemon", "es": "limón" },
+    { "id": "watermelon", "en": "watermelon", "es": "sandía" },
+    { "id": "banana", "en": "banana", "es": "plátano" },
+
+    { "id": "water", "en": "water", "es": "agua" },
+    { "id": "tea", "en": "tea", "es": "té" },
+    { "id": "juice", "en": "juice", "es": "jugo" },
+    { "id": "milk", "en": "milk", "es": "leche" },
+    { "id": "soda", "en": "soda", "es": "refresco" },
+    { "id": "coffee", "en": "coffee", "es": "café" },
+    { "id": "yogurt", "en": "yogurt", "es": "yogur" },
+
+    { "id": "napkin", "en": "napkin", "es": "servilleta" },
+    { "id": "spoon", "en": "spoon", "es": "cuchara" },
+    { "id": "fork", "en": "fork", "es": "tenedor" },
+    { "id": "plate", "en": "plate", "es": "plato" },
+    { "id": "menu", "en": "menu", "es": "menú" }
+  ],
+  "all_ingredient_ids": [
+    "lettuce","tomato","onion","cheese","pepper","spinach","cucumber","corn","chicken","rice","beans","potato","carrot","broccoli","pasta","fish","eggs","beef","meat","pork",
+    "apple","grapes","strawberry","pineapple","pear","peach","orange","lemon","watermelon","banana",
+    "water","tea","juice","milk","soda","coffee","yogurt",
+    "napkin","spoon","fork","plate","menu"
+  ],
+  "orders": [
+    {
+      "id": 1,
+      "type": "salad",
+      "audio": "order_1.mp3",
+      "spanish": "Quiero una ensalada con lechuga, tomate, y cebolla.",
+      "english": "I want a salad with lettuce, tomato, and onion.",
+      "total_ingredients": ["lettuce","tomato","onion","cheese","pepper","spinach","cucumber","corn","chicken","rice","beans","potato","carrot","broccoli","pasta","fish","eggs","beef","meat","pork","apple","grapes","strawberry","pineapple","pear","peach","orange","lemon","watermelon","banana","water","tea","juice","milk","soda","coffee","yogurt","napkin","spoon","fork","plate","menu"],
+      "correct_ingredients": ["lettuce","tomato","onion"]
+    },
+    {
+      "id": 2,
+      "type": "soup",
+      "audio": "order_2.mp3",
+      "spanish": "Quiero una sopa con pollo y arroz, y un vaso de agua.",
+      "english": "I want a soup with chicken and rice, and a glass of water.",
+      "total_ingredients": ["lettuce","tomato","onion","cheese","pepper","spinach","cucumber","corn","chicken","rice","beans","potato","carrot","broccoli","pasta","fish","eggs","beef","meat","pork","apple","grapes","strawberry","pineapple","pear","peach","orange","lemon","watermelon","banana","water","tea","juice","milk","soda","coffee","yogurt","napkin","spoon","fork","plate","menu"],
+      "correct_ingredients": ["chicken","rice","water"]
+    },
+    {
+      "id": 3,
+      "type": "burger",
+      "audio": "order_3.mp3",
+      "spanish": "Quiero una hamburguesa con queso y pimiento.",
+      "english": "I want a burger with cheese and pepper.",
+      "total_ingredients": ["lettuce","tomato","onion","cheese","pepper","spinach","cucumber","corn","chicken","rice","beans","potato","carrot","broccoli","pasta","fish","eggs","beef","meat","pork","apple","grapes","strawberry","pineapple","pear","peach","orange","lemon","watermelon","banana","water","tea","juice","milk","soda","coffee","yogurt","napkin","spoon","fork","plate","menu"],
+      "correct_ingredients": ["cheese","pepper"]
+    },
+
+    {
+      "id": 4,
+      "type": "salad",
+      "audio": "order_4.mp3",
+      "spanish": "Quiero una ensalada con espinaca, pepino, y maíz.",
+      "english": "I want a salad with spinach, cucumber, and corn.",
+      "total_ingredients": ["lettuce","tomato","onion","cheese","pepper","spinach","cucumber","corn","chicken","rice","beans","potato","carrot","broccoli","pasta","fish","eggs","beef","meat","pork","apple","grapes","strawberry","pineapple","pear","peach","orange","lemon","watermelon","banana","water","tea","juice","milk","soda","coffee","yogurt","napkin","spoon","fork","plate","menu"],
+      "correct_ingredients": ["spinach","cucumber","corn"]
+    },
+    {
+      "id": 5,
+      "type": "soup",
+      "audio": "order_5.mp3",
+      "spanish": "Quiero una sopa con frijoles y cebolla.",
+      "english": "I want a soup with beans and onion.",
+      "total_ingredients": ["lettuce","tomato","onion","cheese","pepper","spinach","cucumber","corn","chicken","rice","beans","potato","carrot","broccoli","pasta","fish","eggs","beef","meat","pork","apple","grapes","strawberry","pineapple","pear","peach","orange","lemon","watermelon","banana","water","tea","juice","milk","soda","coffee","yogurt","napkin","spoon","fork","plate","menu"],
+      "correct_ingredients": ["beans","onion"]
+    },
+    {
+      "id": 6,
+      "type": "burger",
+      "audio": "order_6.mp3",
+      "spanish": "Quiero una hamburguesa con lechuga y tomate, sin cebolla.",
+      "english": "I want a burger with lettuce and tomato, without onion.",
+      "total_ingredients": ["lettuce","tomato","onion","cheese","pepper","spinach","cucumber","corn","chicken","rice","beans","potato","carrot","broccoli","pasta","fish","eggs","beef","meat","pork","apple","grapes","strawberry","pineapple","pear","peach","orange","lemon","watermelon","banana","water","tea","juice","milk","soda","coffee","yogurt","napkin","spoon","fork","plate","menu"],
+      "correct_ingredients": ["lettuce","tomato"]
+    },
+    {
+      "id": 7,
+      "type": "salad",
+      "audio": "order_7.mp3",
+      "spanish": "Quiero una ensalada con manzana y uvas.",
+      "english": "I want a salad with apple and grapes.",
+      "total_ingredients": ["lettuce","tomato","onion","cheese","pepper","spinach","cucumber","corn","chicken","rice","beans","potato","carrot","broccoli","pasta","fish","eggs","beef","meat","pork","apple","grapes","strawberry","pineapple","pear","peach","orange","lemon","watermelon","banana","water","tea","juice","milk","soda","coffee","yogurt","napkin","spoon","fork","plate","menu"],
+      "correct_ingredients": ["apple","grapes"]
+    },
+    {
+      "id": 8,
+      "type": "soup",
+      "audio": "order_8.mp3",
+      "spanish": "Quiero una sopa con papa y zanahoria, y una taza de té.",
+      "english": "I want a soup with potato and carrot, and a cup of tea.",
+      "total_ingredients": ["lettuce","tomato","onion","cheese","pepper","spinach","cucumber","corn","chicken","rice","beans","potato","carrot","broccoli","pasta","fish","eggs","beef","meat","pork","apple","grapes","strawberry","pineapple","pear","peach","orange","lemon","watermelon","banana","water","tea","juice","milk","soda","coffee","yogurt","napkin","spoon","fork","plate","menu"],
+      "correct_ingredients": ["potato","carrot","tea"]
+    },
+    {
+      "id": 9,
+      "type": "burger",
+      "audio": "order_9.mp3",
+      "spanish": "Quiero una hamburguesa con carne de res y queso.",
+      "english": "I want a burger with beef and cheese.",
+      "total_ingredients": ["lettuce","tomato","onion","cheese","pepper","spinach","cucumber","corn","chicken","rice","beans","potato","carrot","broccoli","pasta","fish","eggs","beef","meat","pork","apple","grapes","strawberry","pineapple","pear","peach","orange","lemon","watermelon","banana","water","tea","juice","milk","soda","coffee","yogurt","napkin","spoon","fork","plate","menu"],
+      "correct_ingredients": ["beef","cheese"]
+    },
+    {
+      "id": 10,
+      "type": "salad",
+      "audio": "order_10.mp3",
+      "spanish": "Quiero una ensalada con pollo y brócoli.",
+      "english": "I want a salad with chicken and broccoli.",
+      "total_ingredients": ["lettuce","tomato","onion","cheese","pepper","spinach","cucumber","corn","chicken","rice","beans","potato","carrot","broccoli","pasta","fish","eggs","beef","meat","pork","apple","grapes","strawberry","pineapple","pear","peach","orange","lemon","watermelon","banana","water","tea","juice","milk","soda","coffee","yogurt","napkin","spoon","fork","plate","menu"],
+      "correct_ingredients": ["chicken","broccoli"]
+    },
+
+    {
+      "id": 11,
+      "type": "soup",
+      "audio": "order_11.mp3",
+      "spanish": "Quiero una sopa con pasta y tomate.",
+      "english": "I want a soup with pasta and tomato.",
+      "total_ingredients": ["lettuce","tomato","onion","cheese","pepper","spinach","cucumber","corn","chicken","rice","beans","potato","carrot","broccoli","pasta","fish","eggs","beef","meat","pork","apple","grapes","strawberry","pineapple","pear","peach","orange","lemon","watermelon","banana","water","tea","juice","milk","soda","coffee","yogurt","napkin","spoon","fork","plate","menu"],
+      "correct_ingredients": ["pasta","tomato"]
+    },
+    {
+      "id": 12,
+      "type": "burger",
+      "audio": "order_12.mp3",
+      "spanish": "Quiero una hamburguesa con cebolla y pepino, sin tomate.",
+      "english": "I want a burger with onion and cucumber, without tomato.",
+      "total_ingredients": ["lettuce","tomato","onion","cheese","pepper","spinach","cucumber","corn","chicken","rice","beans","potato","carrot","broccoli","pasta","fish","eggs","beef","meat","pork","apple","grapes","strawberry","pineapple","pear","peach","orange","lemon","watermelon","banana","water","tea","juice","milk","soda","coffee","yogurt","napkin","spoon","fork","plate","menu"],
+      "correct_ingredients": ["onion","cucumber"]
+    },
+    {
+      "id": 13,
+      "type": "salad",
+      "audio": "order_13.mp3",
+      "spanish": "Quiero una ensalada con fresa y piña.",
+      "english": "I want a salad with strawberry and pineapple.",
+      "total_ingredients": ["lettuce","tomato","onion","cheese","pepper","spinach","cucumber","corn","chicken","rice","beans","potato","carrot","broccoli","pasta","fish","eggs","beef","meat","pork","apple","grapes","strawberry","pineapple","pear","peach","orange","lemon","watermelon","banana","water","tea","juice","milk","soda","coffee","yogurt","napkin","spoon","fork","plate","menu"],
+      "correct_ingredients": ["strawberry","pineapple"]
+    },
+    {
+      "id": 14,
+      "type": "soup",
+      "audio": "order_14.mp3",
+      "spanish": "Quiero una sopa con maíz y pimiento.",
+      "english": "I want a soup with corn and pepper.",
+      "total_ingredients": ["lettuce","tomato","onion","cheese","pepper","spinach","cucumber","corn","chicken","rice","beans","potato","carrot","broccoli","pasta","fish","eggs","beef","meat","pork","apple","grapes","strawberry","pineapple","pear","peach","orange","lemon","watermelon","banana","water","tea","juice","milk","soda","coffee","yogurt","napkin","spoon","fork","plate","menu"],
+      "correct_ingredients": ["corn","pepper"]
+    },
+    {
+      "id": 15,
+      "type": "burger",
+      "audio": "order_15.mp3",
+      "spanish": "Quiero una hamburguesa con queso, y un refresco.",
+      "english": "I want a burger with cheese, and a soda.",
+      "total_ingredients": ["lettuce","tomato","onion","cheese","pepper","spinach","cucumber","corn","chicken","rice","beans","potato","carrot","broccoli","pasta","fish","eggs","beef","meat","pork","apple","grapes","strawberry","pineapple","pear","peach","orange","lemon","watermelon","banana","water","tea","juice","milk","soda","coffee","yogurt","napkin","spoon","fork","plate","menu"],
+      "correct_ingredients": ["cheese","soda"]
+    },
+
+    {
+      "id": 16,
+      "type": "salad",
+      "audio": "order_16.mp3",
+      "spanish": "Quiero una ensalada con zanahoria y pepino, sin cebolla.",
+      "english": "I want a salad with carrot and cucumber, without onion.",
+      "total_ingredients": ["lettuce","tomato","onion","cheese","pepper","spinach","cucumber","corn","chicken","rice","beans","potato","carrot","broccoli","pasta","fish","eggs","beef","meat","pork","apple","grapes","strawberry","pineapple","pear","peach","orange","lemon","watermelon","banana","water","tea","juice","milk","soda","coffee","yogurt","napkin","spoon","fork","plate","menu"],
+      "correct_ingredients": ["carrot","cucumber"]
+    },
+    {
+      "id": 17,
+      "type": "soup",
+      "audio": "order_17.mp3",
+      "spanish": "Quiero una sopa con pescado y arroz.",
+      "english": "I want a soup with fish and rice.",
+      "total_ingredients": ["lettuce","tomato","onion","cheese","pepper","spinach","cucumber","corn","chicken","rice","beans","potato","carrot","broccoli","pasta","fish","eggs","beef","meat","pork","apple","grapes","strawberry","pineapple","pear","peach","orange","lemon","watermelon","banana","water","tea","juice","milk","soda","coffee","yogurt","napkin","spoon","fork","plate","menu"],
+      "correct_ingredients": ["fish","rice"]
+    },
+    {
+      "id": 18,
+      "type": "burger",
+      "audio": "order_18.mp3",
+      "spanish": "Quiero una hamburguesa con lechuga, tomate, y cebolla.",
+      "english": "I want a burger with lettuce, tomato, and onion.",
+      "total_ingredients": ["lettuce","tomato","onion","cheese","pepper","spinach","cucumber","corn","chicken","rice","beans","potato","carrot","broccoli","pasta","fish","eggs","beef","meat","pork","apple","grapes","strawberry","pineapple","pear","peach","orange","lemon","watermelon","banana","water","tea","juice","milk","soda","coffee","yogurt","napkin","spoon","fork","plate","menu"],
+      "correct_ingredients": ["lettuce","tomato","onion"]
+    },
+    {
+      "id": 19,
+      "type": "salad",
+      "audio": "order_19.mp3",
+      "spanish": "Quiero una ensalada con pera y durazno.",
+      "english": "I want a salad with pear and peach.",
+      "total_ingredients": ["lettuce","tomato","onion","cheese","pepper","spinach","cucumber","corn","chicken","rice","beans","potato","carrot","broccoli","pasta","fish","eggs","beef","meat","pork","apple","grapes","strawberry","pineapple","pear","peach","orange","lemon","watermelon","banana","water","tea","juice","milk","soda","coffee","yogurt","napkin","spoon","fork","plate","menu"],
+      "correct_ingredients": ["pear","peach"]
+    },
+    {
+      "id": 20,
+      "type": "soup",
+      "audio": "order_20.mp3",
+      "spanish": "Quiero una sopa con espinaca y brócoli, y una servilleta.",
+      "english": "I want a soup with spinach and broccoli, and a napkin.",
+      "total_ingredients": ["lettuce","tomato","onion","cheese","pepper","spinach","cucumber","corn","chicken","rice","beans","potato","carrot","broccoli","pasta","fish","eggs","beef","meat","pork","apple","grapes","strawberry","pineapple","pear","peach","orange","lemon","watermelon","banana","water","tea","juice","milk","soda","coffee","yogurt","napkin","spoon","fork","plate","menu"],
+      "correct_ingredients": ["spinach","broccoli","napkin"]
+    },
+
+    {
+      "id": 21,
+      "type": "burger",
+      "audio": "order_21.mp3",
+      "spanish": "Quiero una hamburguesa con cerdo y cebolla.",
+      "english": "I want a burger with pork and onion.",
+      "total_ingredients": ["lettuce","tomato","onion","cheese","pepper","spinach","cucumber","corn","chicken","rice","beans","potato","carrot","broccoli","pasta","fish","eggs","beef","meat","pork","apple","grapes","strawberry","pineapple","pear","peach","orange","lemon","watermelon","banana","water","tea","juice","milk","soda","coffee","yogurt","napkin","spoon","fork","plate","menu"],
+      "correct_ingredients": ["pork","onion"]
+    },
+    {
+      "id": 22,
+      "type": "soup",
+      "audio": "order_22.mp3",
+      "spanish": "Quiero una sopa con pollo y maíz.",
+      "english": "I want a soup with chicken and corn.",
+      "total_ingredients": ["lettuce","tomato","onion","cheese","pepper","spinach","cucumber","corn","chicken","rice","beans","potato","carrot","broccoli","pasta","fish","eggs","beef","meat","pork","apple","grapes","strawberry","pineapple","pear","peach","orange","lemon","watermelon","banana","water","tea","juice","milk","soda","coffee","yogurt","napkin","spoon","fork","plate","menu"],
+      "correct_ingredients": ["chicken","corn"]
+    },
+    {
+      "id": 23,
+      "type": "salad",
+      "audio": "order_23.mp3",
+      "spanish": "Quiero una ensalada con lechuga, tomate, y pimiento, y un jugo.",
+      "english": "I want a salad with lettuce, tomato, and pepper, and a juice.",
+      "total_ingredients": ["lettuce","tomato","onion","cheese","pepper","spinach","cucumber","corn","chicken","rice","beans","potato","carrot","broccoli","pasta","fish","eggs","beef","meat","pork","apple","grapes","strawberry","pineapple","pear","peach","orange","lemon","watermelon","banana","water","tea","juice","milk","soda","coffee","yogurt","napkin","spoon","fork","plate","menu"],
+      "correct_ingredients": ["lettuce","tomato","pepper","juice"]
+    },
+    {
+      "id": 24,
+      "type": "soup",
+      "audio": "order_24.mp3",
+      "spanish": "Quiero una sopa con zanahoria y papa.",
+      "english": "I want a soup with carrot and potato.",
+      "total_ingredients": ["lettuce","tomato","onion","cheese","pepper","spinach","cucumber","corn","chicken","rice","beans","potato","carrot","broccoli","pasta","fish","eggs","beef","meat","pork","apple","grapes","strawberry","pineapple","pear","peach","orange","lemon","watermelon","banana","water","tea","juice","milk","soda","coffee","yogurt","napkin","spoon","fork","plate","menu"],
+      "correct_ingredients": ["carrot","potato"]
+    },
+    {
+      "id": 25,
+      "type": "burger",
+      "audio": "order_25.mp3",
+      "spanish": "Quiero una hamburguesa con queso y tomate, sin lechuga.",
+      "english": "I want a burger with cheese and tomato, without lettuce.",
+      "total_ingredients": ["lettuce","tomato","onion","cheese","pepper","spinach","cucumber","corn","chicken","rice","beans","potato","carrot","broccoli","pasta","fish","eggs","beef","meat","pork","apple","grapes","strawberry","pineapple","pear","peach","orange","lemon","watermelon","banana","water","tea","juice","milk","soda","coffee","yogurt","napkin","spoon","fork","plate","menu"],
+      "correct_ingredients": ["cheese","tomato"]
+    },
+
+    {
+      "id": 26,
+      "type": "salad",
+      "audio": "order_26.mp3",
+      "spanish": "Quiero una ensalada con uvas y naranja.",
+      "english": "I want a salad with grapes and orange.",
+      "total_ingredients": ["lettuce","tomato","onion","cheese","pepper","spinach","cucumber","corn","chicken","rice","beans","potato","carrot","broccoli","pasta","fish","eggs","beef","meat","pork","apple","grapes","strawberry","pineapple","pear","peach","orange","lemon","watermelon","banana","water","tea","juice","milk","soda","coffee","yogurt","napkin","spoon","fork","plate","menu"],
+      "correct_ingredients": ["grapes","orange"]
+    },
+    {
+      "id": 27,
+      "type": "soup",
+      "audio": "order_27.mp3",
+      "spanish": "Quiero una sopa con frijoles y arroz.",
+      "english": "I want a soup with beans and rice.",
+      "total_ingredients": ["lettuce","tomato","onion","cheese","pepper","spinach","cucumber","corn","chicken","rice","beans","potato","carrot","broccoli","pasta","fish","eggs","beef","meat","pork","apple","grapes","strawberry","pineapple","pear","peach","orange","lemon","watermelon","banana","water","tea","juice","milk","soda","coffee","yogurt","napkin","spoon","fork","plate","menu"],
+      "correct_ingredients": ["beans","rice"]
+    },
+    {
+      "id": 28,
+      "type": "burger",
+      "audio": "order_28.mp3",
+      "spanish": "Quiero una hamburguesa con pepino y pimiento, sin cebolla.",
+      "english": "I want a burger with cucumber and pepper, without onion.",
+      "total_ingredients": ["lettuce","tomato","onion","cheese","pepper","spinach","cucumber","corn","chicken","rice","beans","potato","carrot","broccoli","pasta","fish","eggs","beef","meat","pork","apple","grapes","strawberry","pineapple","pear","peach","orange","lemon","watermelon","banana","water","tea","juice","milk","soda","coffee","yogurt","napkin","spoon","fork","plate","menu"],
+      "correct_ingredients": ["cucumber","pepper"]
+    },
+    {
+      "id": 29,
+      "type": "salad",
+      "audio": "order_29.mp3",
+      "spanish": "Quiero una ensalada con pollo, maíz, y cebolla.",
+      "english": "I want a salad with chicken, corn, and onion.",
+      "total_ingredients": ["lettuce","tomato","onion","cheese","pepper","spinach","cucumber","corn","chicken","rice","beans","potato","carrot","broccoli","pasta","fish","eggs","beef","meat","pork","apple","grapes","strawberry","pineapple","pear","peach","orange","lemon","watermelon","banana","water","tea","juice","milk","soda","coffee","yogurt","napkin","spoon","fork","plate","menu"],
+      "correct_ingredients": ["chicken","corn","onion"]
+    },
+    {
+      "id": 30,
+      "type": "soup",
+      "audio": "order_30.mp3",
+      "spanish": "Quiero una sopa con brócoli y cebolla, y una cuchara.",
+      "english": "I want a soup with broccoli and onion, and a spoon.",
+      "total_ingredients": ["lettuce","tomato","onion","cheese","pepper","spinach","cucumber","corn","chicken","rice","beans","potato","carrot","broccoli","pasta","fish","eggs","beef","meat","pork","apple","grapes","strawberry","pineapple","pear","peach","orange","lemon","watermelon","banana","water","tea","juice","milk","soda","coffee","yogurt","napkin","spoon","fork","plate","menu"],
+      "correct_ingredients": ["broccoli","onion","spoon"]
+    },
+
+    {
+      "id": 31,
+      "type": "burger",
+      "audio": "order_31.mp3",
+      "spanish": "Quiero una hamburguesa con carne y queso, y papa.",
+      "english": "I want a burger with meat and cheese, and a potato.",
+      "total_ingredients": ["lettuce","tomato","onion","cheese","pepper","spinach","cucumber","corn","chicken","rice","beans","potato","carrot","broccoli","pasta","fish","eggs","beef","meat","pork","apple","grapes","strawberry","pineapple","pear","peach","orange","lemon","watermelon","banana","water","tea","juice","milk","soda","coffee","yogurt","napkin","spoon","fork","plate","menu"],
+      "correct_ingredients": ["meat","cheese","potato"]
+    },
+    {
+      "id": 32,
+      "type": "salad",
+      "audio": "order_32.mp3",
+      "spanish": "Quiero una ensalada con limón y pepino.",
+      "english": "I want a salad with lemon and cucumber.",
+      "total_ingredients": ["lettuce","tomato","onion","cheese","pepper","spinach","cucumber","corn","chicken","rice","beans","potato","carrot","broccoli","pasta","fish","eggs","beef","meat","pork","apple","grapes","strawberry","pineapple","pear","peach","orange","lemon","watermelon","banana","water","tea","juice","milk","soda","coffee","yogurt","napkin","spoon","fork","plate","menu"],
+      "correct_ingredients": ["lemon","cucumber"]
+    },
+    {
+      "id": 33,
+      "type": "soup",
+      "audio": "order_33.mp3",
+      "spanish": "Quiero una sopa con pescado y tomate.",
+      "english": "I want a soup with fish and tomato.",
+      "total_ingredients": ["lettuce","tomato","onion","cheese","pepper","spinach","cucumber","corn","chicken","rice","beans","potato","carrot","broccoli","pasta","fish","eggs","beef","meat","pork","apple","grapes","strawberry","pineapple","pear","peach","orange","lemon","watermelon","banana","water","tea","juice","milk","soda","coffee","yogurt","napkin","spoon","fork","plate","menu"],
+      "correct_ingredients": ["fish","tomato"]
+    },
+    {
+      "id": 34,
+      "type": "burger",
+      "audio": "order_34.mp3",
+      "spanish": "Quiero una hamburguesa con carne de res, lechuga, y cebolla.",
+      "english": "I want a burger with beef, lettuce, and onion.",
+      "total_ingredients": ["lettuce","tomato","onion","cheese","pepper","spinach","cucumber","corn","chicken","rice","beans","potato","carrot","broccoli","pasta","fish","eggs","beef","meat","pork","apple","grapes","strawberry","pineapple","pear","peach","orange","lemon","watermelon","banana","water","tea","juice","milk","soda","coffee","yogurt","napkin","spoon","fork","plate","menu"],
+      "correct_ingredients": ["beef","lettuce","onion"]
+    },
+    {
+      "id": 35,
+      "type": "salad",
+      "audio": "order_35.mp3",
+      "spanish": "Quiero una ensalada con manzana, fresa, y uvas.",
+      "english": "I want a salad with apple, strawberry, and grapes.",
+      "total_ingredients": ["lettuce","tomato","onion","cheese","pepper","spinach","cucumber","corn","chicken","rice","beans","potato","carrot","broccoli","pasta","fish","eggs","beef","meat","pork","apple","grapes","strawberry","pineapple","pear","peach","orange","lemon","watermelon","banana","water","tea","juice","milk","soda","coffee","yogurt","napkin","spoon","fork","plate","menu"],
+      "correct_ingredients": ["apple","strawberry","grapes"]
+    },
+    {
+      "id": 36,
+      "type": "soup",
+      "audio": "order_36.mp3",
+      "spanish": "Quiero una sopa con huevos y espinaca.",
+      "english": "I want a soup with eggs and spinach.",
+      "total_ingredients": ["lettuce","tomato","onion","cheese","pepper","spinach","cucumber","corn","chicken","rice","beans","potato","carrot","broccoli","pasta","fish","eggs","beef","meat","pork","apple","grapes","strawberry","pineapple","pear","peach","orange","lemon","watermelon","banana","water","tea","juice","milk","soda","coffee","yogurt","napkin","spoon","fork","plate","menu"],
+      "correct_ingredients": ["eggs","spinach"]
+    },
+    {
+      "id": 37,
+      "type": "burger",
+      "audio": "order_37.mp3",
+      "spanish": "Quiero una hamburguesa con queso y pimiento, y un vaso de leche.",
+      "english": "I want a burger with cheese and pepper, and a glass of milk.",
+      "total_ingredients": ["lettuce","tomato","onion","cheese","pepper","spinach","cucumber","corn","chicken","rice","beans","potato","carrot","broccoli","pasta","fish","eggs","beef","meat","pork","apple","grapes","strawberry","pineapple","pear","peach","orange","lemon","watermelon","banana","water","tea","juice","milk","soda","coffee","yogurt","napkin","spoon","fork","plate","menu"],
+      "correct_ingredients": ["cheese","pepper","milk"]
+    },
+    {
+      "id": 38,
+      "type": "salad",
+      "audio": "order_38.mp3",
+      "spanish": "Quiero una ensalada con brócoli y zanahoria, sin pepino.",
+      "english": "I want a salad with broccoli and carrot, without cucumber.",
+      "total_ingredients": ["lettuce","tomato","onion","cheese","pepper","spinach","cucumber","corn","chicken","rice","beans","potato","carrot","broccoli","pasta","fish","eggs","beef","meat","pork","apple","grapes","strawberry","pineapple","pear","peach","orange","lemon","watermelon","banana","water","tea","juice","milk","soda","coffee","yogurt","napkin","spoon","fork","plate","menu"],
+      "correct_ingredients": ["broccoli","carrot"]
+    },
+    {
+      "id": 39,
+      "type": "soup",
+      "audio": "order_39.mp3",
+      "spanish": "Quiero una sopa con pasta y maíz.",
+      "english": "I want a soup with pasta and corn.",
+      "total_ingredients": ["lettuce","tomato","onion","cheese","pepper","spinach","cucumber","corn","chicken","rice","beans","potato","carrot","broccoli","pasta","fish","eggs","beef","meat","pork","apple","grapes","strawberry","pineapple","pear","peach","orange","lemon","watermelon","banana","water","tea","juice","milk","soda","coffee","yogurt","napkin","spoon","fork","plate","menu"],
+      "correct_ingredients": ["pasta","corn"]
+    },
+    {
+      "id": 40,
+      "type": "burger",
+      "audio": "order_40.mp3",
+      "spanish": "Quiero una hamburguesa con tomate y cebolla, y un tenedor.",
+      "english": "I want a burger with tomato and onion, and a fork.",
+      "total_ingredients": ["lettuce","tomato","onion","cheese","pepper","spinach","cucumber","corn","chicken","rice","beans","potato","carrot","broccoli","pasta","fish","eggs","beef","meat","pork","apple","grapes","strawberry","pineapple","pear","peach","orange","lemon","watermelon","banana","water","tea","juice","milk","soda","coffee","yogurt","napkin","spoon","fork","plate","menu"],
+      "correct_ingredients": ["tomato","onion","fork"]
+    },
+
+    {
+      "id": 41,
+      "type": "soup",
+      "audio": "order_41.mp3",
+      "spanish": "Quiero una sopa con pollo, zanahoria, y cebolla.",
+      "english": "I want a soup with chicken, carrot, and onion.",
+      "total_ingredients": ["lettuce","tomato","onion","cheese","pepper","spinach","cucumber","corn","chicken","rice","beans","potato","carrot","broccoli","pasta","fish","eggs","beef","meat","pork","apple","grapes","strawberry","pineapple","pear","peach","orange","lemon","watermelon","banana","water","tea","juice","milk","soda","coffee","yogurt","napkin","spoon","fork","plate","menu"],
+      "correct_ingredients": ["chicken","carrot","onion"]
+    },
+    {
+      "id": 42,
+      "type": "salad",
+      "audio": "order_42.mp3",
+      "spanish": "Quiero una ensalada con espinaca, tomate, y pepino.",
+      "english": "I want a salad with spinach, tomato, and cucumber.",
+      "total_ingredients": ["lettuce","tomato","onion","cheese","pepper","spinach","cucumber","corn","chicken","rice","beans","potato","carrot","broccoli","pasta","fish","eggs","beef","meat","pork","apple","grapes","strawberry","pineapple","pear","peach","orange","lemon","watermelon","banana","water","tea","juice","milk","soda","coffee","yogurt","napkin","spoon","fork","plate","menu"],
+      "correct_ingredients": ["spinach","tomato","cucumber"]
+    },
+    {
+      "id": 43,
+      "type": "burger",
+      "audio": "order_43.mp3",
+      "spanish": "Quiero una hamburguesa con queso y cebolla, y el menú.",
+      "english": "I want a burger with cheese and onion, and the menu.",
+      "total_ingredients": ["lettuce","tomato","onion","cheese","pepper","spinach","cucumber","corn","chicken","rice","beans","potato","carrot","broccoli","pasta","fish","eggs","beef","meat","pork","apple","grapes","strawberry","pineapple","pear","peach","orange","lemon","watermelon","banana","water","tea","juice","milk","soda","coffee","yogurt","napkin","spoon","fork","plate","menu"],
+      "correct_ingredients": ["cheese","onion","menu"]
+    },
+    {
+      "id": 44,
+      "type": "soup",
+      "audio": "order_44.mp3",
+      "spanish": "Quiero una sopa con arroz y pimiento.",
+      "english": "I want a soup with rice and pepper.",
+      "total_ingredients": ["lettuce","tomato","onion","cheese","pepper","spinach","cucumber","corn","chicken","rice","beans","potato","carrot","broccoli","pasta","fish","eggs","beef","meat","pork","apple","grapes","strawberry","pineapple","pear","peach","orange","lemon","watermelon","banana","water","tea","juice","milk","soda","coffee","yogurt","napkin","spoon","fork","plate","menu"],
+      "correct_ingredients": ["rice","pepper"]
+    },
+    {
+      "id": 45,
+      "type": "salad",
+      "audio": "order_45.mp3",
+      "spanish": "Quiero una ensalada con piña y sandía.",
+      "english": "I want a salad with pineapple and watermelon.",
+      "total_ingredients": ["lettuce","tomato","onion","cheese","pepper","spinach","cucumber","corn","chicken","rice","beans","potato","carrot","broccoli","pasta","fish","eggs","beef","meat","pork","apple","grapes","strawberry","pineapple","pear","peach","orange","lemon","watermelon","banana","water","tea","juice","milk","soda","coffee","yogurt","napkin","spoon","fork","plate","menu"],
+      "correct_ingredients": ["pineapple","watermelon"]
+    },
+    {
+      "id": 46,
+      "type": "burger",
+      "audio": "order_46.mp3",
+      "spanish": "Quiero una hamburguesa con pollo y lechuga.",
+      "english": "I want a burger with chicken and lettuce.",
+      "total_ingredients": ["lettuce","tomato","onion","cheese","pepper","spinach","cucumber","corn","chicken","rice","beans","potato","carrot","broccoli","pasta","fish","eggs","beef","meat","pork","apple","grapes","strawberry","pineapple","pear","peach","orange","lemon","watermelon","banana","water","tea","juice","milk","soda","coffee","yogurt","napkin","spoon","fork","plate","menu"],
+      "correct_ingredients": ["chicken","lettuce"]
+    },
+    {
+      "id": 47,
+      "type": "soup",
+      "audio": "order_47.mp3",
+      "spanish": "Quiero una sopa con frijoles, maíz, y tomate.",
+      "english": "I want a soup with beans, corn, and tomato.",
+      "total_ingredients": ["lettuce","tomato","onion","cheese","pepper","spinach","cucumber","corn","chicken","rice","beans","potato","carrot","broccoli","pasta","fish","eggs","beef","meat","pork","apple","grapes","strawberry","pineapple","pear","peach","orange","lemon","watermelon","banana","water","tea","juice","milk","soda","coffee","yogurt","napkin","spoon","fork","plate","menu"],
+      "correct_ingredients": ["beans","corn","tomato"]
+    },
+    {
+      "id": 48,
+      "type": "salad",
+      "audio": "order_48.mp3",
+      "spanish": "Quiero una ensalada con lechuga, cebolla, y maíz, sin tomate.",
+      "english": "I want a salad with lettuce, onion, and corn, without tomato.",
+      "total_ingredients": ["lettuce","tomato","onion","cheese","pepper","spinach","cucumber","corn","chicken","rice","beans","potato","carrot","broccoli","pasta","fish","eggs","beef","meat","pork","apple","grapes","strawberry","pineapple","pear","peach","orange","lemon","watermelon","banana","water","tea","juice","milk","soda","coffee","yogurt","napkin","spoon","fork","plate","menu"],
+      "correct_ingredients": ["lettuce","onion","corn"]
+    },
+    {
+      "id": 49,
+      "type": "burger",
+      "audio": "order_49.mp3",
+      "spanish": "Quiero una hamburguesa con carne de res, tomate, y pepino.",
+      "english": "I want a burger with beef, tomato, and cucumber.",
+      "total_ingredients": ["lettuce","tomato","onion","cheese","pepper","spinach","cucumber","corn","chicken","rice","beans","potato","carrot","broccoli","pasta","fish","eggs","beef","meat","pork","apple","grapes","strawberry","pineapple","pear","peach","orange","lemon","watermelon","banana","water","tea","juice","milk","soda","coffee","yogurt","napkin","spoon","fork","plate","menu"],
+      "correct_ingredients": ["beef","tomato","cucumber"]
+    },
+    {
+      "id": 50,
+      "type": "soup",
+      "audio": "order_50.mp3",
+      "spanish": "Quiero una sopa con brócoli y espinaca.",
+      "english": "I want a soup with broccoli and spinach.",
+      "total_ingredients": ["lettuce","tomato","onion","cheese","pepper","spinach","cucumber","corn","chicken","rice","beans","potato","carrot","broccoli","pasta","fish","eggs","beef","meat","pork","apple","grapes","strawberry","pineapple","pear","peach","orange","lemon","watermelon","banana","water","tea","juice","milk","soda","coffee","yogurt","napkin","spoon","fork","plate","menu"],
+      "correct_ingredients": ["broccoli","spinach"]
+    },
+
+    {
+      "id": 51,
+      "type": "salad",
+      "audio": "order_51.mp3",
+      "spanish": "Quiero una ensalada con pera, manzana, y limón.",
+      "english": "I want a salad with pear, apple, and lemon.",
+      "total_ingredients": ["lettuce","tomato","onion","cheese","pepper","spinach","cucumber","corn","chicken","rice","beans","potato","carrot","broccoli","pasta","fish","eggs","beef","meat","pork","apple","grapes","strawberry","pineapple","pear","peach","orange","lemon","watermelon","banana","water","tea","juice","milk","soda","coffee","yogurt","napkin","spoon","fork","plate","menu"],
+      "correct_ingredients": ["pear","apple","lemon"]
+    },
+    {
+      "id": 52,
+      "type": "burger",
+      "audio": "order_52.mp3",
+      "spanish": "Quiero una hamburguesa con cerdo y pimiento, sin cebolla.",
+      "english": "I want a burger with pork and pepper, without onion.",
+      "total_ingredients": ["lettuce","tomato","onion","cheese","pepper","spinach","cucumber","corn","chicken","rice","beans","potato","carrot","broccoli","pasta","fish","eggs","beef","meat","pork","apple","grapes","strawberry","pineapple","pear","peach","orange","lemon","watermelon","banana","water","tea","juice","milk","soda","coffee","yogurt","napkin","spoon","fork","plate","menu"],
+      "correct_ingredients": ["pork","pepper"]
+    },
+    {
+      "id": 53,
+      "type": "soup",
+      "audio": "order_53.mp3",
+      "spanish": "Quiero una sopa con papa y maíz.",
+      "english": "I want a soup with potato and corn.",
+      "total_ingredients": ["lettuce","tomato","onion","cheese","pepper","spinach","cucumber","corn","chicken","rice","beans","potato","carrot","broccoli","pasta","fish","eggs","beef","meat","pork","apple","grapes","strawberry","pineapple","pear","peach","orange","lemon","watermelon","banana","water","tea","juice","milk","soda","coffee","yogurt","napkin","spoon","fork","plate","menu"],
+      "correct_ingredients": ["potato","corn"]
+    },
+    {
+      "id": 54,
+      "type": "salad",
+      "audio": "order_54.mp3",
+      "spanish": "Quiero una ensalada con pollo y frijoles.",
+      "english": "I want a salad with chicken and beans.",
+      "total_ingredients": ["lettuce","tomato","onion","cheese","pepper","spinach","cucumber","corn","chicken","rice","beans","potato","carrot","broccoli","pasta","fish","eggs","beef","meat","pork","apple","grapes","strawberry","pineapple","pear","peach","orange","lemon","watermelon","banana","water","tea","juice","milk","soda","coffee","yogurt","napkin","spoon","fork","plate","menu"],
+      "correct_ingredients": ["chicken","beans"]
+    },
+    {
+      "id": 55,
+      "type": "burger",
+      "audio": "order_55.mp3",
+      "spanish": "Quiero una hamburguesa con queso y tomate, y un refresco.",
+      "english": "I want a burger with cheese and tomato, and a soda.",
+      "total_ingredients": ["lettuce","tomato","onion","cheese","pepper","spinach","cucumber","corn","chicken","rice","beans","potato","carrot","broccoli","pasta","fish","eggs","beef","meat","pork","apple","grapes","strawberry","pineapple","pear","peach","orange","lemon","watermelon","banana","water","tea","juice","milk","soda","coffee","yogurt","napkin","spoon","fork","plate","menu"],
+      "correct_ingredients": ["cheese","tomato","soda"]
+    },
+    {
+      "id": 56,
+      "type": "soup",
+      "audio": "order_56.mp3",
+      "spanish": "Quiero una sopa con pasta y zanahoria.",
+      "english": "I want a soup with pasta and carrot.",
+      "total_ingredients": ["lettuce","tomato","onion","cheese","pepper","spinach","cucumber","corn","chicken","rice","beans","potato","carrot","broccoli","pasta","fish","eggs","beef","meat","pork","apple","grapes","strawberry","pineapple","pear","peach","orange","lemon","watermelon","banana","water","tea","juice","milk","soda","coffee","yogurt","napkin","spoon","fork","plate","menu"],
+      "correct_ingredients": ["pasta","carrot"]
+    },
+    {
+      "id": 57,
+      "type": "salad",
+      "audio": "order_57.mp3",
+      "spanish": "Quiero una ensalada con naranja y uvas, y un yogur.",
+      "english": "I want a salad with orange and grapes, and a yogurt.",
+      "total_ingredients": ["lettuce","tomato","onion","cheese","pepper","spinach","cucumber","corn","chicken","rice","beans","potato","carrot","broccoli","pasta","fish","eggs","beef","meat","pork","apple","grapes","strawberry","pineapple","pear","peach","orange","lemon","watermelon","banana","water","tea","juice","milk","soda","coffee","yogurt","napkin","spoon","fork","plate","menu"],
+      "correct_ingredients": ["orange","grapes","yogurt"]
+    },
+    {
+      "id": 58,
+      "type": "burger",
+      "audio": "order_58.mp3",
+      "spanish": "Quiero una hamburguesa con lechuga, cebolla, y pimiento.",
+      "english": "I want a burger with lettuce, onion, and pepper.",
+      "total_ingredients": ["lettuce","tomato","onion","cheese","pepper","spinach","cucumber","corn","chicken","rice","beans","potato","carrot","broccoli","pasta","fish","eggs","beef","meat","pork","apple","grapes","strawberry","pineapple","pear","peach","orange","lemon","watermelon","banana","water","tea","juice","milk","soda","coffee","yogurt","napkin","spoon","fork","plate","menu"],
+      "correct_ingredients": ["lettuce","onion","pepper"]
+    },
+    {
+      "id": 59,
+      "type": "soup",
+      "audio": "order_59.mp3",
+      "spanish": "Quiero una sopa con huevos y maíz.",
+      "english": "I want a soup with eggs and corn.",
+      "total_ingredients": ["lettuce","tomato","onion","cheese","pepper","spinach","cucumber","corn","chicken","rice","beans","potato","carrot","broccoli","pasta","fish","eggs","beef","meat","pork","apple","grapes","strawberry","pineapple","pear","peach","orange","lemon","watermelon","banana","water","tea","juice","milk","soda","coffee","yogurt","napkin","spoon","fork","plate","menu"],
+      "correct_ingredients": ["eggs","corn"]
+    },
+    {
+      "id": 60,
+      "type": "salad",
+      "audio": "order_60.mp3",
+      "spanish": "Quiero una ensalada con brócoli, pepino, y zanahoria, y un plato.",
+      "english": "I want a salad with broccoli, cucumber, and carrot, and a plate.",
+      "total_ingredients": ["lettuce","tomato","onion","cheese","pepper","spinach","cucumber","corn","chicken","rice","beans","potato","carrot","broccoli","pasta","fish","eggs","beef","meat","pork","apple","grapes","strawberry","pineapple","pear","peach","orange","lemon","watermelon","banana","water","tea","juice","milk","soda","coffee","yogurt","napkin","spoon","fork","plate","menu"],
+      "correct_ingredients": ["broccoli","cucumber","carrot","plate"]
+    },
+
+    {
+      "id": 61,
+      "type": "burger",
+      "audio": "order_61.mp3",
+      "spanish": "Quiero una hamburguesa con carne y queso, y un vaso de agua.",
+      "english": "I want a burger with meat and cheese, and a glass of water.",
+      "total_ingredients": ["lettuce","tomato","onion","cheese","pepper","spinach","cucumber","corn","chicken","rice","beans","potato","carrot","broccoli","pasta","fish","eggs","beef","meat","pork","apple","grapes","strawberry","pineapple","pear","peach","orange","lemon","watermelon","banana","water","tea","juice","milk","soda","coffee","yogurt","napkin","spoon","fork","plate","menu"],
+      "correct_ingredients": ["meat","cheese","water"]
+    },
+    {
+      "id": 62,
+      "type": "soup",
+      "audio": "order_62.mp3",
+      "spanish": "Quiero una sopa con pollo y tomate.",
+      "english": "I want a soup with chicken and tomato.",
+      "total_ingredients": ["lettuce","tomato","onion","cheese","pepper","spinach","cucumber","corn","chicken","rice","beans","potato","carrot","broccoli","pasta","fish","eggs","beef","meat","pork","apple","grapes","strawberry","pineapple","pear","peach","orange","lemon","watermelon","banana","water","tea","juice","milk","soda","coffee","yogurt","napkin","spoon","fork","plate","menu"],
+      "correct_ingredients": ["chicken","tomato"]
+    },
+    {
+      "id": 63,
+      "type": "salad",
+      "audio": "order_63.mp3",
+      "spanish": "Quiero una ensalada con lechuga, pepino, y cebolla.",
+      "english": "I want a salad with lettuce, cucumber, and onion.",
+      "total_ingredients": ["lettuce","tomato","onion","cheese","pepper","spinach","cucumber","corn","chicken","rice","beans","potato","carrot","broccoli","pasta","fish","eggs","beef","meat","pork","apple","grapes","strawberry","pineapple","pear","peach","orange","lemon","watermelon","banana","water","tea","juice","milk","soda","coffee","yogurt","napkin","spoon","fork","plate","menu"],
+      "correct_ingredients": ["lettuce","cucumber","onion"]
+    },
+    {
+      "id": 64,
+      "type": "burger",
+      "audio": "order_64.mp3",
+      "spanish": "Quiero una hamburguesa con carne de res y pimiento, sin tomate.",
+      "english": "I want a burger with beef and pepper, without tomato.",
+      "total_ingredients": ["lettuce","tomato","onion","cheese","pepper","spinach","cucumber","corn","chicken","rice","beans","potato","carrot","broccoli","pasta","fish","eggs","beef","meat","pork","apple","grapes","strawberry","pineapple","pear","peach","orange","lemon","watermelon","banana","water","tea","juice","milk","soda","coffee","yogurt","napkin","spoon","fork","plate","menu"],
+      "correct_ingredients": ["beef","pepper"]
+    },
+    {
+      "id": 65,
+      "type": "soup",
+      "audio": "order_65.mp3",
+      "spanish": "Quiero una sopa con frijoles y pimiento.",
+      "english": "I want a soup with beans and pepper.",
+      "total_ingredients": ["lettuce","tomato","onion","cheese","pepper","spinach","cucumber","corn","chicken","rice","beans","potato","carrot","broccoli","pasta","fish","eggs","beef","meat","pork","apple","grapes","strawberry","pineapple","pear","peach","orange","lemon","watermelon","banana","water","tea","juice","milk","soda","coffee","yogurt","napkin","spoon","fork","plate","menu"],
+      "correct_ingredients": ["beans","pepper"]
+    },
+    {
+      "id": 66,
+      "type": "salad",
+      "audio": "order_66.mp3",
+      "spanish": "Quiero una ensalada con espinaca y brócoli, sin cebolla.",
+      "english": "I want a salad with spinach and broccoli, without onion.",
+      "total_ingredients": ["lettuce","tomato","onion","cheese","pepper","spinach","cucumber","corn","chicken","rice","beans","potato","carrot","broccoli","pasta","fish","eggs","beef","meat","pork","apple","grapes","strawberry","pineapple","pear","peach","orange","lemon","watermelon","banana","water","tea","juice","milk","soda","coffee","yogurt","napkin","spoon","fork","plate","menu"],
+      "correct_ingredients": ["spinach","broccoli"]
+    },
+    {
+      "id": 67,
+      "type": "burger",
+      "audio": "order_67.mp3",
+      "spanish": "Quiero una hamburguesa con lechuga y pepino, y un jugo.",
+      "english": "I want a burger with lettuce and cucumber, and a juice.",
+      "total_ingredients": ["lettuce","tomato","onion","cheese","pepper","spinach","cucumber","corn","chicken","rice","beans","potato","carrot","broccoli","pasta","fish","eggs","beef","meat","pork","apple","grapes","strawberry","pineapple","pear","peach","orange","lemon","watermelon","banana","water","tea","juice","milk","soda","coffee","yogurt","napkin","spoon","fork","plate","menu"],
+      "correct_ingredients": ["lettuce","cucumber","juice"]
+    },
+    {
+      "id": 68,
+      "type": "soup",
+      "audio": "order_68.mp3",
+      "spanish": "Quiero una sopa con arroz, maíz, y cebolla.",
+      "english": "I want a soup with rice, corn, and onion.",
+      "total_ingredients": ["lettuce","tomato","onion","cheese","pepper","spinach","cucumber","corn","chicken","rice","beans","potato","carrot","broccoli","pasta","fish","eggs","beef","meat","pork","apple","grapes","strawberry","pineapple","pear","peach","orange","lemon","watermelon","banana","water","tea","juice","milk","soda","coffee","yogurt","napkin","spoon","fork","plate","menu"],
+      "correct_ingredients": ["rice","corn","onion"]
+    },
+    {
+      "id": 69,
+      "type": "salad",
+      "audio": "order_69.mp3",
+      "spanish": "Quiero una ensalada con fresa y plátano.",
+      "english": "I want a salad with strawberry and banana.",
+      "total_ingredients": ["lettuce","tomato","onion","cheese","pepper","spinach","cucumber","corn","chicken","rice","beans","potato","carrot","broccoli","pasta","fish","eggs","beef","meat","pork","apple","grapes","strawberry","pineapple","pear","peach","orange","lemon","watermelon","banana","water","tea","juice","milk","soda","coffee","yogurt","napkin","spoon","fork","plate","menu"],
+      "correct_ingredients": ["strawberry","banana"]
+    },
+    {
+      "id": 70,
+      "type": "burger",
+      "audio": "order_70.mp3",
+      "spanish": "Quiero una hamburguesa con pollo, tomate, y cebolla.",
+      "english": "I want a burger with chicken, tomato, and onion.",
+      "total_ingredients": ["lettuce","tomato","onion","cheese","pepper","spinach","cucumber","corn","chicken","rice","beans","potato","carrot","broccoli","pasta","fish","eggs","beef","meat","pork","apple","grapes","strawberry","pineapple","pear","peach","orange","lemon","watermelon","banana","water","tea","juice","milk","soda","coffee","yogurt","napkin","spoon","fork","plate","menu"],
+      "correct_ingredients": ["chicken","tomato","onion"]
+    },
+
+    {
+      "id": 71,
+      "type": "soup",
+      "audio": "order_71.mp3",
+      "spanish": "Quiero una sopa con pescado y maíz.",
+      "english": "I want a soup with fish and corn.",
+      "total_ingredients": ["lettuce","tomato","onion","cheese","pepper","spinach","cucumber","corn","chicken","rice","beans","potato","carrot","broccoli","pasta","fish","eggs","beef","meat","pork","apple","grapes","strawberry","pineapple","pear","peach","orange","lemon","watermelon","banana","water","tea","juice","milk","soda","coffee","yogurt","napkin","spoon","fork","plate","menu"],
+      "correct_ingredients": ["fish","corn"]
+    },
+    {
+      "id": 72,
+      "type": "salad",
+      "audio": "order_72.mp3",
+      "spanish": "Quiero una ensalada con zanahoria, tomate, y lechuga, y un té.",
+      "english": "I want a salad with carrot, tomato, and lettuce, and a tea.",
+      "total_ingredients": ["lettuce","tomato","onion","cheese","pepper","spinach","cucumber","corn","chicken","rice","beans","potato","carrot","broccoli","pasta","fish","eggs","beef","meat","pork","apple","grapes","strawberry","pineapple","pear","peach","orange","lemon","watermelon","banana","water","tea","juice","milk","soda","coffee","yogurt","napkin","spoon","fork","plate","menu"],
+      "correct_ingredients": ["carrot","tomato","lettuce","tea"]
+    },
+    {
+      "id": 73,
+      "type": "burger",
+      "audio": "order_73.mp3",
+      "spanish": "Quiero una hamburguesa con queso y cebolla, sin pepino.",
+      "english": "I want a burger with cheese and onion, without cucumber.",
+      "total_ingredients": ["lettuce","tomato","onion","cheese","pepper","spinach","cucumber","corn","chicken","rice","beans","potato","carrot","broccoli","pasta","fish","eggs","beef","meat","pork","apple","grapes","strawberry","pineapple","pear","peach","orange","lemon","watermelon","banana","water","tea","juice","milk","soda","coffee","yogurt","napkin","spoon","fork","plate","menu"],
+      "correct_ingredients": ["cheese","onion"]
+    },
+    {
+      "id": 74,
+      "type": "soup",
+      "audio": "order_74.mp3",
+      "spanish": "Quiero una sopa con papa, zanahoria, y brócoli.",
+      "english": "I want a soup with potato, carrot, and broccoli.",
+      "total_ingredients": ["lettuce","tomato","onion","cheese","pepper","spinach","cucumber","corn","chicken","rice","beans","potato","carrot","broccoli","pasta","fish","eggs","beef","meat","pork","apple","grapes","strawberry","pineapple","pear","peach","orange","lemon","watermelon","banana","water","tea","juice","milk","soda","coffee","yogurt","napkin","spoon","fork","plate","menu"],
+      "correct_ingredients": ["potato","carrot","broccoli"]
+    },
+    {
+      "id": 75,
+      "type": "salad",
+      "audio": "order_75.mp3",
+      "spanish": "Quiero una ensalada con manzana, pera, y uvas, y un café.",
+      "english": "I want a salad with apple, pear, and grapes, and a coffee.",
+      "total_ingredients": ["lettuce","tomato","onion","cheese","pepper","spinach","cucumber","corn","chicken","rice","beans","potato","carrot","broccoli","pasta","fish","eggs","beef","meat","pork","apple","grapes","strawberry","pineapple","pear","peach","orange","lemon","watermelon","banana","water","tea","juice","milk","soda","coffee","yogurt","napkin","spoon","fork","plate","menu"],
+      "correct_ingredients": ["apple","pear","grapes","coffee"]
+    },
+    {
+      "id": 76,
+      "type": "burger",
+      "audio": "order_76.mp3",
+      "spanish": "Quiero una hamburguesa con cerdo y lechuga, y una servilleta.",
+      "english": "I want a burger with pork and lettuce, and a napkin.",
+      "total_ingredients": ["lettuce","tomato","onion","cheese","pepper","spinach","cucumber","corn","chicken","rice","beans","potato","carrot","broccoli","pasta","fish","eggs","beef","meat","pork","apple","grapes","strawberry","pineapple","pear","peach","orange","lemon","watermelon","banana","water","tea","juice","milk","soda","coffee","yogurt","napkin","spoon","fork","plate","menu"],
+      "correct_ingredients": ["pork","lettuce","napkin"]
+    },
+    {
+      "id": 77,
+      "type": "soup",
+      "audio": "order_77.mp3",
+      "spanish": "Quiero una sopa con espinaca y tomate.",
+      "english": "I want a soup with spinach and tomato.",
+      "total_ingredients": ["lettuce","tomato","onion","cheese","pepper","spinach","cucumber","corn","chicken","rice","beans","potato","carrot","broccoli","pasta","fish","eggs","beef","meat","pork","apple","grapes","strawberry","pineapple","pear","peach","orange","lemon","watermelon","banana","water","tea","juice","milk","soda","coffee","yogurt","napkin","spoon","fork","plate","menu"],
+      "correct_ingredients": ["spinach","tomato"]
+    },
+    {
+      "id": 78,
+      "type": "salad",
+      "audio": "order_78.mp3",
+      "spanish": "Quiero una ensalada con frijoles, maíz, y pimiento, sin cebolla.",
+      "english": "I want a salad with beans, corn, and pepper, without onion.",
+      "total_ingredients": ["lettuce","tomato","onion","cheese","pepper","spinach","cucumber","corn","chicken","rice","beans","potato","carrot","broccoli","pasta","fish","eggs","beef","meat","pork","apple","grapes","strawberry","pineapple","pear","peach","orange","lemon","watermelon","banana","water","tea","juice","milk","soda","coffee","yogurt","napkin","spoon","fork","plate","menu"],
+      "correct_ingredients": ["beans","corn","pepper"]
+    },
+    {
+      "id": 79,
+      "type": "burger",
+      "audio": "order_79.mp3",
+      "spanish": "Quiero una hamburguesa con carne de res, lechuga, tomate, y cebolla.",
+      "english": "I want a burger with beef, lettuce, tomato, and onion.",
+      "total_ingredients": ["lettuce","tomato","onion","cheese","pepper","spinach","cucumber","corn","chicken","rice","beans","potato","carrot","broccoli","pasta","fish","eggs","beef","meat","pork","apple","grapes","strawberry","pineapple","pear","peach","orange","lemon","watermelon","banana","water","tea","juice","milk","soda","coffee","yogurt","napkin","spoon","fork","plate","menu"],
+      "correct_ingredients": ["beef","lettuce","tomato","onion"]
+    },
+    {
+      "id": 80,
+      "type": "soup",
+      "audio": "order_80.mp3",
+      "spanish": "Quiero una sopa con pasta y cebolla, y una cuchara.",
+      "english": "I want a soup with pasta and onion, and a spoon.",
+      "total_ingredients": ["lettuce","tomato","onion","cheese","pepper","spinach","cucumber","corn","chicken","rice","beans","potato","carrot","broccoli","pasta","fish","eggs","beef","meat","pork","apple","grapes","strawberry","pineapple","pear","peach","orange","lemon","watermelon","banana","water","tea","juice","milk","soda","coffee","yogurt","napkin","spoon","fork","plate","menu"],
+      "correct_ingredients": ["pasta","onion","spoon"]
+    }
+  ]
+}
