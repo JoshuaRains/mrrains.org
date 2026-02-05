@@ -1,80 +1,117 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="en">
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Grabador MP3 – Querer</title>
+<title>MP3 Audio Recorder</title>
 <style>
 	:root{
 		color-scheme: dark;
 		--ink:#eaeaea; --muted:#bdbdbd; --accent:#5c8a6d;
 	}
-	body{font-family:system-ui,Segoe UI,Roboto,Arial,sans-serif;background:#111;color:var(--ink);margin:0;padding:24px;display:flex;flex-direction:column;gap:20px;}
+	body{
+		font-family:system-ui,Segoe UI,Roboto,Arial,sans-serif;
+		background:#111;color:var(--ink);
+		margin:0;padding:24px;
+		display:flex;flex-direction:column;gap:20px;
+	}
 	h1{margin:0;font-size:22px;}
-	.panel{display:grid;grid-template-columns:1fr;gap:12px;background:#151515;border:1px solid #222;border-radius:12px;padding:16px;}
+	.panel{
+		display:grid;grid-template-columns:1fr;gap:12px;
+		background:#151515;border:1px solid #222;border-radius:12px;padding:16px;
+	}
 	.row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
 	label{font-size:14px;color:var(--muted)}
-	select,button{background:#1b1b1b;color:#fff;border:1px solid #2a2a2a;border-radius:10px;padding:10px 12px;font-size:14px}
+	select,button,input{
+		background:#1b1b1b;color:#fff;border:1px solid #2a2a2a;border-radius:10px;
+		padding:10px 12px;font-size:14px
+	}
+	input{min-width:220px}
 	button{cursor:pointer}
 	button.primary{background:var(--accent);border-color:#487259}
 	button.destructive{background:#3b1f1f;border-color:#5a2a2a}
 	button:disabled{opacity:.6;cursor:not-allowed}
 	audio{width:100%}
 	.small{font-size:12px;color:var(--muted)}
-	.saver{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px}
-	.tag{font-size:12px;padding:3px 8px;border:1px solid #333;border-radius:999px;color:#ddd}
-	.badge{font-weight:600;background:#1f1f1f;border:1px solid #2a2a2a;border-radius:8px;padding:6px 8px}
+	.saver{
+		display:grid;
+		grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+		gap:10px
+	}
+	.tag{
+		font-size:12px;padding:3px 8px;border:1px solid #333;border-radius:999px;color:#ddd
+	}
+	.badge{
+		font-weight:600;background:#1f1f1f;border:1px solid #2a2a2a;border-radius:8px;padding:6px 8px
+	}
 	hr{border:none;height:1px;background:#222;margin:0}
+	.hint{
+		font-size:12px;color:var(--muted);
+		display:flex;gap:10px;align-items:center;flex-wrap:wrap
+	}
+	.hint code{
+		background:#0f0f0f;border:1px solid #222;border-radius:8px;padding:2px 6px
+	}
 </style>
+
 <!-- LAME MP3 encoder (client-side) -->
 <script src="https://unpkg.com/lamejs@1.2.0/lame.min.js"></script>
 </head>
 <body>
-	<h1>Audio Recorder (MP3) – Querer</h1>
+	<h1>MP3 Audio Recorder</h1>
 
 	<div class="panel">
 		<div class="row">
 			<div>
-				<div class="small">Formato</div>
+				<div class="small">Format</div>
 				<div id="formatBadge" class="badge">MP3 · 44.1kHz · 128kbps · Mono</div>
 			</div>
+
 			<div style="flex:1"></div>
+
 			<div>
-				<label for="deviceSelect">Micrófono</label><br/>
-				<select id="deviceSelect" title="Selecciona entrada de audio"></select>
+				<label for="setNameInput">Audio set name</label><br/>
+				<input id="setNameInput" type="text" value="food" spellcheck="false" autocomplete="off" />
 			</div>
-			<button id="refreshBtn" title="Actualizar dispositivos">Actualizar</button>
+
+			<div>
+				<label for="deviceSelect">Microphone</label><br/>
+				<select id="deviceSelect" title="Select an audio input"></select>
+			</div>
+
+			<button id="refreshBtn" title="Refresh devices">Refresh</button>
+		</div>
+
+		<div class="hint">
+			Type a set name like <code>bodyParts</code> to generate save buttons:
+			<code>bodyParts1.mp3</code> … <code>bodyParts50.mp3</code>
 		</div>
 
 		<div class="row">
-			<button id="recordBtn" class="primary">● Grabar</button>
-			<button id="stopBtn" disabled>■ Detener</button>
-			<button id="playBtn" disabled>▶ Reproducir</button>
-			<button id="rerecordBtn" class="destructive" disabled>↺ Regrabar (borrar toma)</button>
-			<div id="status" class="tag">Listo</div>
+			<button id="recordBtn" class="primary">● Record</button>
+			<button id="stopBtn" disabled>■ Stop</button>
+			<button id="playBtn" disabled>▶ Play</button>
+			<button id="rerecordBtn" class="destructive" disabled>↺ Re-record (discard take)</button>
+			<div id="status" class="tag">Ready</div>
 		</div>
 
 		<audio id="player" controls></audio>
-		<div class="small">Graba una toma y, cuando te guste, usa un botón de abajo para guardarla con el nombre correcto (.mp3).</div>
+		<div class="small">
+			Record a take. When it sounds good, use the buttons below to download it with the correct filename (.mp3).
+		</div>
 	</div>
 
 	<div class="panel">
-		<div class="row"><strong>Guardar la toma actual como…</strong></div>
+		<div class="row"><strong>Save the current take as…</strong></div>
 		<hr />
 		<div id="saverGrid" class="saver"></div>
 	</div>
 
 <script>
 (() => {
-	// Prompts → filenames Querer1..6.mp3
-	const prompts = [
-		"quiero",
-		"quieres",
-		"quiere",
-		"queremos",
-		"queréis",
-		"quieren"
-	];
+	// --- Settings ---
+	const DEFAULT_SET_NAME = "food";
+	const BUTTON_COUNT = 50;
 
 	// --- UI refs ---
 	const deviceSelect = document.getElementById('deviceSelect');
@@ -86,6 +123,7 @@
 	const player = document.getElementById('player');
 	const saverGrid = document.getElementById('saverGrid');
 	const statusTag = document.getElementById('status');
+	const setNameInput = document.getElementById('setNameInput');
 
 	// --- Audio graph state ---
 	let audioCtx = null;
@@ -102,6 +140,7 @@
 	let currentBlob = null;
 
 	function setStatus(msg){ statusTag.textContent = msg; }
+
 	function setControls({record=true, stop=false, play=false, rerecord=false}){
 		recordBtn.disabled = !record;
 		stopBtn.disabled = !stop;
@@ -114,7 +153,19 @@
 		currentBlob = null;
 		player.src = "";
 		setControls({record:true, stop:false, play:false, rerecord:false});
-		setStatus("Listo");
+		setStatus("Ready");
+	}
+
+	function sanitizeSetName(raw) {
+		// keep it filename-friendly: letters, numbers, underscore, hyphen only
+		let s = (raw || "").trim();
+		s = s.replace(/\s+/g, "_");
+		s = s.replace(/[^a-zA-Z0-9_-]/g, "");
+		return s || DEFAULT_SET_NAME;
+	}
+
+	function currentSetName() {
+		return sanitizeSetName(setNameInput.value);
 	}
 
 	async function listDevices() {
@@ -124,7 +175,7 @@
 		inputs.forEach((d, i) => {
 			const opt = document.createElement('option');
 			opt.value = d.deviceId;
-			opt.textContent = d.label || `Micrófono (${i+1})`;
+			opt.textContent = d.label || `Microphone (${i+1})`;
 			deviceSelect.appendChild(opt);
 		});
 	}
@@ -142,7 +193,7 @@
 	function teardownGraph() {
 		if (processor) { processor.disconnect(); processor.onaudioprocess = null; processor = null; }
 		if (sourceNode) { sourceNode.disconnect(); sourceNode = null; }
-		if (audioCtx) { /* keep context for reuse */ }
+		// keep audioCtx for reuse
 	}
 
 	function setupGraph(stream) {
@@ -150,16 +201,16 @@
 		inputSampleRate = audioCtx.sampleRate || 44100;
 
 		sourceNode = audioCtx.createMediaStreamSource(stream);
+
 		// ScriptProcessorNode: widely supported and simple for this use
 		const bufferSize = 4096;
 		processor = audioCtx.createScriptProcessor(bufferSize, 1, 1);
 		processor.onaudioprocess = (e) => {
 			if (!isRecording) return;
-			// mono channel
 			const chan = e.inputBuffer.getChannelData(0);
-			// clone samples to avoid retaining underlying buffer
-			captured.push(new Float32Array(chan));
+			captured.push(new Float32Array(chan)); // clone
 		};
+
 		sourceNode.connect(processor);
 		processor.connect(audioCtx.destination); // required in some browsers
 	}
@@ -172,14 +223,13 @@
 		const ratio = fromRate / toRate;
 		const newLen = Math.round(float32.length / ratio);
 		const out = new Float32Array(newLen);
-		let pos = 0;
+
 		for (let i = 0; i < newLen; i++) {
 			const idx = i * ratio;
 			const i0 = Math.floor(idx);
 			const i1 = Math.min(i0 + 1, float32.length - 1);
 			const frac = idx - i0;
 			out[i] = float32[i0] * (1 - frac) + float32[i1] * frac;
-			pos += ratio;
 		}
 		return out;
 	}
@@ -197,6 +247,7 @@
 		// merge chunks
 		let totalLength = 0;
 		for (const ch of captured) totalLength += ch.length;
+
 		const mono = new Float32Array(totalLength);
 		let offset = 0;
 		for (const ch of captured) { mono.set(ch, offset); offset += ch.length; }
@@ -212,7 +263,7 @@
 		const encoder = new lamejs.Mp3Encoder(channels, sampleRate, kbps);
 
 		const blockSize = 1152;
-		let mp3Data = [];
+		const mp3Data = [];
 		for (let i = 0; i < pcm16.length; i += blockSize) {
 			const chunk = pcm16.subarray(i, i + blockSize);
 			const mp3buf = encoder.encodeBuffer(chunk);
@@ -224,6 +275,43 @@
 		return new Blob(mp3Data, { type: 'audio/mpeg' });
 	}
 
+	function downloadBlob(blob, filename) {
+		const a = document.createElement('a');
+		const url = URL.createObjectURL(blob);
+		a.href = url;
+		a.download = filename;
+		document.body.appendChild(a);
+		a.click();
+		a.remove();
+		URL.revokeObjectURL(url);
+	}
+
+	// --- Saver buttons ---
+	function buildSaverButtons() {
+		saverGrid.innerHTML = "";
+		const setName = currentSetName();
+
+		for (let n = 1; n <= BUTTON_COUNT; n++) {
+			const btn = document.createElement('button');
+			const filename = `${setName}${n}.mp3`;
+			btn.textContent = filename;
+			btn.title = `Download as ${filename}`;
+
+			btn.addEventListener('click', () => {
+				if (!currentBlob) { setStatus("No take to save"); return; }
+				downloadBlob(currentBlob, filename);
+				setStatus(`Saved ${filename}`);
+			});
+
+			saverGrid.appendChild(btn);
+		}
+	}
+
+	// Rebuild buttons whenever the set name changes
+	setNameInput.addEventListener('input', () => {
+		buildSaverButtons();
+	});
+
 	// --- Controls ---
 	recordBtn.addEventListener('click', async () => {
 		try {
@@ -234,23 +322,23 @@
 			}
 			captured = [];
 			isRecording = true;
-			setStatus("Grabando…");
+			setStatus("Recording…");
 			setControls({record:false, stop:true, play:false, rerecord:false});
 		} catch (err) {
 			console.error(err);
-			alert("No se pudo iniciar la grabación. Revisa permisos del micrófono.");
+			alert("Could not start recording. Please check microphone permissions.");
 		}
 	});
 
 	stopBtn.addEventListener('click', () => {
 		if (!isRecording) return;
 		isRecording = false;
-		setStatus("Procesando (MP3)...");
-		// Give the UI a moment to update
+		setStatus("Encoding MP3…");
+
 		setTimeout(() => {
 			currentBlob = encodeMp3FromCaptured();
 			player.src = URL.createObjectURL(currentBlob);
-			setStatus("Toma lista");
+			setStatus("Take ready");
 			setControls({record:true, stop:false, play:true, rerecord:true});
 		}, 10);
 	});
@@ -268,37 +356,14 @@
 			setupGraph(currentStream);
 		}catch(e){
 			console.error(e);
-			alert("No se pudo cambiar de micrófono.");
+			alert("Could not switch microphones.");
 		}
 	});
-
-	// Saver buttons
-	function buildSaverButtons() {
-		prompts.forEach((label, idx) => {
-			const n = idx + 1;
-			const btn = document.createElement('button');
-			btn.textContent = `${label} → Querer${n}.mp3`;
-			btn.title = `Guardar como Querer${n}.mp3`;
-			btn.addEventListener('click', () => {
-				if (!currentBlob) { setStatus("No hay toma para guardar"); return; }
-				const a = document.createElement('a');
-				const url = URL.createObjectURL(currentBlob);
-				a.href = url;
-				a.download = `Querer${n}.mp3`;
-				document.body.appendChild(a);
-				a.click();
-				a.remove();
-				URL.revokeObjectURL(url);
-				setStatus(`Guardado Querer${n}.mp3`);
-			});
-			saverGrid.appendChild(btn);
-		});
-	}
 
 	// Init
 	async function init() {
 		if (!navigator.mediaDevices?.getUserMedia) {
-			alert("Tu navegador no soporta captura de audio. Usa Chrome/Edge recientes.");
+			alert("Your browser does not support audio capture. Use a recent Chrome/Edge.");
 			return;
 		}
 		try {
@@ -309,18 +374,16 @@
 			setupGraph(s);
 			await listDevices();
 
-			// Try to select the active track's device if known
-			if (deviceSelect.options.length) {
-				// heuristic only
-				deviceSelect.selectedIndex = 0;
-			}
+			if (deviceSelect.options.length) deviceSelect.selectedIndex = 0;
 
+			setNameInput.value = DEFAULT_SET_NAME;
 			buildSaverButtons();
+
 			setControls({record:true, stop:false, play:false, rerecord:false});
-			setStatus("Listo");
+			setStatus("Ready");
 		} catch (err) {
 			console.error(err);
-			alert("No se pudo acceder al micrófono. Revisa permisos del navegador.");
+			alert("Could not access the microphone. Check browser permissions.");
 		}
 	}
 	init();
