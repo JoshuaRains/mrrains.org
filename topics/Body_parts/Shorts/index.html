@@ -1,0 +1,554 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1" />
+	<title>Video Vocab • Body Parts</title>
+	<style>
+		/* Page + print setup */
+		@page { size: Letter portrait; margin: 0.5in; }
+		:root{
+			--ink:#111;
+			--muted:#444;
+			--rule:#222;
+			--focus:#000;
+
+			/* Link-like colors */
+			--link:#0645ad;     /* classic link blue */
+			--visited:#551a8b;  /* classic visited purple */
+		}
+		*{ box-sizing:border-box; }
+		html,body{ height:100%; }
+		body{
+			margin:0; background:#fff; color:var(--ink);
+			font-family:"Times New Roman", Georgia, serif;
+			-webkit-print-color-adjust: exact; print-color-adjust: exact;
+		}
+		.page{ max-width: 8.5in; margin:0 auto; padding:0.5in; }
+
+		/* Header */
+		.header{ display:flex; justify-content:space-between; align-items:flex-end; gap:12px; }
+		.title{ font-size:20pt; font-weight:700; letter-spacing:.2px; }
+		.subtitle{ font-size:14pt; font-weight:700; }
+		.rule{ height:1px; background:var(--rule); margin:10px 0 12px; }
+
+		.instructions{ font-size:12pt; line-height:1.35; margin:0 0 14px; color:var(--ink); }
+
+		/* Sections */
+		.section{
+			padding: 10px 0 14px;
+			border-top: 1px solid var(--rule);
+			break-inside: avoid;
+		}
+		.section:first-of-type{ border-top:0; padding-top:0; }
+
+		.section h2{
+			margin:0 0 8px;
+			font-size:14pt;
+			font-weight:700;
+		}
+
+		/* Two-column: video left, vocab right */
+		.block{
+			display:grid;
+			grid-template-columns: 240px 1fr; /* 9:16-ish “reels” width */
+			gap: 18px;
+			align-items:start;
+		}
+
+		/* Video sized like a reel */
+		.videoWrap{ width:240px; }
+		video{
+			width:240px;
+			height:426px; /* 240 * (16/9) */
+			border:1px solid var(--rule);
+			display:block;
+			background:#000;
+		}
+
+		/* Right side */
+		.side h3{
+			margin:0 0 8px;
+			font-size:12pt;
+			font-weight:700;
+		}
+		.vocab{
+			list-style:none;
+			margin:0;
+			padding:0;
+			font-size:18pt;
+		}
+		.vocab li{ margin: 4px 0; line-height:1.25; }
+
+		/* Clickable vocab items styled like links */
+		.vocab button{
+			all:unset;
+			cursor:pointer;
+			display:inline-flex;
+			align-items:center;
+			gap:6px;
+
+			color: var(--link);
+			text-decoration: underline;
+			text-decoration-thickness: 1px;
+			text-underline-offset: 2px;
+			padding: 0 1px;
+		}
+		.vocab button:hover{
+			text-decoration-thickness: 2px;
+		}
+		.vocab button:focus-visible{
+			outline: 2px solid var(--focus);
+			outline-offset: 2px;
+		}
+
+		/* Active looping state acts like “visited” purple */
+		.vocab button.is-looping{
+			color: var(--visited);
+		}
+
+		/* Loop icon that inherits currentColor (blue/purple) via CSS mask */
+		.loopIcon{
+			width: 18px;
+			height: 18px;
+			display: none;
+
+			background-color: currentColor; /* <-- matches the button text color */
+			-webkit-mask-image: url("./loop.svg");
+			-webkit-mask-repeat: no-repeat;
+			-webkit-mask-position: center;
+			-webkit-mask-size: contain;
+			mask-image: url("./loop.svg");
+			mask-repeat: no-repeat;
+			mask-position: center;
+			mask-size: contain;
+		}
+		.vocab button.is-looping .loopIcon{
+			display: inline-block;
+            margin-top: 2px;
+		}
+
+		/* Small status line */
+		.status{
+			margin-top:10px;
+			font-size:11pt;
+			color:var(--muted);
+		}
+
+		@media print{
+			video{ display:none; }
+			.videoPrint{
+				width:240px; height:426px;
+				border:1px solid #000;
+				display:block;
+			}
+			/* In print, keep vocab looking like normal text if you want */
+			/* .vocab button{ color: var(--ink); text-decoration: none; } */
+		}
+	</style>
+</head>
+<body>
+	<div class="page">
+		<div class="header">
+			<div class="title">Video Vocab Search</div>
+			<div class="subtitle">Body Part Vocabulary</div>
+		</div>
+		<div class="rule"></div>
+
+		<p class="instructions">
+			Click a vocabulary word to jump to that moment and loop that segment. Click the same word again to stop looping.
+		</p>
+
+		<!-- =======================
+		     Videos 1–6 (from page 1)
+		     Files: ./videos/video1.mp4 ... ./videos/video6.mp4
+		     ======================= -->
+
+		<section class="section" data-section>
+			<h2>Video 1</h2>
+			<div class="block">
+				<div class="videoWrap">
+					<video controls preload="metadata" playsinline data-video src="./videos/video1.mp4"></video>
+					<div class="videoPrint" aria-hidden="true"></div>
+				</div>
+				<div class="side">
+					<h3>Key Vocabulary</h3>
+					<ul class="vocab" data-vocab>
+						<li data-starttime="0" data-endtime="3">
+							<button type="button">
+								<span class="label">ear</span>
+								<span class="loopIcon" aria-hidden="true"></span>
+							</button>
+						</li>
+					</ul>
+					<div class="status" data-status>No segment selected.</div>
+				</div>
+			</div>
+		</section>
+
+		<section class="section" data-section>
+			<h2>Video 2</h2>
+			<div class="block">
+				<div class="videoWrap">
+					<video controls preload="metadata" playsinline data-video src="./videos/video2.mp4"></video>
+					<div class="videoPrint" aria-hidden="true"></div>
+				</div>
+				<div class="side">
+					<h3>Key Vocabulary</h3>
+					<ul class="vocab" data-vocab>
+						<li data-starttime="0" data-endtime="18">
+							<button type="button">
+								<span class="label">nose</span>
+								<span class="loopIcon" aria-hidden="true"></span>
+							</button>
+						</li>
+					</ul>
+					<div class="status" data-status>No segment selected.</div>
+				</div>
+			</div>
+		</section>
+
+		<section class="section" data-section>
+			<h2>Video 3</h2>
+			<div class="block">
+				<div class="videoWrap">
+					<video controls preload="metadata" playsinline data-video src="./videos/video3.mp4"></video>
+					<div class="videoPrint" aria-hidden="true"></div>
+				</div>
+				<div class="side">
+					<h3>Key Vocabulary</h3>
+					<ul class="vocab" data-vocab>
+						<li data-starttime="0" data-endtime="2">
+							<button type="button">
+								<span class="label">legs</span>
+								<span class="loopIcon" aria-hidden="true"></span>
+							</button>
+						</li>
+                        <li data-starttime="7" data-endtime="10">
+							<button type="button">
+								<span class="label">legs</span>
+								<span class="loopIcon" aria-hidden="true"></span>
+							</button>
+						</li>
+					</ul>
+					<div class="status" data-status>No segment selected.</div>
+				</div>
+			</div>
+		</section>
+
+		<section class="section" data-section>
+			<h2>Video 4</h2>
+			<div class="block">
+				<div class="videoWrap">
+					<video controls preload="metadata" playsinline data-video src="./videos/video4.mp4"></video>
+					<div class="videoPrint" aria-hidden="true"></div>
+				</div>
+				<div class="side">
+					<h3>Key Vocabulary</h3>
+					<ul class="vocab" data-vocab>
+						<li data-starttime="0" data-endtime="6">
+							<button type="button">
+								<span class="label">chest</span>
+								<span class="loopIcon" aria-hidden="true"></span>
+							</button>
+						</li>
+					</ul>
+					<div class="status" data-status>No segment selected.</div>
+				</div>
+			</div>
+		</section>
+
+		<section class="section" data-section>
+			<h2>Video 5</h2>
+			<div class="block">
+				<div class="videoWrap">
+					<video controls preload="metadata" playsinline data-video src="./videos/video5.mp4"></video>
+					<div class="videoPrint" aria-hidden="true"></div>
+				</div>
+				<div class="side">
+					<h3>Key Vocabulary</h3>
+					<ul class="vocab" data-vocab>
+						<li data-starttime="0" data-endtime="8">
+							<button type="button">
+								<span class="label">fingers</span>
+								<span class="loopIcon" aria-hidden="true"></span>
+							</button>
+						</li>
+					</ul>
+					<div class="status" data-status>No segment selected.</div>
+				</div>
+			</div>
+		</section>
+
+		<section class="section" data-section>
+			<h2>Video 6</h2>
+			<div class="block">
+				<div class="videoWrap">
+					<video controls preload="metadata" playsinline data-video src="./videos/video6.mp4"></video>
+					<div class="videoPrint" aria-hidden="true"></div>
+				</div>
+				<div class="side">
+					<h3>Key Vocabulary</h3>
+					<ul class="vocab" data-vocab>
+						<li data-starttime="0" data-endtime="30">
+							<button type="button">
+								<span class="label">stomach</span>
+								<span class="loopIcon" aria-hidden="true"></span>
+							</button>
+						</li>
+					</ul>
+					<div class="status" data-status>No segment selected.</div>
+				</div>
+			</div>
+		</section>
+
+	
+		<section class="section" data-section>
+			<h2>Video 7</h2>
+			<div class="block">
+				<div class="videoWrap">
+					<video controls preload="metadata" playsinline data-video src="./videos/video7.mp4"></video>
+					<div class="videoPrint" aria-hidden="true"></div>
+				</div>
+				<div class="side">
+					<h3>Key Vocabulary</h3>
+					<ul class="vocab" data-vocab>
+						<li data-starttime="4.5" data-endtime="5.5">
+							<button type="button">
+								<span class="label">stomach</span>
+								<span class="loopIcon" aria-hidden="true"></span>
+							</button>
+						</li>
+						
+					</ul>
+					<div class="status" data-status>No segment selected.</div>
+				</div>
+			</div>
+		</section>
+
+		<section class="section" data-section>
+			<h2>Video 8</h2>
+			<div class="block">
+				<div class="videoWrap">
+					<video controls preload="metadata" playsinline data-video src="./videos/video8.mp4"></video>
+					<div class="videoPrint" aria-hidden="true"></div>
+				</div>
+				<div class="side">
+					<h3>Key Vocabulary</h3>
+					<ul class="vocab" data-vocab>
+						<li data-starttime="0" data-endtime="2.5">
+							<button type="button">
+								<span class="label">head</span>
+								<span class="loopIcon" aria-hidden="true"></span>
+							</button>
+						</li>
+					</ul>
+					<div class="status" data-status>No segment selected.</div>
+				</div>
+			</div>
+		</section>
+
+		<section class="section" data-section>
+			<h2>Video 9</h2>
+			<div class="block">
+				<div class="videoWrap">
+					<video controls preload="metadata" playsinline data-video src="./videos/video9.mp4"></video>
+					<div class="videoPrint" aria-hidden="true"></div>
+				</div>
+				<div class="side">
+					<h3>Key Vocabulary</h3>
+					<ul class="vocab" data-vocab>
+						<li data-starttime="0" data-endtime="5">
+							<button type="button">
+								<span class="label">forehead</span>
+								<span class="loopIcon" aria-hidden="true"></span>
+							</button>
+						</li>
+					</ul>
+					<div class="status" data-status>No segment selected.</div>
+				</div>
+			</div>
+		</section>
+
+		<section class="section" data-section>
+			<h2>Video 10</h2>
+			<div class="block">
+				<div class="videoWrap">
+					<video controls preload="metadata" playsinline data-video src="./videos/video10.mp4"></video>
+					<div class="videoPrint" aria-hidden="true"></div>
+				</div>
+				<div class="side">
+					<h3>Key Vocabulary</h3>
+					<ul class="vocab" data-vocab>
+						<li data-starttime="0" data-endtime="4.4">
+							<button type="button">
+								<span class="label">cuello</span>
+								<span class="loopIcon" aria-hidden="true"></span>
+							</button>
+						</li>
+					</ul>
+					<div class="status" data-status>No segment selected.</div>
+				</div>
+			</div>
+		</section>
+
+
+		<section class="section" data-section>
+			<h2>Video 12</h2>
+			<div class="block">
+				<div class="videoWrap">
+					<video controls preload="metadata" playsinline data-video src="./videos/video12.mp4"></video>
+					<div class="videoPrint" aria-hidden="true"></div>
+				</div>
+				<div class="side">
+					<h3>Key Vocabulary</h3>
+					<ul class="vocab" data-vocab>
+						<li data-starttime="0" data-endtime="2.5">
+							<button type="button">
+								<span class="label">diente</span>
+								<span class="loopIcon" aria-hidden="true"></span>
+							</button>
+						</li>
+					</ul>
+					<div class="status" data-status>No segment selected.</div>
+				</div>
+			</div>
+		</section>
+
+	</div>
+
+	<script>
+		(function(){
+			"use strict";
+
+			const sections = document.querySelectorAll("[data-section]");
+
+			for (const section of sections){
+				const video = section.querySelector("[data-video]");
+				const status = section.querySelector("[data-status]");
+				const vocabList = section.querySelector("[data-vocab]");
+				if (!video || !vocabList) continue;
+
+				let active = null;			// { start:number, end:number, label:string }
+				let activeBtn = null;		// button currently looping
+				let enforcing = false;
+
+				function fmt(t){
+					if (!isFinite(t)) return "";
+					const s = Math.max(0, t);
+					const m = Math.floor(s / 60);
+					const r = s - m*60;
+					const ss = Math.floor(r).toString().padStart(2,"0");
+					return `${m}:${ss}`;
+				}
+
+				function setStatus(text){
+					if (status) status.textContent = text;
+				}
+
+				function clearActiveLoopingUI(){
+					if (activeBtn){
+						activeBtn.classList.remove("is-looping");
+						activeBtn = null;
+					}
+				}
+
+				function stopLoopingKeepPlaying(){
+					active = null;
+					clearActiveLoopingUI();
+					setStatus("Looping off. Video playing normally.");
+				}
+
+				function playSegment(start, end, label, btn){
+					if (!isFinite(start) || !isFinite(end) || end <= start){
+						setStatus("Invalid segment times.");
+						return;
+					}
+
+					active = { start, end, label: label || "Segment" };
+					clearActiveLoopingUI();
+					activeBtn = btn;
+					if (activeBtn) activeBtn.classList.add("is-looping");
+
+					const seekAndPlay = () => {
+						const dur = isFinite(video.duration) ? video.duration : null;
+						const s = dur ? Math.min(Math.max(0, start), Math.max(0, dur - 0.05)) : Math.max(0, start);
+						video.currentTime = s;
+
+						const p = video.play();
+						if (p && typeof p.catch === "function") p.catch(()=>{});
+
+						setStatus(`${active.label} • looping ${fmt(active.start)}–${fmt(active.end)} (click again to stop)`);
+					};
+
+					if (video.readyState >= 1){
+						seekAndPlay();
+					} else {
+						const onMeta = () => {
+							video.removeEventListener("loadedmetadata", onMeta);
+							seekAndPlay();
+						};
+						video.addEventListener("loadedmetadata", onMeta);
+						video.load();
+					}
+				}
+
+				function enforceLoop(){
+					if (!active) return;
+					if (enforcing) return;
+					enforcing = true;
+
+					try{
+						const eps = 0.03;
+						if (video.currentTime >= active.end - eps){
+							video.currentTime = Math.max(0, active.start);
+							const p = video.play();
+							if (p && typeof p.catch === "function") p.catch(()=>{});
+						}
+					} finally {
+						enforcing = false;
+					}
+				}
+
+				video.addEventListener("timeupdate", enforceLoop);
+
+				video.addEventListener("seeking", () => {
+					if (!active) return;
+					const t = video.currentTime;
+					if (t < active.start || t > active.end){
+						video.currentTime = Math.max(0, active.start);
+					}
+				});
+
+				vocabList.addEventListener("click", (e) => {
+					const btn = e.target.closest("button");
+					if (!btn) return;
+
+					const li = btn.closest("li");
+					if (!li) return;
+
+					// Toggle OFF if clicking the currently looping item
+					if (btn === activeBtn && active){
+						stopLoopingKeepPlaying();
+						return;
+					}
+
+					const start = parseFloat(li.getAttribute("data-starttime"));
+					const end = parseFloat(li.getAttribute("data-endtime"));
+					const labelEl = btn.querySelector(".label");
+					const label = labelEl ? labelEl.textContent.trim() : btn.textContent.trim();
+
+					playSegment(start, end, label, btn);
+				});
+
+				video.addEventListener("ended", () => {
+					if (!active) return;
+					video.currentTime = Math.max(0, active.start);
+					const p = video.play();
+					if (p && typeof p.catch === "function") p.catch(()=>{});
+				});
+			}
+		})();
+	</script>
+</body>
+</html>
