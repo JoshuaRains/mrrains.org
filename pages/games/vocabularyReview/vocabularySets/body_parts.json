@@ -1,21 +1,146 @@
 [
-  { "term": "la boca", "translation": ["mouth"] },
-  { "term": "la cabeza", "translation": ["head"] },
-  { "term": "el cuello", "translation": ["neck"] },
-  { "term": "el dedo de pie", "translation": ["toe"] },
-  { "term": "la garganta", "translation": ["throat"] },
-  { "term": "la nariz", "translation": ["nose"] },
-  { "term": "la oreja", "translation": ["ear"] },
-  { "term": "la pierna", "translation": ["leg"] },
-  { "term": "el tobillo", "translation": ["ankle"] },
-  { "term": "el cuerpo", "translation": ["body"] },
-  { "term": "el brazo", "translation": ["arm"] },
-  { "term": "el corazón", "translation": ["heart"] },
-  { "term": "el dedo", "translation": ["finger"] },
-  { "term": "el estómago", "translation": ["stomach"] },
-  { "term": "el hueso", "translation": ["bone"] },
-  { "term": "el ojo", "translation": ["eye"] },
-  { "term": "el pie", "translation": ["foot"] },
-  { "term": "la rodilla", "translation": ["knee"] },
-  { "term": "el pecho", "translation": ["chest"] }
+  {
+    "term": "pelo",
+    "translation": ["hair"]
+  },
+  {
+    "term": "cabello",
+    "translation": ["hair"]
+  },
+  {
+    "term": "cabeza",
+    "translation": ["head"]
+  },
+  {
+    "term": "cara",
+    "translation": ["face"]
+  },
+  {
+    "term": "ojo",
+    "translation": ["eye"]
+  },
+  {
+    "term": "cejas",
+    "translation": ["eyebrows"]
+  },
+  {
+    "term": "pestañas",
+    "translation": ["eyelashes"]
+  },
+  {
+    "term": "oreja",
+    "translation": ["outer ear"]
+  },
+  {
+    "term": "oído",
+    "translation": ["inner ear"]
+  },
+  {
+    "term": "nariz",
+    "translation": ["nose"]
+  },
+  {
+    "term": "boca",
+    "translation": ["mouth"]
+  },
+  {
+    "term": "dientes",
+    "translation": ["teeth"]
+  },
+  {
+    "term": "lengua",
+    "translation": ["tongue"]
+  },
+  {
+    "term": "cuello",
+    "translation": ["neck"]
+  },
+  {
+    "term": "garganta",
+    "translation": ["throat"]
+  },
+  {
+    "term": "hombro",
+    "translation": ["shoulder"]
+  },
+  {
+    "term": "pecho",
+    "translation": ["chest"]
+  },
+  {
+    "term": "corazón",
+    "translation": ["heart"]
+  },
+  {
+    "term": "pulmón",
+    "translation": ["lung"]
+  },
+  {
+    "term": "estómago",
+    "translation": ["stomach"]
+  },
+  {
+    "term": "cintura",
+    "translation": ["waist"]
+  },
+  {
+    "term": "espalda",
+    "translation": ["back"]
+  },
+  {
+    "term": "mano",
+    "translation": ["hand"]
+  },
+  {
+    "term": "dedo",
+    "translation": ["finger"]
+  },
+  {
+    "term": "uñas",
+    "translation": ["fingernails"]
+  },
+  {
+    "term": "codo",
+    "translation": ["elbow"]
+  },
+  {
+    "term": "brazo",
+    "translation": ["arm"]
+  },
+  {
+    "term": "muñeca",
+    "translation": ["wrist"]
+  },
+  {
+    "term": "pierna",
+    "translation": ["leg"]
+  },
+  {
+    "term": "rodilla",
+    "translation": ["knee"]
+  },
+  {
+    "term": "tobillo",
+    "translation": ["ankle"]
+  },
+  {
+    "term": "pie",
+    "translation": ["foot"]
+  },
+  {
+    "term": "dedos del pie",
+    "translation": ["toes"]
+  },
+  {
+    "term": "hueso",
+    "translation": ["bone"]
+  },
+  {
+    "term": "piel",
+    "translation": ["skin"]
+  },
+  {
+    "term": "barbilla",
+    "translation": ["chin"]
+  }
 ]
