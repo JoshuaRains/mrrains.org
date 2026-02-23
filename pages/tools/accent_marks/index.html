@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en" translate="no">
+<head>
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1" />
+	<title>Spanish Special Characters</title>
+	<style>
+		:root { color-scheme: dark; }
+		body{
+			margin:0;
+			padding:24px;
+			font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+			background:#0f1115;
+			color:#eaeaea;
+		}
+		.wrap{ max-width: 900px; margin:0 auto; }
+		h1{ margin:0 0 10px; font-size: 22px; font-weight: 700; }
+		p{ margin:0 0 18px; color:#bdbdbd; line-height:1.4; }
+		.panel{
+			background:#151926;
+			border:1px solid rgba(255,255,255,.08);
+			border-radius:14px;
+			padding:16px;
+			box-shadow: 0 10px 30px rgba(0,0,0,.25);
+		}
+		.row{
+			display:flex;
+			gap:12px;
+			flex-wrap:wrap;
+			align-items:center;
+			margin:10px 0 0;
+		}
+		.label{
+			width:100%;
+			font-size: 13px;
+			color:#cfcfcf;
+			opacity:.9;
+			margin-top: 6px;
+		}
+		button.char{
+			min-width:64px;
+			height:44px;
+			padding:0 14px;
+			border-radius:12px;
+			border:1px solid rgba(255,255,255,.10);
+			background:#0f1320;
+			color:#fff;
+			font-size:22px;
+			cursor:pointer;
+			transition: transform .06s ease, background .15s ease, border-color .15s ease;
+		}
+		button.char:hover{ background:#121a2b; border-color: rgba(255,255,255,.18); }
+		button.char:active{ transform: translateY(1px); }
+		.actions{
+			display:flex;
+			gap:10px;
+			flex-wrap:wrap;
+			margin-top:14px;
+		}
+		button.action{
+			height:40px;
+			padding:0 12px;
+			border-radius:10px;
+			border:1px solid rgba(255,255,255,.10);
+			background:#1a2b22;
+			color:#eaeaea;
+			cursor:pointer;
+		}
+		button.action:hover{ border-color: rgba(255,255,255,.18); }
+		.toast{
+			margin-top:12px;
+			font-size: 13px;
+			color:#bdbdbd;
+			min-height: 18px;
+		}
+		.mono{
+			font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+		}
+	</style>
+</head>
+<body>
+	<div class="wrap">
+		<h1>Spanish Special Characters</h1>
+		<p>Click a button to copy that character. Or copy an entire set in one click.</p>
+
+		<div class="panel">
+			<div class="label">Lowercase</div>
+			<div class="row" id="lowerRow"></div>
+
+			<div class="label">Uppercase</div>
+			<div class="row" id="upperRow"></div>
+
+			<div class="label">Punctuation & Symbols</div>
+			<div class="row" id="puncRow"></div>
+
+			<div class="actions">
+				<button class="action" id="copyLower">Copy lowercase set</button>
+				<button class="action" id="copyUpper">Copy uppercase set</button>
+				<button class="action" id="copyAll">Copy everything</button>
+			</div>
+
+			<div class="toast" id="toast"></div>
+		</div>
+
+		<p style="margin-top:16px;">
+			Last copied: <span class="mono" id="lastCopied">—</span>
+		</p>
+	</div>
+
+	<script>
+		// Edit these if you want to add/remove characters.
+		const LOWER = ["á","é","í","ó","ú","ü","ñ"];
+		const UPPER = ["Á","É","Í","Ó","Ú","Ü","Ñ"];
+		const PUNC  = ["¿","¡","«","»","´","¨"]; // acute + diaeresis marks included
+
+		const lowerRow = document.getElementById("lowerRow");
+		const upperRow = document.getElementById("upperRow");
+		const puncRow  = document.getElementById("puncRow");
+		const toastEl  = document.getElementById("toast");
+		const lastEl   = document.getElementById("lastCopied");
+
+		function showToast(msg){
+			toastEl.textContent = msg;
+			clearTimeout(showToast._t);
+			showToast._t = setTimeout(() => toastEl.textContent = "", 1200);
+		}
+
+		async function copyText(text){
+			try{
+				await navigator.clipboard.writeText(text);
+				lastEl.textContent = text;
+				showToast(`Copied: ${text}`);
+				return true;
+			}catch(e){
+				// Fallback for older browsers / blocked clipboard
+				const ta = document.createElement("textarea");
+				ta.value = text;
+				ta.setAttribute("readonly", "");
+				ta.style.position = "fixed";
+				ta.style.top = "-9999px";
+				document.body.appendChild(ta);
+				ta.select();
+				try{
+					const ok = document.execCommand("copy");
+					document.body.removeChild(ta);
+					if(ok){
+						lastEl.textContent = text;
+						showToast(`Copied: ${text}`);
+						return true;
+					}
+				}catch(_){}
+				document.body.removeChild(ta);
+				showToast("Copy failed (browser blocked clipboard).");
+				return false;
+			}
+		}
+
+		function makeButtons(chars, mount){
+			for(const ch of chars){
+				const b = document.createElement("button");
+				b.className = "char";
+				b.type = "button";
+				b.textContent = ch;
+				b.title = `Copy "${ch}"`;
+				b.addEventListener("click", () => copyText(ch));
+				mount.appendChild(b);
+			}
+		}
+
+		makeButtons(LOWER, lowerRow);
+		makeButtons(UPPER, upperRow);
+		makeButtons(PUNC,  puncRow);
+
+		document.getElementById("copyLower").addEventListener("click", () => copyText(LOWER.join(" ")));
+		document.getElementById("copyUpper").addEventListener("click", () => copyText(UPPER.join(" ")));
+		document.getElementById("copyAll").addEventListener("click",  () => copyText([...LOWER, ...UPPER, ...PUNC].join(" ")));
+	</script>
+</body>
+</html>
