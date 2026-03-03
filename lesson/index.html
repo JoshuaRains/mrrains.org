@@ -1,0 +1,922 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width,initial-scale=1" />
+	<title>Lesson Demo</title>
+
+	<style>
+		:root{
+			/* Dark Duolingo-ish */
+			--bg:#0f1b22;
+			--panel:#12232b;
+			--panel2:#0f2027;
+			--line:rgba(255,255,255,.10);
+			--line2:rgba(255,255,255,.16);
+			--text:#e9f0f6;
+			--muted:rgba(233,240,246,.70);
+			--muted2:rgba(233,240,246,.55);
+
+			--green:#58cc02;
+			--green2:#4fb301;
+			--red:#ff4b4b;
+			--red2:#e23e3e;
+			--blue:#1cb0f6;
+
+			--radius:18px;
+			--tileRadius:14px;
+
+			--font: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+		}
+
+		*{box-sizing:border-box}
+		html,body{height:100%}
+		body{
+			margin:0;
+			font-family:var(--font);
+			background:var(--bg); /* CLEAN: no gradients */
+			color:var(--text);
+		}
+
+		#appView{
+			min-height:100vh;
+			display:flex;
+			flex-direction:column;
+			padding-bottom:120px; /* space for bottom sheet */
+		}
+
+		/* ======= TOP BAR ======= */
+		header{
+			display:flex;
+			align-items:center;
+			justify-content:center;
+			padding:18px 18px 8px;
+		}
+		.topbar{
+			width:min(980px, 100%);
+			display:grid;
+			grid-template-columns: 120px 1fr 160px;
+			align-items:center;
+			gap:14px;
+		}
+		.leftControls{
+			display:flex;
+			align-items:center;
+			gap:10px;
+			opacity:.9;
+		}
+
+		.iconBtn{
+	width:36px; height:36px;
+	border-radius:12px;
+	border:none;                /* removed */
+	background:transparent;     /* transparent */
+	display:grid; place-items:center;
+	cursor:pointer;
+	transition:transform .08s ease, background .15s ease;
+}
+.iconBtn:hover{background:rgba(255,255,255,.06)}
+.iconBtn:active{transform:translateY(1px)}
+		.iconBtn svg{opacity:.85}
+
+		.progressWrap{
+			display:flex; align-items:center; gap:12px;
+		}
+		.progressTrack{
+			height:14px;
+			border-radius:999px;
+			background:rgba(255,255,255,.07);
+			border:1px solid var(--line);
+			overflow:hidden;
+			position:relative;
+		}
+		.progressFill{
+			height:100%;
+			width:0%;
+			background:var(--green);
+			border-radius:999px;
+			transition:width .25s ease;
+		}
+
+		.rightMeta{
+			display:flex;
+			align-items:center;
+			justify-content:flex-end;
+			gap:10px;
+		}
+
+		.printBtn{
+			border-radius:999px;
+			padding:10px 14px;
+			border:1px solid var(--line);
+			background:rgba(255,255,255,.03);
+			color:rgba(233,240,246,.80);
+			font-weight:900;
+			cursor:pointer;
+			transition:background .15s ease, border-color .15s ease, transform .08s ease;
+			white-space:nowrap;
+		}
+		.printBtn:hover{background:rgba(255,255,255,.05); border-color:var(--line2)}
+		.printBtn:active{transform:translateY(1px)}
+
+		/* ======= MAIN ======= */
+		main{
+			flex:1;
+			display:flex;
+			justify-content:center;
+			padding:18px 18px 0;
+		}
+
+		.lesson{
+			width:min(980px, 100%);
+			display:flex;
+			flex-direction:column;
+			align-items:center;
+			padding:18px 0 0;
+			gap:18px;
+		}
+
+		.titleBlock{
+			text-align:center;
+			margin-top:6px;
+		}
+		.lessonTitle{
+			font-size:14px;
+			letter-spacing:.02em;
+			color:var(--muted2);
+			font-weight:800;
+			text-transform:uppercase;
+		}
+		.lessonPrompt{
+			margin-top:18px;
+			font-size:26px;
+			font-weight:900;
+			color:var(--text);
+		}
+
+		.audioRow{
+			margin-top:10px;
+			display:flex;
+			gap:12px;
+			align-items:center;
+			justify-content:center;
+		}
+		.audioBtn{
+			border:1px solid rgba(28,176,246,.25);
+			background:rgba(28,176,246,.16);
+			color:var(--text);
+			border-radius:18px;
+			padding:14px 18px;
+			cursor:pointer;
+			display:flex;
+			align-items:center;
+			gap:12px;
+			transition:transform .08s ease, background .15s ease, border-color .15s ease;
+			box-shadow:none; /* CLEAN: remove glow */
+		}
+		.audioBtn:active{transform:translateY(1px)}
+		.audioBtn:hover{background:rgba(28,176,246,.20); border-color:rgba(28,176,246,.34)}
+		.audioBtn .soundIcon{width:22px; height:22px;}
+		.audioBtn.small{padding:14px 14px; border-radius:16px; opacity:.92;}
+
+		.answerArea{
+	width:min(760px, 100%);
+	margin-top:22px;
+	padding:0;               /* no boxed padding */
+	border-radius:0;
+	background:transparent;  /* remove box */
+	border:none;             /* remove border */
+}
+
+/* Rails container */
+.answerLines{
+	display:flex;
+	flex-direction:column;
+	gap:18px;          /* space between rails */
+	padding:10px 6px;  /* light breathing room */
+}
+
+/* Each rail: a thin line positioned so tiles "sit" on it */
+.answerLine{
+	height:0;
+	border-top:2px solid rgba(255,255,255,.16);
+	border-radius:0;
+	background:transparent;
+	/* Place the line under where tiles rest */
+	margin-top:38px;   /* tune: should land near tile bottom */
+}
+
+/* Put tiles on top of the rails with room for two rows */
+.answerTiles{
+	margin-top:-115px;  /* pulls tiles up so they sit on rails */
+	display:flex;
+	flex-wrap:wrap;
+	gap:10px;
+	min-height:110px;  /* enough for ~2 tile rows */
+	align-content:flex-start;
+	padding:0 6px;
+}
+
+		.bankArea{
+			width:min(760px, 100%);
+			display:flex;
+			justify-content:center;
+			margin-top:6px;
+		}
+		.bankTiles{
+			display:flex;
+			flex-wrap:wrap;
+			justify-content:center;
+			gap:10px;
+			padding:10px 6px;
+		}
+
+		.tile{
+	user-select:none;
+	cursor:pointer;
+	padding:10px 14px;
+	border-radius:var(--tileRadius);
+
+	/* top/sides border */
+	border:1px solid rgba(255,255,255,.14);
+
+	/* 3D bottom edge (2px) */
+	border-bottom:2px solid rgba(255,255,255,.22);
+
+	background:rgba(255,255,255,.03);
+	color:rgba(233,240,246,.95);
+	font-weight:800;
+	letter-spacing:.01em;
+	transition:transform .08s ease, background .15s ease, border-color .15s ease;
+	box-shadow:none;
+}
+.tile:hover{
+	background:rgba(255,255,255,.05);
+	border-color:rgba(255,255,255,.20);
+	border-bottom-color:rgba(255,255,255,.28);
+}
+		.tile:active{transform:translateY(1px)}
+		.tile.disabled{
+			opacity:.45;
+			cursor:not-allowed;
+		}
+
+		/* ======= BOTTOM SHEET (Duolingo-style feedback) ======= */
+		.bottomSheet{
+			position:fixed;
+			left:0; right:0; bottom:0;
+			display:flex;
+			justify-content:center;
+			padding:14px 18px 16px;
+			border-top:1px solid rgba(255,255,255,.06);
+			background:rgba(15,27,34,.98);
+		}
+
+		.sheetInner{
+			width:min(980px, 100%);
+			display:flex;
+			align-items:center;
+			justify-content:space-between;
+			gap:16px;
+		}
+
+		.sheetLeft{
+			display:flex;
+			align-items:flex-start;
+			gap:14px;
+			min-height:54px;
+			flex:1;
+		}
+
+		.sheetIcon{
+			width:44px; height:44px;
+			border-radius:999px;
+			display:grid;
+			place-items:center;
+			flex:0 0 auto;
+			border:1px solid rgba(255,255,255,.12);
+			background:rgba(255,255,255,.04);
+		}
+
+		.sheetText{
+			display:flex;
+			flex-direction:column;
+			gap:6px;
+			padding-top:2px;
+		}
+
+		.sheetTitle{
+			font-weight:1000;
+			letter-spacing:.01em;
+			font-size:18px;
+			line-height:1.05;
+		}
+		.sheetBody{
+			color:var(--muted);
+			font-weight:800;
+			line-height:1.25;
+		}
+
+		/* states */
+		.bottomSheet.answering .sheetLeft{opacity:0; pointer-events:none;}
+		.bottomSheet.answering .sheetIcon{display:none;}
+		.bottomSheet.answering .sheetText{display:none;}
+
+		.bottomSheet.correct{
+			background:rgba(15,27,34,.98);
+		}
+		.bottomSheet.correct .sheetTitle{color:rgba(88,204,2,.95);}
+		.bottomSheet.correct .sheetIcon{
+			border-color:rgba(88,204,2,.25);
+			background:rgba(88,204,2,.12);
+		}
+
+		.bottomSheet.wrong{
+			background:rgba(15,27,34,.98);
+		}
+		.bottomSheet.wrong .sheetTitle{color:rgba(255,75,75,.95);}
+		.bottomSheet.wrong .sheetIcon{
+			border-color:rgba(255,75,75,.25);
+			background:rgba(255,75,75,.12);
+		}
+
+		.bottomSheet.done .sheetTitle{color:rgba(233,240,246,.95);}
+		.bottomSheet.done .sheetIcon{
+			border-color:rgba(255,255,255,.18);
+			background:rgba(255,255,255,.06);
+		}
+
+		.sheetBtn{
+			border-radius:16px;
+			padding:14px 22px;
+			border:1px solid rgba(255,255,255,.14);
+			background:rgba(255,255,255,.06);
+			color:rgba(233,240,246,.75);
+			font-weight:1000;
+			letter-spacing:.02em;
+			cursor:pointer;
+			transition:transform .08s ease, background .15s ease, border-color .15s ease;
+			min-width:150px;
+			text-align:center;
+		}
+		.sheetBtn:hover{background:rgba(255,255,255,.08); border-color:rgba(255,255,255,.20)}
+		.sheetBtn:active{transform:translateY(1px)}
+		.sheetBtn:disabled{opacity:.35; cursor:not-allowed}
+
+		/* When feedback is showing, button becomes WHITE and says NEXT (like Duo) */
+		.bottomSheet.correct .sheetBtn,
+		.bottomSheet.wrong .sheetBtn,
+		.bottomSheet.done .sheetBtn{
+			background:#ffffff;
+			border-color:#ffffff;
+			color:#0f1b22;
+		}
+
+		/* ======= PRINT VIEW (HIDDEN ONSCREEN) ======= */
+		#printView{display:none;}
+
+		@media print{
+			:root{
+				--paperText:#0f1720;
+				--paperMuted:#334155;
+				--paperLine:#cbd5e1;
+				--paperPanel:#f8fafc;
+				--paperPanel2:#ffffff;
+			}
+			body{background:#fff !important; color:var(--paperText) !important;}
+			#appView{display:none !important;}
+			#printView{
+	display:block !important;
+	padding:18px 20px;           /* tighter page margins */
+	font-family: var(--font);
+	font-size:12px;              /* smaller overall */
+}
+			.printHeader{
+	display:flex;
+	justify-content:space-between;
+	align-items:flex-start;
+	gap:14px;
+	margin-bottom:10px;
+	padding-bottom:8px;
+	border-bottom:2px solid #e2e8f0;
+}
+.printTitle{
+	font-size:14px;
+	font-weight:1000;
+	letter-spacing:.01em;
+}
+.nameLine{
+	margin-top:4px;
+	font-weight:800;
+	color:var(--paperMuted);
+}
+.nameLine span{
+	display:inline-block;
+	min-width:160px;            /* smaller line */
+	border-bottom:1.5px solid var(--paperLine);
+	transform: translateY(-1px);
+}
+			.nameLine span{
+				display:inline-block;
+				min-width:220px;
+				border-bottom:2px solid var(--paperLine);
+				transform: translateY(-2px);
+			}
+			.printCard{
+	border:1.5px solid #e2e8f0;
+	border-radius:12px;
+	padding:8px 10px;
+	margin:8px 0;
+	background:var(--paperPanel2);
+	break-inside:avoid;
+}
+.printPrompt{
+	font-weight:1000;
+	margin-bottom:6px;
+	display:flex;
+	align-items:center;
+	gap:8px;
+	font-size:12px;
+}
+.badge{
+	display:inline-block;
+	padding:2px 8px;
+	border-radius:999px;
+	font-weight:1000;
+	font-size:10px;
+	border:1.5px solid #e2e8f0;
+	background:var(--paperPanel);
+	color:var(--paperMuted);
+}
+.printSentence{
+	font-size:12px;
+	font-weight:900;
+	margin-bottom:6px;
+}
+.blankLines{
+	display:flex;
+	flex-direction:column;
+	gap:6px;
+}
+.blank{
+	border-bottom:1.5px solid var(--paperLine);
+	height:16px;
+}
+			.printFooterNote{
+	margin-top:10px;
+	font-size:10px;
+	color:var(--paperMuted);
+	font-weight:800;
+}
+.nameRow{
+	display:flex;
+	gap:16px;
+	align-items:baseline;
+	margin-top:17px;
+}
+
+.nameRow .nameLine{
+	margin-top:0;       /* overrides any previous margin-top */
+	white-space:nowrap; /* keeps “Name:” together */
+}
+
+.nameRow .nameLine span{
+	min-width:300px;    /* adjust to taste */
+}
+.nameRow .nameLine:last-child span{ min-width:150px; }
+
+
+
+.printGrid{
+	display:grid;
+	grid-template-columns: 1fr 1fr;
+	gap:10px;
+	align-items:start;
+}
+
+/* Let cards flow nicely in columns */
+.printCard{
+	margin:0;              /* grid gap handles spacing */
+	break-inside:avoid;    /* avoid splitting a card */
+}
+		}
+	</style>
+</head>
+
+<body>
+	<div id="appView">
+		<header>
+			<div class="topbar">
+				<div class="leftControls">
+					<button class="iconBtn" id="closeBtn" title="Exit" aria-label="Exit">
+						<svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+							<path d="M6 6L18 18M18 6L6 18" stroke="white" stroke-width="2" stroke-linecap="round" opacity=".75"/>
+						</svg>
+					</button>
+				</div>
+
+				<div class="progressWrap">
+					<div class="progressTrack" style="width:100%">
+						<div class="progressFill" id="progressFill"></div>
+					</div>
+				</div>
+
+				<div class="rightMeta">
+					<button class="printBtn" id="printBtn" title="Print / Save PDF">Print / Save PDF</button>
+				</div>
+			</div>
+		</header>
+
+		<main>
+			<section class="lesson">
+				<div class="titleBlock">
+					<div class="lessonTitle" id="lessonTitle">Loading…</div>
+					<div class="lessonPrompt" id="lessonPrompt"></div>
+
+					<div class="audioRow">
+						<button class="audioBtn" id="audioBtn" type="button" title="Listen (placeholder)">
+							<img class="soundIcon" src="../assets/sound.svg" alt="" />
+						</button>
+						<button class="audioBtn small" id="audioSlowBtn" type="button" title="Slow (placeholder)">
+							<img class="soundIcon" src="../assets/sound.svg" alt="" style="opacity:.85; transform:scale(.9)" />
+						</button>
+					</div>
+				</div>
+
+				<div class="answerArea">
+					<div class="answerLines" aria-hidden="true">
+						<div class="answerLine"></div>
+						<div class="answerLine"></div>
+					</div>
+					<div class="answerTiles" id="answerTiles"></div>
+				</div>
+
+				<div class="bankArea">
+					<div class="bankTiles" id="bankTiles"></div>
+				</div>
+			</section>
+		</main>
+
+		<!-- Bottom sheet (answering + feedback + done) -->
+		<div class="bottomSheet answering" id="bottomSheet">
+			<div class="sheetInner">
+				<div class="sheetLeft">
+					<div class="sheetIcon" id="sheetIcon" aria-hidden="true"></div>
+					<div class="sheetText">
+						<div class="sheetTitle" id="sheetTitle"></div>
+						<div class="sheetBody" id="sheetBody"></div>
+					</div>
+				</div>
+
+				<button class="sheetBtn" id="mainBtn" type="button" disabled>CHECK</button>
+			</div>
+		</div>
+	</div>
+
+	<!-- PRINT VIEW -->
+	<div id="printView"></div>
+
+	<script>
+	(() => {
+		"use strict";
+
+		const els = {
+			lessonTitle: document.getElementById("lessonTitle"),
+			lessonPrompt: document.getElementById("lessonPrompt"),
+			bankTiles: document.getElementById("bankTiles"),
+			answerTiles: document.getElementById("answerTiles"),
+			progressFill: document.getElementById("progressFill"),
+			printBtn: document.getElementById("printBtn"),
+			printView: document.getElementById("printView"),
+
+			closeBtn: document.getElementById("closeBtn"),
+			audioBtn: document.getElementById("audioBtn"),
+			audioSlowBtn: document.getElementById("audioSlowBtn"),
+
+			bottomSheet: document.getElementById("bottomSheet"),
+			sheetIcon: document.getElementById("sheetIcon"),
+			sheetTitle: document.getElementById("sheetTitle"),
+			sheetBody: document.getElementById("sheetBody"),
+			mainBtn: document.getElementById("mainBtn")
+		};
+
+		let lesson = null;
+
+		// Queue behavior:
+		// - pop front to show
+		// - wrong => push back
+		// - right => mastered; removed
+		let queue = [];
+		let mastered = new Set();
+		let currentIndex = null;
+
+		// per-question state
+		let chosen = []; // strings
+		let bank = [];   // {text, used}
+		let mode = "answering"; // "answering" | "feedback" | "done"
+		let lastResult = null;  // "correct" | "wrong" | null
+
+		function shuffle(arr){
+			const a = arr.slice();
+			for(let i=a.length-1;i>0;i--){
+				const j = Math.floor(Math.random()*(i+1));
+				[a[i],a[j]] = [a[j],a[i]];
+			}
+			return a;
+		}
+
+		function normalizeTokens(tokens){
+			const out = [];
+			for(const t of tokens){
+				const punct = /^[\.\,\!\?\:\;]+$/.test(t);
+				if(punct && out.length){
+					out[out.length-1] = out[out.length-1] + t;
+				}else{
+					out.push(t);
+				}
+			}
+			return out.join(" ").trim();
+		}
+
+		function setProgress(){
+			const total = lesson.questions.length;
+			const done = mastered.size;
+			const pct = total ? Math.round((done/total)*100) : 0;
+			els.progressFill.style.width = pct + "%";
+		}
+
+		function setBottomSheet(state, title, body){
+			// state: "answering" | "correct" | "wrong" | "done"
+			els.bottomSheet.classList.remove("answering","correct","wrong","done");
+			els.bottomSheet.classList.add(state);
+
+			if(state === "answering"){
+				els.sheetTitle.textContent = "";
+				els.sheetBody.textContent = "";
+				els.sheetIcon.innerHTML = "";
+				els.mainBtn.textContent = "CHECK";
+			}else if(state === "correct"){
+				els.sheetTitle.textContent = title || "Correct!";
+				els.sheetBody.textContent = body || "";
+				els.sheetIcon.innerHTML = iconCheck();
+				els.mainBtn.textContent = "NEXT";
+			}else if(state === "wrong"){
+				els.sheetTitle.textContent = title || "Correct solution:";
+				els.sheetBody.textContent = body || "";
+				els.sheetIcon.innerHTML = iconX();
+				els.mainBtn.textContent = "NEXT";
+			}else if(state === "done"){
+				els.sheetTitle.textContent = title || "Lesson complete!";
+				els.sheetBody.textContent = body || "You mastered every sentence.";
+				els.sheetIcon.innerHTML = iconStar();
+				els.mainBtn.textContent = "DONE";
+			}
+		}
+
+		function iconX(){
+			return `
+				<svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+					<path d="M7 7l10 10M17 7L7 17" stroke="white" stroke-width="2.6" stroke-linecap="round" opacity=".9"/>
+				</svg>
+			`;
+		}
+		function iconCheck(){
+			return `
+				<svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+					<path d="M20 6L9 17l-5-5" stroke="white" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" opacity=".9"/>
+				</svg>
+			`;
+		}
+		function iconStar(){
+			return `
+				<svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+					<path d="M12 3l2.6 5.8 6.4.6-4.8 4.2 1.4 6.2L12 16.9 6.4 20l1.4-6.2L3 9.4l6.4-.6L12 3Z"
+						stroke="white" stroke-width="1.8" fill="none" opacity=".9" stroke-linejoin="round"/>
+				</svg>
+			`;
+		}
+
+		function rebuildTiles(){
+			// answer tiles
+			els.answerTiles.innerHTML = "";
+			for(let i=0;i<chosen.length;i++){
+				const t = document.createElement("button");
+				t.type = "button";
+				t.className = "tile";
+				t.textContent = chosen[i];
+				t.addEventListener("click", () => {
+					if(mode !== "answering") return;
+					const word = chosen.splice(i,1)[0];
+					const slot = bank.find(b => b.text === word && b.used);
+					if(slot) slot.used = false;
+					rebuildTiles();
+					updateMainButton();
+				});
+				els.answerTiles.appendChild(t);
+			}
+
+			// bank tiles
+			els.bankTiles.innerHTML = "";
+			for(const item of bank){
+				const t = document.createElement("button");
+				t.type = "button";
+				t.className = "tile" + (item.used ? " disabled" : "");
+				t.textContent = item.text;
+				t.disabled = item.used || mode !== "answering";
+				t.addEventListener("click", () => {
+					if(mode !== "answering") return;
+					if(item.used) return;
+					item.used = true;
+					chosen.push(item.text);
+					rebuildTiles();
+					updateMainButton();
+				});
+				els.bankTiles.appendChild(t);
+			}
+		}
+
+		function updateMainButton(){
+			if(mode === "answering"){
+				els.mainBtn.disabled = (chosen.length === 0);
+				els.mainBtn.textContent = "CHECK";
+			}else{
+				els.mainBtn.disabled = false;
+			}
+		}
+
+		function loadQuestion(){
+			if(queue.length === 0){
+				mode = "done";
+				currentIndex = null;
+				els.lessonPrompt.textContent = " ";
+				els.bankTiles.innerHTML = "";
+				els.answerTiles.innerHTML = "";
+				setProgress();
+				setBottomSheet("done", "Lesson complete!", "Click DONE to return to lessons.");
+				updateMainButton();
+				return;
+			}
+
+			mode = "answering";
+			lastResult = null;
+			setBottomSheet("answering");
+
+			currentIndex = queue.shift();
+			const q = lesson.questions[currentIndex];
+
+			els.lessonPrompt.textContent = q.sentence;
+
+			chosen = [];
+			const bankWords = shuffle(q.bank || q.answer);
+			bank = bankWords.map(w => ({ text:w, used:false }));
+
+			rebuildTiles();
+			updateMainButton();
+			setProgress();
+		}
+
+		function showFeedback(isRight){
+	if(isRight){
+		mode = "feedback";
+		lastResult = "correct";
+		setBottomSheet("correct", "Correct!", "Be sure to write that down.");
+		updateMainButton();
+	}else{
+		// Wrong => push back to end of queue
+		queue.push(currentIndex);
+
+		mode = "feedback";
+		lastResult = "wrong";
+		setBottomSheet("wrong", "Not quite...", "This question will come back later.");
+		updateMainButton();
+	}
+}
+
+		function onMainButton(){
+			if(mode === "answering"){
+				const q = lesson.questions[currentIndex];
+				const attempt = normalizeTokens(chosen);
+				const correct = normalizeTokens(q.answer);
+				const isRight = (attempt === correct);
+
+				if(isRight){
+					mastered.add(currentIndex);
+				}
+				showFeedback(isRight);
+			}else if(mode === "feedback"){
+				loadQuestion();
+			}else if(mode === "done"){
+				window.location.href = "../lessons";
+			}
+		}
+
+		function buildPrintView(){
+			const title = lesson.title || "Lesson";
+			const subtitle = lesson.subtitle || "";
+
+			const wrap = document.createElement("div");
+
+			const header = document.createElement("div");
+			header.className = "printHeader";
+
+			const left = document.createElement("div");
+			left.innerHTML = `
+	<div class="printTitle">${escapeHtml(title)}</div>
+	<div class="nameRow">
+		<div class="nameLine">Name: <span>&nbsp;</span></div>
+		<div class="nameLine">Date: <span>&nbsp;</span></div>
+	</div>
+`;
+
+			const right = document.createElement("div");
+			right.className = "printMeta";
+			right.innerHTML = `
+	<div>${escapeHtml(subtitle)}</div>
+`;
+
+			header.appendChild(left);
+			header.appendChild(right);
+			wrap.appendChild(header);
+            const grid = document.createElement("div");
+grid.className = "printGrid";
+wrap.appendChild(grid);
+
+			lesson.questions.forEach((q, i) => {
+				const card = document.createElement("div");
+				card.className = "printCard";
+
+				const dirBadge = (q.direction === "es-en") ? "ES → EN" : "EN → ES";
+
+				card.innerHTML = `
+					<div class="printPrompt">
+						<span class="badge">${dirBadge}</span>
+						<span>Q${i+1}</span>
+					</div>
+					<div class="printSentence">${escapeHtml(q.sentence)}</div>
+					<div class="blankLines">
+						<div class="blank"></div>
+						<div class="blank"></div>
+					</div>
+				`;
+				grid.appendChild(card);
+			});
+
+			const note = document.createElement("div");
+			note.className = "printFooterNote";
+			note.textContent = "Write each answer down as you go through the lesson!";
+			wrap.appendChild(note);
+
+			els.printView.innerHTML = "";
+			els.printView.appendChild(wrap);
+		}
+
+		function escapeHtml(s){
+			return String(s)
+				.replaceAll("&","&amp;")
+				.replaceAll("<","&lt;")
+				.replaceAll(">","&gt;")
+				.replaceAll('"',"&quot;")
+				.replaceAll("'","&#039;");
+		}
+
+		async function init(){
+			// Close button -> lessons
+			els.closeBtn.addEventListener("click", () => {
+				window.location.href = "../lessons";
+			});
+
+			// Audio buttons are placeholders (do nothing for now)
+			els.audioBtn.addEventListener("click", () => {});
+			els.audioSlowBtn.addEventListener("click", () => {});
+
+			els.mainBtn.addEventListener("click", onMainButton);
+
+			els.printBtn.addEventListener("click", () => {
+				buildPrintView();
+				setTimeout(() => window.print(), 50);
+			});
+
+			const res = await fetch("./lesson.json", { cache:"no-store" });
+			lesson = await res.json();
+
+			els.lessonTitle.textContent = lesson.title || "Lesson";
+
+			queue = lesson.questions.map((_, i) => i);
+			mastered = new Set();
+
+			loadQuestion();
+		}
+
+		init().catch(err => {
+			console.error(err);
+			els.lessonTitle.textContent = "Error loading lesson.json";
+			mode = "done";
+			setBottomSheet("wrong", "Error:", "Could not load lesson.json. Serve this folder with a local web server.");
+			els.mainBtn.disabled = false;
+			els.mainBtn.textContent = "DONE";
+			els.mainBtn.onclick = () => window.location.href = "../lessons";
+		});
+	})();
+	</script>
+</body>
+</html>

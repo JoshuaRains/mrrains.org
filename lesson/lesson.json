@@ -1,0 +1,246 @@
+{
+	"title": "preterite practice • simple sentences",
+	"subtitle": "unit 1",
+	"questions": [
+		{
+			"id": "p1",
+			"direction": "en-es",
+			"prompt": "translate",
+			"sentence": "i spoke",
+			"answer": ["yo", "hablé"],
+			"bank": ["yo", "hablé", "habla", "ayer"]
+		},
+		{
+			"id": "p2",
+			"direction": "en-es",
+			"prompt": "translate",
+			"sentence": "you walked",
+			"answer": ["tú", "caminaste"],
+			"bank": ["tú", "caminaste", "camina", "hoy"]
+		},
+		{
+			"id": "p3",
+			"direction": "en-es",
+			"prompt": "translate",
+			"sentence": "he worked",
+			"answer": ["él", "trabajó"],
+			"bank": ["él", "trabajó", "trabaja", "mucho"]
+		},
+		{
+			"id": "p4",
+			"direction": "en-es",
+			"prompt": "translate",
+			"sentence": "she danced",
+			"answer": ["ella", "bailó"],
+			"bank": ["ella", "bailó", "baila", "bien"]
+		},
+		{
+			"id": "p5",
+			"direction": "en-es",
+			"prompt": "translate",
+			"sentence": "we listened",
+			"answer": ["nosotros", "escuchamos"],
+			"bank": ["nosotros", "escuchamos", "escucha", "música"]
+		},
+		{
+			"id": "p6",
+			"direction": "en-es",
+			"prompt": "translate",
+			"sentence": "they studied",
+			"answer": ["ellos", "estudiaron"],
+			"bank": ["ellos", "estudiaron", "estudia", "mucho"]
+		},
+		{
+			"id": "p7",
+			"direction": "en-es",
+			"prompt": "translate",
+			"sentence": "i ate",
+			"answer": ["yo", "comí"],
+			"bank": ["yo", "comí", "como", "pizza"]
+		},
+		{
+			"id": "p8",
+			"direction": "en-es",
+			"prompt": "translate",
+			"sentence": "you learned",
+			"answer": ["tú", "aprendiste"],
+			"bank": ["tú", "aprendiste", "aprende", "rápido"]
+		},
+		{
+			"id": "p9",
+			"direction": "en-es",
+			"prompt": "translate",
+			"sentence": "he wrote",
+			"answer": ["él", "escribió"],
+			"bank": ["él", "escribió", "escribe", "una"]
+		},
+		{
+			"id": "p10",
+			"direction": "en-es",
+			"prompt": "translate",
+			"sentence": "she lived",
+			"answer": ["ella", "vivió"],
+			"bank": ["ella", "vivió", "vive", "aquí"]
+		},
+		{
+			"id": "p11",
+			"direction": "en-es",
+			"prompt": "translate",
+			"sentence": "we opened",
+			"answer": ["nosotros", "abrimos"],
+			"bank": ["nosotros", "abrimos", "abre", "la"]
+		},
+		{
+			"id": "p12",
+			"direction": "en-es",
+			"prompt": "translate",
+			"sentence": "they received",
+			"answer": ["ellos", "recibieron"],
+			"bank": ["ellos", "recibieron", "recibe", "eso"]
+		},
+		{
+			"id": "p13",
+			"direction": "en-es",
+			"prompt": "translate",
+			"sentence": "i watched",
+			"answer": ["yo", "miré"],
+			"bank": ["yo", "miré", "mira", "televisión"]
+		},
+		{
+			"id": "p14",
+			"direction": "en-es",
+			"prompt": "translate",
+			"sentence": "you helped",
+			"answer": ["tú", "ayudaste"],
+			"bank": ["tú", "ayudaste", "ayuda", "mucho"]
+		},
+		{
+			"id": "p15",
+			"direction": "en-es",
+			"prompt": "translate",
+			"sentence": "he bought",
+			"answer": ["él", "compró"],
+			"bank": ["él", "compró", "compra", "eso"]
+		},
+		{
+			"id": "p16",
+			"direction": "en-es",
+			"prompt": "translate",
+			"sentence": "she used",
+			"answer": ["ella", "usó"],
+			"bank": ["ella", "usó", "usa", "mi"]
+		},
+		{
+			"id": "p17",
+			"direction": "en-es",
+			"prompt": "translate",
+			"sentence": "we visited",
+			"answer": ["nosotros", "visitamos"],
+			"bank": ["nosotros", "visitamos", "visita", "la"]
+		},
+		{
+			"id": "p18",
+			"direction": "en-es",
+			"prompt": "translate",
+			"sentence": "they practiced",
+			"answer": ["ellos", "practicaron"],
+			"bank": ["ellos", "practicaron", "practica", "hoy"]
+		},
+		{
+			"id": "p19",
+			"direction": "en-es",
+			"prompt": "translate",
+			"sentence": "i worked",
+			"answer": ["yo", "trabajé"],
+			"bank": ["yo", "trabajé", "trabaja", "ayer"]
+		},
+		{
+			"id": "p20",
+			"direction": "en-es",
+			"prompt": "translate",
+			"sentence": "you spoke",
+			"answer": ["tú", "hablaste"],
+			"bank": ["tú", "hablaste", "habla", "mucho"]
+		},
+		{
+			"id": "p21",
+			"direction": "en-es",
+			"prompt": "translate",
+			"sentence": "he listened",
+			"answer": ["él", "escuchó"],
+			"bank": ["él", "escuchó", "escucha", "música"]
+		},
+		{
+			"id": "p22",
+			"direction": "en-es",
+			"prompt": "translate",
+			"sentence": "she studied",
+			"answer": ["ella", "estudió"],
+			"bank": ["ella", "estudió", "estudia", "mucho"]
+		},
+		{
+			"id": "p23",
+			"direction": "en-es",
+			"prompt": "translate",
+			"sentence": "we ate",
+			"answer": ["nosotros", "comimos"],
+			"bank": ["nosotros", "comimos", "come", "pizza"]
+		},
+		{
+			"id": "p24",
+			"direction": "en-es",
+			"prompt": "translate",
+			"sentence": "they lived",
+			"answer": ["ellos", "vivieron"],
+			"bank": ["ellos", "vivieron", "vive", "aquí"]
+		},
+		{
+			"id": "p25",
+			"direction": "en-es",
+			"prompt": "translate",
+			"sentence": "i wrote",
+			"answer": ["yo", "escribí"],
+			"bank": ["yo", "escribí", "escribe", "una"]
+		},
+		{
+			"id": "p26",
+			"direction": "en-es",
+			"prompt": "translate",
+			"sentence": "you opened",
+			"answer": ["tú", "abriste"],
+			"bank": ["tú", "abriste", "abre", "la"]
+		},
+		{
+			"id": "p27",
+			"direction": "en-es",
+			"prompt": "translate",
+			"sentence": "he received",
+			"answer": ["él", "recibió"],
+			"bank": ["él", "recibió", "recibe", "eso"]
+		},
+		{
+			"id": "p28",
+			"direction": "en-es",
+			"prompt": "translate",
+			"sentence": "she watched",
+			"answer": ["ella", "miró"],
+			"bank": ["ella", "miró", "mira", "televisión"]
+		},
+		{
+			"id": "p29",
+			"direction": "en-es",
+			"prompt": "translate",
+			"sentence": "we helped",
+			"answer": ["nosotros", "ayudamos"],
+			"bank": ["nosotros", "ayudamos", "ayuda", "mucho"]
+		},
+		{
+			"id": "p30",
+			"direction": "en-es",
+			"prompt": "translate",
+			"sentence": "they bought",
+			"answer": ["ellos", "compraron"],
+			"bank": ["ellos", "compraron", "compra", "eso"]
+		}
+	]
+}
