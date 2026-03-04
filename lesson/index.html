@@ -990,20 +990,48 @@ els.lessonPrompt.innerHTML = `
 			if(currentSentenceAudioKey) getAudioForKey(currentSentenceAudioKey);
 		}
 
-		function showFeedback(isRight){
-			if(isRight){
-				mode = "feedback";
-				lastResult = "correct";
-				setBottomSheet("correct", "Correct!", "Be sure to write that down.");
-				updateMainButton();
+		// 2) REPLACE showFeedback(isRight) with this version
+
+function showFeedback(isRight){
+	const q = lesson.questions[currentIndex];
+	const spec = getQuestionSpec(q);
+
+	if(isRight){
+		mode = "feedback";
+		lastResult = "correct";
+
+		// Default message
+		let body = "Be sure to write that down.";
+
+		// If it's a listening question, show the translation line instead
+		if(spec.type === "listen-es-en" || spec.type === "listen-es-es"){
+			let translation = "";
+
+			// Prefer explicit translation field if you add it later
+			if(typeof q.translation === "string" && q.translation.trim()){
+				translation = q.translation.trim();
+			}else if(spec.type === "listen-es-en"){
+				// For ES→EN listening, the answer tokens are the English translation
+				translation = tokensToText(q.answer);
 			}else{
-				queue.push(currentIndex);
-				mode = "feedback";
-				lastResult = "wrong";
-				setBottomSheet("wrong", "Not quite...", "This question will come back later.");
-				updateMainButton();
+				// For transcribe listening, use the English prompt if provided (recommended)
+				// If not present, fall back to empty.
+				translation = (typeof q.sentence === "string") ? q.sentence.trim() : "";
 			}
+
+			body = translation ? `Translation: ${translation}` : "Translation: ";
 		}
+
+		setBottomSheet("correct", "Correct!", body);
+		updateMainButton();
+	}else{
+		queue.push(currentIndex);
+		mode = "feedback";
+		lastResult = "wrong";
+		setBottomSheet("wrong", "Not quite...", "This question will come back later.");
+		updateMainButton();
+	}
+}
 
 		function onMainButton(){
 	if(mode === "answering"){
@@ -1050,7 +1078,11 @@ els.lessonPrompt.innerHTML = `
 				.replaceAll('"',"&quot;")
 				.replaceAll("'","&#039;");
 		}
-
+// 1) ADD this helper (near escapeHtml / normalizeTokens helpers)
+function tokensToText(tokens){
+	if(!Array.isArray(tokens)) return "";
+	return normalizeTokens(tokens);
+}
 		function buildPrintCard(q, i){
 			const spec = getQuestionSpec(q);
 			const card = document.createElement("div");
@@ -1134,7 +1166,7 @@ els.lessonPrompt.innerHTML = `
 
 		async function init(){
 			els.closeBtn.addEventListener("click", () => {
-				window.location.href = "../lessons";
+				window.location.href = "../index.html";
 			});
 
 			els.audioBtn.addEventListener("click", () => {

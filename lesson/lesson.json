@@ -2,11 +2,11 @@
   "title": "Midterm Skills Review",
   "subtitle": "Practice",
   "questions": [
- 
     {
       "type": "listen-es-es",
       "spanish": "yo estoy estudiando ahora",
       "audio": "yo estoy estudiando ahora",
+      "translation": "I am studying now.",
       "answer": ["estoy","estudiando","ahora"],
       "answerAlternates": [["yo","estoy","estudiando","ahora"]],
       "bank": ["yo","estoy","estudiando","ahora","estamos","estudian","estudiar"]
@@ -15,6 +15,7 @@
       "type": "listen-es-es",
       "spanish": "ella está escribiendo ahora",
       "audio": "ella está escribiendo ahora",
+      "translation": "She is writing now.",
       "answer": ["está","escribiendo","ahora"],
       "answerAlternates": [["ella","está","escribiendo","ahora"]],
       "bank": ["ella","está","escribiendo","ahora","estoy","escribe","escribir"]
@@ -23,20 +24,21 @@
       "type": "listen-es-es",
       "spanish": "nosotros estamos practicando español ahora",
       "audio": "nosotros estamos practicando español ahora",
+      "translation": "We are practicing Spanish now.",
       "answer": ["estamos","practicando","español","ahora"],
       "answerAlternates": [["nosotros","estamos","practicando","español","ahora"]],
       "bank": ["nosotros","estamos","practicando","español","ahora","están","practican","practicar"]
     },
-    
     {
       "type": "listen-es-es",
       "spanish": "tú estás escuchando ahora",
       "audio": "tú estás escuchando ahora",
+      "translation": "You are listening now.",
       "answer": ["estás","escuchando","ahora"],
       "answerAlternates": [["tú","estás","escuchando","ahora"]],
       "bank": ["tú","estás","escuchando","ahora","está","escucha","escuchar"]
     },
-    
+
     {
       "type": "translate-en-es",
       "sentence": "We are reading now.",
@@ -53,10 +55,12 @@
       "bank": ["ella","está","caminando","a","la","biblioteca","ahora","camina","caminar","estoy"],
       "audio": "ella está caminando a la biblioteca ahora"
     },
+
     {
       "type": "listen-es-en",
       "spanish": "ustedes están trabajando ahora",
       "audio": "ustedes están trabajando ahora",
+      "translation": "You all are working now.",
       "answer": ["you","all","are","working","now"],
       "answerAlternates": [["you","are","working","now"]],
       "bank": ["you","all","are","working","now","we","they","work"]
@@ -65,10 +69,12 @@
       "type": "listen-es-en",
       "spanish": "yo estoy bebiendo agua ahora",
       "audio": "yo estoy bebiendo agua ahora",
+      "translation": "I am drinking water now.",
       "answer": ["i","am","drinking","water","now"],
       "answerAlternates": [["i","m","drinking","water","now"]],
       "bank": ["i","am","drinking","water","now","eating","today","we"]
     },
+
     {
       "type": "translate-es-en",
       "sentence": "estamos estudiando ahora",
@@ -86,12 +92,11 @@
       "audio": "ella está mirando televisión ahora"
     },
 
-  
-
     {
       "type": "listen-es-es",
       "spanish": "yo hablé con mi amigo",
       "audio": "yo hablé con mi amigo",
+      "translation": "I talked with my friend.",
       "answer": ["hablé","con","mi","amigo"],
       "answerAlternates": [["yo","hablé","con","mi","amigo"]],
       "bank": ["yo","hablé","con","mi","amigo","hablo","hablar","amiga"]
@@ -100,10 +105,12 @@
       "type": "listen-es-es",
       "spanish": "ella estudió en la biblioteca",
       "audio": "ella estudió en la biblioteca",
+      "translation": "She studied in the library.",
       "answer": ["estudió","en","la","biblioteca"],
       "answerAlternates": [["ella","estudió","en","la","biblioteca"]],
       "bank": ["ella","estudió","en","la","biblioteca","estudia","estudiar","biblioteco"]
     },
+
     {
       "type": "translate-en-es",
       "sentence": "We ate in the cafeteria.",
@@ -120,10 +127,12 @@
       "bank": ["ellos","miraron","una","película","miran","mirar","películas","el"],
       "audio": "ellos miraron una película"
     },
+
     {
       "type": "listen-es-en",
       "spanish": "tú escribiste tu nombre",
       "audio": "tú escribiste tu nombre",
+      "translation": "You wrote your name.",
       "answer": ["you","wrote","your","name"],
       "answerAlternates": [],
       "bank": ["you","wrote","your","name","write","my","yesterday"]
@@ -136,7 +145,7 @@
       "bank": ["we","walked","to","the","store","go","yesterday","they"],
       "audio": "caminamos a la tienda"
     },
-    
+
     {
       "type": "translate-en-es",
       "sentence": "I worked in my house.",
@@ -146,12 +155,11 @@
       "audio": "yo trabajé en mi casa"
     },
 
-
-
     {
       "type": "listen-es-es",
       "spanish": "yo voy a la escuela con mi amigo",
       "audio": "yo voy a la escuela con mi amigo",
+      "translation": "I go to school with my friend.",
       "answer": ["voy","a","la","escuela","con","mi","amigo"],
       "answerAlternates": [["yo","voy","a","la","escuela","con","mi","amigo"]],
       "bank": ["yo","voy","a","la","escuela","con","mi","amigo","va","vamos","su"]
@@ -176,12 +184,11 @@
       "type": "listen-es-en",
       "spanish": "ellos van a la cafetería",
       "audio": "ellos van a la cafetería",
+      "translation": "They go to the cafeteria.",
       "answer": ["they","go","to","the","cafeteria"],
       "answerAlternates": [],
       "bank": ["they","go","to","the","cafeteria","we","go","yesterday"]
     },
-
-    
 
     {
       "type": "translate-en-es",
@@ -194,6 +201,7 @@
       "type": "listen-es-es",
       "spanish": "tu lápiz está en mi mochila",
       "audio": "tu lápiz está en mi mochila",
+      "translation": "Your pencil is in my backpack.",
       "answer": ["tu","lápiz","está","en","mi","mochila"],
       "bank": ["tu","lápiz","está","en","mi","mochila","mis","tu","mochilas"]
     },
@@ -205,7 +213,7 @@
       "bank": ["nuestro","profesor","nuestra","profesora","está","en","el","salón","mi","su"],
       "audio": "nuestro profesor está en el salón"
     },
-    
+
     {
       "type": "translate-en-es",
       "sentence": "Who is in the classroom?",
@@ -224,6 +232,7 @@
       "type": "listen-es-es",
       "spanish": "yo tengo mi libro",
       "audio": "yo tengo mi libro",
+      "translation": "I have my book.",
       "answer": ["tengo","mi","libro"],
       "answerAlternates": [["yo","tengo","mi","libro"]],
       "bank": ["yo","tengo","mi","libro","tiene","tener","mis","libros"]
@@ -232,6 +241,7 @@
       "type": "listen-es-es",
       "spanish": "ella tiene tu lápiz",
       "audio": "ella tiene tu lápiz",
+      "translation": "She has your pencil.",
       "answer": ["tiene","tu","lápiz"],
       "answerAlternates": [["ella","tiene","tu","lápiz"]],
       "bank": ["ella","tiene","tu","lápiz","tengo","tener","mi","lápices"]
