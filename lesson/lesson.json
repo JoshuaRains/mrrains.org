@@ -1,246 +1,248 @@
 {
-	"title": "preterite practice • simple sentences",
-	"subtitle": "unit 1",
-	"questions": [
-		{
-			"id": "p1",
-			"direction": "en-es",
-			"prompt": "translate",
-			"sentence": "i spoke",
-			"answer": ["yo", "hablé"],
-			"bank": ["yo", "hablé", "habla", "ayer"]
-		},
-		{
-			"id": "p2",
-			"direction": "en-es",
-			"prompt": "translate",
-			"sentence": "you walked",
-			"answer": ["tú", "caminaste"],
-			"bank": ["tú", "caminaste", "camina", "hoy"]
-		},
-		{
-			"id": "p3",
-			"direction": "en-es",
-			"prompt": "translate",
-			"sentence": "he worked",
-			"answer": ["él", "trabajó"],
-			"bank": ["él", "trabajó", "trabaja", "mucho"]
-		},
-		{
-			"id": "p4",
-			"direction": "en-es",
-			"prompt": "translate",
-			"sentence": "she danced",
-			"answer": ["ella", "bailó"],
-			"bank": ["ella", "bailó", "baila", "bien"]
-		},
-		{
-			"id": "p5",
-			"direction": "en-es",
-			"prompt": "translate",
-			"sentence": "we listened",
-			"answer": ["nosotros", "escuchamos"],
-			"bank": ["nosotros", "escuchamos", "escucha", "música"]
-		},
-		{
-			"id": "p6",
-			"direction": "en-es",
-			"prompt": "translate",
-			"sentence": "they studied",
-			"answer": ["ellos", "estudiaron"],
-			"bank": ["ellos", "estudiaron", "estudia", "mucho"]
-		},
-		{
-			"id": "p7",
-			"direction": "en-es",
-			"prompt": "translate",
-			"sentence": "i ate",
-			"answer": ["yo", "comí"],
-			"bank": ["yo", "comí", "como", "pizza"]
-		},
-		{
-			"id": "p8",
-			"direction": "en-es",
-			"prompt": "translate",
-			"sentence": "you learned",
-			"answer": ["tú", "aprendiste"],
-			"bank": ["tú", "aprendiste", "aprende", "rápido"]
-		},
-		{
-			"id": "p9",
-			"direction": "en-es",
-			"prompt": "translate",
-			"sentence": "he wrote",
-			"answer": ["él", "escribió"],
-			"bank": ["él", "escribió", "escribe", "una"]
-		},
-		{
-			"id": "p10",
-			"direction": "en-es",
-			"prompt": "translate",
-			"sentence": "she lived",
-			"answer": ["ella", "vivió"],
-			"bank": ["ella", "vivió", "vive", "aquí"]
-		},
-		{
-			"id": "p11",
-			"direction": "en-es",
-			"prompt": "translate",
-			"sentence": "we opened",
-			"answer": ["nosotros", "abrimos"],
-			"bank": ["nosotros", "abrimos", "abre", "la"]
-		},
-		{
-			"id": "p12",
-			"direction": "en-es",
-			"prompt": "translate",
-			"sentence": "they received",
-			"answer": ["ellos", "recibieron"],
-			"bank": ["ellos", "recibieron", "recibe", "eso"]
-		},
-		{
-			"id": "p13",
-			"direction": "en-es",
-			"prompt": "translate",
-			"sentence": "i watched",
-			"answer": ["yo", "miré"],
-			"bank": ["yo", "miré", "mira", "televisión"]
-		},
-		{
-			"id": "p14",
-			"direction": "en-es",
-			"prompt": "translate",
-			"sentence": "you helped",
-			"answer": ["tú", "ayudaste"],
-			"bank": ["tú", "ayudaste", "ayuda", "mucho"]
-		},
-		{
-			"id": "p15",
-			"direction": "en-es",
-			"prompt": "translate",
-			"sentence": "he bought",
-			"answer": ["él", "compró"],
-			"bank": ["él", "compró", "compra", "eso"]
-		},
-		{
-			"id": "p16",
-			"direction": "en-es",
-			"prompt": "translate",
-			"sentence": "she used",
-			"answer": ["ella", "usó"],
-			"bank": ["ella", "usó", "usa", "mi"]
-		},
-		{
-			"id": "p17",
-			"direction": "en-es",
-			"prompt": "translate",
-			"sentence": "we visited",
-			"answer": ["nosotros", "visitamos"],
-			"bank": ["nosotros", "visitamos", "visita", "la"]
-		},
-		{
-			"id": "p18",
-			"direction": "en-es",
-			"prompt": "translate",
-			"sentence": "they practiced",
-			"answer": ["ellos", "practicaron"],
-			"bank": ["ellos", "practicaron", "practica", "hoy"]
-		},
-		{
-			"id": "p19",
-			"direction": "en-es",
-			"prompt": "translate",
-			"sentence": "i worked",
-			"answer": ["yo", "trabajé"],
-			"bank": ["yo", "trabajé", "trabaja", "ayer"]
-		},
-		{
-			"id": "p20",
-			"direction": "en-es",
-			"prompt": "translate",
-			"sentence": "you spoke",
-			"answer": ["tú", "hablaste"],
-			"bank": ["tú", "hablaste", "habla", "mucho"]
-		},
-		{
-			"id": "p21",
-			"direction": "en-es",
-			"prompt": "translate",
-			"sentence": "he listened",
-			"answer": ["él", "escuchó"],
-			"bank": ["él", "escuchó", "escucha", "música"]
-		},
-		{
-			"id": "p22",
-			"direction": "en-es",
-			"prompt": "translate",
-			"sentence": "she studied",
-			"answer": ["ella", "estudió"],
-			"bank": ["ella", "estudió", "estudia", "mucho"]
-		},
-		{
-			"id": "p23",
-			"direction": "en-es",
-			"prompt": "translate",
-			"sentence": "we ate",
-			"answer": ["nosotros", "comimos"],
-			"bank": ["nosotros", "comimos", "come", "pizza"]
-		},
-		{
-			"id": "p24",
-			"direction": "en-es",
-			"prompt": "translate",
-			"sentence": "they lived",
-			"answer": ["ellos", "vivieron"],
-			"bank": ["ellos", "vivieron", "vive", "aquí"]
-		},
-		{
-			"id": "p25",
-			"direction": "en-es",
-			"prompt": "translate",
-			"sentence": "i wrote",
-			"answer": ["yo", "escribí"],
-			"bank": ["yo", "escribí", "escribe", "una"]
-		},
-		{
-			"id": "p26",
-			"direction": "en-es",
-			"prompt": "translate",
-			"sentence": "you opened",
-			"answer": ["tú", "abriste"],
-			"bank": ["tú", "abriste", "abre", "la"]
-		},
-		{
-			"id": "p27",
-			"direction": "en-es",
-			"prompt": "translate",
-			"sentence": "he received",
-			"answer": ["él", "recibió"],
-			"bank": ["él", "recibió", "recibe", "eso"]
-		},
-		{
-			"id": "p28",
-			"direction": "en-es",
-			"prompt": "translate",
-			"sentence": "she watched",
-			"answer": ["ella", "miró"],
-			"bank": ["ella", "miró", "mira", "televisión"]
-		},
-		{
-			"id": "p29",
-			"direction": "en-es",
-			"prompt": "translate",
-			"sentence": "we helped",
-			"answer": ["nosotros", "ayudamos"],
-			"bank": ["nosotros", "ayudamos", "ayuda", "mucho"]
-		},
-		{
-			"id": "p30",
-			"direction": "en-es",
-			"prompt": "translate",
-			"sentence": "they bought",
-			"answer": ["ellos", "compraron"],
-			"bank": ["ellos", "compraron", "compra", "eso"]
-		}
-	]
+  "title": "Midterm Skills Review",
+  "subtitle": "Practice",
+  "questions": [
+ 
+    {
+      "type": "listen-es-es",
+      "spanish": "yo estoy estudiando ahora",
+      "audio": "yo estoy estudiando ahora",
+      "answer": ["estoy","estudiando","ahora"],
+      "answerAlternates": [["yo","estoy","estudiando","ahora"]],
+      "bank": ["yo","estoy","estudiando","ahora","estamos","estudian","estudiar"]
+    },
+    {
+      "type": "listen-es-es",
+      "spanish": "ella está escribiendo ahora",
+      "audio": "ella está escribiendo ahora",
+      "answer": ["está","escribiendo","ahora"],
+      "answerAlternates": [["ella","está","escribiendo","ahora"]],
+      "bank": ["ella","está","escribiendo","ahora","estoy","escribe","escribir"]
+    },
+    {
+      "type": "listen-es-es",
+      "spanish": "nosotros estamos practicando español ahora",
+      "audio": "nosotros estamos practicando español ahora",
+      "answer": ["estamos","practicando","español","ahora"],
+      "answerAlternates": [["nosotros","estamos","practicando","español","ahora"]],
+      "bank": ["nosotros","estamos","practicando","español","ahora","están","practican","practicar"]
+    },
+    
+    {
+      "type": "listen-es-es",
+      "spanish": "tú estás escuchando ahora",
+      "audio": "tú estás escuchando ahora",
+      "answer": ["estás","escuchando","ahora"],
+      "answerAlternates": [["tú","estás","escuchando","ahora"]],
+      "bank": ["tú","estás","escuchando","ahora","está","escucha","escuchar"]
+    },
+    
+    {
+      "type": "translate-en-es",
+      "sentence": "We are reading now.",
+      "answer": ["estamos","leyendo","ahora"],
+      "answerAlternates": [["nosotros","estamos","leyendo","ahora"]],
+      "bank": ["nosotros","estamos","leyendo","ahora","están","leen","leer"],
+      "audio": "nosotros estamos leyendo ahora"
+    },
+    {
+      "type": "translate-en-es",
+      "sentence": "She is walking to the library now.",
+      "answer": ["está","caminando","a","la","biblioteca","ahora"],
+      "answerAlternates": [["ella","está","caminando","a","la","biblioteca","ahora"]],
+      "bank": ["ella","está","caminando","a","la","biblioteca","ahora","camina","caminar","estoy"],
+      "audio": "ella está caminando a la biblioteca ahora"
+    },
+    {
+      "type": "listen-es-en",
+      "spanish": "ustedes están trabajando ahora",
+      "audio": "ustedes están trabajando ahora",
+      "answer": ["you","all","are","working","now"],
+      "answerAlternates": [["you","are","working","now"]],
+      "bank": ["you","all","are","working","now","we","they","work"]
+    },
+    {
+      "type": "listen-es-en",
+      "spanish": "yo estoy bebiendo agua ahora",
+      "audio": "yo estoy bebiendo agua ahora",
+      "answer": ["i","am","drinking","water","now"],
+      "answerAlternates": [["i","m","drinking","water","now"]],
+      "bank": ["i","am","drinking","water","now","eating","today","we"]
+    },
+    {
+      "type": "translate-es-en",
+      "sentence": "estamos estudiando ahora",
+      "answer": ["we","are","studying","now"],
+      "answerAlternates": [["we","re","studying","now"]],
+      "bank": ["we","are","studying","now","they","study","today"],
+      "audio": "estamos estudiando ahora"
+    },
+    {
+      "type": "translate-es-en",
+      "sentence": "ella está mirando televisión ahora",
+      "answer": ["she","is","watching","tv","now"],
+      "answerAlternates": [["she","s","watching","tv","now"]],
+      "bank": ["she","is","watching","tv","now","reading","in","class"],
+      "audio": "ella está mirando televisión ahora"
+    },
+
+  
+
+    {
+      "type": "listen-es-es",
+      "spanish": "yo hablé con mi amigo",
+      "audio": "yo hablé con mi amigo",
+      "answer": ["hablé","con","mi","amigo"],
+      "answerAlternates": [["yo","hablé","con","mi","amigo"]],
+      "bank": ["yo","hablé","con","mi","amigo","hablo","hablar","amiga"]
+    },
+    {
+      "type": "listen-es-es",
+      "spanish": "ella estudió en la biblioteca",
+      "audio": "ella estudió en la biblioteca",
+      "answer": ["estudió","en","la","biblioteca"],
+      "answerAlternates": [["ella","estudió","en","la","biblioteca"]],
+      "bank": ["ella","estudió","en","la","biblioteca","estudia","estudiar","biblioteco"]
+    },
+    {
+      "type": "translate-en-es",
+      "sentence": "We ate in the cafeteria.",
+      "answer": ["comimos","en","la","cafetería"],
+      "answerAlternates": [["nosotros","comimos","en","la","cafetería"]],
+      "bank": ["nosotros","comimos","en","la","cafetería","comemos","comer","café"],
+      "audio": "nosotros comimos en la cafetería"
+    },
+    {
+      "type": "translate-en-es",
+      "sentence": "They watched a movie.",
+      "answer": ["miraron","una","película"],
+      "answerAlternates": [["ellos","miraron","una","película"]],
+      "bank": ["ellos","miraron","una","película","miran","mirar","películas","el"],
+      "audio": "ellos miraron una película"
+    },
+    {
+      "type": "listen-es-en",
+      "spanish": "tú escribiste tu nombre",
+      "audio": "tú escribiste tu nombre",
+      "answer": ["you","wrote","your","name"],
+      "answerAlternates": [],
+      "bank": ["you","wrote","your","name","write","my","yesterday"]
+    },
+    {
+      "type": "translate-es-en",
+      "sentence": "caminamos a la tienda",
+      "answer": ["we","walked","to","the","store"],
+      "answerAlternates": [],
+      "bank": ["we","walked","to","the","store","go","yesterday","they"],
+      "audio": "caminamos a la tienda"
+    },
+    
+    {
+      "type": "translate-en-es",
+      "sentence": "I worked in my house.",
+      "answer": ["trabajé","en","mi","casa"],
+      "answerAlternates": [["yo","trabajé","en","mi","casa"]],
+      "bank": ["yo","trabajé","en","mi","casa","trabajo","trabajar","su","caso"],
+      "audio": "yo trabajé en mi casa"
+    },
+
+
+
+    {
+      "type": "listen-es-es",
+      "spanish": "yo voy a la escuela con mi amigo",
+      "audio": "yo voy a la escuela con mi amigo",
+      "answer": ["voy","a","la","escuela","con","mi","amigo"],
+      "answerAlternates": [["yo","voy","a","la","escuela","con","mi","amigo"]],
+      "bank": ["yo","voy","a","la","escuela","con","mi","amigo","va","vamos","su"]
+    },
+    {
+      "type": "translate-en-es",
+      "sentence": "She goes to the bathroom.",
+      "answer": ["va","al","baño"],
+      "answerAlternates": [["ella","va","al","baño"]],
+      "bank": ["ella","va","al","baño","voy","ir","a","la"],
+      "audio": "ella va al baño"
+    },
+    {
+      "type": "translate-en-es",
+      "sentence": "We go to the library.",
+      "answer": ["vamos","a","la","biblioteca"],
+      "answerAlternates": [["nosotros","vamos","a","la","biblioteca"]],
+      "bank": ["nosotros","vamos","a","la","biblioteca","van","voy","el","biblioteco"],
+      "audio": "nosotros vamos a la biblioteca"
+    },
+    {
+      "type": "listen-es-en",
+      "spanish": "ellos van a la cafetería",
+      "audio": "ellos van a la cafetería",
+      "answer": ["they","go","to","the","cafeteria"],
+      "answerAlternates": [],
+      "bank": ["they","go","to","the","cafeteria","we","go","yesterday"]
+    },
+
+    
+
+    {
+      "type": "translate-en-es",
+      "sentence": "My book is on your desk.",
+      "answer": ["mi","libro","está","en","tu","escritorio"],
+      "bank": ["mi","libro","está","en","tu","escritorio","mis","tu","libros"],
+      "audio": "mi libro está en tu escritorio"
+    },
+    {
+      "type": "listen-es-es",
+      "spanish": "tu lápiz está en mi mochila",
+      "audio": "tu lápiz está en mi mochila",
+      "answer": ["tu","lápiz","está","en","mi","mochila"],
+      "bank": ["tu","lápiz","está","en","mi","mochila","mis","tu","mochilas"]
+    },
+    {
+      "type": "translate-en-es",
+      "sentence": "Our teacher is in the classroom.",
+      "answer": ["nuestro","profesor","está","en","el","salón"],
+      "answerAlternates": [["nuestra","profesora","está","en","el","salón"]],
+      "bank": ["nuestro","profesor","nuestra","profesora","está","en","el","salón","mi","su"],
+      "audio": "nuestro profesor está en el salón"
+    },
+    
+    {
+      "type": "translate-en-es",
+      "sentence": "Who is in the classroom?",
+      "answer": ["quién","está","en","el","salón"],
+      "bank": ["quién","está","en","el","salón","qué","dónde","son"],
+      "audio": "quién está en el salón"
+    },
+    {
+      "type": "translate-en-es",
+      "sentence": "Where is the library?",
+      "answer": ["dónde","está","la","biblioteca"],
+      "bank": ["dónde","está","la","biblioteca","qué","quién","el"],
+      "audio": "dónde está la biblioteca"
+    },
+    {
+      "type": "listen-es-es",
+      "spanish": "yo tengo mi libro",
+      "audio": "yo tengo mi libro",
+      "answer": ["tengo","mi","libro"],
+      "answerAlternates": [["yo","tengo","mi","libro"]],
+      "bank": ["yo","tengo","mi","libro","tiene","tener","mis","libros"]
+    },
+    {
+      "type": "listen-es-es",
+      "spanish": "ella tiene tu lápiz",
+      "audio": "ella tiene tu lápiz",
+      "answer": ["tiene","tu","lápiz"],
+      "answerAlternates": [["ella","tiene","tu","lápiz"]],
+      "bank": ["ella","tiene","tu","lápiz","tengo","tener","mi","lápices"]
+    },
+    {
+      "type": "translate-en-es",
+      "sentence": "I understand because I listen.",
+      "answer": ["entiendo","porque","escucho"],
+      "answerAlternates": [["yo","entiendo","porque","escucho"]],
+      "bank": ["yo","entiendo","porque","escucho","entender","escuchar","pero","hablo"],
+      "audio": "yo entiendo porque escucho"
+    }
+  ]
 }
