@@ -4,6 +4,36 @@
   "questions": [
     {
       "type": "table-select",
+      "prompt": "Click the pronoun for 'we'.",
+      "tiles": [
+        "yo",
+        "nosotros",
+        "tú",
+        "vosotros",
+        "él / ella / usted",
+        "ellos / ellas / ustedes"
+      ],
+      "gridRows": 3,
+      "gridCols": 2,
+      "correctTile": "nosotros"
+    },
+    {
+      "type": "table-select",
+      "prompt": "In the present tense, which ending matches 'nosotros'?",
+      "tiles": [
+        "-o",
+        "-amos",
+        "-as",
+        "-áis",
+        "-a",
+        "-an"
+      ],
+      "gridRows": 3,
+      "gridCols": 2,
+      "correctTile": "-amos"
+    },
+    {
+      "type": "table-select",
       "prompt": "Click the pronoun for 'I'.",
       "tiles": [
         "yo",
@@ -31,36 +61,6 @@
       "gridRows": 3,
       "gridCols": 2,
       "correctTile": "-o"
-    },
-    {
-      "type": "table-select",
-      "prompt": "Click the pronoun for 'you'.",
-      "tiles": [
-        "yo",
-        "nosotros",
-        "tú",
-        "vosotros",
-        "él / ella / usted",
-        "ellos / ellas / ustedes"
-      ],
-      "gridRows": 3,
-      "gridCols": 2,
-      "correctTile": "tú"
-    },
-    {
-      "type": "table-select",
-      "prompt": "In the present tense, which ending matches 'tú'?",
-      "tiles": [
-        "-o",
-        "-amos",
-        "-as",
-        "-áis",
-        "-a",
-        "-an"
-      ],
-      "gridRows": 3,
-      "gridCols": 2,
-      "correctTile": "-as"
     },
     {
       "type": "table-select",
@@ -94,36 +94,6 @@
     },
     {
       "type": "table-select",
-      "prompt": "Click the pronoun for 'we'.",
-      "tiles": [
-        "yo",
-        "nosotros",
-        "tú",
-        "vosotros",
-        "él / ella / usted",
-        "ellos / ellas / ustedes"
-      ],
-      "gridRows": 3,
-      "gridCols": 2,
-      "correctTile": "nosotros"
-    },
-    {
-      "type": "table-select",
-      "prompt": "In the present tense, which ending matches 'nosotros'?",
-      "tiles": [
-        "-o",
-        "-amos",
-        "-as",
-        "-áis",
-        "-a",
-        "-an"
-      ],
-      "gridRows": 3,
-      "gridCols": 2,
-      "correctTile": "-amos"
-    },
-    {
-      "type": "table-select",
       "prompt": "Click the pronoun for 'y'all'.",
       "tiles": [
         "yo",
@@ -151,6 +121,36 @@
       "gridRows": 3,
       "gridCols": 2,
       "correctTile": "-áis"
+    },
+    {
+      "type": "table-select",
+      "prompt": "Click the pronoun for 'you'.",
+      "tiles": [
+        "yo",
+        "nosotros",
+        "tú",
+        "vosotros",
+        "él / ella / usted",
+        "ellos / ellas / ustedes"
+      ],
+      "gridRows": 3,
+      "gridCols": 2,
+      "correctTile": "tú"
+    },
+    {
+      "type": "table-select",
+      "prompt": "In the present tense, which ending matches 'tú'?",
+      "tiles": [
+        "-o",
+        "-amos",
+        "-as",
+        "-áis",
+        "-a",
+        "-an"
+      ],
+      "gridRows": 3,
+      "gridCols": 2,
+      "correctTile": "-as"
     },
     {
       "type": "table-select",
