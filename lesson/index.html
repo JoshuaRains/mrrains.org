@@ -6,8 +6,9 @@
 	<title>Lesson Demo</title>
 
 	<style>
+		@import url("https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,700,0,0");
+
 		:root{
-			/* Dark Duolingo-ish */
 			--bg:#0f1b22;
 			--panel:#12232b;
 			--panel2:#0f2027;
@@ -18,9 +19,7 @@
 			--muted2:rgba(233,240,246,.55);
 
 			--green:#58cc02;
-			--green2:#4fb301;
 			--red:#ff4b4b;
-			--red2:#e23e3e;
 			--blue:#1cb0f6;
 
 			--radius:18px;
@@ -34,18 +33,25 @@
 		body{
 			margin:0;
 			font-family:var(--font);
-			background:var(--bg); /* CLEAN: no gradients */
+			background:var(--bg);
 			color:var(--text);
+		}
+
+		.material-symbols-rounded{
+			font-variation-settings: "FILL" 0, "wght" 700, "GRAD" 0, "opsz" 24;
+			font-size:22px;
+			line-height:1;
+			color:rgba(233,240,246,.90);
+			user-select:none;
 		}
 
 		#appView{
 			min-height:100vh;
 			display:flex;
 			flex-direction:column;
-			padding-bottom:120px; /* space for bottom sheet */
+			padding-bottom:120px;
 		}
 
-		/* ======= TOP BAR ======= */
 		header{
 			display:flex;
 			align-items:center;
@@ -55,22 +61,24 @@
 		.topbar{
 			width:min(980px, 100%);
 			display:grid;
-			grid-template-columns: 120px 1fr 160px;
+			grid-template-columns: 112px 1fr 112px;
 			align-items:center;
 			gap:14px;
 		}
+
 		.leftControls{
 			display:flex;
 			align-items:center;
+			justify-content:flex-end;
 			gap:10px;
-			opacity:.9;
+			opacity:.95;
 		}
 
 		.iconBtn{
 			width:36px; height:36px;
 			border-radius:12px;
-			border:none;                /* removed */
-			background:transparent;     /* transparent */
+			border:none;
+			background:transparent;
 			display:grid; place-items:center;
 			cursor:pointer;
 			transition:transform .08s ease, background .15s ease;
@@ -79,8 +87,21 @@
 		.iconBtn:active{transform:translateY(1px)}
 		.iconBtn svg{opacity:.85}
 
+		.historyBtn{
+			width:36px; height:36px;
+			border-radius:999px;
+			border:1px solid rgba(88,204,2,.25);
+			background:rgba(88,204,2,.12);
+			display:grid; place-items:center;
+			cursor:pointer;
+			transition:transform .08s ease, background .15s ease, border-color .15s ease;
+		}
+		.historyBtn:hover{background:rgba(88,204,2,.16); border-color:rgba(88,204,2,.34)}
+		.historyBtn:active{transform:translateY(1px)}
+
 		.progressWrap{
 			display:flex; align-items:center; gap:12px;
+			min-width:0;
 		}
 		.progressTrack{
 			height:14px;
@@ -89,6 +110,7 @@
 			border:1px solid var(--line);
 			overflow:hidden;
 			position:relative;
+			width:100%;
 		}
 		.progressFill{
 			height:100%;
@@ -101,25 +123,245 @@
 		.rightMeta{
 			display:flex;
 			align-items:center;
-			justify-content:flex-end;
+			justify-content:flex-start;
 			gap:10px;
 		}
 
-		.printBtn{
+		.printIconBtn,.infoBtn{
+			width:38px; height:38px;
 			border-radius:999px;
-			padding:10px 14px;
 			border:1px solid var(--line);
 			background:rgba(255,255,255,.03);
-			color:rgba(233,240,246,.80);
-			font-weight:900;
+			display:grid; place-items:center;
 			cursor:pointer;
-			transition:background .15s ease, border-color .15s ease, transform .08s ease;
-			white-space:nowrap;
+			transition:transform .08s ease, background .15s ease, border-color .15s ease;
 		}
-		.printBtn:hover{background:rgba(255,255,255,.05); border-color:var(--line2)}
-		.printBtn:active{transform:translateY(1px)}
+		.printIconBtn:hover,.infoBtn:hover{background:rgba(255,255,255,.05); border-color:var(--line2)}
+		.printIconBtn:active,.infoBtn:active{transform:translateY(1px)}
+		.infoBtn:disabled{
+			opacity:.35;
+			cursor:not-allowed;
+		}
+		.infoBtn:disabled:hover{
+			background:rgba(255,255,255,.03);
+			border-color:var(--line);
+		}
 
-		/* ======= MAIN ======= */
+		.historyOverlay{
+			position:fixed;
+			inset:0;
+			background:rgba(0,0,0,.35);
+			opacity:0;
+			pointer-events:none;
+			transition:opacity .22s ease;
+			z-index:40;
+		}
+		.historyOverlay.open{
+			opacity:1;
+			pointer-events:auto;
+		}
+
+		.historyPanel{
+			position:fixed;
+			top:0; left:0; bottom:0;
+			width:min(420px, 88vw);
+			background:rgba(15,27,34,.98);
+			border-right:1px solid rgba(255,255,255,.08);
+			transform:translateX(-102%);
+			transition:transform .28s ease;
+			z-index:50;
+			display:flex;
+			flex-direction:column;
+		}
+		.historyPanel.open{ transform:translateX(0); }
+
+		.historyHeader{
+			padding:16px 16px 12px;
+			display:flex;
+			align-items:center;
+			justify-content:space-between;
+			gap:10px;
+			border-bottom:1px solid rgba(255,255,255,.08);
+		}
+		.historyTitle{
+			font-weight:1000;
+			letter-spacing:.01em;
+			font-size:14px;
+			color:rgba(233,240,246,.92);
+			text-transform:uppercase;
+		}
+		.historyClose{
+			width:34px;height:34px;
+			border-radius:12px;
+			border:none;
+			background:rgba(255,255,255,.06);
+			color:rgba(233,240,246,.85);
+			cursor:pointer;
+			display:grid;
+			place-items:center;
+		}
+		.historyClose:hover{background:rgba(255,255,255,.09)}
+		.historyClose:active{transform:translateY(1px)}
+
+		.historyList{
+			padding:10px 12px 14px;
+			overflow:auto;
+			display:flex;
+			flex-direction:column;
+			gap:8px;
+		}
+		.historyItem{
+			border:1px solid rgba(255,255,255,.10);
+			background:rgba(255,255,255,.03);
+			border-radius:14px;
+			padding:10px 10px;
+			display:flex;
+			gap:10px;
+			align-items:flex-start;
+		}
+		.historyMetaLine{
+			display:flex;
+			gap:10px;
+			align-items:center;
+			margin-bottom:4px;
+			flex-wrap:wrap;
+		}
+		.historyQ{
+			font-weight:1000;
+			color:rgba(233,240,246,.92);
+		}
+		.historyEn{
+			opacity:.75;
+			font-weight:850;
+			line-height:1.1;
+		}
+		.historyAns{
+			color:rgba(233,240,246,.80);
+			font-weight:850;
+			line-height:1.25;
+			word-break:break-word;
+		}
+
+		.statusCircle{
+			width:26px; height:26px;
+			border-radius:999px;
+			display:grid;
+			place-items:center;
+			flex:0 0 auto;
+			border:1px solid rgba(255,255,255,.12);
+			background:rgba(255,255,255,.04);
+			margin-top:2px;
+		}
+		.statusCircle.correct{
+			border-color:rgba(88,204,2,.25);
+			background:rgba(88,204,2,.12);
+		}
+		.statusCircle.wrong{
+			border-color:rgba(255,75,75,.25);
+			background:rgba(255,75,75,.12);
+		}
+		.statusCircle svg{opacity:.95}
+
+		.infoOverlay{
+			position:fixed;
+			inset:0;
+			background:rgba(0,0,0,.35);
+			opacity:0;
+			pointer-events:none;
+			transition:opacity .22s ease;
+			z-index:35;
+		}
+		.infoOverlay.open{
+			opacity:1;
+			pointer-events:auto;
+		}
+
+		.infoPanel{
+			position:fixed;
+			left:0; right:0;
+			bottom:0px;
+			height:calc(100vh - 260px);
+			max-height:560px;
+			background:rgba(15,27,34,.98);
+			border-top:1px solid rgba(255,255,255,.10);
+			transform:translateY(calc(100% + 140px));
+			opacity:0;
+			pointer-events:none;
+			transition:transform .28s ease, opacity .18s ease;
+			z-index:45;
+			display:flex;
+			flex-direction:column;
+		}
+
+		.infoPanel.open{
+			transform:translateY(0);
+			opacity:1;
+			pointer-events:auto;
+		}
+
+		.infoHeader{
+			padding:12px 16px;
+			display:flex;
+			align-items:center;
+			justify-content:space-between;
+			gap:10px;
+			border-bottom:1px solid rgba(255,255,255,.08);
+		}
+		.infoTitle{
+			font-weight:1000;
+			letter-spacing:.01em;
+			font-size:14px;
+			color:rgba(233,240,246,.92);
+			text-transform:uppercase;
+		}
+		.infoClose{
+			width:34px;height:34px;
+			border-radius:12px;
+			border:none;
+			background:rgba(255,255,255,.06);
+			color:rgba(233,240,246,.85);
+			cursor:pointer;
+			display:grid;
+			place-items:center;
+		}
+		.infoClose:hover{background:rgba(255,255,255,.09)}
+		.infoClose:active{transform:translateY(1px)}
+		.infoBody{
+			padding:14px 16px 18px;
+			overflow:auto;
+			color:rgba(233,240,246,.85);
+			font-weight:800;
+			line-height:1.35;
+		}
+		.infoPlaceholder{
+			opacity:.75;
+			font-weight:850;
+		}
+		.infoBody iframe{
+			width:100%;
+			height:100%;
+			border:none;
+		}
+		.infoBody h1,.infoBody h2,.infoBody h3,.infoBody h4{
+			margin-top:0;
+			color:rgba(233,240,246,.96);
+		}
+		.infoBody p{margin:0 0 12px}
+		.infoBody ul,.infoBody ol{padding-left:22px}
+		.infoBody img{
+			max-width:100%;
+			height:auto;
+			border-radius:12px;
+		}
+		.infoBody table{
+			width:100%;
+			border-collapse:collapse;
+		}
+		.infoBody td,.infoBody th{
+			border:1px solid rgba(255,255,255,.12);
+			padding:8px 10px;
+		}
+
 		main{
 			flex:1;
 			display:flex;
@@ -153,6 +395,15 @@
 			font-weight:900;
 			color:var(--text);
 		}
+		#lessonPrompt .promptPrefix{
+			font-size:18px !important;
+			font-weight:900;
+			opacity:0.9;
+			margin-right:10px;
+			letter-spacing:.01em;
+			white-space:nowrap;
+			display:inline-block;
+		}
 
 		.audioRow{
 			margin-top:10px;
@@ -170,50 +421,51 @@
 			cursor:pointer;
 			display:flex;
 			align-items:center;
-			gap:12px;
+			justify-content:center;
 			transition:transform .08s ease, background .15s ease, border-color .15s ease;
-			box-shadow:none; /* CLEAN: remove glow */
+			box-shadow:none;
+			font-weight:1000;
+			min-width:56px;
 		}
 		.audioBtn:active{transform:translateY(1px)}
 		.audioBtn:hover{background:rgba(28,176,246,.20); border-color:rgba(28,176,246,.34)}
-		.audioBtn .soundIcon{width:22px; height:22px;}
-		.audioBtn.small{padding:14px 14px; border-radius:16px; opacity:.92;}
+		.audioBtn.small{padding:14px 14px; border-radius:16px; opacity:.92; min-width:52px;}
 		.audioBtn[disabled]{opacity:.35; cursor:not-allowed;}
+		.audioBtn.isHidden{
+			visibility:hidden;
+			pointer-events:none;
+			cursor:default;
+		}
 
 		.answerArea{
 			width:min(760px, 100%);
 			margin-top:22px;
-			padding:0;               /* no boxed padding */
-			border-radius:0;
-			background:transparent;  /* remove box */
-			border:none;             /* remove border */
+			padding:0;
+			background:transparent;
+			border:none;
+		}
+		.answerArea.hidden{
+			display:none;
 		}
 
-		/* Rails container */
 		.answerLines{
 			display:flex;
 			flex-direction:column;
-			gap:18px;          /* space between rails */
-			padding:10px 6px;  /* light breathing room */
+			gap:18px;
+			padding:10px 6px;
 		}
-
-		/* Each rail: a thin line positioned so tiles "sit" on it */
 		.answerLine{
 			height:0;
 			border-top:2px solid rgba(255,255,255,.16);
-			border-radius:0;
 			background:transparent;
-			/* Place the line under where tiles rest */
-			margin-top:38px;   /* tune: should land near tile bottom */
+			margin-top:38px;
 		}
-
-		/* Put tiles on top of the rails with room for two rows */
 		.answerTiles{
-			margin-top:-115px;  /* pulls tiles up so they sit on rails */
+			margin-top:-115px;
 			display:flex;
 			flex-wrap:wrap;
 			gap:10px;
-			min-height:110px;  /* enough for ~2 tile rows */
+			min-height:110px;
 			align-content:flex-start;
 			padding:0 6px;
 		}
@@ -230,6 +482,7 @@
 			justify-content:center;
 			gap:10px;
 			padding:10px 6px;
+			width:100%;
 		}
 
 		.tile{
@@ -237,18 +490,13 @@
 			cursor:pointer;
 			padding:10px 14px;
 			border-radius:var(--tileRadius);
-
-			/* top/sides border */
 			border:1px solid rgba(255,255,255,.14);
-
-			/* 3D bottom edge (2px) */
 			border-bottom:2px solid rgba(255,255,255,.22);
-
 			background:rgba(255,255,255,.03);
 			color:rgba(233,240,246,.95);
 			font-weight:800;
 			letter-spacing:.01em;
-			transition:transform .08s ease, background .15s ease, border-color .15s ease;
+			transition:transform .08s ease, background .15s ease, border-color .15s ease, box-shadow .15s ease;
 			box-shadow:none;
 		}
 		.tile:hover{
@@ -261,8 +509,31 @@
 			opacity:.45;
 			cursor:not-allowed;
 		}
+		.tile.selected{
+			background:rgba(28,176,246,.18);
+			border-color:rgba(28,176,246,.34);
+			border-bottom-color:rgba(28,176,246,.44);
+			box-shadow:0 0 0 2px rgba(28,176,246,.18) inset;
+		}
 
-		/* ======= BOTTOM SHEET (Duolingo-style feedback) ======= */
+		.gridTiles{
+			display:grid;
+			width:min(760px, 100%);
+			gap:10px;
+			padding:10px 6px;
+		}
+		.gridTile{
+			min-height:64px;
+			display:flex;
+			align-items:center;
+			justify-content:center;
+			text-align:center;
+			white-space:normal;
+			line-height:1.2;
+			padding:12px 10px;
+			font-size:15px;
+		}
+
 		.bottomSheet{
 			position:fixed;
 			left:0; right:0; bottom:0;
@@ -271,6 +542,7 @@
 			padding:14px 18px 16px;
 			border-top:1px solid rgba(255,255,255,.06);
 			background:rgba(15,27,34,.98);
+			z-index:10;
 		}
 
 		.sheetInner{
@@ -318,23 +590,16 @@
 			line-height:1.25;
 		}
 
-		/* states */
 		.bottomSheet.answering .sheetLeft{opacity:0; pointer-events:none;}
 		.bottomSheet.answering .sheetIcon{display:none;}
 		.bottomSheet.answering .sheetText{display:none;}
 
-		.bottomSheet.correct{
-			background:rgba(15,27,34,.98);
-		}
 		.bottomSheet.correct .sheetTitle{color:rgba(88,204,2,.95);}
 		.bottomSheet.correct .sheetIcon{
 			border-color:rgba(88,204,2,.25);
 			background:rgba(88,204,2,.12);
 		}
 
-		.bottomSheet.wrong{
-			background:rgba(15,27,34,.98);
-		}
 		.bottomSheet.wrong .sheetTitle{color:rgba(255,75,75,.95);}
 		.bottomSheet.wrong .sheetIcon{
 			border-color:rgba(255,75,75,.25);
@@ -364,7 +629,6 @@
 		.sheetBtn:active{transform:translateY(1px)}
 		.sheetBtn:disabled{opacity:.35; cursor:not-allowed}
 
-		/* When feedback is showing, button becomes WHITE and says NEXT (like Duo) */
 		.bottomSheet.correct .sheetBtn,
 		.bottomSheet.wrong .sheetBtn,
 		.bottomSheet.done .sheetBtn{
@@ -373,27 +637,52 @@
 			color:#0f1b22;
 		}
 
-		/* ======= PRINT VIEW (HIDDEN ONSCREEN) ======= */
+		.encourageWrap{
+			position:fixed;
+			left:max(20px, calc(50% - 470px));
+			bottom:90px;
+			width:170px;
+			height:150px;
+			pointer-events:none;
+			overflow:hidden;
+			z-index:9;
+		}
+		.encourageGif{
+			position:absolute;
+			left:0;
+			bottom:-170px;
+			width:150px;
+			height:auto;
+			opacity:0;
+			filter:drop-shadow(0 10px 18px rgba(0,0,0,.28));
+		}
+		.encourageGif.play{
+			animation:catPeek 2.1s ease-in-out forwards;
+		}
+		.gridTile.singleChar{
+	font-size:30px;
+	line-height:1;
+}
+		@keyframes catPeek{
+			0%{
+				transform:translateY(0);
+				opacity:0;
+			}
+			15%{
+				transform:translateY(-118px);
+				opacity:1;
+			}
+			58%{
+				transform:translateY(-118px);
+				opacity:1;
+			}
+			100%{
+				transform:translateY(0);
+				opacity:0;
+			}
+		}
+
 		#printView{display:none;}
-		#lessonPrompt .promptPrefix{
-	font-size:18px !important; /* slightly smaller than 26px */
-	font-weight:900;
-	opacity:0.9;
-	margin-right:3px;
-	letter-spacing:.01em;
-	white-space:nowrap;
-	display:inline-block;
-}
-/* ADD these styles */
-.audioBtn.isHidden{
-	visibility:hidden;   /* keeps spacing/layout exactly the same */
-	pointer-events:none; /* no hover/click */
-	cursor:default;      /* no pointer cursor */
-}
-.audioBtn.isHidden:hover{
-	background:rgba(28,176,246,.16); /* prevent hover visual */
-	border-color:rgba(28,176,246,.25);
-}
 
 		@media print{
 			:root{
@@ -412,6 +701,7 @@
 			}
 
 			#appView{display:none !important;}
+			.historyPanel,.historyOverlay,.infoPanel,.infoOverlay,.encourageWrap{display:none !important;}
 
 			#printView{
 				display:block !important;
@@ -527,17 +817,43 @@
 				border-bottom:1.5px solid var(--paperLine);
 				height:16px;
 			}
-
-
 		}
 	</style>
 </head>
 
 <body>
+	<div class="historyOverlay" id="historyOverlay" aria-hidden="true"></div>
+	<aside class="historyPanel" id="historyPanel" aria-label="Responses panel">
+		<div class="historyHeader">
+			<div class="historyTitle">Your responses</div>
+			<button class="historyClose" id="historyClose" type="button" aria-label="Close responses">
+				<span class="material-symbols-rounded" aria-hidden="true">close</span>
+			</button>
+		</div>
+		<div class="historyList" id="historyList"></div>
+	</aside>
+
+	<div class="infoOverlay" id="infoOverlay" aria-hidden="true"></div>
+	<section class="infoPanel" id="infoPanel" aria-label="Info panel">
+		<div class="infoHeader">
+			<div class="infoTitle" id="infoTitle">Extra info</div>
+			<button class="infoClose" id="infoClose" type="button" aria-label="Close info">
+				<span class="material-symbols-rounded" aria-hidden="true">close</span>
+			</button>
+		</div>
+		<div class="infoBody" id="infoBody">
+			<div class="infoPlaceholder">No content loaded.</div>
+		</div>
+	</section>
+
 	<div id="appView">
 		<header>
 			<div class="topbar">
 				<div class="leftControls">
+					<button class="historyBtn" id="historyBtn" title="Responses" aria-label="Responses">
+						<span class="material-symbols-rounded" aria-hidden="true">list</span>
+					</button>
+
 					<button class="iconBtn" id="closeBtn" title="Exit" aria-label="Exit">
 						<svg width="16" height="16" viewBox="0 0 24 24" fill="none">
 							<path d="M6 6L18 18M18 6L6 18" stroke="white" stroke-width="2" stroke-linecap="round" opacity=".75"/>
@@ -546,13 +862,19 @@
 				</div>
 
 				<div class="progressWrap">
-					<div class="progressTrack" style="width:100%">
+					<div class="progressTrack">
 						<div class="progressFill" id="progressFill"></div>
 					</div>
 				</div>
 
 				<div class="rightMeta">
-					<button class="printBtn" id="printBtn" title="Print / Save PDF">Print / Save PDF</button>
+					<button class="infoBtn" id="infoBtn" type="button" title="Info" aria-label="Info">
+						<span class="material-symbols-rounded" aria-hidden="true">info</span>
+					</button>
+
+					<button class="printIconBtn" id="printBtn" type="button" title="Print / Save PDF" aria-label="Print / Save PDF">
+						<span class="material-symbols-rounded" aria-hidden="true">print</span>
+					</button>
 				</div>
 			</div>
 		</header>
@@ -565,15 +887,15 @@
 
 					<div class="audioRow">
 						<button class="audioBtn" id="audioBtn" type="button" title="Listen">
-							<img class="soundIcon" src="../assets/sound.svg" alt="" />
+							<span aria-hidden="true">🐇</span>
 						</button>
 						<button class="audioBtn small" id="audioSlowBtn" type="button" title="Slow">
-							<img class="soundIcon" src="../assets/sound.svg" alt="" style="opacity:.85; transform:scale(.9)" />
+							<span aria-hidden="true">🐢</span>
 						</button>
 					</div>
 				</div>
 
-				<div class="answerArea">
+				<div class="answerArea" id="answerArea">
 					<div class="answerLines" aria-hidden="true">
 						<div class="answerLine"></div>
 						<div class="answerLine"></div>
@@ -602,6 +924,10 @@
 		</div>
 	</div>
 
+	<div class="encourageWrap" aria-hidden="true">
+		<img class="encourageGif" id="encourageGif" src="" alt="">
+	</div>
+
 	<div id="printView"></div>
 
 	<script>
@@ -613,6 +939,7 @@
 			lessonPrompt: document.getElementById("lessonPrompt"),
 			bankTiles: document.getElementById("bankTiles"),
 			answerTiles: document.getElementById("answerTiles"),
+			answerArea: document.getElementById("answerArea"),
 			progressFill: document.getElementById("progressFill"),
 			printBtn: document.getElementById("printBtn"),
 			printView: document.getElementById("printView"),
@@ -625,7 +952,22 @@
 			sheetIcon: document.getElementById("sheetIcon"),
 			sheetTitle: document.getElementById("sheetTitle"),
 			sheetBody: document.getElementById("sheetBody"),
-			mainBtn: document.getElementById("mainBtn")
+			mainBtn: document.getElementById("mainBtn"),
+
+			historyBtn: document.getElementById("historyBtn"),
+			historyPanel: document.getElementById("historyPanel"),
+			historyOverlay: document.getElementById("historyOverlay"),
+			historyClose: document.getElementById("historyClose"),
+			historyList: document.getElementById("historyList"),
+
+			infoBtn: document.getElementById("infoBtn"),
+			infoOverlay: document.getElementById("infoOverlay"),
+			infoPanel: document.getElementById("infoPanel"),
+			infoClose: document.getElementById("infoClose"),
+			infoTitle: document.getElementById("infoTitle"),
+			infoBody: document.getElementById("infoBody"),
+
+			encourageGif: document.getElementById("encourageGif")
 		};
 
 		let lesson = null;
@@ -634,19 +976,84 @@
 		let mastered = new Set();
 		let currentIndex = null;
 
-		let chosen = []; // strings
-		let bank = [];   // {text, used}
-		let mode = "answering"; // "answering" | "feedback" | "done"
-		let lastResult = null;  // "correct" | "wrong" | null
+		let chosen = [];
+		let bank = [];
+		let mode = "answering";
+		let lastResult = null;
 
-		// Audio
+		let responseHistory = [];
+
 		const AUDIO_DIR = "./audio";
 		const AUDIO_EXTS = ["mp3","wav","ogg","m4a"];
 		const audioCache = new Map();
 		let currentSentenceAudioKey = null;
 
-		// NEW: only play audio for Spanish tiles (not English)
 		let canPlayTileAudio = true;
+		let currentlyPlayingAudio = null;
+
+		let lessonPath = "./lesson.json";
+		let stateKey = null;
+
+		let selectedGridIndex = null;
+
+		const ENCOURAGE_GIFS = [
+			"./cats/oeeaee.gif",
+			"./cats/yippee.gif",
+			"./cats/maxwell.gif",
+			"./cats/cronch.gif"
+		];
+
+		function getLessonPathFromUrl(){
+	const url = new URL(window.location.href);
+	const l = url.searchParams.get("l");
+
+	if(l && l.trim()){
+		return `./lessons/${l.trim()}.json`;
+	}
+
+	return "./lessons/lesson.json";
+}
+
+		function makeStateKey(path){
+			return "duoCloneState::" + encodeURIComponent(path);
+		}
+
+		function saveState(){
+			if(!stateKey) return;
+
+			const payload = {
+				version: 2,
+				lessonPath,
+				queue,
+				mastered: Array.from(mastered),
+				currentIndex,
+				mode,
+				lastResult,
+				chosen,
+				selectedGridIndex,
+				responseHistory
+			};
+
+			try{
+				localStorage.setItem(stateKey, JSON.stringify(payload));
+			}catch(_e){}
+		}
+
+		function loadState(){
+			if(!stateKey) return null;
+			try{
+				const raw = localStorage.getItem(stateKey);
+				if(!raw) return null;
+				return JSON.parse(raw);
+			}catch(_e){
+				return null;
+			}
+		}
+
+		function clearState(){
+			if(!stateKey) return;
+			try{ localStorage.removeItem(stateKey); }catch(_e){}
+		}
 
 		function shuffle(arr){
 			const a = arr.slice();
@@ -668,6 +1075,11 @@
 				}
 			}
 			return out.join(" ").trim();
+		}
+
+		function tokensToText(tokens){
+			if(!Array.isArray(tokens)) return "";
+			return normalizeTokens(tokens);
 		}
 
 		function setProgress(){
@@ -767,113 +1179,289 @@
 			return a;
 		}
 
-		// 3) Make audio always stop any previous audio:
-//    A) ADD this near your audio vars:
-let currentlyPlayingAudio = null;
+		async function playAudioKey(key, { rate=1.0 } = {}){
+			const a = await getAudioForKey(key);
+			if(!a) return;
 
-//    B) REPLACE playAudioKey() with this version:
-async function playAudioKey(key, { rate=1.0 } = {}){
-	const a = await getAudioForKey(key);
-	if(!a) return;
+			try{
+				if(currentlyPlayingAudio && currentlyPlayingAudio !== a){
+					currentlyPlayingAudio.pause();
+					currentlyPlayingAudio.currentTime = 0;
+				}
+				a.pause();
+				a.currentTime = 0;
+				a.playbackRate = rate;
 
-	try{
-		// Stop any other audio that might be playing (sentence or tile).
-		if(currentlyPlayingAudio && currentlyPlayingAudio !== a){
-			currentlyPlayingAudio.pause();
-			currentlyPlayingAudio.currentTime = 0;
+				currentlyPlayingAudio = a;
+				await a.play();
+			}catch(_e){}
 		}
 
-		// Restart this audio cleanly.
-		a.pause();
-		a.currentTime = 0;
-		a.playbackRate = rate;
-
-		currentlyPlayingAudio = a;
-		await a.play();
-	}catch(_e){}
-}
-
-		// 1) REPLACE your getQuestionSpec(q) with this version
-function getQuestionSpec(q){
-	const type = (q && q.type) ? String(q.type) : "translate-en-es";
-
-	let effectiveType = type;
-	if(!q.type && q && q.direction){
-		if(q.direction === "es-en") effectiveType = "translate-es-en";
-		else if(q.direction === "en-es") effectiveType = "translate-en-es";
-	}
-
-	if(effectiveType === "translate-es-en"){
-		const spanishText = q.sentence || "";
-		const audioSource = q.audio ? q.audio : spanishText;
-		return {
-			type: effectiveType,
-			badge: "ES → EN",
-			promptText: spanishText,
-			showSentence: true,
-			audioKey: audioSource ? safeAudioNameFromText(audioSource) : null,
-			audioRequired: false,
-			tileLanguage: "en"
-		};
-	}
-
-	if(effectiveType === "listen-es-en"){
-		const spanishText = q.spanish || q.sentence || "";
-		const audioSource = q.audio ? q.audio : spanishText;
-		return {
-			type: effectiveType,
-			badge: "LISTEN ES → EN",
-			promptText: "Listen and build the English translation.",
-			showSentence: true,
-			audioKey: audioSource ? safeAudioNameFromText(audioSource) : null,
-			audioRequired: true,
-			tileLanguage: "en"
-		};
-	}
-
-	if(effectiveType === "listen-es-es"){
-		const spanishText = q.spanish || q.sentence || "";
-		const audioSource = q.audio ? q.audio : spanishText;
-		return {
-			type: effectiveType,
-			// CHANGED: print badge should be just "LISTEN"
-			badge: "LISTEN",
-			promptText: "Listen and build the Spanish sentence.",
-			showSentence: true,
-			audioKey: audioSource ? safeAudioNameFromText(audioSource) : null,
-			audioRequired: true,
-			tileLanguage: "es"
-		};
-	}
-
-	// Default: translate-en-es
-	{
-		const englishText = q.sentence || "";
-		const audioSource = q.audio ? q.audio : (q.spanish || q.sentence || "");
-		return {
-			type: "translate-en-es",
-			badge: "EN → ES",
-			promptText: englishText,
-			showSentence: true,
-			audioKey: audioSource ? safeAudioNameFromText(audioSource) : null,
-			audioRequired: false,
-			tileLanguage: "es"
-		};
-	}
-}
-
-		function setAudioButtonsEnabled(enabled){
-			els.audioBtn.disabled = !enabled;
-			els.audioSlowBtn.disabled = !enabled;
+		function escapeHtml(s){
+			return String(s)
+				.replaceAll("&","&amp;")
+				.replaceAll("<","&lt;")
+				.replaceAll(">","&gt;")
+				.replaceAll('"',"&quot;")
+				.replaceAll("'","&#039;");
 		}
 
-function setAudioButtonsVisible(visible){
-	const method = visible ? "remove" : "add";
-	els.audioBtn.classList[method]("isHidden");
-	els.audioSlowBtn.classList[method]("isHidden");
-}
+		function getQuestionSpec(q){
+			const type = (q && q.type) ? String(q.type) : "translate-en-es";
 
-		function rebuildTiles(){
+			let effectiveType = type;
+			if(!q.type && q && q.direction){
+				if(q.direction === "es-en") effectiveType = "translate-es-en";
+				else if(q.direction === "en-es") effectiveType = "translate-en-es";
+			}
+
+			if(effectiveType === "translate-es-en"){
+				const spanishText = q.sentence || "";
+				const audioSource = q.audio ? q.audio : spanishText;
+				return {
+					type: effectiveType,
+					badge: "ES → EN",
+					promptText: spanishText,
+					audioKey: audioSource ? safeAudioNameFromText(audioSource) : null,
+					tileLanguage: "en"
+				};
+			}
+
+			if(effectiveType === "listen-es-en"){
+				const spanishText = q.spanish || q.sentence || "";
+				const audioSource = q.audio ? q.audio : spanishText;
+				return {
+					type: effectiveType,
+					badge: "LISTEN ES → EN",
+					promptText: "Listen and build the English translation.",
+					audioKey: audioSource ? safeAudioNameFromText(audioSource) : null,
+					tileLanguage: "en"
+				};
+			}
+
+			if(effectiveType === "listen-es-es"){
+				const spanishText = q.spanish || q.sentence || "";
+				const audioSource = q.audio ? q.audio : spanishText;
+				return {
+					type: effectiveType,
+					badge: "LISTEN",
+					promptText: "Listen and build the Spanish sentence.",
+					audioKey: audioSource ? safeAudioNameFromText(audioSource) : null,
+					tileLanguage: "es"
+				};
+			}
+
+			if(effectiveType === "table-select"){
+				const promptText = q.prompt || q.sentence || q.question || "";
+				return {
+					type: effectiveType,
+					badge: "TILE TABLE",
+					promptText,
+					audioKey: null,
+					tileLanguage: "none"
+				};
+			}
+
+			{
+				const englishText = q.sentence || "";
+				const audioSource = q.audio ? q.audio : (q.spanish || q.sentence || "");
+				return {
+					type: "translate-en-es",
+					badge: "EN → ES",
+					promptText: englishText,
+					audioKey: audioSource ? safeAudioNameFromText(audioSource) : null,
+					tileLanguage: "es"
+				};
+			}
+		}
+
+		function setAudioButtonsVisible(visible){
+			const method = visible ? "remove" : "add";
+			els.audioBtn.classList[method]("isHidden");
+			els.audioSlowBtn.classList[method]("isHidden");
+		}
+
+		function getEnglishForHistory(q){
+			const spec = getQuestionSpec(q);
+
+			if(spec.type === "translate-en-es"){
+				return (q.sentence || "").trim();
+			}
+			if(spec.type === "listen-es-en"){
+				if(typeof q.translation === "string" && q.translation.trim()) return q.translation.trim();
+				return tokensToText(q.answer);
+			}
+			if(spec.type === "translate-es-en"){
+				return tokensToText(q.answer);
+			}
+			if(spec.type === "listen-es-es"){
+				if(typeof q.translation === "string" && q.translation.trim()) return q.translation.trim();
+				if(typeof q.sentence === "string" && q.sentence.trim()) return q.sentence.trim();
+				return "";
+			}
+			if(spec.type === "table-select"){
+				return (q.prompt || q.sentence || q.question || "").trim();
+			}
+			return "";
+		}
+
+		function getInfoFileForQuestion(q){
+			if(!q) return null;
+			if(typeof q.info !== "string") return null;
+			const s = q.info.trim();
+			if(!s) return null;
+			return s.endsWith(".html") ? s : (s + ".html");
+		}
+
+		function updateInfoButtonForCurrentQuestion(){
+			if(currentIndex === null || !lesson) return;
+			const q = lesson.questions[currentIndex];
+			const infoFile = getInfoFileForQuestion(q);
+			if(infoFile){
+				els.infoBtn.disabled = false;
+				els.infoBtn.title = "Info";
+			}else{
+				els.infoBtn.disabled = true;
+				els.infoBtn.title = "No extra info for this question";
+			}
+		}
+
+		async function loadInfoForCurrentQuestion(){
+			const q = lesson.questions[currentIndex];
+			const infoFile = getInfoFileForQuestion(q);
+			if(!infoFile){
+				els.infoTitle.textContent = "Extra info";
+				els.infoBody.innerHTML = `<div class="infoPlaceholder">No extra info for this question.</div>`;
+				return;
+			}
+
+			els.infoTitle.textContent = "Extra info";
+			els.infoBody.innerHTML = `<div class="infoPlaceholder">Loading…</div>`;
+
+			try{
+				const res = await fetch(`./info/${infoFile}`, { cache:"no-store" });
+				if(!res.ok) throw new Error("fetch failed");
+				const html = await res.text();
+
+				els.infoBody.innerHTML = html || `<div class="infoPlaceholder">Info file loaded, but it was empty.</div>`;
+			}catch(_e){
+				els.infoBody.innerHTML = `<div class="infoPlaceholder">Could not load info for this question.</div>`;
+			}
+		}
+
+		function openHistory(){
+			rebuildHistoryList();
+			els.historyPanel.classList.add("open");
+			els.historyOverlay.classList.add("open");
+		}
+		function closeHistory(){
+			els.historyPanel.classList.remove("open");
+			els.historyOverlay.classList.remove("open");
+		}
+
+		function openInfo(){
+			els.infoPanel.classList.add("open");
+			els.infoOverlay.classList.add("open");
+		}
+		function closeInfo(){
+			els.infoPanel.classList.remove("open");
+			els.infoOverlay.classList.remove("open");
+		}
+
+		function rebuildHistoryList(){
+			els.historyList.innerHTML = "";
+			if(!responseHistory.length){
+				const empty = document.createElement("div");
+				empty.style.opacity = "0.75";
+				empty.style.fontWeight = "850";
+				empty.style.padding = "10px 6px";
+				empty.textContent = "No answers yet.";
+				els.historyList.appendChild(empty);
+				return;
+			}
+
+			for(const item of responseHistory){
+				const row = document.createElement("div");
+				row.className = "historyItem";
+
+				const icon = document.createElement("div");
+				icon.className = "statusCircle " + (item.correct ? "correct" : "wrong");
+				icon.innerHTML = item.correct ? iconCheck() : iconX();
+
+				const right = document.createElement("div");
+				right.style.flex = "1";
+
+				const meta = document.createElement("div");
+				meta.className = "historyMetaLine";
+
+				const qn = document.createElement("div");
+				qn.className = "historyQ";
+				qn.textContent = item.qNumber;
+				meta.appendChild(qn);
+
+				if(item.correct && item.englishText){
+					const en = document.createElement("div");
+					en.className = "historyEn";
+					en.textContent = item.englishText;
+					meta.appendChild(en);
+				}
+
+				const ans = document.createElement("div");
+				ans.className = "historyAns";
+				ans.textContent = item.attemptText || "";
+
+				right.appendChild(meta);
+				right.appendChild(ans);
+
+				row.appendChild(icon);
+				row.appendChild(right);
+
+				els.historyList.appendChild(row);
+			}
+		}
+
+		function getGridConfig(q){
+			const rows = Number(q.gridRows || (q.grid && q.grid.rows) || 2);
+			const cols = Number(q.gridCols || (q.grid && q.grid.cols) || 2);
+			return {
+				rows: Math.max(1, rows),
+				cols: Math.max(1, cols)
+			};
+		}
+
+		function getTableTiles(q){
+			if(Array.isArray(q.tiles)) return q.tiles.slice();
+			return [];
+		}
+
+		function getTableTileText(tile){
+			if(tile && typeof tile === "object"){
+				return String(tile.text || tile.label || "").trim();
+			}
+			return String(tile || "").trim();
+		}
+
+		function getCorrectTableIndex(q){
+			const tiles = getTableTiles(q);
+
+			if(typeof q.correctIndex === "number") return q.correctIndex;
+
+			if(typeof q.correctTile === "string"){
+				const want = q.correctTile.trim();
+				const idx = tiles.findIndex(t => getTableTileText(t) === want);
+				if(idx >= 0) return idx;
+			}
+
+			if(Array.isArray(q.answer) && q.answer.length){
+				const want = normalizeTokens(q.answer);
+				const idx = tiles.findIndex(t => getTableTileText(t) === want);
+				if(idx >= 0) return idx;
+			}
+
+			return -1;
+		}
+
+		function rebuildSentenceTiles(){
 			els.answerTiles.innerHTML = "";
 			for(let i=0;i<chosen.length;i++){
 				const t = document.createElement("button");
@@ -885,12 +1473,14 @@ function setAudioButtonsVisible(visible){
 					const word = chosen.splice(i,1)[0];
 					const slot = bank.find(b => b.text === word && b.used);
 					if(slot) slot.used = false;
-					rebuildTiles();
+					rebuildSentenceTiles();
 					updateMainButton();
+					saveState();
 				});
 				els.answerTiles.appendChild(t);
 			}
 
+			els.bankTiles.className = "bankTiles";
 			els.bankTiles.innerHTML = "";
 			for(const item of bank){
 				const t = document.createElement("button");
@@ -898,31 +1488,143 @@ function setAudioButtonsVisible(visible){
 				t.className = "tile" + (item.used ? " disabled" : "");
 				t.textContent = item.text;
 				t.disabled = item.used || mode !== "answering";
-				t.addEventListener("click", async () => {
+				t.addEventListener("click", () => {
 					if(mode !== "answering") return;
 					if(item.used) return;
+
 					item.used = true;
 					chosen.push(item.text);
-					rebuildTiles();
+
+					rebuildSentenceTiles();
 					updateMainButton();
 
-					// CHANGED: only play tile audio when the tiles are Spanish
 					if(canPlayTileAudio){
 						const key = safeAudioNameFromText(item.text);
 						playAudioKey(key, { rate: 1.0 });
 					}
+
+					saveState();
 				});
 				els.bankTiles.appendChild(t);
 			}
 		}
 
+		function rebuildTableSelectTiles(q){
+			const cfg = getGridConfig(q);
+			const tiles = getTableTiles(q);
+
+			els.answerTiles.innerHTML = "";
+			els.bankTiles.innerHTML = "";
+			els.bankTiles.className = "gridTiles";
+			els.bankTiles.style.gridTemplateColumns = `repeat(${cfg.cols}, minmax(0, 1fr))`;
+
+			for(let i=0;i<tiles.length;i++){
+				const tileText = getTableTileText(tiles[i]);
+const btn = document.createElement("button");
+btn.type = "button";
+
+const singleChar = [...new Intl.Segmenter().segment(tileText.trim())].length === 1;
+
+btn.className =
+	"tile gridTile" +
+	(singleChar ? " singleChar" : "") +
+	(selectedGridIndex === i ? " selected" : "");
+
+btn.textContent = tileText;
+				btn.disabled = mode !== "answering";
+
+				btn.addEventListener("click", () => {
+					if(mode !== "answering") return;
+					selectedGridIndex = i;
+					rebuildTableSelectTiles(q);
+					updateMainButton();
+					saveState();
+				});
+
+				els.bankTiles.appendChild(btn);
+			}
+		}
+
 		function updateMainButton(){
 			if(mode === "answering"){
-				els.mainBtn.disabled = (chosen.length === 0);
+				const q = lesson.questions[currentIndex];
+				const spec = getQuestionSpec(q);
+
+				if(spec.type === "table-select"){
+					els.mainBtn.disabled = (selectedGridIndex === null);
+				}else{
+					els.mainBtn.disabled = (chosen.length === 0);
+				}
 				els.mainBtn.textContent = "CHECK";
 			}else{
 				els.mainBtn.disabled = false;
 			}
+		}
+
+		function setPromptWithQNumber(qNumber, promptText){
+			const dot = "●";
+			const clean = String(promptText || "").trim();
+			els.lessonPrompt.innerHTML = `
+				<span class="promptPrefix">${escapeHtml(qNumber)} ${dot}</span>
+				${escapeHtml(clean)}
+			`;
+		}
+
+		function playEncouragement(){
+			const src = ENCOURAGE_GIFS[Math.floor(Math.random() * ENCOURAGE_GIFS.length)];
+			els.encourageGif.classList.remove("play");
+			els.encourageGif.src = src;
+			void els.encourageGif.offsetWidth;
+			els.encourageGif.classList.add("play");
+		}
+
+		function restoreQuestionUI(){
+			const q = lesson.questions[currentIndex];
+			const spec = getQuestionSpec(q);
+
+			canPlayTileAudio = (spec.tileLanguage === "es");
+			currentSentenceAudioKey = spec.audioKey;
+
+			const qNumberText = `Q${currentIndex + 1}`;
+			setPromptWithQNumber(qNumberText, spec.promptText);
+
+			const shouldShowAudioButtons =
+				(spec.type === "listen-es-en") ||
+				(spec.type === "listen-es-es") ||
+				(spec.type === "translate-es-en");
+
+			setAudioButtonsVisible(shouldShowAudioButtons);
+
+			const enabled = (shouldShowAudioButtons && !!currentSentenceAudioKey);
+			els.audioBtn.disabled = !enabled;
+			els.audioSlowBtn.disabled = !enabled;
+
+			if(spec.type === "table-select"){
+				els.answerArea.classList.add("hidden");
+				rebuildTableSelectTiles(q);
+			}else{
+				els.answerArea.classList.remove("hidden");
+				const bankWords = (q.bank || q.answer).slice();
+				const chosenCounts = new Map();
+				for(const c of chosen){
+					chosenCounts.set(c, (chosenCounts.get(c) || 0) + 1);
+				}
+				bank = bankWords.map(w => {
+					const count = chosenCounts.get(w) || 0;
+					if(count > 0){
+						chosenCounts.set(w, count - 1);
+						return { text:w, used:true };
+					}
+					return { text:w, used:false };
+				});
+				rebuildSentenceTiles();
+			}
+
+			updateMainButton();
+			setProgress();
+			updateInfoButtonForCurrentQuestion();
+
+			if(currentSentenceAudioKey) getAudioForKey(currentSentenceAudioKey);
 		}
 
 		async function loadQuestion(){
@@ -932,11 +1634,15 @@ function setAudioButtonsVisible(visible){
 				els.lessonPrompt.textContent = " ";
 				els.bankTiles.innerHTML = "";
 				els.answerTiles.innerHTML = "";
+				els.answerArea.classList.remove("hidden");
 				setProgress();
 				setBottomSheet("done", "Lesson complete!", "Click DONE to return to lessons.");
 				updateMainButton();
 				currentSentenceAudioKey = null;
-				setAudioButtonsEnabled(false);
+				setAudioButtonsVisible(false);
+				els.infoBtn.disabled = true;
+				els.infoBtn.title = "No extra info for this question";
+				saveState();
 				return;
 			}
 
@@ -945,144 +1651,110 @@ function setAudioButtonsVisible(visible){
 			setBottomSheet("answering");
 
 			currentIndex = queue.shift();
-			// In loadQuestion(), put these lines in this exact order:
-
-const q = lesson.questions[currentIndex];
-const spec = getQuestionSpec(q);
-
-// set audio key FIRST
-currentSentenceAudioKey = spec.audioKey;
-
-// SHOW only when the question is either a listening type OR the prompt itself is Spanish (translate-es-en)
-const shouldShowAudioButtons =
-	(spec.type === "listen-es-en") ||
-	(spec.type === "listen-es-es") ||
-	(spec.type === "translate-es-en");
-
-setAudioButtonsVisible(shouldShowAudioButtons);
-setAudioButtonsEnabled(shouldShowAudioButtons && !!currentSentenceAudioKey);
-			canPlayTileAudio = (spec.tileLanguage === "es");
-
-			
-			/* In loadQuestion(), REPLACE whatever sets the prompt with THIS.
-   (Make sure it's innerHTML, not textContent.) */
-
-const qNumberText = `Q${currentIndex + 1}`;
-const dot = "●";
-const promptText = (spec.showSentence ? spec.promptText : "").trim();
-
-els.lessonPrompt.innerHTML = `
-	<span class="promptPrefix">${escapeHtml(qNumberText)} ${dot}</span>
-	${escapeHtml(promptText)}
-`;
-			currentSentenceAudioKey = spec.audioKey;
-
 			chosen = [];
-			const bankWords = shuffle(q.bank || q.answer);
-			bank = bankWords.map(w => ({ text:w, used:false }));
+			selectedGridIndex = null;
 
-			rebuildTiles();
-			updateMainButton();
-			setProgress();
-
-			setAudioButtonsEnabled(!!currentSentenceAudioKey);
-
-			if(currentSentenceAudioKey) getAudioForKey(currentSentenceAudioKey);
+			restoreQuestionUI();
+			saveState();
 		}
 
-		// 2) REPLACE showFeedback(isRight) with this version
+		function showFeedback(isRight, attemptText){
+			const q = lesson.questions[currentIndex];
+			const spec = getQuestionSpec(q);
 
-function showFeedback(isRight){
-	const q = lesson.questions[currentIndex];
-	const spec = getQuestionSpec(q);
+			if(isRight){
+				mode = "feedback";
+				lastResult = "correct";
+				playEncouragement();
 
-	if(isRight){
-		mode = "feedback";
-		lastResult = "correct";
+				let body = "Be sure to write that down.";
 
-		// Default message
-		let body = "Be sure to write that down.";
+				if(spec.type === "listen-es-en" || spec.type === "listen-es-es"){
+					let translation = "";
+					if(typeof q.translation === "string" && q.translation.trim()){
+						translation = q.translation.trim();
+					}else if(spec.type === "listen-es-en"){
+						translation = tokensToText(q.answer);
+					}else{
+						translation = (typeof q.sentence === "string") ? q.sentence.trim() : "";
+					}
+					body = translation ? `Translation: ${translation}` : "Translation: ";
+				}
 
-		// If it's a listening question, show the translation line instead
-		if(spec.type === "listen-es-en" || spec.type === "listen-es-es"){
-			let translation = "";
-
-			// Prefer explicit translation field if you add it later
-			if(typeof q.translation === "string" && q.translation.trim()){
-				translation = q.translation.trim();
-			}else if(spec.type === "listen-es-en"){
-				// For ES→EN listening, the answer tokens are the English translation
-				translation = tokensToText(q.answer);
+				setBottomSheet("correct", "Correct!", body);
+				updateMainButton();
 			}else{
-				// For transcribe listening, use the English prompt if provided (recommended)
-				// If not present, fall back to empty.
-				translation = (typeof q.sentence === "string") ? q.sentence.trim() : "";
+				queue.push(currentIndex);
+				mode = "feedback";
+				lastResult = "wrong";
+				setBottomSheet("wrong", "Not quite...", "This question will come back later.");
+				updateMainButton();
 			}
 
-			body = translation ? `Translation: ${translation}` : "Translation: ";
-		}
+			const qNumber = `Q${currentIndex + 1}`;
+			const englishText = isRight ? getEnglishForHistory(q) : "";
 
-		setBottomSheet("correct", "Correct!", body);
-		updateMainButton();
-	}else{
-		queue.push(currentIndex);
-		mode = "feedback";
-		lastResult = "wrong";
-		setBottomSheet("wrong", "Not quite...", "This question will come back later.");
-		updateMainButton();
-	}
-}
+			responseHistory.push({
+				qIndex: currentIndex,
+				qNumber,
+				attemptText: attemptText || "",
+				correct: !!isRight,
+				englishText
+			});
+
+			rebuildHistoryList();
+			saveState();
+		}
 
 		function onMainButton(){
-	if(mode === "answering"){
-		const q = lesson.questions[currentIndex];
+			if(mode === "answering"){
+				const q = lesson.questions[currentIndex];
+				const spec = getQuestionSpec(q);
 
-		const attempt = normalizeTokens(chosen);
+				let isRight = false;
+				let attempt = "";
 
-		// Support multiple correct answers:
-		// - q.answer (required) is one token array
-		// - q.answerAlternates (optional) is an array of token arrays
-		const candidates = [];
-		if(Array.isArray(q.answer)) candidates.push(q.answer);
-		if(Array.isArray(q.answerAlternates)){
-			for(const alt of q.answerAlternates){
-				if(Array.isArray(alt)) candidates.push(alt);
+				if(spec.type === "table-select"){
+					const tiles = getTableTiles(q);
+					const correctIndex = getCorrectTableIndex(q);
+					const picked = (selectedGridIndex !== null && tiles[selectedGridIndex] != null)
+						? getTableTileText(tiles[selectedGridIndex])
+						: "";
+					attempt = picked;
+					isRight = (selectedGridIndex === correctIndex);
+				}else{
+					attempt = normalizeTokens(chosen);
+
+					const candidates = [];
+					if(Array.isArray(q.answer)) candidates.push(q.answer);
+					if(Array.isArray(q.answerAlternates)){
+						for(const alt of q.answerAlternates){
+							if(Array.isArray(alt)) candidates.push(alt);
+						}
+					}
+
+					for(const cand of candidates){
+						const correct = normalizeTokens(cand);
+						if(attempt === correct){
+							isRight = true;
+							break;
+						}
+					}
+				}
+
+				if(isRight){
+					mastered.add(currentIndex);
+				}
+
+				showFeedback(isRight, attempt);
+			}else if(mode === "feedback"){
+				loadQuestion();
+			}else if(mode === "done"){
+				clearState();
+				window.location.href = "../lessons";
 			}
 		}
 
-		let isRight = false;
-		for(const cand of candidates){
-			const correct = normalizeTokens(cand);
-			if(attempt === correct){
-				isRight = true;
-				break;
-			}
-		}
-
-		if(isRight){
-			mastered.add(currentIndex);
-		}
-		showFeedback(isRight);
-	}else if(mode === "feedback"){
-		loadQuestion();
-	}else if(mode === "done"){
-		window.location.href = "../lessons";
-	}
-}
-
-		function escapeHtml(s){
-			return String(s)
-				.replaceAll("&","&amp;")
-				.replaceAll("<","&lt;")
-				.replaceAll(">","&gt;")
-				.replaceAll('"',"&quot;")
-				.replaceAll("'","&#039;");
-		}
-// 1) ADD this helper (near escapeHtml / normalizeTokens helpers)
-function tokensToText(tokens){
-	if(!Array.isArray(tokens)) return "";
-	return normalizeTokens(tokens);
-}
 		function buildPrintCard(q, i){
 			const spec = getQuestionSpec(q);
 			const card = document.createElement("div");
@@ -1164,10 +1836,70 @@ function tokensToText(tokens){
 			}
 		}
 
+		function restoreFromSavedState(saved){
+			if(!saved || saved.lessonPath !== lessonPath) return false;
+
+			if(Array.isArray(saved.queue)) queue = saved.queue.slice();
+			if(Array.isArray(saved.mastered)) mastered = new Set(saved.mastered);
+			if(typeof saved.currentIndex === "number") currentIndex = saved.currentIndex;
+			if(typeof saved.mode === "string") mode = saved.mode;
+			if(typeof saved.lastResult === "string" || saved.lastResult === null) lastResult = saved.lastResult;
+
+			if(Array.isArray(saved.responseHistory)) responseHistory = saved.responseHistory.slice();
+			chosen = Array.isArray(saved.chosen) ? saved.chosen.slice() : [];
+			selectedGridIndex = (typeof saved.selectedGridIndex === "number") ? saved.selectedGridIndex : null;
+
+			rebuildHistoryList();
+			setProgress();
+
+			if(currentIndex === null){
+				mode = "done";
+				setBottomSheet("done", "Lesson complete!", "Click DONE to return to lessons.");
+				updateMainButton();
+				setAudioButtonsVisible(false);
+				els.infoBtn.disabled = true;
+				els.infoBtn.title = "No extra info for this question";
+				return true;
+			}
+
+			if(mode === "answering"){
+				setBottomSheet("answering");
+			}else if(mode === "feedback"){
+				if(lastResult === "correct"){
+					setBottomSheet("correct", "Correct!", "");
+				}else if(lastResult === "wrong"){
+					setBottomSheet("wrong", "Not quite...", "This question will come back later.");
+				}else{
+					setBottomSheet("answering");
+					mode = "answering";
+				}
+			}
+
+			restoreQuestionUI();
+			updateMainButton();
+			return true;
+		}
+
 		async function init(){
+			lessonPath = getLessonPathFromUrl();
+			stateKey = makeStateKey(lessonPath);
+
 			els.closeBtn.addEventListener("click", () => {
-				window.location.href = "../index.html";
+				clearState();
+				window.location.href = "../lessons";
 			});
+
+			els.historyBtn.addEventListener("click", openHistory);
+			els.historyOverlay.addEventListener("click", closeHistory);
+			els.historyClose.addEventListener("click", closeHistory);
+
+			els.infoBtn.addEventListener("click", async () => {
+				if(els.infoBtn.disabled) return;
+				await loadInfoForCurrentQuestion();
+				openInfo();
+			});
+			els.infoOverlay.addEventListener("click", closeInfo);
+			els.infoClose.addEventListener("click", closeInfo);
 
 			els.audioBtn.addEventListener("click", () => {
 				if(!currentSentenceAudioKey) return;
@@ -1175,7 +1907,7 @@ function tokensToText(tokens){
 			});
 			els.audioSlowBtn.addEventListener("click", () => {
 				if(!currentSentenceAudioKey) return;
-				playAudioKey(currentSentenceAudioKey, { rate: 0.75 });
+				playAudioKey(currentSentenceAudioKey, { rate: 0.6 });
 			});
 
 			els.mainBtn.addEventListener("click", onMainButton);
@@ -1185,22 +1917,36 @@ function tokensToText(tokens){
 				setTimeout(() => window.print(), 50);
 			});
 
-			const res = await fetch("./lesson.json", { cache:"no-store" });
+			const res = await fetch(lessonPath, { cache:"no-store" });
 			lesson = await res.json();
 
 			els.lessonTitle.textContent = lesson.title || "Lesson";
 
+			const saved = loadState();
+			if(saved && restoreFromSavedState(saved)){
+				return;
+			}
+
 			queue = lesson.questions.map((_, i) => i);
 			mastered = new Set();
+			currentIndex = null;
+			responseHistory = [];
+			chosen = [];
+			bank = [];
+			selectedGridIndex = null;
+			mode = "answering";
+			lastResult = null;
 
+			rebuildHistoryList();
+			saveState();
 			loadQuestion();
 		}
 
 		init().catch(err => {
 			console.error(err);
-			els.lessonTitle.textContent = "Error loading lesson.json";
+			els.lessonTitle.textContent = "Error loading lesson JSON";
 			mode = "done";
-			setBottomSheet("wrong", "Error:", "Could not load lesson.json. Serve this folder with a local web server.");
+			setBottomSheet("wrong", "Error:", "Could not load the lesson file. Serve this folder with a local web server.");
 			els.mainBtn.disabled = false;
 			els.mainBtn.textContent = "DONE";
 			els.mainBtn.onclick = () => window.location.href = "../lessons";
@@ -1208,4 +1954,4 @@ function tokensToText(tokens){
 	})();
 	</script>
 </body>
-</html>
+</html> 

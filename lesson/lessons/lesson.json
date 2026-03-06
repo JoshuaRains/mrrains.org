@@ -3,6 +3,22 @@
   "subtitle": "Practice",
   "questions": [
     {
+      "type": "table-select",
+	"prompt": "Click the tile for 'hospital'.",
+	"tiles": [
+		"la farmacia",
+		"el hospital",
+		"la clínica",
+		"la ambulancia",
+		"el paciente",
+		"la medicina"
+	],
+	"gridRows": 2,
+	"gridCols": 3,
+	"correctTile": "el hospital",
+	"info": "hospital_info.html" 
+    },
+    {
       "type": "listen-es-es",
       "spanish": "yo estoy estudiando ahora",
       "audio": "yo estoy estudiando ahora",
