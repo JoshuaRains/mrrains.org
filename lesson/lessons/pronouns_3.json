@@ -1,0 +1,118 @@
+{
+  "title": "C1 Subject Pronouns",
+  "subtitle": "Lesson 3",
+  "questions": [
+    {
+      "type": "table-select",
+      "prompt": "Listen and click the pronoun you hear.",
+      "tiles": ["yo", "él", "nosotros"],
+      "gridRows": 1,
+      "gridCols": 3,
+      "correctTile": "yo",
+      "audio": "yo"
+    },
+    {
+      "type": "table-select",
+      "prompt": "Listen and click the pronoun you hear.",
+      "tiles": ["ella", "él", "yo"],
+      "gridRows": 1,
+      "gridCols": 3,
+      "correctTile": "él",
+      "audio": "él"
+    },
+    {
+      "type": "table-select",
+      "prompt": "Listen and click the pronoun you hear.",
+      "tiles": ["ella", "ellos", "tú"],
+      "gridRows": 1,
+      "gridCols": 3,
+      "correctTile": "ella",
+      "audio": "ella"
+    },
+    {
+      "type": "table-select",
+      "prompt": "Listen and click the pronoun you hear.",
+      "tiles": ["nosotros", "ellos", "ustedes"],
+      "gridRows": 1,
+      "gridCols": 3,
+      "correctTile": "ellos",
+      "audio": "ellos"
+    },
+    {
+      "type": "table-select",
+      "prompt": "Listen and click the pronoun you hear.",
+      "tiles": ["usted", "tú", "yo"],
+      "gridRows": 1,
+      "gridCols": 3,
+      "correctTile": "usted",
+      "audio": "usted"
+    },
+    {
+      "type": "table-select",
+      "prompt": "Listen and click the pronoun you hear.",
+      "tiles": ["ustedes", "nosotros", "él"],
+      "gridRows": 1,
+      "gridCols": 3,
+      "correctTile": "ustedes",
+      "audio": "ustedes"
+    },
+    {
+      "type": "type-en-es-typed",
+      "sentence": "you",
+      "answerText": "tú",
+      "answerTexts": [],
+      "audio": "tú"
+    },
+    {
+      "type": "type-en-es-typed",
+      "sentence": "you (formal)",
+      "answerText": "usted",
+      "answerTexts": [],
+      "audio": "usted"
+    },
+    {
+      "type": "type-en-es-typed",
+      "sentence": "they",
+      "answerText": "ellos",
+      "answerTexts": [],
+      "audio": "ellos"
+    },
+    {
+      "type": "type-en-es-typed",
+      "sentence": "y'all",
+      "answerText": "ustedes",
+      "answerTexts": [],
+      "audio": "ustedes"
+    },
+    {
+      "type": "type-listen-es-es-typed",
+      "answerText": "yo",
+      "answerTexts": [],
+      "audio": "yo"
+    },
+    {
+      "type": "type-listen-es-es-typed",
+      "answerText": "ella",
+      "answerTexts": [],
+      "audio": "ella"
+    },
+    {
+      "type": "type-listen-es-es-typed",
+      "answerText": "nosotros",
+      "answerTexts": [],
+      "audio": "nosotros"
+    },
+    {
+      "type": "type-listen-es-es-typed",
+      "answerText": "tú",
+      "answerTexts": [],
+      "audio": "tú"
+    },
+    {
+      "type": "type-listen-es-es-typed",
+      "answerText": "usted",
+      "answerTexts": [],
+      "audio": "usted"
+    }
+  ]
+}
