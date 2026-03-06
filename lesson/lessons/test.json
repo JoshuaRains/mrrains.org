@@ -4,7 +4,7 @@
 	"questions": [
 		{
 			"type": "translate-en-es",
-			"sentence": "I need a bandage.",
+			"sentence": "I need a bandage. 🇪🇸",
 			"answer": ["Necesito", "una", "venda", "."],
 			"answerAlternates": [
 				["Yo", "necesito", "una", "venda", "."]
