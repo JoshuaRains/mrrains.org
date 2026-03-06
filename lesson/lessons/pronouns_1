@@ -1,0 +1,124 @@
+{
+  "title": "C1 Subject Pronouns",
+  "subtitle": "Lesson 1",
+  "questions": [
+    {
+      "type": "table-select",
+      "prompt": "Which word means 'I'?",
+      "tiles": ["yo", "él", "nosotros"],
+      "gridRows": 1,
+      "gridCols": 3,
+      "correctTile": "yo"
+    },
+    {
+      "type": "table-select",
+      "prompt": "Which word means 'you'?",
+      "tiles": ["tú", "ellos", "ella"],
+      "gridRows": 1,
+      "gridCols": 3,
+      "correctTile": "tú"
+    },
+    {
+      "type": "table-select",
+      "prompt": "Which word means 'he'?",
+      "tiles": ["él", "yo", "ustedes"],
+      "gridRows": 1,
+      "gridCols": 3,
+      "correctTile": "él"
+    },
+    {
+      "type": "table-select",
+      "prompt": "Which word means 'she'?",
+      "tiles": ["ella", "ellos", "nosotros"],
+      "gridRows": 1,
+      "gridCols": 3,
+      "correctTile": "ella"
+    },
+    {
+      "type": "table-select",
+      "prompt": "Which word means 'we'?",
+      "tiles": ["nosotros", "ella", "usted"],
+      "gridRows": 1,
+      "gridCols": 3,
+      "correctTile": "nosotros"
+    },
+    {
+      "type": "table-select",
+      "prompt": "Which word means 'they'?",
+      "tiles": ["ellos", "yo", "tú"],
+      "gridRows": 1,
+      "gridCols": 3,
+      "correctTile": "ellos"
+    },
+    {
+      "type": "table-select",
+      "prompt": "Which word means 'y'all'?",
+      "tiles": ["ustedes", "él", "yo"],
+      "gridRows": 1,
+      "gridCols": 3,
+      "correctTile": "ustedes"
+    },
+    {
+      "type": "table-select",
+      "prompt": "Which is the formal version of 'you'?",
+      "tiles": ["tú", "usted"],
+      "gridRows": 1,
+      "gridCols": 2,
+      "correctTile": "usted"
+    },
+    {
+      "type": "table-select",
+      "prompt": "Listen and click the pronoun you hear.",
+      "tiles": ["yo", "tú", "él"],
+      "gridRows": 1,
+      "gridCols": 3,
+      "correctTile": "yo",
+      "audio": "yo"
+    },
+    {
+      "type": "table-select",
+      "prompt": "Listen and click the pronoun you hear.",
+      "tiles": ["ella", "él", "yo"],
+      "gridRows": 1,
+      "gridCols": 3,
+      "correctTile": "él",
+      "audio": "él"
+    },
+    {
+      "type": "table-select",
+      "prompt": "Listen and click the pronoun you hear.",
+      "tiles": ["ellos", "ella", "tú"],
+      "gridRows": 1,
+      "gridCols": 3,
+      "correctTile": "ella",
+      "audio": "ella"
+    },
+    {
+      "type": "table-select",
+      "prompt": "Listen and click the pronoun you hear.",
+      "tiles": ["nosotros", "ustedes", "ellos"],
+      "gridRows": 1,
+      "gridCols": 3,
+      "correctTile": "nosotros",
+      "audio": "nosotros"
+    },
+    {
+      "type": "table-select",
+      "prompt": "Listen and click the pronoun you hear.",
+      "tiles": ["usted", "tú", "yo"],
+      "gridRows": 1,
+      "gridCols": 3,
+      "correctTile": "tú",
+      "audio": "tú"
+    },
+    {
+      "type": "table-select",
+      "prompt": "Listen and click the pronoun you hear.",
+      "tiles": ["ustedes", "ellos", "él"],
+      "gridRows": 1,
+      "gridCols": 3,
+      "correctTile": "ustedes",
+      "audio": "ustedes"
+    }
+  ]
+}
