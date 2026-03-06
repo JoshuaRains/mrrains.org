@@ -30,7 +30,6 @@
 			padding: 18px 14px 44px;
 		}
 
-		/* No background path lines (per request) */
 		.pathArea{
 			position: relative;
 			padding: 8px 0 16px;
@@ -47,11 +46,28 @@
 			z-index:1;
 		}
 
+		.rowLink{
+			display:block;
+			text-decoration:none;
+			color:inherit;
+			border-radius:18px;
+			outline:none;
+		}
+
 		.row{
 			display:grid;
 			grid-template-columns: 160px 1fr;
 			align-items:center;
 			min-height: 74px;
+		}
+
+		.rowLink:focus-visible .node,
+		.rowLink:hover .node{
+			transform: translateY(-2px);
+		}
+
+		.rowLink:active .node{
+			transform: translateY(0px) scale(.98);
 		}
 
 		.lane{
@@ -79,10 +95,7 @@
 			transition: transform .12s ease;
 			outline:none;
 		}
-		.node:hover{ transform: translateY(-2px); }
-		.node:active{ transform: translateY(0px) scale(.98); }
 
-		/* Simple glossy dot highlight */
 		.node::before{
 			content:"";
 			position:absolute;
@@ -102,20 +115,6 @@
 			line-height: 1;
 		}
 
-		/* Keep small connector dots only (no lines) */
-		.dot{
-			position:absolute;
-			left: 86px;
-			top: 50%;
-			transform: translate(-50%,-50%);
-			width: 14px;
-			height: 14px;
-			border-radius:999px;
-			background: rgba(255,255,255,.14);
-			border: 1px solid rgba(255,255,255,.12);
-			pointer-events:none;
-		}
-
 		.title{
 			font-size: 18px;
 			letter-spacing: .2px;
@@ -123,6 +122,7 @@
 			margin: 0;
 			color: var(--text);
 		}
+
 		.subtitle{
 			margin: 6px 0 0;
 			font-size: 12px;
@@ -138,7 +138,6 @@
 
 		@media (max-width: 420px){
 			.row{ grid-template-columns: 138px 1fr; }
-			.dot{ left: 72px; }
 			.nodeWrap{ left: calc(26px + var(--shift, 0px)); }
 			.title{ font-size: 16px; }
 		}
@@ -149,88 +148,112 @@
 	<div class="wrap">
 		<div class="pathArea">
 			<ul class="list">
-				<li class="row">
-					<div class="lane">
-						<div class="nodeWrap" style="--shift:-35px;">
-							<div class="node c-green" tabindex="0" title="Vocabulary">
-								<span class="material-symbols-rounded">medical_services</span>
+				<li>
+					<a class="rowLink" href="../lesson?l=c1_subject_pronouns_lesson_1" aria-label="Open C1 Subject Pronouns Lesson 1">
+						<div class="row">
+							<div class="lane">
+								<div class="nodeWrap" style="--shift:-35px;">
+									<div class="node c-green" title="C1 Subject Pronouns Lesson 1">
+										<span class="material-symbols-rounded">person</span>
+									</div>
+								</div>
+							</div>
+							<div>
+								<p class="title">Subject pronouns</p>
+								<p class="subtitle">Lesson 1</p>
 							</div>
 						</div>
-					</div>
-					<div>
-						<p class="title">Medical vocabulary</p>
-						<p class="subtitle">Vocabulary</p>
-					</div>
+					</a>
 				</li>
 
-				<li class="row">
-					<div class="lane">
-						<div class="nodeWrap" style="--shift:15px;">
-							<div class="node c-blue" tabindex="0" title="Vocabulary">
-								<span class="material-symbols-rounded">accessibility_new</span>
+				<li>
+					<a class="rowLink" href="../lesson?l=c1_subject_pronouns_lesson_2" aria-label="Open C1 Subject Pronouns Lesson 2">
+						<div class="row">
+							<div class="lane">
+								<div class="nodeWrap" style="--shift:15px;">
+									<div class="node c-blue" title="C1 Subject Pronouns Lesson 2">
+										<span class="material-symbols-rounded">hearing</span>
+									</div>
+								</div>
+							</div>
+							<div>
+								<p class="title">Subject pronouns</p>
+								<p class="subtitle">Lesson 2</p>
 							</div>
 						</div>
-					</div>
-					<div>
-						<p class="title">Body parts</p>
-						<p class="subtitle">Vocabulary</p>
-					</div>
+					</a>
 				</li>
 
-				<li class="row">
-					<div class="lane">
-						<div class="nodeWrap" style="--shift:35px;">
-							<div class="node c-purple" tabindex="0" title="Grammar">
-								<span class="material-symbols-rounded">autorenew</span>
+				<li>
+					<a class="rowLink" href="../lesson?l=c1_subject_pronouns_lesson_3" aria-label="Open C1 Subject Pronouns Lesson 3">
+						<div class="row">
+							<div class="lane">
+								<div class="nodeWrap" style="--shift:35px;">
+									<div class="node c-purple" title="C1 Subject Pronouns Lesson 3">
+										<span class="material-symbols-rounded">edit_note</span>
+									</div>
+								</div>
+							</div>
+							<div>
+								<p class="title">Subject pronouns</p>
+								<p class="subtitle">Lesson 3</p>
 							</div>
 						</div>
-					</div>
-					<div>
-						<p class="title">Reflexive verbs</p>
-						<p class="subtitle">Grammar</p>
-					</div>
+					</a>
 				</li>
 
-				<li class="row">
-					<div class="lane">
-						<div class="nodeWrap" style="--shift:15px;">
-							<div class="node c-orange" tabindex="0" title="Conjugation">
-								<span class="material-symbols-rounded">spellcheck</span>
+				<li>
+					<a class="rowLink" href="../lesson?l=c1_subject_pronouns_lesson_4" aria-label="Open C1 Subject Pronouns Lesson 4">
+						<div class="row">
+							<div class="lane">
+								<div class="nodeWrap" style="--shift:15px;">
+									<div class="node c-orange" title="C1 Subject Pronouns Lesson 4">
+										<span class="material-symbols-rounded">headphones</span>
+									</div>
+								</div>
+							</div>
+							<div>
+								<p class="title">Subject pronouns</p>
+								<p class="subtitle">Lesson 4</p>
 							</div>
 						</div>
-					</div>
-					<div>
-						<p class="title">Regular present tense</p>
-						<p class="subtitle">Conjugation</p>
-					</div>
+					</a>
 				</li>
 
-				<li class="row">
-					<div class="lane">
-						<div class="nodeWrap" style="--shift:-35px;">
-							<div class="node c-teal" tabindex="0" title="Conjugation">
-								<span class="material-symbols-rounded">edit_note</span>
+				<li>
+					<a class="rowLink" href="../lesson?l=c8_present_tense_verbs_lesson_1" aria-label="Open C8 Present Tense Verbs Lesson 1">
+						<div class="row">
+							<div class="lane">
+								<div class="nodeWrap" style="--shift:-35px;">
+									<div class="node c-teal" title="C8 Present Tense Verbs Lesson 1">
+										<span class="material-symbols-rounded">spellcheck</span>
+									</div>
+								</div>
+							</div>
+							<div>
+								<p class="title">Regular present tense</p>
+								<p class="subtitle">Lesson 1</p>
 							</div>
 						</div>
-					</div>
-					<div>
-						<p class="title">Present progressive</p>
-						<p class="subtitle">Conjugation</p>
-					</div>
+					</a>
 				</li>
 
-				<li class="row" style="--shift:-70px;">
-					<div class="lane">
-						<div class="nodeWrap" >
-							<div class="node c-pink" tabindex="0" title="Listening">
-								<span class="material-symbols-rounded">headphones</span>
+				<li>
+					<a class="rowLink" href="../lesson?l=c8_present_tense_verbs_lesson_2" aria-label="Open C8 Present Tense Verbs Lesson 2">
+						<div class="row">
+							<div class="lane">
+								<div class="nodeWrap" style="--shift:-70px;">
+									<div class="node c-pink" title="C8 Present Tense Verbs Lesson 2">
+										<span class="material-symbols-rounded">quiz</span>
+									</div>
+								</div>
+							</div>
+							<div>
+								<p class="title">Regular present tense</p>
+								<p class="subtitle">Lesson 2</p>
 							</div>
 						</div>
-					</div>
-					<div style="--shift:-70px;">
-						<p class="title">Listening practice</p>
-						<p class="subtitle">Listening</p>
-					</div>
+					</a>
 				</li>
 			</ul>
 		</div>
