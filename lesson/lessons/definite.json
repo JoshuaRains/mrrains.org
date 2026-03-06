@@ -1,139 +1,133 @@
 {
-	"title": "Definite Articles",
-	"subtitle": "Lesson 1",
-	"questions": [
+ "title": "Noun Gender Basics",
+ "subtitle": "Lesson 1",
+ "questions": [
 
-	{
-		"type": "table-select",
-		"prompt": "Click the tile for 'the hospital'.",
-		"tiles": [
-			"🏥 el hospital",
-			"💊 la medicina",
-			"🚑 la ambulancia",
-			"👩‍⚕️ la enfermera",
-			"💉 la vacuna",
-			"🦷 el dentista"
-		],
-		"gridRows": 2,
-		"gridCols": 3,
-		"correctTile": "🏥 el hospital"
-	},
+{
+ "type": "table-select",
+ "prompt": "Which ending is typically masculine?",
+ "tiles": ["-o", "-a"],
+ "gridRows": 1,
+ "gridCols": 2,
+ "correctTile": "-o"
+},
 
-	{
-		"type": "table-select",
-		"prompt": "Click the tile for 'the medicine'.",
-		"tiles": [
-			"🏥 el hospital",
-			"💊 la medicina",
-			"🚑 la ambulancia",
-			"👩‍⚕️ la enfermera",
-			"💉 la vacuna",
-			"🦷 el dentista"
-		],
-		"gridRows": 2,
-		"gridCols": 3,
-		"correctTile": "💊 la medicina"
-	},
+{
+ "type": "table-select",
+ "prompt": "Which ending is typically feminine?",
+ "tiles": ["-o", "-a"],
+ "gridRows": 1,
+ "gridCols": 2,
+ "correctTile": "-a"
+},
 
-	{
-		"type": "table-select",
-		"prompt": "Click the tile for 'the nurse'.",
-		"tiles": [
-			"👩‍⚕️ la enfermera",
-			"🏥 el hospital",
-			"💊 la medicina",
-			"🚑 la ambulancia",
-			"🦷 el dentista",
-			"💉 la vacuna"
-		],
-		"gridRows": 2,
-		"gridCols": 3,
-		"correctTile": "👩‍⚕️ la enfermera"
-	},
+{
+ "type": "table-select",
+ "prompt": "Which Spanish word means 'cat'?",
+ "tiles": ["🐱 gato", "📚 libro", "🍎 manzana"],
+ "gridRows": 1,
+ "gridCols": 3,
+ "correctTile": "🐱 gato"
+},
 
-	{
-		"type": "table-select",
-		"prompt": "Which word means 'the' for masculine nouns?",
-		"tiles": [
-			"el",
-			"la",
-			"los",
-			"las"
-		],
-		"gridRows": 2,
-		"gridCols": 2,
-		"correctTile": "el"
-	},
+{
+ "type": "table-select",
+ "prompt": "🐱 gato — Is this masculine or feminine?",
+ "tiles": ["masculine", "feminine"],
+ "gridRows": 1,
+ "gridCols": 2,
+ "correctTile": "masculine"
+},
 
-	{
-		"type": "table-select",
-		"prompt": "Which word means 'the' for feminine nouns?",
-		"tiles": [
-			"el",
-			"la",
-			"los",
-			"las"
-		],
-		"gridRows": 2,
-		"gridCols": 2,
-		"correctTile": "la"
-	},
+{
+ "type": "table-select",
+ "prompt": "Which Spanish word means 'house'?",
+ "tiles": ["🚪 puerta", "🏠 casa", "👦 chico"],
+ "gridRows": 1,
+ "gridCols": 3,
+ "correctTile": "🏠 casa"
+},
 
-	{
-		"type": "table-select",
-		"prompt": "Listen and click the phrase you hear.",
-		"tiles": [
-			"🏥 el hospital",
-			"💊 la medicina",
-			"🚑 la ambulancia"
-		],
-		"gridRows": 1,
-		"gridCols": 3,
-		"correctTile": "🏥 el hospital",
-		"audio": "el hospital"
-	},
+{
+ "type": "table-select",
+ "prompt": "🏠 casa — Is this masculine or feminine?",
+ "tiles": ["masculine", "feminine"],
+ "gridRows": 1,
+ "gridCols": 2,
+ "correctTile": "feminine"
+},
 
-	{
-		"type": "table-select",
-		"prompt": "Listen and click the phrase you hear.",
-		"tiles": [
-			"👩‍⚕️ la enfermera",
-			"🏥 el hospital",
-			"🦷 el dentista"
-		],
-		"gridRows": 1,
-		"gridCols": 3,
-		"correctTile": "👩‍⚕️ la enfermera",
-		"audio": "la enfermera"
-	},
+{
+ "type": "table-select",
+ "prompt": "Which Spanish word means 'boy'?",
+ "tiles": ["👧 chica", "👦 chico", "🐶 perro"],
+ "gridRows": 1,
+ "gridCols": 3,
+ "correctTile": "👦 chico"
+},
 
-	{
-		"type": "table-select",
-		"prompt": "Which article completes the phrase: ___ hospital",
-		"tiles": [
-			"el",
-			"la",
-			"los",
-			"las"
-		],
-		"gridRows": 2,
-		"gridCols": 2,
-		"correctTile": "el"
-	},
+{
+ "type": "table-select",
+ "prompt": "👦 chico — Is this masculine or feminine?",
+ "tiles": ["masculine", "feminine"],
+ "gridRows": 1,
+ "gridCols": 2,
+ "correctTile": "masculine"
+},
 
-	{
-		"type": "table-select",
-		"prompt": "Which article completes the phrase: ___ medicina",
-		"tiles": [
-			"el",
-			"la",
-			"los",
-			"las"
-		],
-		"gridRows": 2,
-		"gridCols": 2,
-		"correctTile": "la"
-	}
+{
+ "type": "table-select",
+ "prompt": "Which Spanish word means 'girl'?",
+ "tiles": ["👧 chica", "📚 libro", "🍎 manzana"],
+ "gridRows": 1,
+ "gridCols": 3,
+ "correctTile": "👧 chica"
+},
 
-	]
+{
+ "type": "table-select",
+ "prompt": "👧 chica — Is this masculine or feminine?",
+ "tiles": ["masculine", "feminine"],
+ "gridRows": 1,
+ "gridCols": 2,
+ "correctTile": "feminine"
+},
+
+{
+ "type": "table-select",
+ "prompt": "Which Spanish word means 'book'?",
+ "tiles": ["📚 libro", "🚪 puerta", "🐱 gato"],
+ "gridRows": 1,
+ "gridCols": 3,
+ "correctTile": "📚 libro"
+},
+
+{
+ "type": "table-select",
+ "prompt": "📚 libro — Is this masculine or feminine?",
+ "tiles": ["masculine", "feminine"],
+ "gridRows": 1,
+ "gridCols": 2,
+ "correctTile": "masculine"
+},
+
+{
+ "type": "table-select",
+ "prompt": "Which Spanish word means 'apple'?",
+ "tiles": ["🍎 manzana", "🐶 perro", "👦 chico"],
+ "gridRows": 1,
+ "gridCols": 3,
+ "correctTile": "🍎 manzana"
+},
+
+{
+ "type": "table-select",
+ "prompt": "🍎 manzana — Is this masculine or feminine?",
+ "tiles": ["masculine", "feminine"],
+ "gridRows": 1,
+ "gridCols": 2,
+ "correctTile": "feminine"
+}
+
+ ]
 }
