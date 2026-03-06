@@ -1,0 +1,139 @@
+{
+	"title": "Definite Articles",
+	"subtitle": "Lesson 1",
+	"questions": [
+
+	{
+		"type": "table-select",
+		"prompt": "Click the tile for 'the hospital'.",
+		"tiles": [
+			"🏥 el hospital",
+			"💊 la medicina",
+			"🚑 la ambulancia",
+			"👩‍⚕️ la enfermera",
+			"💉 la vacuna",
+			"🦷 el dentista"
+		],
+		"gridRows": 2,
+		"gridCols": 3,
+		"correctTile": "🏥 el hospital"
+	},
+
+	{
+		"type": "table-select",
+		"prompt": "Click the tile for 'the medicine'.",
+		"tiles": [
+			"🏥 el hospital",
+			"💊 la medicina",
+			"🚑 la ambulancia",
+			"👩‍⚕️ la enfermera",
+			"💉 la vacuna",
+			"🦷 el dentista"
+		],
+		"gridRows": 2,
+		"gridCols": 3,
+		"correctTile": "💊 la medicina"
+	},
+
+	{
+		"type": "table-select",
+		"prompt": "Click the tile for 'the nurse'.",
+		"tiles": [
+			"👩‍⚕️ la enfermera",
+			"🏥 el hospital",
+			"💊 la medicina",
+			"🚑 la ambulancia",
+			"🦷 el dentista",
+			"💉 la vacuna"
+		],
+		"gridRows": 2,
+		"gridCols": 3,
+		"correctTile": "👩‍⚕️ la enfermera"
+	},
+
+	{
+		"type": "table-select",
+		"prompt": "Which word means 'the' for masculine nouns?",
+		"tiles": [
+			"el",
+			"la",
+			"los",
+			"las"
+		],
+		"gridRows": 2,
+		"gridCols": 2,
+		"correctTile": "el"
+	},
+
+	{
+		"type": "table-select",
+		"prompt": "Which word means 'the' for feminine nouns?",
+		"tiles": [
+			"el",
+			"la",
+			"los",
+			"las"
+		],
+		"gridRows": 2,
+		"gridCols": 2,
+		"correctTile": "la"
+	},
+
+	{
+		"type": "table-select",
+		"prompt": "Listen and click the phrase you hear.",
+		"tiles": [
+			"🏥 el hospital",
+			"💊 la medicina",
+			"🚑 la ambulancia"
+		],
+		"gridRows": 1,
+		"gridCols": 3,
+		"correctTile": "🏥 el hospital",
+		"audio": "el hospital"
+	},
+
+	{
+		"type": "table-select",
+		"prompt": "Listen and click the phrase you hear.",
+		"tiles": [
+			"👩‍⚕️ la enfermera",
+			"🏥 el hospital",
+			"🦷 el dentista"
+		],
+		"gridRows": 1,
+		"gridCols": 3,
+		"correctTile": "👩‍⚕️ la enfermera",
+		"audio": "la enfermera"
+	},
+
+	{
+		"type": "table-select",
+		"prompt": "Which article completes the phrase: ___ hospital",
+		"tiles": [
+			"el",
+			"la",
+			"los",
+			"las"
+		],
+		"gridRows": 2,
+		"gridCols": 2,
+		"correctTile": "el"
+	},
+
+	{
+		"type": "table-select",
+		"prompt": "Which article completes the phrase: ___ medicina",
+		"tiles": [
+			"el",
+			"la",
+			"los",
+			"las"
+		],
+		"gridRows": 2,
+		"gridCols": 2,
+		"correctTile": "la"
+	}
+
+	]
+}
