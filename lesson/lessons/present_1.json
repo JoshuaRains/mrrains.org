@@ -79,7 +79,7 @@
     },
     {
       "type": "table-select",
-      "prompt": "In the present tense, which ending matches 'él / ella / usted'?",
+      "prompt": "which ending matches 'él / ella / usted'?",
       "tiles": [
         "-o",
         "-amos",
