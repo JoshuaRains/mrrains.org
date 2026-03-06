@@ -1,0 +1,258 @@
+{
+  "title": "C8 Present Tense Verbs",
+  "subtitle": "Lesson 2",
+  "questions": [
+    {
+      "type": "table-select",
+      "prompt": "Click the pronoun for 'I'.",
+      "tiles": [
+        "yo",
+        "nosotros",
+        "tú",
+        "vosotros",
+        "él / ella / usted",
+        "ellos / ellas / ustedes"
+      ],
+      "gridRows": 3,
+      "gridCols": 2,
+      "correctTile": "yo"
+    },
+    {
+      "type": "table-select",
+      "prompt": "In the present tense, which ending matches 'yo'?",
+      "tiles": [
+        "-o",
+        "-amos",
+        "-as",
+        "-áis",
+        "-a",
+        "-an"
+      ],
+      "gridRows": 3,
+      "gridCols": 2,
+      "correctTile": "-o"
+    },
+    {
+      "type": "table-select",
+      "prompt": "Which word means 'I talk'?",
+      "tiles": ["hablo", "hablas", "hablamos"],
+      "gridRows": 1,
+      "gridCols": 3,
+      "correctTile": "hablo"
+    },
+    {
+      "type": "table-select",
+      "prompt": "Which Spanish word means 'to talk'?",
+      "tiles": ["🗣️ hablar", "🚶 caminar", "👀 mirar"],
+      "gridRows": 1,
+      "gridCols": 3,
+      "correctTile": "🗣️ hablar"
+    },
+    {
+      "type": "table-select",
+      "prompt": "Click the pronoun for 'you'.",
+      "tiles": [
+        "yo",
+        "nosotros",
+        "tú",
+        "vosotros",
+        "él / ella / usted",
+        "ellos / ellas / ustedes"
+      ],
+      "gridRows": 3,
+      "gridCols": 2,
+      "correctTile": "tú"
+    },
+    {
+      "type": "table-select",
+      "prompt": "In the present tense, which ending matches 'tú'?",
+      "tiles": [
+        "-o",
+        "-amos",
+        "-as",
+        "-áis",
+        "-a",
+        "-an"
+      ],
+      "gridRows": 3,
+      "gridCols": 2,
+      "correctTile": "-as"
+    },
+    {
+      "type": "table-select",
+      "prompt": "Which word means 'you walk'?",
+      "tiles": ["camino", "caminas", "camináis"],
+      "gridRows": 1,
+      "gridCols": 3,
+      "correctTile": "caminas"
+    },
+    {
+      "type": "table-select",
+      "prompt": "Click the pronoun group for 'he / she / you'.",
+      "tiles": [
+        "yo",
+        "nosotros",
+        "tú",
+        "vosotros",
+        "él / ella / usted",
+        "ellos / ellas / ustedes"
+      ],
+      "gridRows": 3,
+      "gridCols": 2,
+      "correctTile": "él / ella / usted"
+    },
+    {
+      "type": "table-select",
+      "prompt": "In the present tense, which ending matches 'él / ella / usted'?",
+      "tiles": [
+        "-o",
+        "-amos",
+        "-as",
+        "-áis",
+        "-a",
+        "-an"
+      ],
+      "gridRows": 3,
+      "gridCols": 2,
+      "correctTile": "-a"
+    },
+    {
+      "type": "table-select",
+      "prompt": "Which word means 'he looks'?",
+      "tiles": ["miro", "mira", "miramos"],
+      "gridRows": 1,
+      "gridCols": 3,
+      "correctTile": "mira"
+    },
+    {
+      "type": "table-select",
+      "prompt": "Which Spanish word means 'to eat'?",
+      "tiles": ["🗣️ hablar", "🍽️ comer", "📖 leer"],
+      "gridRows": 1,
+      "gridCols": 3,
+      "correctTile": "🍽️ comer"
+    },
+    {
+      "type": "table-select",
+      "prompt": "Click the pronoun for 'we'.",
+      "tiles": [
+        "yo",
+        "nosotros",
+        "tú",
+        "vosotros",
+        "él / ella / usted",
+        "ellos / ellas / ustedes"
+      ],
+      "gridRows": 3,
+      "gridCols": 2,
+      "correctTile": "nosotros"
+    },
+    {
+      "type": "table-select",
+      "prompt": "In the present tense, which ending matches 'nosotros'?",
+      "tiles": [
+        "-o",
+        "-amos",
+        "-as",
+        "-áis",
+        "-a",
+        "-an"
+      ],
+      "gridRows": 3,
+      "gridCols": 2,
+      "correctTile": "-amos"
+    },
+    {
+      "type": "table-select",
+      "prompt": "Which word means 'we study'?",
+      "tiles": ["estudio", "estudiamos", "estudian"],
+      "gridRows": 1,
+      "gridCols": 3,
+      "correctTile": "estudiamos"
+    },
+    {
+      "type": "table-select",
+      "prompt": "Click the pronoun for 'y'all'.",
+      "tiles": [
+        "yo",
+        "nosotros",
+        "tú",
+        "vosotros",
+        "él / ella / usted",
+        "ellos / ellas / ustedes"
+      ],
+      "gridRows": 3,
+      "gridCols": 2,
+      "correctTile": "vosotros"
+    },
+    {
+      "type": "table-select",
+      "prompt": "In the present tense, which ending matches 'vosotros'?",
+      "tiles": [
+        "-o",
+        "-amos",
+        "-as",
+        "-áis",
+        "-a",
+        "-an"
+      ],
+      "gridRows": 3,
+      "gridCols": 2,
+      "correctTile": "-áis"
+    },
+    {
+      "type": "table-select",
+      "prompt": "Which word means 'y'all eat'?",
+      "tiles": ["comen", "coméis", "como"],
+      "gridRows": 1,
+      "gridCols": 3,
+      "correctTile": "coméis"
+    },
+    {
+      "type": "table-select",
+      "prompt": "Which Spanish word means 'to study'?",
+      "tiles": ["📚 estudiar", "🎧 escuchar", "✍️ dibujar"],
+      "gridRows": 1,
+      "gridCols": 3,
+      "correctTile": "📚 estudiar"
+    },
+    {
+      "type": "table-select",
+      "prompt": "Click the pronoun group for 'they / y'all'.",
+      "tiles": [
+        "yo",
+        "nosotros",
+        "tú",
+        "vosotros",
+        "él / ella / usted",
+        "ellos / ellas / ustedes"
+      ],
+      "gridRows": 3,
+      "gridCols": 2,
+      "correctTile": "ellos / ellas / ustedes"
+    },
+    {
+      "type": "table-select",
+      "prompt": "In the present tense, which ending matches 'ellos / ellas / ustedes'?",
+      "tiles": [
+        "-o",
+        "-amos",
+        "-as",
+        "-áis",
+        "-a",
+        "-an"
+      ],
+      "gridRows": 3,
+      "gridCols": 2,
+      "correctTile": "-an"
+    },
+    {
+      "type": "table-select",
+      "prompt": "Which word means 'they listen'?",
+      "tiles": ["escuchan", "escucháis", "escucho"],
+      "gridRows": 1,
+      "gridCols": 3,
+      "correctTile": "escuchan"
+    }
+  ]
+}
