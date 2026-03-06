@@ -172,7 +172,7 @@
     },
     {
       "type": "table-select",
-      "prompt": "Click the pronoun for 'y'all 🇪🇸'.",
+      "prompt": "Click the pronoun for 'y'all (Spain)'.",
       "tiles": [
         "yo",
         "nosotros",
@@ -187,7 +187,7 @@
     },
     {
       "type": "table-select",
-      "prompt": "In the present tense, which ending matches 'vosotros 🇪🇸'?",
+      "prompt": "In the present tense, which ending matches 'vosotros (Spain)'?",
       "tiles": [
         "-o",
         "-amos",
@@ -202,7 +202,7 @@
     },
     {
       "type": "table-select",
-      "prompt": "Which word means 'y'all eat 🇪🇸'?",
+      "prompt": "Which word means 'y'all eat (Spain)'?",
       "tiles": ["comen", "coméis", "como"],
       "gridRows": 1,
       "gridCols": 3,
