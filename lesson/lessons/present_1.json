@@ -20,9 +20,16 @@
     {
       "type": "table-select",
       "prompt": "In the present tense, which ending matches 'yo'?",
-      "tiles": ["-o", "-as", "-an"],
-      "gridRows": 1,
-      "gridCols": 3,
+      "tiles": [
+        "-o",
+        "-amos",
+        "-as",
+        "-áis",
+        "-a",
+        "-an"
+      ],
+      "gridRows": 3,
+      "gridCols": 2,
       "correctTile": "-o"
     },
     {
@@ -43,9 +50,16 @@
     {
       "type": "table-select",
       "prompt": "In the present tense, which ending matches 'tú'?",
-      "tiles": ["-a", "-as", "-amos"],
-      "gridRows": 1,
-      "gridCols": 3,
+      "tiles": [
+        "-o",
+        "-amos",
+        "-as",
+        "-áis",
+        "-a",
+        "-an"
+      ],
+      "gridRows": 3,
+      "gridCols": 2,
       "correctTile": "-as"
     },
     {
@@ -66,9 +80,16 @@
     {
       "type": "table-select",
       "prompt": "In the present tense, which ending matches 'él / ella / usted'?",
-      "tiles": ["-o", "-a", "-an"],
-      "gridRows": 1,
-      "gridCols": 3,
+      "tiles": [
+        "-o",
+        "-amos",
+        "-as",
+        "-áis",
+        "-a",
+        "-an"
+      ],
+      "gridRows": 3,
+      "gridCols": 2,
       "correctTile": "-a"
     },
     {
@@ -89,9 +110,16 @@
     {
       "type": "table-select",
       "prompt": "In the present tense, which ending matches 'nosotros'?",
-      "tiles": ["-amos", "-an", "-as"],
-      "gridRows": 1,
-      "gridCols": 3,
+      "tiles": [
+        "-o",
+        "-amos",
+        "-as",
+        "-áis",
+        "-a",
+        "-an"
+      ],
+      "gridRows": 3,
+      "gridCols": 2,
       "correctTile": "-amos"
     },
     {
@@ -112,9 +140,16 @@
     {
       "type": "table-select",
       "prompt": "In the present tense, which ending matches 'vosotros'?",
-      "tiles": ["-amos", "-áis", "-an"],
-      "gridRows": 1,
-      "gridCols": 3,
+      "tiles": [
+        "-o",
+        "-amos",
+        "-as",
+        "-áis",
+        "-a",
+        "-an"
+      ],
+      "gridRows": 3,
+      "gridCols": 2,
       "correctTile": "-áis"
     },
     {
@@ -135,9 +170,16 @@
     {
       "type": "table-select",
       "prompt": "In the present tense, which ending matches 'ellos / ellas / ustedes'?",
-      "tiles": ["-an", "-a", "-o"],
-      "gridRows": 1,
-      "gridCols": 3,
+      "tiles": [
+        "-o",
+        "-amos",
+        "-as",
+        "-áis",
+        "-a",
+        "-an"
+      ],
+      "gridRows": 3,
+      "gridCols": 2,
       "correctTile": "-an"
     },
     {
