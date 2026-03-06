@@ -169,7 +169,7 @@
     },
     {
       "type": "table-select",
-      "prompt": "In the present tense, which ending matches 'ellos / ellas / ustedes'?",
+      "prompt": "which ending matches 'ellos / ellas / ustedes'?",
       "tiles": [
         "-o",
         "-amos",
