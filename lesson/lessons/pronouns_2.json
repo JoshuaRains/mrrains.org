@@ -1,0 +1,117 @@
+{
+  "title": "C1 Subject Pronouns",
+  "subtitle": "Lesson 2",
+  "questions": [
+    {
+      "type": "table-select",
+      "prompt": "Which word means 'I'?",
+      "tiles": ["yo", "él", "nosotros"],
+      "gridRows": 1,
+      "gridCols": 3,
+      "correctTile": "yo"
+    },
+    {
+      "type": "table-select",
+      "prompt": "Which word means 'he'?",
+      "tiles": ["él", "ella", "yo"],
+      "gridRows": 1,
+      "gridCols": 3,
+      "correctTile": "él"
+    },
+    {
+      "type": "table-select",
+      "prompt": "Which is the formal version of 'you'?",
+      "tiles": ["tú", "usted"],
+      "gridRows": 1,
+      "gridCols": 2,
+      "correctTile": "usted"
+    },
+    {
+      "type": "table-select",
+      "prompt": "Listen and click the pronoun you hear.",
+      "tiles": ["yo", "tú", "él"],
+      "gridRows": 1,
+      "gridCols": 3,
+      "correctTile": "yo",
+      "audio": "yo"
+    },
+    {
+      "type": "table-select",
+      "prompt": "Listen and click the pronoun you hear.",
+      "tiles": ["ella", "él", "yo"],
+      "gridRows": 1,
+      "gridCols": 3,
+      "correctTile": "ella",
+      "audio": "ella"
+    },
+    {
+      "type": "table-select",
+      "prompt": "Listen and click the pronoun you hear.",
+      "tiles": ["nosotros", "ellos", "ustedes"],
+      "gridRows": 1,
+      "gridCols": 3,
+      "correctTile": "nosotros",
+      "audio": "nosotros"
+    },
+    {
+      "type": "table-select",
+      "prompt": "Listen and click the pronoun you hear.",
+      "tiles": ["ustedes", "tú", "yo"],
+      "gridRows": 1,
+      "gridCols": 3,
+      "correctTile": "ustedes",
+      "audio": "ustedes"
+    },
+    {
+      "type": "table-select",
+      "prompt": "Listen and click the pronoun you hear.",
+      "tiles": ["usted", "tú", "él"],
+      "gridRows": 1,
+      "gridCols": 3,
+      "correctTile": "tú",
+      "audio": "tú"
+    },
+    {
+      "type": "type-en-es-typed",
+      "sentence": "I",
+      "answerText": "yo",
+      "answerTexts": [],
+      "audio": "yo"
+    },
+    {
+      "type": "type-en-es-typed",
+      "sentence": "he",
+      "answerText": "él",
+      "answerTexts": [],
+      "audio": "él"
+    },
+    {
+      "type": "type-en-es-typed",
+      "sentence": "she",
+      "answerText": "ella",
+      "answerTexts": [],
+      "audio": "ella"
+    },
+    {
+      "type": "type-en-es-typed",
+      "sentence": "we",
+      "answerText": "nosotros",
+      "answerTexts": [],
+      "audio": "nosotros"
+    },
+    {
+      "type": "type-en-es-typed",
+      "sentence": "they",
+      "answerText": "ellos",
+      "answerTexts": [],
+      "audio": "ellos"
+    },
+    {
+      "type": "type-en-es-typed",
+      "sentence": "y'all",
+      "answerText": "ustedes",
+      "answerTexts": [],
+      "audio": "ustedes"
+    }
+  ]
+}
