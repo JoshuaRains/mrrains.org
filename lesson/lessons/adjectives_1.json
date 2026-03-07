@@ -1,0 +1,86 @@
+ {
+    "title": "C3 Adjectives",
+    "subtitle": "Lesson 1",
+    "questions": [
+      {
+        "type": "table-select",
+        "prompt": "Which Spanish word means 'red'?",
+        "tiles": ["🔴 rojo", "🔵 azul", "🟢 verde"],
+        "gridRows": 1,
+        "gridCols": 3,
+        "correctTile": "🔴 rojo"
+      },
+      {
+        "type": "table-select",
+        "prompt": "Which Spanish word means 'tall'?",
+        "tiles": ["📏 alto", "⬇️ bajo"],
+        "gridRows": 1,
+        "gridCols": 2,
+        "correctTile": "📏 alto"
+      },
+      {
+        "type": "table-select",
+        "prompt": "Which Spanish word means 'short'?",
+        "tiles": ["📏 alto", "⬇️ bajo"],
+        "gridRows": 1,
+        "gridCols": 2,
+        "correctTile": "⬇️ bajo"
+      },
+      {
+        "type": "table-select",
+        "prompt": "Which Spanish word means 'big'?",
+        "tiles": ["📏 grande", "🤏 pequeño"],
+        "gridRows": 1,
+        "gridCols": 2,
+        "correctTile": "📏 grande"
+      },
+      {
+        "type": "table-select",
+        "prompt": "Which Spanish word means 'small'?",
+        "tiles": ["📏 grande", "🤏 pequeño"],
+        "gridRows": 1,
+        "gridCols": 2,
+        "correctTile": "🤏 pequeño"
+      },
+      {
+        "type": "table-select",
+        "prompt": "Which word means 'red book'?",
+        "tiles": ["libro rojo", "libro roja", "libros rojos"],
+        "gridRows": 1,
+        "gridCols": 3,
+        "correctTile": "libro rojo"
+      },
+      {
+        "type": "table-select",
+        "prompt": "Which word means 'tall boy'?",
+        "tiles": ["chico alto", "chico alta", "chica alta"],
+        "gridRows": 1,
+        "gridCols": 3,
+        "correctTile": "chico alto"
+      },
+      {
+        "type": "table-select",
+        "prompt": "Which word means 'big door'?",
+        "tiles": ["puerta grande", "puerta rojo", "puertas grandes"],
+        "gridRows": 1,
+        "gridCols": 3,
+        "correctTile": "puerta grande"
+      },
+      {
+        "type": "table-select",
+        "prompt": "Which word means 'small apple'?",
+        "tiles": ["manzana pequeña", "manzana pequeño", "manzanas pequeñas"],
+        "gridRows": 1,
+        "gridCols": 3,
+        "correctTile": "manzana pequeña"
+      },
+      {
+        "type": "table-select",
+        "prompt": "Which word means 'short girl'?",
+        "tiles": ["chica baja", "chica bajo", "chico bajo"],
+        "gridRows": 1,
+        "gridCols": 3,
+        "correctTile": "chica baja"
+      }
+    ]
+  }

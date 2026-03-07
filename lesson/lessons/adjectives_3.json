@@ -1,0 +1,86 @@
+{
+    "title": "C3 Adjectives",
+    "subtitle": "Lesson 3",
+    "questions": [
+      {
+        "type": "table-select",
+        "prompt": "Which Spanish word means 'blue'?",
+        "tiles": ["🔵 azul", "🔴 rojo", "🟢 verde"],
+        "gridRows": 1,
+        "gridCols": 3,
+        "correctTile": "🔵 azul"
+      },
+      {
+        "type": "table-select",
+        "prompt": "Which Spanish word means 'green'?",
+        "tiles": ["🟢 verde", "🔵 azul", "📏 alto"],
+        "gridRows": 1,
+        "gridCols": 3,
+        "correctTile": "🟢 verde"
+      },
+      {
+        "type": "table-select",
+        "prompt": "Listen and click the phrase you hear.",
+        "tiles": ["el libro rojo", "el libro verde", "la puerta roja"],
+        "gridRows": 1,
+        "gridCols": 3,
+        "correctTile": "el libro rojo",
+        "audio": "el libro rojo"
+      },
+      {
+        "type": "table-select",
+        "prompt": "Listen and click the phrase you hear.",
+        "tiles": ["la chica baja", "la chica alta", "el chico alto"],
+        "gridRows": 1,
+        "gridCols": 3,
+        "correctTile": "la chica baja",
+        "audio": "la chica baja"
+      },
+      {
+        "type": "table-select",
+        "prompt": "Listen and click the phrase you hear.",
+        "tiles": ["los libros verdes", "los libros rojos", "las puertas verdes"],
+        "gridRows": 1,
+        "gridCols": 3,
+        "correctTile": "los libros verdes",
+        "audio": "los libros verdes"
+      },
+      {
+        "type": "table-select",
+        "prompt": "Listen and click the phrase you hear.",
+        "tiles": ["las puertas grandes", "las puertas pequeñas", "la puerta grande"],
+        "gridRows": 1,
+        "gridCols": 3,
+        "correctTile": "las puertas grandes",
+        "audio": "las puertas grandes"
+      },
+      {
+        "type": "type-en-es-typed",
+        "sentence": "the red book",
+        "answerText": "el libro rojo",
+        "answerTexts": [],
+        "audio": "el libro rojo"
+      },
+      {
+        "type": "type-en-es-typed",
+        "sentence": "the short girl",
+        "answerText": "la chica baja",
+        "answerTexts": [],
+        "audio": "la chica baja"
+      },
+      {
+        "type": "type-en-es-typed",
+        "sentence": "the big doors",
+        "answerText": "las puertas grandes",
+        "answerTexts": [],
+        "audio": "las puertas grandes"
+      },
+      {
+        "type": "type-en-es-typed",
+        "sentence": "the small apples",
+        "answerText": "las manzanas pequeñas",
+        "answerTexts": [],
+        "audio": "las manzanas pequeñas"
+      }
+    ]
+  }

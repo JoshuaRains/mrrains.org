@@ -1,0 +1,86 @@
+{
+    "title": "C3 Adjectives",
+    "subtitle": "Lesson 2",
+    "questions": [
+      {
+        "type": "table-select",
+        "prompt": "Which Spanish word means 'red'?",
+        "tiles": ["🔴 rojo", "🔵 azul", "🟢 verde"],
+        "gridRows": 1,
+        "gridCols": 3,
+        "correctTile": "🔴 rojo"
+      },
+      {
+        "type": "table-select",
+        "prompt": "Which word means 'the red book'?",
+        "tiles": ["el libro rojo", "la libro roja", "el libro roja"],
+        "gridRows": 1,
+        "gridCols": 3,
+        "correctTile": "el libro rojo"
+      },
+      {
+        "type": "table-select",
+        "prompt": "Which word means 'the tall boy'?",
+        "tiles": ["el chico alto", "el chico alta", "la chica alta"],
+        "gridRows": 1,
+        "gridCols": 3,
+        "correctTile": "el chico alto"
+      },
+      {
+        "type": "table-select",
+        "prompt": "Which word means 'the short girl'?",
+        "tiles": ["la chica baja", "la chica bajo", "el chico bajo"],
+        "gridRows": 1,
+        "gridCols": 3,
+        "correctTile": "la chica baja"
+      },
+      {
+        "type": "table-select",
+        "prompt": "Which word means 'the big door'?",
+        "tiles": ["la puerta grande", "el puerta grande", "la puerta grandes"],
+        "gridRows": 1,
+        "gridCols": 3,
+        "correctTile": "la puerta grande"
+      },
+      {
+        "type": "table-select",
+        "prompt": "Which word means 'the small apple'?",
+        "tiles": ["la manzana pequeña", "la manzana pequeño", "el manzana pequeño"],
+        "gridRows": 1,
+        "gridCols": 3,
+        "correctTile": "la manzana pequeña"
+      },
+      {
+        "type": "table-select",
+        "prompt": "Which word means 'the red books'?",
+        "tiles": ["los libros rojos", "los libros rojo", "las libros rojas"],
+        "gridRows": 1,
+        "gridCols": 3,
+        "correctTile": "los libros rojos"
+      },
+      {
+        "type": "table-select",
+        "prompt": "Which word means 'the tall boys'?",
+        "tiles": ["los chicos altos", "los chicos alto", "las chicas altas"],
+        "gridRows": 1,
+        "gridCols": 3,
+        "correctTile": "los chicos altos"
+      },
+      {
+        "type": "table-select",
+        "prompt": "Which word means 'the short girls'?",
+        "tiles": ["las chicas bajas", "las chicas bajo", "los chicos bajos"],
+        "gridRows": 1,
+        "gridCols": 3,
+        "correctTile": "las chicas bajas"
+      },
+      {
+        "type": "table-select",
+        "prompt": "Which word means 'the big doors'?",
+        "tiles": ["las puertas grandes", "las puertas grande", "los puertas grandes"],
+        "gridRows": 1,
+        "gridCols": 3,
+        "correctTile": "las puertas grandes"
+      }
+    ]
+  }

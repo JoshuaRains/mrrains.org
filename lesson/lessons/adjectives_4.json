@@ -1,0 +1,118 @@
+{
+    "title": "C3 Adjectives",
+    "subtitle": "Lesson 4",
+    "questions": [
+      {
+        "type": "table-select",
+        "prompt": "Listen and click the phrase you hear.",
+        "tiles": ["el chico alto", "el chico bajo", "la chica alta"],
+        "gridRows": 1,
+        "gridCols": 3,
+        "correctTile": "el chico alto",
+        "audio": "el chico alto"
+      },
+      {
+        "type": "table-select",
+        "prompt": "Listen and click the phrase you hear.",
+        "tiles": ["la manzana pequeña", "la manzana roja", "las manzanas pequeñas"],
+        "gridRows": 1,
+        "gridCols": 3,
+        "correctTile": "la manzana pequeña",
+        "audio": "la manzana pequeña"
+      },
+      {
+        "type": "table-select",
+        "prompt": "Listen and click the phrase you hear.",
+        "tiles": ["los libros azules", "los libros verdes", "el libro azul"],
+        "gridRows": 1,
+        "gridCols": 3,
+        "correctTile": "los libros azules",
+        "audio": "los libros azules"
+      },
+      {
+        "type": "table-select",
+        "prompt": "Listen and click the phrase you hear.",
+        "tiles": ["las chicas bajas", "los chicos altos", "la chica baja"],
+        "gridRows": 1,
+        "gridCols": 3,
+        "correctTile": "las chicas bajas",
+        "audio": "las chicas bajas"
+      },
+      {
+        "type": "type-en-es-typed",
+        "sentence": "the tall boy",
+        "answerText": "el chico alto",
+        "answerTexts": [],
+        "audio": "el chico alto"
+      },
+      {
+        "type": "type-en-es-typed",
+        "sentence": "the short girl",
+        "answerText": "la chica baja",
+        "answerTexts": [],
+        "audio": "la chica baja"
+      },
+      {
+        "type": "type-en-es-typed",
+        "sentence": "the green books",
+        "answerText": "los libros verdes",
+        "answerTexts": [],
+        "audio": "los libros verdes"
+      },
+      {
+        "type": "type-en-es-typed",
+        "sentence": "the big doors",
+        "answerText": "las puertas grandes",
+        "answerTexts": [],
+        "audio": "las puertas grandes"
+      },
+      {
+        "type": "listen-es-es-typed",
+        "answerText": "el libro rojo",
+        "answerTexts": [],
+        "audio": "el libro rojo"
+      },
+      {
+        "type": "listen-es-es-typed",
+        "answerText": "la puerta grande",
+        "answerTexts": [],
+        "audio": "la puerta grande"
+      },
+      {
+        "type": "listen-es-es-typed",
+        "answerText": "los libros azules",
+        "answerTexts": [],
+        "audio": "los libros azules"
+      },
+      {
+        "type": "listen-es-es-typed",
+        "answerText": "las chicas bajas",
+        "answerTexts": [],
+        "audio": "las chicas bajas"
+      },
+      {
+        "type": "listen-es-en-typed",
+        "answerText": "the red book",
+        "answerTexts": [],
+        "audio": "el libro rojo"
+      },
+      {
+        "type": "listen-es-en-typed",
+        "answerText": "the big door",
+        "answerTexts": [],
+        "audio": "la puerta grande"
+      },
+      {
+        "type": "listen-es-en-typed",
+        "answerText": "the blue books",
+        "answerTexts": [],
+        "audio": "los libros azules"
+      },
+      {
+        "type": "listen-es-en-typed",
+        "answerText": "the short girls",
+        "answerTexts": [],
+        "audio": "las chicas bajas"
+      }
+    ]
+  }
