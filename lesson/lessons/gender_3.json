@@ -1,0 +1,142 @@
+  {
+    "title": "C2 Noun Gender and Number",
+    "subtitle": "Lesson 3",
+    "questions": [
+      {
+        "type": "table-select",
+        "prompt": "Which Spanish word means 'girls'?",
+        "tiles": ["👧 chicas", "👦 chico", "📚 libro"],
+        "gridRows": 1,
+        "gridCols": 3,
+        "correctTile": "👧 chicas"
+      },
+      {
+        "type": "table-select",
+        "prompt": "chicas - Is this singular or plural?",
+        "tiles": ["singular", "plural"],
+        "gridRows": 1,
+        "gridCols": 2,
+        "correctTile": "plural"
+      },
+      {
+        "type": "table-select",
+        "prompt": "Listen and click the noun you hear.",
+        "tiles": ["libro", "libros", "puerta"],
+        "gridRows": 1,
+        "gridCols": 3,
+        "correctTile": "libro",
+        "audio": "libro"
+      },
+      {
+        "type": "table-select",
+        "prompt": "libro - Is this masculine or feminine?",
+        "tiles": ["masculine", "feminine"],
+        "gridRows": 1,
+        "gridCols": 2,
+        "correctTile": "masculine"
+      },
+      {
+        "type": "table-select",
+        "prompt": "Listen and click the noun you hear.",
+        "tiles": ["manzana", "manzanas", "libro"],
+        "gridRows": 1,
+        "gridCols": 3,
+        "correctTile": "manzanas",
+        "audio": "manzanas"
+      },
+      {
+        "type": "table-select",
+        "prompt": "manzanas - Is this singular or plural?",
+        "tiles": ["singular", "plural"],
+        "gridRows": 1,
+        "gridCols": 2,
+        "correctTile": "plural"
+      },
+      {
+        "type": "table-select",
+        "prompt": "Listen and click the noun you hear.",
+        "tiles": ["chico", "chicos", "chica"],
+        "gridRows": 1,
+        "gridCols": 3,
+        "correctTile": "chicos",
+        "audio": "chicos"
+      },
+      {
+        "type": "table-select",
+        "prompt": "chicos - Is this masculine or feminine?",
+        "tiles": ["masculine", "feminine"],
+        "gridRows": 1,
+        "gridCols": 2,
+        "correctTile": "masculine"
+      },
+      {
+        "type": "table-select",
+        "prompt": "Listen and click the noun you hear.",
+        "tiles": ["puerta", "puertas", "libros"],
+        "gridRows": 1,
+        "gridCols": 3,
+        "correctTile": "puertas",
+        "audio": "puertas"
+      },
+      {
+        "type": "table-select",
+        "prompt": "puertas - Is this singular or plural?",
+        "tiles": ["singular", "plural"],
+        "gridRows": 1,
+        "gridCols": 2,
+        "correctTile": "plural"
+      },
+      {
+        "type": "type-en-es-typed",
+        "sentence": "book",
+        "answerText": "libro",
+        "answerTexts": [],
+        "audio": "libro"
+      },
+      {
+        "type": "type-en-es-typed",
+        "sentence": "door",
+        "answerText": "puerta",
+        "answerTexts": [],
+        "audio": "puerta"
+      },
+      {
+        "type": "type-en-es-typed",
+        "sentence": "books",
+        "answerText": "libros",
+        "answerTexts": [],
+        "audio": "libros"
+      },
+      {
+        "type": "type-en-es-typed",
+        "sentence": "girls",
+        "answerText": "chicas",
+        "answerTexts": [],
+        "audio": "chicas"
+      },
+      {
+        "type": "listen-es-es-typed",
+        "answerText": "chico",
+        "answerTexts": [],
+        "audio": "chico"
+      },
+      {
+        "type": "listen-es-es-typed",
+        "answerText": "puerta",
+        "answerTexts": [],
+        "audio": "puerta"
+      },
+      {
+        "type": "listen-es-es-typed",
+        "answerText": "libros",
+        "answerTexts": [],
+        "audio": "libros"
+      },
+      {
+        "type": "listen-es-es-typed",
+        "answerText": "manzanas",
+        "answerTexts": [],
+        "audio": "manzanas"
+      }
+          ]
+  }

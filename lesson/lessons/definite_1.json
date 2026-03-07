@@ -1,0 +1,102 @@
+  {
+    "title": "C2 Definite Articles",
+    "subtitle": "Lesson 1",
+    "questions": [
+      {
+        "type": "table-select",
+        "prompt": "Which word means 'the' for a masculine singular noun?",
+        "tiles": ["el", "la", "los", "las"],
+        "gridRows": 2,
+        "gridCols": 2,
+        "correctTile": "el"
+      },
+      {
+        "type": "table-select",
+        "prompt": "Which word means 'the' for a feminine singular noun?",
+        "tiles": ["el", "la", "los", "las"],
+        "gridRows": 2,
+        "gridCols": 2,
+        "correctTile": "la"
+      },
+      {
+        "type": "table-select",
+        "prompt": "Which word means 'the' for masculine plural nouns?",
+        "tiles": ["el", "la", "los", "las"],
+        "gridRows": 2,
+        "gridCols": 2,
+        "correctTile": "los"
+      },
+      {
+        "type": "table-select",
+        "prompt": "Which word means 'the' for feminine plural nouns?",
+        "tiles": ["el", "la", "los", "las"],
+        "gridRows": 2,
+        "gridCols": 2,
+        "correctTile": "las"
+      },
+      {
+        "type": "table-select",
+        "prompt": "Which Spanish word means 'book'?",
+        "tiles": ["📚 libro", "🍎 manzana", "🏠 casa"],
+        "gridRows": 1,
+        "gridCols": 3,
+        "correctTile": "📚 libro"
+      },
+      {
+        "type": "table-select",
+        "prompt": "Which is correct for 'the book'?",
+        "tiles": ["el libro", "la libro"],
+        "gridRows": 1,
+        "gridCols": 2,
+        "correctTile": "el libro"
+      },
+      {
+        "type": "table-select",
+        "prompt": "Which Spanish word means 'apple'?",
+        "tiles": ["🪑 escritorio", "🍎 manzana", "👦 chico"],
+        "gridRows": 1,
+        "gridCols": 3,
+        "correctTile": "🍎 manzana"
+      },
+      {
+        "type": "table-select",
+        "prompt": "Which is correct for 'the apple'?",
+        "tiles": ["el manzana", "la manzana"],
+        "gridRows": 1,
+        "gridCols": 2,
+        "correctTile": "la manzana"
+      },
+      {
+        "type": "table-select",
+        "prompt": "Which Spanish word means 'boys'?",
+        "tiles": ["👦 chicos", "🪑 sillas", "🏠 casas"],
+        "gridRows": 1,
+        "gridCols": 3,
+        "correctTile": "👦 chicos"
+      },
+      {
+        "type": "table-select",
+        "prompt": "Which is correct for 'the boys'?",
+        "tiles": ["los chicos", "las chicos"],
+        "gridRows": 1,
+        "gridCols": 2,
+        "correctTile": "los chicos"
+      },
+      {
+        "type": "table-select",
+        "prompt": "Which Spanish word means 'chairs'?",
+        "tiles": ["📚 libros", "🪑 sillas", "👦 chicos"],
+        "gridRows": 1,
+        "gridCols": 3,
+        "correctTile": "🪑 sillas"
+      },
+      {
+        "type": "table-select",
+        "prompt": "Which is correct for 'the chairs'?",
+        "tiles": ["los sillas", "las sillas"],
+        "gridRows": 1,
+        "gridCols": 2,
+        "correctTile": "las sillas"
+      }
+    ]
+  }

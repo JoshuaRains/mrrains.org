@@ -1,0 +1,142 @@
+{
+    "title": "C2 Noun Gender and Number",
+    "subtitle": "Lesson 2",
+    "questions": [
+      {
+        "type": "table-select",
+        "prompt": "Which ending is typically masculine?",
+        "tiles": ["-o", "-a"],
+        "gridRows": 1,
+        "gridCols": 2,
+        "correctTile": "-o"
+      },
+      {
+        "type": "table-select",
+        "prompt": "Which Spanish word means 'book'?",
+        "tiles": ["📚 libro", "🚪 puerta", "🍎 manzana"],
+        "gridRows": 1,
+        "gridCols": 3,
+        "correctTile": "📚 libro"
+      },
+      {
+        "type": "table-select",
+        "prompt": "libro - Is this masculine or feminine?",
+        "tiles": ["masculine", "feminine"],
+        "gridRows": 1,
+        "gridCols": 2,
+        "correctTile": "masculine"
+      },
+      {
+        "type": "table-select",
+        "prompt": "Which Spanish word means 'books'?",
+        "tiles": ["📚 libros", "🚪 puerta", "🍎 manzana"],
+        "gridRows": 1,
+        "gridCols": 3,
+        "correctTile": "📚 libros"
+      },
+      {
+        "type": "table-select",
+        "prompt": "libros - Is this singular or plural?",
+        "tiles": ["singular", "plural"],
+        "gridRows": 1,
+        "gridCols": 2,
+        "correctTile": "plural"
+      },
+      {
+        "type": "table-select",
+        "prompt": "Which Spanish word means 'door'?",
+        "tiles": ["📚 cuaderno", "🚪 puerta", "👦 chico"],
+        "gridRows": 1,
+        "gridCols": 3,
+        "correctTile": "🚪 puerta"
+      },
+      {
+        "type": "table-select",
+        "prompt": "puerta - Is this masculine or feminine?",
+        "tiles": ["masculine", "feminine"],
+        "gridRows": 1,
+        "gridCols": 2,
+        "correctTile": "feminine"
+      },
+      {
+        "type": "table-select",
+        "prompt": "Which Spanish word means 'doors'?",
+        "tiles": ["🚪 puertas", "📚 libro", "👧 chica"],
+        "gridRows": 1,
+        "gridCols": 3,
+        "correctTile": "🚪 puertas"
+      },
+      {
+        "type": "table-select",
+        "prompt": "puertas - Is this singular or plural?",
+        "tiles": ["singular", "plural"],
+        "gridRows": 1,
+        "gridCols": 2,
+        "correctTile": "plural"
+      },
+      {
+        "type": "table-select",
+        "prompt": "Which Spanish word means 'boy'?",
+        "tiles": ["👦 chico", "🍎 manzana", "🚪 puerta"],
+        "gridRows": 1,
+        "gridCols": 3,
+        "correctTile": "👦 chico"
+      },
+      {
+        "type": "table-select",
+        "prompt": "chico - Is this masculine or feminine?",
+        "tiles": ["masculine", "feminine"],
+        "gridRows": 1,
+        "gridCols": 2,
+        "correctTile": "masculine"
+      },
+      {
+        "type": "table-select",
+        "prompt": "Which Spanish word means 'boys'?",
+        "tiles": ["👦 chicos", "👧 chica", "📚 libro"],
+        "gridRows": 1,
+        "gridCols": 3,
+        "correctTile": "👦 chicos"
+      },
+      {
+        "type": "table-select",
+        "prompt": "chicos - Is this singular or plural?",
+        "tiles": ["singular", "plural"],
+        "gridRows": 1,
+        "gridCols": 2,
+        "correctTile": "plural"
+      },
+      {
+        "type": "table-select",
+        "prompt": "Which Spanish word means 'apple'?",
+        "tiles": ["🍎 manzana", "👦 chico", "📚 cuaderno"],
+        "gridRows": 1,
+        "gridCols": 3,
+        "correctTile": "🍎 manzana"
+      },
+      {
+        "type": "table-select",
+        "prompt": "manzana - Is this masculine or feminine?",
+        "tiles": ["masculine", "feminine"],
+        "gridRows": 1,
+        "gridCols": 2,
+        "correctTile": "feminine"
+      },
+      {
+        "type": "table-select",
+        "prompt": "Which Spanish word means 'apples'?",
+        "tiles": ["🍎 manzanas", "📚 libro", "🚪 puerta"],
+        "gridRows": 1,
+        "gridCols": 3,
+        "correctTile": "🍎 manzanas"
+      },
+      {
+        "type": "table-select",
+        "prompt": "manzanas - Is this singular or plural?",
+        "tiles": ["singular", "plural"],
+        "gridRows": 1,
+        "gridCols": 2,
+        "correctTile": "plural"
+      }
+    ]
+  }

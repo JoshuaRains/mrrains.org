@@ -638,6 +638,55 @@
 			color:#0f1b22;
 		}
 
+		.typedArea{
+	width:min(760px, 100%);
+	margin-top:22px;
+	display:none;
+	justify-content:center;
+}
+
+.typedArea.show{
+	display:flex;
+}
+
+.typedInput{
+	width:100%;
+	padding:18px 20px;
+	border-radius:18px;
+	border:1px solid rgba(255,255,255,.14);
+	border-bottom:2px solid rgba(255,255,255,.22);
+	background:rgba(255,255,255,.04);
+	color:rgba(233,240,246,.96);
+	font-size:22px;
+	font-weight:800;
+	outline:none;
+	transition:border-color .15s ease, background .15s ease, box-shadow .15s ease;
+}
+
+.typedInput::placeholder{
+	color:rgba(233,240,246,.42);
+}
+
+.typedInput:focus{
+	background:rgba(255,255,255,.06);
+	border-color:rgba(28,176,246,.34);
+	border-bottom-color:rgba(28,176,246,.44);
+	box-shadow:0 0 0 2px rgba(28,176,246,.14);
+}
+
+.typedInput[disabled]{
+	opacity:.65;
+	cursor:not-allowed;
+}
+
+/* existing request: double size if a table tile is only one character / emoji */
+.gridTile .emojiChar{
+	font-size:2em;
+	line-height:1;
+	display:inline-block;
+	vertical-align:-0.12em;
+}
+
 		.encourageWrap{
 			position:fixed;
 			left:max(20px, calc(50% - 470px));
@@ -818,6 +867,7 @@
 				border-bottom:1.5px solid var(--paperLine);
 				height:16px;
 			}
+			
 		}
 	</style>
 </head>
@@ -903,6 +953,19 @@
 					</div>
 					<div class="answerTiles" id="answerTiles"></div>
 				</div>
+				
+				<div class="typedArea" id="typedArea">
+	<input
+		type="text"
+		id="typedInput"
+		class="typedInput"
+		autocomplete="off"
+		autocorrect="off"
+		autocapitalize="off"
+		spellcheck="false"
+		placeholder="Type your answer here"
+	/>
+</div>
 
 				<div class="bankArea">
 					<div class="bankTiles" id="bankTiles"></div>
@@ -968,7 +1031,10 @@
 			infoTitle: document.getElementById("infoTitle"),
 			infoBody: document.getElementById("infoBody"),
 
-			encourageGif: document.getElementById("encourageGif")
+			encourageGif: document.getElementById("encourageGif"),
+
+			typedArea: document.getElementById("typedArea"),
+			typedInput: document.getElementById("typedInput")
 		};
 
 		let lesson = null;
@@ -1003,6 +1069,26 @@
 			
 		];
 
+		let typedAnswer = "";
+
+		function stripDiacritics(s){
+	return String(s).normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+}
+function containsEmoji(text){
+	return /\p{Extended_Pictographic}/u.test(text);
+}
+
+function renderTileTextWithEmoji(text){
+	const escaped = escapeHtml(String(text || ""));
+	return escaped.replace(/(\p{Extended_Pictographic}(?:\uFE0F|\u200D\p{Extended_Pictographic})*)/gu, '<span class="emojiChar">$1</span>');
+}
+function normalizeTypedText(s){
+	let out = String(s || "").trim().toLowerCase();
+	out = stripDiacritics(out);
+	out = out.replace(/[^\p{L}\p{N}\s]/gu, " ");
+	out = out.replace(/\s+/g, " ").trim();
+	return out;
+}
 		function getLessonPathFromUrl(){
 	const url = new URL(window.location.href);
 	const l = url.searchParams.get("l");
@@ -1022,17 +1108,18 @@
 			if(!stateKey) return;
 
 			const payload = {
-				version: 2,
-				lessonPath,
-				queue,
-				mastered: Array.from(mastered),
-				currentIndex,
-				mode,
-				lastResult,
-				chosen,
-				selectedGridIndex,
-				responseHistory
-			};
+	version: 3,
+	lessonPath,
+	queue,
+	mastered: Array.from(mastered),
+	currentIndex,
+	mode,
+	lastResult,
+	chosen,
+	selectedGridIndex,
+	typedAnswer,
+	responseHistory
+};
 
 			try{
 				localStorage.setItem(stateKey, JSON.stringify(payload));
@@ -1206,75 +1293,144 @@
 				.replaceAll("'","&#039;");
 		}
 
-		function getQuestionSpec(q){
-			const type = (q && q.type) ? String(q.type) : "translate-en-es";
+function getQuestionSpec(q){
+	const type = (q && q.type) ? String(q.type) : "translate-en-es";
 
-			let effectiveType = type;
-			if(!q.type && q && q.direction){
-				if(q.direction === "es-en") effectiveType = "translate-es-en";
-				else if(q.direction === "en-es") effectiveType = "translate-en-es";
-			}
+	let effectiveType = type;
+	if(!q.type && q && q.direction){
+		if(q.direction === "es-en") effectiveType = "translate-es-en";
+		else if(q.direction === "en-es") effectiveType = "translate-en-es";
+	}
 
-			if(effectiveType === "translate-es-en"){
-				const spanishText = q.sentence || "";
-				const audioSource = q.audio ? q.audio : spanishText;
-				return {
-					type: effectiveType,
-					badge: "ES → EN",
-					promptText: spanishText,
-					audioKey: audioSource ? safeAudioNameFromText(audioSource) : null,
-					tileLanguage: "en"
-				};
-			}
+	if(effectiveType === "translate-es-en"){
+		const spanishText = q.sentence || "";
+		const audioSource = q.audio ? q.audio : spanishText;
+		return {
+			type: effectiveType,
+			badge: "ES → EN",
+			promptText: spanishText,
+			audioKey: audioSource ? safeAudioNameFromText(audioSource) : null,
+			tileLanguage: "en"
+		};
+	}
 
-			if(effectiveType === "listen-es-en"){
-				const spanishText = q.spanish || q.sentence || "";
-				const audioSource = q.audio ? q.audio : spanishText;
-				return {
-					type: effectiveType,
-					badge: "LISTEN ES → EN",
-					promptText: "Listen and build the English translation.",
-					audioKey: audioSource ? safeAudioNameFromText(audioSource) : null,
-					tileLanguage: "en"
-				};
-			}
+	if(effectiveType === "listen-es-en"){
+		const spanishText = q.spanish || q.sentence || "";
+		const audioSource = q.audio ? q.audio : spanishText;
+		return {
+			type: effectiveType,
+			badge: "LISTEN ES → EN",
+			promptText: "Listen and build the English translation.",
+			audioKey: audioSource ? safeAudioNameFromText(audioSource) : null,
+			tileLanguage: "en"
+		};
+	}
 
-			if(effectiveType === "listen-es-es"){
-				const spanishText = q.spanish || q.sentence || "";
-				const audioSource = q.audio ? q.audio : spanishText;
-				return {
-					type: effectiveType,
-					badge: "LISTEN",
-					promptText: "Listen and build the Spanish sentence.",
-					audioKey: audioSource ? safeAudioNameFromText(audioSource) : null,
-					tileLanguage: "es"
-				};
-			}
+	if(effectiveType === "listen-es-es"){
+		const spanishText = q.spanish || q.sentence || "";
+		const audioSource = q.audio ? q.audio : spanishText;
+		return {
+			type: effectiveType,
+			badge: "LISTEN",
+			promptText: "Listen and build the Spanish sentence.",
+			audioKey: audioSource ? safeAudioNameFromText(audioSource) : null,
+			tileLanguage: "es"
+		};
+	}
 
-			if(effectiveType === "table-select"){
-				const promptText = q.prompt || q.sentence || q.question || "";
-				return {
-					type: effectiveType,
-					badge: "TILE TABLE",
-					promptText,
-					audioKey: null,
-					tileLanguage: "none"
-				};
-			}
+	if(effectiveType === "type-en-es-typed"){
+		const englishText = q.sentence || q.prompt || "";
+		const audioSource = q.audio ? q.audio : (q.spanish || "");
+		return {
+			type: effectiveType,
+			badge: "TYPE EN → ES",
+			promptText: englishText,
+			audioKey: audioSource ? safeAudioNameFromText(audioSource) : null,
+			tileLanguage: "none"
+		};
+	}
 
-			{
-				const englishText = q.sentence || "";
-				const audioSource = q.audio ? q.audio : (q.spanish || q.sentence || "");
-				return {
-					type: "translate-en-es",
-					badge: "EN → ES",
-					promptText: englishText,
-					audioKey: audioSource ? safeAudioNameFromText(audioSource) : null,
-					tileLanguage: "es"
-				};
-			}
-		}
+	if(effectiveType === "type-es-en-typed"){
+		const spanishText = q.sentence || q.prompt || "";
+		const audioSource = q.audio ? q.audio : spanishText;
+		return {
+			type: effectiveType,
+			badge: "TYPE ES → EN",
+			promptText: spanishText,
+			audioKey: audioSource ? safeAudioNameFromText(audioSource) : null,
+			tileLanguage: "none"
+		};
+	}
 
+	if(effectiveType === "listen-es-en-typed"){
+		const spanishText = q.spanish || q.sentence || "";
+		const audioSource = q.audio ? q.audio : spanishText;
+		return {
+			type: effectiveType,
+			badge: "LISTEN & TYPE ES → EN",
+			promptText: "Listen and type the English translation.",
+			audioKey: audioSource ? safeAudioNameFromText(audioSource) : null,
+			tileLanguage: "none"
+		};
+	}
+
+	if(effectiveType === "listen-es-es-typed"){
+		const spanishText = q.spanish || q.sentence || "";
+		const audioSource = q.audio ? q.audio : spanishText;
+		return {
+			type: effectiveType,
+			badge: "LISTEN & TYPE",
+			promptText: "Listen and type what you hear.",
+			audioKey: audioSource ? safeAudioNameFromText(audioSource) : null,
+			tileLanguage: "none"
+		};
+	}
+
+	if(effectiveType === "table-select"){
+	const promptText = q.prompt || q.sentence || q.question || "";
+	const audioSource = q.audio ? q.audio : (q.spanish || q.sentence || "");
+	return {
+		type: effectiveType,
+		badge: "TILE TABLE",
+		promptText,
+		audioKey: audioSource ? safeAudioNameFromText(audioSource) : null,
+		tileLanguage: "none"
+	};
+}
+
+	{
+		const englishText = q.sentence || "";
+		const audioSource = q.audio ? q.audio : (q.spanish || q.sentence || "");
+		return {
+			type: "translate-en-es",
+			badge: "EN → ES",
+			promptText: englishText,
+			audioKey: audioSource ? safeAudioNameFromText(audioSource) : null,
+			tileLanguage: "es"
+		};
+	}
+}
+function isTableQuestion(q){
+	return getQuestionSpec(q).type === "table-select";
+}
+
+function isTypedQuestion(q){
+	const t = getQuestionSpec(q).type;
+	return t === "type-en-es-typed" ||
+		t === "type-es-en-typed" ||
+		t === "listen-es-en-typed" ||
+		t === "listen-es-es-typed";
+}
+
+function isEnglishPromptQuestion(q){
+	const t = getQuestionSpec(q).type;
+	return t === "translate-en-es" || t === "type-en-es-typed";
+}
+
+function hasEnglishAnswerChoices(q){
+	const t = getQuestionSpec(q).type;
+	return t === "translate-es-en" || t === "listen-es-en";
+}
 		function setAudioButtonsVisible(visible){
 			const method = visible ? "remove" : "add";
 			els.audioBtn.classList[method]("isHidden");
@@ -1509,57 +1665,72 @@
 			}
 		}
 
-		function rebuildTableSelectTiles(q){
-			const cfg = getGridConfig(q);
-			const tiles = getTableTiles(q);
+function rebuildTableSelectTiles(q){
+	const cfg = getGridConfig(q);
+	const tiles = getTableTiles(q);
 
-			els.answerTiles.innerHTML = "";
-			els.bankTiles.innerHTML = "";
-			els.bankTiles.className = "gridTiles";
-			els.bankTiles.style.gridTemplateColumns = `repeat(${cfg.cols}, minmax(0, 1fr))`;
+	els.answerTiles.innerHTML = "";
+	els.bankTiles.innerHTML = "";
+	els.bankTiles.className = "gridTiles";
+	els.bankTiles.style.gridTemplateColumns = `repeat(${cfg.cols}, minmax(0, 1fr))`;
 
-			for(let i=0;i<tiles.length;i++){
-				const tileText = getTableTileText(tiles[i]);
-const btn = document.createElement("button");
-btn.type = "button";
+	for(let i=0;i<tiles.length;i++){
+		const tileText = getTableTileText(tiles[i]);
+		const btn = document.createElement("button");
+		btn.type = "button";
 
-const singleChar = [...new Intl.Segmenter().segment(tileText.trim())].length === 1;
+		const trimmed = tileText.trim();
+		const graphemeCount = [...new Intl.Segmenter().segment(trimmed)].length;
+		const singleChar = graphemeCount === 1;
+		const hasEmoji = containsEmoji(trimmed);
 
-btn.className =
-	"tile gridTile" +
-	(singleChar ? " singleChar" : "") +
-	(selectedGridIndex === i ? " selected" : "");
-
-btn.textContent = tileText;
-				btn.disabled = mode !== "answering";
-
-				btn.addEventListener("click", () => {
-					if(mode !== "answering") return;
-					selectedGridIndex = i;
-					rebuildTableSelectTiles(q);
-					updateMainButton();
-					saveState();
-				});
-
-				els.bankTiles.appendChild(btn);
-			}
+		let extraClass = "";
+		if(!hasEmoji && singleChar){
+			extraClass = " singleChar";
 		}
 
-		function updateMainButton(){
-			if(mode === "answering"){
-				const q = lesson.questions[currentIndex];
-				const spec = getQuestionSpec(q);
+		btn.className =
+			"tile gridTile" +
+			extraClass +
+			(selectedGridIndex === i ? " selected" : "");
 
-				if(spec.type === "table-select"){
-					els.mainBtn.disabled = (selectedGridIndex === null);
-				}else{
-					els.mainBtn.disabled = (chosen.length === 0);
-				}
-				els.mainBtn.textContent = "CHECK";
-			}else{
-				els.mainBtn.disabled = false;
-			}
+		if(hasEmoji){
+			btn.innerHTML = renderTileTextWithEmoji(tileText);
+		}else{
+			btn.textContent = tileText;
 		}
+
+		btn.disabled = mode !== "answering";
+
+		btn.addEventListener("click", () => {
+			if(mode !== "answering") return;
+			selectedGridIndex = i;
+			rebuildTableSelectTiles(q);
+			updateMainButton();
+			saveState();
+		});
+
+		els.bankTiles.appendChild(btn);
+	}
+}
+
+function updateMainButton(){
+	if(mode === "answering"){
+		const q = lesson.questions[currentIndex];
+
+		if(isTableQuestion(q)){
+			els.mainBtn.disabled = (selectedGridIndex === null);
+		}else if(isTypedQuestion(q)){
+			els.mainBtn.disabled = !els.typedInput.value.trim();
+		}else{
+			els.mainBtn.disabled = (chosen.length === 0);
+		}
+
+		els.mainBtn.textContent = "CHECK";
+	}else{
+		els.mainBtn.disabled = false;
+	}
+}
 
 		function setPromptWithQNumber(qNumber, promptText){
 			const dot = "●";
@@ -1578,54 +1749,77 @@ btn.textContent = tileText;
 			els.encourageGif.classList.add("play");
 		}
 
-		function restoreQuestionUI(){
-			const q = lesson.questions[currentIndex];
-			const spec = getQuestionSpec(q);
+function restoreQuestionUI(){
+	const q = lesson.questions[currentIndex];
+	const spec = getQuestionSpec(q);
 
-			canPlayTileAudio = (spec.tileLanguage === "es");
-			currentSentenceAudioKey = spec.audioKey;
+	canPlayTileAudio = !hasEnglishAnswerChoices(q) && spec.tileLanguage === "es";
+	currentSentenceAudioKey = spec.audioKey;
 
-			const qNumberText = `Q${currentIndex + 1}`;
-			setPromptWithQNumber(qNumberText, spec.promptText);
+	const qNumberText = `Q${currentIndex + 1}`;
+	setPromptWithQNumber(qNumberText, spec.promptText);
 
-			const shouldShowAudioButtons =
-				(spec.type === "listen-es-en") ||
-				(spec.type === "listen-es-es") ||
-				(spec.type === "translate-es-en");
+	const shouldShowAudioButtons =
+	!!currentSentenceAudioKey &&
+	(
+		!isEnglishPromptQuestion(q) ||
+		spec.type === "table-select"
+	);
 
-			setAudioButtonsVisible(shouldShowAudioButtons);
+	setAudioButtonsVisible(shouldShowAudioButtons);
 
-			const enabled = (shouldShowAudioButtons && !!currentSentenceAudioKey);
-			els.audioBtn.disabled = !enabled;
-			els.audioSlowBtn.disabled = !enabled;
+	els.audioBtn.disabled = !shouldShowAudioButtons;
+	els.audioSlowBtn.disabled = !shouldShowAudioButtons;
 
-			if(spec.type === "table-select"){
-				els.answerArea.classList.add("hidden");
-				rebuildTableSelectTiles(q);
-			}else{
-				els.answerArea.classList.remove("hidden");
-				const bankWords = (q.bank || q.answer).slice();
-				const chosenCounts = new Map();
-				for(const c of chosen){
-					chosenCounts.set(c, (chosenCounts.get(c) || 0) + 1);
-				}
-				bank = bankWords.map(w => {
-					const count = chosenCounts.get(w) || 0;
-					if(count > 0){
-						chosenCounts.set(w, count - 1);
-						return { text:w, used:true };
-					}
-					return { text:w, used:false };
-				});
-				rebuildSentenceTiles();
-			}
+	typedAnswer = typedAnswer || "";
+	els.typedInput.value = typedAnswer;
 
-			updateMainButton();
-			setProgress();
-			updateInfoButtonForCurrentQuestion();
+	if(isTableQuestion(q)){
+		els.answerArea.classList.add("hidden");
+		els.typedArea.classList.remove("show");
+		rebuildTableSelectTiles(q);
+	}else if(isTypedQuestion(q)){
+		els.answerArea.classList.add("hidden");
+		els.bankTiles.innerHTML = "";
+		els.bankTiles.className = "bankTiles";
+		els.typedArea.classList.add("show");
+		els.typedInput.disabled = (mode !== "answering");
 
-			if(currentSentenceAudioKey) getAudioForKey(currentSentenceAudioKey);
+		if(spec.type === "type-en-es-typed" || spec.type === "listen-es-es-typed"){
+			els.typedInput.placeholder = "Type the Spanish answer";
+		}else{
+			els.typedInput.placeholder = "Type the English answer";
 		}
+	}else{
+		els.answerArea.classList.remove("hidden");
+		els.typedArea.classList.remove("show");
+
+		const bankWords = (q.bank || q.answer).slice();
+		const chosenCounts = new Map();
+		for(const c of chosen){
+			chosenCounts.set(c, (chosenCounts.get(c) || 0) + 1);
+		}
+		bank = bankWords.map(w => {
+			const count = chosenCounts.get(w) || 0;
+			if(count > 0){
+				chosenCounts.set(w, count - 1);
+				return { text:w, used:true };
+			}
+			return { text:w, used:false };
+		});
+		rebuildSentenceTiles();
+	}
+
+	updateMainButton();
+	setProgress();
+	updateInfoButtonForCurrentQuestion();
+
+	if(currentSentenceAudioKey) getAudioForKey(currentSentenceAudioKey);
+
+	if(isTypedQuestion(q) && mode === "answering"){
+		setTimeout(() => els.typedInput.focus(), 0);
+	}
+}
 
 		async function loadQuestion(){
 			if(queue.length === 0){
@@ -1653,6 +1847,8 @@ btn.textContent = tileText;
 			currentIndex = queue.shift();
 			chosen = [];
 			selectedGridIndex = null;
+			typedAnswer = "";
+			els.typedInput.value = "";
 
 			restoreQuestionUI();
 			saveState();
@@ -1706,54 +1902,90 @@ btn.textContent = tileText;
 			saveState();
 		}
 
-		function onMainButton(){
-			if(mode === "answering"){
-				const q = lesson.questions[currentIndex];
-				const spec = getQuestionSpec(q);
+function onMainButton(){
+	if(mode === "answering"){
+		const q = lesson.questions[currentIndex];
+		const spec = getQuestionSpec(q);
 
-				let isRight = false;
-				let attempt = "";
+		let isRight = false;
+		let attempt = "";
 
-				if(spec.type === "table-select"){
-					const tiles = getTableTiles(q);
-					const correctIndex = getCorrectTableIndex(q);
-					const picked = (selectedGridIndex !== null && tiles[selectedGridIndex] != null)
-						? getTableTileText(tiles[selectedGridIndex])
-						: "";
-					attempt = picked;
-					isRight = (selectedGridIndex === correctIndex);
-				}else{
-					attempt = normalizeTokens(chosen);
+		if(isTableQuestion(q)){
+			const tiles = getTableTiles(q);
+			const correctIndex = getCorrectTableIndex(q);
+			const picked = (selectedGridIndex !== null && tiles[selectedGridIndex] != null)
+				? getTableTileText(tiles[selectedGridIndex])
+				: "";
+			attempt = picked;
+			isRight = (selectedGridIndex === correctIndex);
+		}else if(isTypedQuestion(q)){
+			attempt = els.typedInput.value.trim();
 
-					const candidates = [];
-					if(Array.isArray(q.answer)) candidates.push(q.answer);
-					if(Array.isArray(q.answerAlternates)){
-						for(const alt of q.answerAlternates){
-							if(Array.isArray(alt)) candidates.push(alt);
-						}
-					}
+			const normalizedAttempt = normalizeTypedText(attempt);
+			const accepted = [];
 
-					for(const cand of candidates){
-						const correct = normalizeTokens(cand);
-						if(attempt === correct){
-							isRight = true;
-							break;
-						}
+			if(typeof q.answerText === "string" && q.answerText.trim()){
+				accepted.push(q.answerText);
+			}
+
+			if(Array.isArray(q.answerTexts)){
+				for(const a of q.answerTexts){
+					if(typeof a === "string" && a.trim()) accepted.push(a);
+				}
+			}
+
+			if(Array.isArray(q.answer) && q.answer.length){
+				accepted.push(tokensToText(q.answer));
+			}
+
+			if(Array.isArray(q.answerAlternates)){
+				for(const alt of q.answerAlternates){
+					if(Array.isArray(alt) && alt.length){
+						accepted.push(tokensToText(alt));
+					}else if(typeof alt === "string" && alt.trim()){
+						accepted.push(alt);
 					}
 				}
+			}
 
-				if(isRight){
-					mastered.add(currentIndex);
+			for(const ans of accepted){
+				if(normalizedAttempt === normalizeTypedText(ans)){
+					isRight = true;
+					break;
 				}
+			}
+		}else{
+			attempt = normalizeTokens(chosen);
 
-				showFeedback(isRight, attempt);
-			}else if(mode === "feedback"){
-				loadQuestion();
-			}else if(mode === "done"){
-				clearState();
-				window.location.href = "../lessons";
+			const candidates = [];
+			if(Array.isArray(q.answer)) candidates.push(q.answer);
+			if(Array.isArray(q.answerAlternates)){
+				for(const alt of q.answerAlternates){
+					if(Array.isArray(alt)) candidates.push(alt);
+				}
+			}
+
+			for(const cand of candidates){
+				const correct = normalizeTokens(cand);
+				if(attempt === correct){
+					isRight = true;
+					break;
+				}
 			}
 		}
+
+		if(isRight){
+			mastered.add(currentIndex);
+		}
+
+		showFeedback(isRight, attempt);
+	}else if(mode === "feedback"){
+		loadQuestion();
+	}else if(mode === "done"){
+		clearState();
+		window.location.href = "./home";
+	}
+}
 
 		function buildPrintCard(q, i){
 			const spec = getQuestionSpec(q);
@@ -1875,6 +2107,8 @@ btn.textContent = tileText;
 				}
 			}
 
+			typedAnswer = typeof saved.typedAnswer === "string" ? saved.typedAnswer : "";
+
 			restoreQuestionUI();
 			updateMainButton();
 			return true;
@@ -1884,9 +2118,21 @@ btn.textContent = tileText;
 			lessonPath = getLessonPathFromUrl();
 			stateKey = makeStateKey(lessonPath);
 
+			els.typedInput.addEventListener("input", () => {
+	typedAnswer = els.typedInput.value;
+	updateMainButton();
+	saveState();
+});
+
+els.typedInput.addEventListener("keydown", (e) => {
+	if(e.key === "Enter" && !els.mainBtn.disabled){
+		onMainButton();
+	}
+});
+
 			els.closeBtn.addEventListener("click", () => {
 				clearState();
-				window.location.href = "../lessons";
+				window.location.href = "./home";
 			});
 
 			els.historyBtn.addEventListener("click", openHistory);
@@ -1949,7 +2195,7 @@ btn.textContent = tileText;
 			setBottomSheet("wrong", "Error:", "Could not load the lesson file. Serve this folder with a local web server.");
 			els.mainBtn.disabled = false;
 			els.mainBtn.textContent = "DONE";
-			els.mainBtn.onclick = () => window.location.href = "../lessons";
+			els.mainBtn.onclick = () => window.location.href = "./home";
 		});
 	})();
 	</script>

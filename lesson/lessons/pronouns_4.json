@@ -67,49 +67,49 @@
       "audio": "ellos"
     },
     {
-      "type": "type-listen-es-es-typed",
+      "type": "listen-es-es-typed",
       "answerText": "yo",
       "answerTexts": [],
       "audio": "yo"
     },
     {
-      "type": "type-listen-es-es-typed",
+      "type": "listen-es-es-typed",
       "answerText": "él",
       "answerTexts": [],
       "audio": "él"
     },
     {
-      "type": "type-listen-es-es-typed",
+      "type": "listen-es-es-typed",
       "answerText": "ella",
       "answerTexts": [],
       "audio": "ella"
     },
     {
-      "type": "type-listen-es-es-typed",
+      "type": "listen-es-es-typed",
       "answerText": "ustedes",
       "answerTexts": [],
       "audio": "ustedes"
     },
     {
-      "type": "type-listen-es-en-typed",
+      "type": "listen-es-en-typed",
       "answerText": "I",
       "answerTexts": [],
       "audio": "yo"
     },
     {
-      "type": "type-listen-es-en-typed",
+      "type": "listen-es-en-typed",
       "answerText": "he",
       "answerTexts": [],
       "audio": "él"
     },
     {
-      "type": "type-listen-es-en-typed",
+      "type": "listen-es-en-typed",
       "answerText": "y'all",
       "answerTexts": [],
       "audio": "ustedes"
     },
     {
-      "type": "type-listen-es-en-typed",
+      "type": "listen-es-en-typed",
       "answerText": "you",
       "answerTexts": [],
       "audio": "tú"

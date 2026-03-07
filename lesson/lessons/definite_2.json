@@ -1,0 +1,86 @@
+  {
+    "title": "C2 Definite Articles",
+    "subtitle": "Lesson 2",
+    "questions": [
+      {
+        "type": "table-select",
+        "prompt": "Which word means 'the' for a masculine singular noun?",
+        "tiles": ["el", "la", "los", "las"],
+        "gridRows": 2,
+        "gridCols": 2,
+        "correctTile": "el"
+      },
+      {
+        "type": "table-select",
+        "prompt": "Which is correct for 'the house'?",
+        "tiles": ["el casa", "la casa"],
+        "gridRows": 1,
+        "gridCols": 2,
+        "correctTile": "la casa"
+      },
+      {
+        "type": "table-select",
+        "prompt": "Listen and click the phrase you hear.",
+        "tiles": ["el libro", "la libro", "los libros"],
+        "gridRows": 1,
+        "gridCols": 3,
+        "correctTile": "el libro",
+        "audio": "el libro"
+      },
+      {
+        "type": "table-select",
+        "prompt": "Listen and click the phrase you hear.",
+        "tiles": ["la mesa", "el mesa", "las mesas"],
+        "gridRows": 1,
+        "gridCols": 3,
+        "correctTile": "la mesa",
+        "audio": "la mesa"
+      },
+      {
+        "type": "table-select",
+        "prompt": "Listen and click the phrase you hear.",
+        "tiles": ["los libros", "las libros", "el libro"],
+        "gridRows": 1,
+        "gridCols": 3,
+        "correctTile": "los libros",
+        "audio": "los libros"
+      },
+      {
+        "type": "table-select",
+        "prompt": "Listen and click the phrase you hear.",
+        "tiles": ["los sillas", "las sillas", "la silla"],
+        "gridRows": 1,
+        "gridCols": 3,
+        "correctTile": "las sillas",
+        "audio": "las sillas"
+      },
+      {
+        "type": "type-en-es-typed",
+        "sentence": "the book",
+        "answerText": "el libro",
+        "answerTexts": [],
+        "audio": "el libro"
+      },
+      {
+        "type": "type-en-es-typed",
+        "sentence": "the table",
+        "answerText": "la mesa",
+        "answerTexts": [],
+        "audio": "la mesa"
+      },
+      {
+        "type": "type-en-es-typed",
+        "sentence": "the books",
+        "answerText": "los libros",
+        "answerTexts": [],
+        "audio": "los libros"
+      },
+      {
+        "type": "type-en-es-typed",
+        "sentence": "the chairs",
+        "answerText": "las sillas",
+        "answerTexts": [],
+        "audio": "las sillas"
+      }
+    ]
+  }

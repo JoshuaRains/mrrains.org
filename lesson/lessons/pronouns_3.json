@@ -85,34 +85,34 @@
       "audio": "ustedes"
     },
     {
-      "type": "type-listen-es-es-typed",
-      "answerText": "yo",
-      "answerTexts": [],
-      "audio": "yo"
-    },
-    {
-      "type": "type-listen-es-es-typed",
-      "answerText": "ella",
-      "answerTexts": [],
-      "audio": "ella"
-    },
-    {
-      "type": "type-listen-es-es-typed",
-      "answerText": "nosotros",
-      "answerTexts": [],
-      "audio": "nosotros"
-    },
-    {
-      "type": "type-listen-es-es-typed",
-      "answerText": "tú",
-      "answerTexts": [],
-      "audio": "tú"
-    },
-    {
-      "type": "type-listen-es-es-typed",
-      "answerText": "usted",
-      "answerTexts": [],
-      "audio": "usted"
-    }
+	"type": "listen-es-es-typed",
+	"answerText": "yo",
+	"answerTexts": [],
+	"audio": "yo"
+},
+{
+	"type": "listen-es-es-typed",
+	"answerText": "ella",
+	"answerTexts": [],
+	"audio": "ella"
+},
+{
+	"type": "listen-es-es-typed",
+	"answerText": "nosotros",
+	"answerTexts": [],
+	"audio": "nosotros"
+},
+{
+	"type": "listen-es-es-typed",
+	"answerText": "tú",
+	"answerTexts": [],
+	"audio": "tú"
+},
+{
+	"type": "listen-es-es-typed",
+	"answerText": "usted",
+	"answerTexts": [],
+	"audio": "usted"
+}
   ]
 }

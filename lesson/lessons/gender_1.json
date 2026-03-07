@@ -1,0 +1,118 @@
+ {
+    "title": "C2 Noun Gender and Number",
+    "subtitle": "Lesson 1",
+    "questions": [
+      {
+        "type": "table-select",
+        "prompt": "Which ending is typically masculine?",
+        "tiles": ["-o", "-a"],
+        "gridRows": 1,
+        "gridCols": 2,
+        "correctTile": "-o"
+      },
+      {
+        "type": "table-select",
+        "prompt": "Which ending is typically feminine?",
+        "tiles": ["-o", "-a"],
+        "gridRows": 1,
+        "gridCols": 2,
+        "correctTile": "-a"
+      },
+      {
+        "type": "table-select",
+        "prompt": "Which Spanish word means 'boy'?",
+        "tiles": ["👦 chico", "📚 libro", "🍎 manzana"],
+        "gridRows": 1,
+        "gridCols": 3,
+        "correctTile": "👦 chico"
+      },
+      {
+        "type": "table-select",
+        "prompt": "chico - Is this masculine or feminine?",
+        "tiles": ["masculine", "feminine"],
+        "gridRows": 1,
+        "gridCols": 2,
+        "correctTile": "masculine"
+      },
+      {
+        "type": "table-select",
+        "prompt": "Which Spanish word means 'girl'?",
+        "tiles": ["👧 chica", "🏠 libro", "🍌 plátano"],
+        "gridRows": 1,
+        "gridCols": 3,
+        "correctTile": "👧 chica"
+      },
+      {
+        "type": "table-select",
+        "prompt": "chica - Is this masculine or feminine?",
+        "tiles": ["masculine", "feminine"],
+        "gridRows": 1,
+        "gridCols": 2,
+        "correctTile": "feminine"
+      },
+      {
+        "type": "table-select",
+        "prompt": "Which Spanish word means 'book'?",
+        "tiles": ["📚 libro", "🚪 puerta", "🍎 manzana"],
+        "gridRows": 1,
+        "gridCols": 3,
+        "correctTile": "📚 libro"
+      },
+      {
+        "type": "table-select",
+        "prompt": "libro - Is this masculine or feminine?",
+        "tiles": ["masculine", "feminine"],
+        "gridRows": 1,
+        "gridCols": 2,
+        "correctTile": "masculine"
+      },
+      {
+        "type": "table-select",
+        "prompt": "Which Spanish word means 'door'?",
+        "tiles": ["🚪 puerta", "📚 cuaderno", "👦 chico"],
+        "gridRows": 1,
+        "gridCols": 3,
+        "correctTile": "🚪 puerta"
+      },
+      {
+        "type": "table-select",
+        "prompt": "puerta - Is this masculine or feminine?",
+        "tiles": ["masculine", "feminine"],
+        "gridRows": 1,
+        "gridCols": 2,
+        "correctTile": "feminine"
+      },
+      {
+        "type": "table-select",
+        "prompt": "Which Spanish word means 'notebook'?",
+        "tiles": ["🍎 manzana", "📚 cuaderno", "🚪 puerta"],
+        "gridRows": 1,
+        "gridCols": 3,
+        "correctTile": "📚 cuaderno"
+      },
+      {
+        "type": "table-select",
+        "prompt": "cuaderno - Is this masculine or feminine?",
+        "tiles": ["masculine", "feminine"],
+        "gridRows": 1,
+        "gridCols": 2,
+        "correctTile": "masculine"
+      },
+      {
+        "type": "table-select",
+        "prompt": "Which Spanish word means 'apple'?",
+        "tiles": ["👧 chica", "🍎 manzana", "📚 libro"],
+        "gridRows": 1,
+        "gridCols": 3,
+        "correctTile": "🍎 manzana"
+      },
+      {
+        "type": "table-select",
+        "prompt": "manzana - Is this masculine or feminine?",
+        "tiles": ["masculine", "feminine"],
+        "gridRows": 1,
+        "gridCols": 2,
+        "correctTile": "feminine"
+      }
+    ]
+  }

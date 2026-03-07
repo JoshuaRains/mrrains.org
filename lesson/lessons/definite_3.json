@@ -1,0 +1,118 @@
+  {
+    "title": "C2 Definite Articles",
+    "subtitle": "Lesson 3",
+    "questions": [
+      {
+        "type": "table-select",
+        "prompt": "Listen and click the phrase you hear.",
+        "tiles": ["el cuaderno", "la cuaderno", "los cuadernos"],
+        "gridRows": 1,
+        "gridCols": 3,
+        "correctTile": "el cuaderno",
+        "audio": "el cuaderno"
+      },
+      {
+        "type": "table-select",
+        "prompt": "Listen and click the phrase you hear.",
+        "tiles": ["la puerta", "el puerta", "las puertas"],
+        "gridRows": 1,
+        "gridCols": 3,
+        "correctTile": "la puerta",
+        "audio": "la puerta"
+      },
+      {
+        "type": "table-select",
+        "prompt": "Listen and click the phrase you hear.",
+        "tiles": ["los cuadernos", "las cuadernos", "el cuaderno"],
+        "gridRows": 1,
+        "gridCols": 3,
+        "correctTile": "los cuadernos",
+        "audio": "los cuadernos"
+      },
+      {
+        "type": "table-select",
+        "prompt": "Listen and click the phrase you hear.",
+        "tiles": ["los puertas", "las puertas", "la puerta"],
+        "gridRows": 1,
+        "gridCols": 3,
+        "correctTile": "las puertas",
+        "audio": "las puertas"
+      },
+      {
+        "type": "type-en-es-typed",
+        "sentence": "the notebook",
+        "answerText": "el cuaderno",
+        "answerTexts": [],
+        "audio": "el cuaderno"
+      },
+      {
+        "type": "type-en-es-typed",
+        "sentence": "the door",
+        "answerText": "la puerta",
+        "answerTexts": [],
+        "audio": "la puerta"
+      },
+      {
+        "type": "type-en-es-typed",
+        "sentence": "the notebooks",
+        "answerText": "los cuadernos",
+        "answerTexts": [],
+        "audio": "los cuadernos"
+      },
+      {
+        "type": "type-en-es-typed",
+        "sentence": "the doors",
+        "answerText": "las puertas",
+        "answerTexts": [],
+        "audio": "las puertas"
+      },
+      {
+        "type": "listen-es-es-typed",
+        "answerText": "el cuaderno",
+        "answerTexts": [],
+        "audio": "el cuaderno"
+      },
+      {
+        "type": "listen-es-es-typed",
+        "answerText": "la puerta",
+        "answerTexts": [],
+        "audio": "la puerta"
+      },
+      {
+        "type": "listen-es-es-typed",
+        "answerText": "los cuadernos",
+        "answerTexts": [],
+        "audio": "los cuadernos"
+      },
+      {
+        "type": "listen-es-es-typed",
+        "answerText": "las puertas",
+        "answerTexts": [],
+        "audio": "las puertas"
+      },
+      {
+        "type": "listen-es-en-typed",
+        "answerText": "the notebook",
+        "answerTexts": [],
+        "audio": "el cuaderno"
+      },
+      {
+        "type": "listen-es-en-typed",
+        "answerText": "the door",
+        "answerTexts": [],
+        "audio": "la puerta"
+      },
+      {
+        "type": "listen-es-en-typed",
+        "answerText": "the notebooks",
+        "answerTexts": [],
+        "audio": "los cuadernos"
+      },
+      {
+        "type": "listen-es-en-typed",
+        "answerText": "the doors",
+        "answerTexts": [],
+        "audio": "las puertas"
+      }
+    ]
+  }
