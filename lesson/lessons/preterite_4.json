@@ -1,0 +1,70 @@
+{
+  "title": "C13 Preterite",
+  "subtitle": "Lesson 4",
+  "questions": [
+    {
+      "type": "listen-es-en-typed",
+      "answerText": "I talked",
+      "answerTexts": [],
+      "audio": "hablé"
+    },
+    {
+      "type": "listen-es-en-typed",
+      "answerText": "you walked",
+      "answerTexts": [],
+      "audio": "caminaste"
+    },
+    {
+      "type": "listen-es-en-typed",
+      "answerText": "he looked yesterday",
+      "answerTexts": [],
+      "audio": "miró ayer"
+    },
+    {
+      "type": "listen-es-en-typed",
+      "answerText": "they walked yesterday",
+      "answerTexts": [],
+      "audio": "caminaron ayer"
+    },
+    {
+      "type": "type-en-es-typed",
+      "sentence": "we looked yesterday",
+      "answerText": "miramos ayer",
+      "answerTexts": [],
+      "audio": "miramos ayer"
+    },
+    {
+      "type": "type-en-es-typed",
+      "sentence": "they talked yesterday",
+      "answerText": "hablaron ayer",
+      "answerTexts": [],
+      "audio": "hablaron ayer"
+    },
+    {
+      "type": "type-en-es-typed",
+      "sentence": "I walked yesterday",
+      "answerText": "caminé ayer",
+      "answerTexts": [],
+      "audio": "caminé ayer"
+    },
+    {
+      "type": "type-en-es-typed",
+      "sentence": "you talked yesterday",
+      "answerText": "hablaste ayer",
+      "answerTexts": [],
+      "audio": "hablaste ayer"
+    },
+    {
+      "type": "listen-es-es-typed",
+      "answerText": "hablaron ayer",
+      "answerTexts": [],
+      "audio": "hablaron ayer"
+    },
+    {
+      "type": "listen-es-en-typed",
+      "answerText": "we looked yesterday",
+      "answerTexts": [],
+      "audio": "miramos ayer"
+    }
+  ]
+}

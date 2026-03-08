@@ -1,0 +1,99 @@
+{
+  "title": "C11 Reflexive Verbs (Present)",
+  "subtitle": "Lesson 2",
+  "questions": [
+    {
+      "type": "table-select",
+      "prompt": "Listen and click the phrase you hear.",
+      "tiles": [
+        "me despierto",
+        "te despiertas",
+        "se despierta"
+      ],
+      "gridRows": 1,
+      "gridCols": 3,
+      "correctTile": "me despierto",
+      "audio": "me despierto"
+    },
+    {
+      "type": "table-select",
+      "prompt": "Listen and click the phrase you hear.",
+      "tiles": [
+        "me baño",
+        "se baña",
+        "nos bañamos"
+      ],
+      "gridRows": 1,
+      "gridCols": 3,
+      "correctTile": "se baña",
+      "audio": "se baña"
+    },
+    {
+      "type": "table-select",
+      "prompt": "Listen and click the phrase you hear.",
+      "tiles": [
+        "me acuesto",
+        "te acuestas",
+        "nos acostamos"
+      ],
+      "gridRows": 1,
+      "gridCols": 3,
+      "correctTile": "nos acostamos",
+      "audio": "nos acostamos"
+    },
+    {
+      "type": "table-select",
+      "prompt": "Which phrase means 'I get dressed'?",
+      "tiles": [
+        "me visto",
+        "te vistes",
+        "se viste"
+      ],
+      "gridRows": 1,
+      "gridCols": 3,
+      "correctTile": "me visto"
+    },
+    {
+      "type": "type-en-es-typed",
+      "sentence": "I wake up",
+      "answerText": "me despierto",
+      "answerTexts": [],
+      "audio": "me despierto"
+    },
+    {
+      "type": "type-en-es-typed",
+      "sentence": "she bathes herself",
+      "answerText": "se baña",
+      "answerTexts": [],
+      "audio": "se baña"
+    },
+    {
+      "type": "type-en-es-typed",
+      "sentence": "we go to bed",
+      "answerText": "nos acostamos",
+      "answerTexts": [],
+      "audio": "nos acostamos"
+    },
+    {
+      "type": "type-en-es-typed",
+      "sentence": "I get dressed",
+      "answerText": "me visto",
+      "answerTexts": [],
+      "audio": "me visto"
+    },
+    {
+      "type": "type-en-es-typed",
+      "sentence": "you get dressed",
+      "answerText": "te vistes",
+      "answerTexts": [],
+      "audio": "te vistes"
+    },
+    {
+      "type": "type-en-es-typed",
+      "sentence": "he gets dressed",
+      "answerText": "se viste",
+      "answerTexts": [],
+      "audio": "se viste"
+    }
+  ]
+}

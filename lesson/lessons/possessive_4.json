@@ -1,0 +1,82 @@
+{
+  "title": "C5 Possessive Adjectives",
+  "subtitle": "Lesson 4",
+  "questions": [
+    {
+      "type": "listen-es-en-typed",
+      "answerText": "my book",
+      "answerTexts": [],
+      "audio": "mi libro"
+    },
+    {
+      "type": "listen-es-en-typed",
+      "answerText": "your apple",
+      "answerTexts": [],
+      "audio": "tu manzana"
+    },
+    {
+      "type": "listen-es-en-typed",
+      "answerText": "our house",
+      "answerTexts": [],
+      "audio": "nuestra casa"
+    },
+    {
+      "type": "listen-es-en-typed",
+      "answerText": "their houses",
+      "answerTexts": [],
+      "audio": "sus casas"
+    },
+    {
+      "type": "type-en-es-typed",
+      "sentence": "my notebook",
+      "answerText": "mi cuaderno",
+      "answerTexts": [],
+      "audio": "mi cuaderno"
+    },
+    {
+      "type": "type-en-es-typed",
+      "sentence": "your books",
+      "answerText": "tus libros",
+      "answerTexts": [],
+      "audio": "tus libros"
+    },
+    {
+      "type": "type-en-es-typed",
+      "sentence": "our doors",
+      "answerText": "nuestras puertas",
+      "answerTexts": [],
+      "audio": "nuestras puertas"
+    },
+    {
+      "type": "type-en-es-typed",
+      "sentence": "their apples",
+      "answerText": "sus manzanas",
+      "answerTexts": [],
+      "audio": "sus manzanas"
+    },
+    {
+      "type": "listen-es-es-typed",
+      "answerText": "mi cuaderno",
+      "answerTexts": [],
+      "audio": "mi cuaderno"
+    },
+    {
+      "type": "listen-es-es-typed",
+      "answerText": "tus libros",
+      "answerTexts": [],
+      "audio": "tus libros"
+    },
+    {
+      "type": "listen-es-en-typed",
+      "answerText": "our doors",
+      "answerTexts": [],
+      "audio": "nuestras puertas"
+    },
+    {
+      "type": "listen-es-en-typed",
+      "answerText": "their apples",
+      "answerTexts": [],
+      "audio": "sus manzanas"
+    }
+  ]
+}

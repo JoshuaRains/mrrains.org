@@ -1,0 +1,102 @@
+{
+  "title": "C11 Reflexive Verbs (Present)",
+  "subtitle": "Lesson 1",
+  "questions": [
+    {
+      "type": "table-select",
+      "prompt": "Which Spanish word means 'to wake up'?",
+      "tiles": [
+        "⏰ despertarse",
+        "🛁 bañarse",
+        "🛏️ acostarse"
+      ],
+      "gridRows": 1,
+      "gridCols": 3,
+      "correctTile": "⏰ despertarse"
+    },
+    {
+      "type": "table-select",
+      "prompt": "Which word means 'I wake up'?",
+      "tiles": [
+        "me despierto",
+        "te despiertas",
+        "se despierta"
+      ],
+      "gridRows": 1,
+      "gridCols": 3,
+      "correctTile": "me despierto"
+    },
+    {
+      "type": "table-select",
+      "prompt": "Which word means 'you wake up'?",
+      "tiles": [
+        "me despierto",
+        "te despiertas",
+        "nos despertamos"
+      ],
+      "gridRows": 1,
+      "gridCols": 3,
+      "correctTile": "te despiertas"
+    },
+    {
+      "type": "table-select",
+      "prompt": "Which Spanish word means 'to bathe oneself'?",
+      "tiles": [
+        "🛁 bañarse",
+        "👕 vestirse",
+        "🍽️ desayunar"
+      ],
+      "gridRows": 1,
+      "gridCols": 3,
+      "correctTile": "🛁 bañarse"
+    },
+    {
+      "type": "table-select",
+      "prompt": "Which word means 'she bathes herself'?",
+      "tiles": [
+        "me baño",
+        "se baña",
+        "nos bañamos"
+      ],
+      "gridRows": 1,
+      "gridCols": 3,
+      "correctTile": "se baña"
+    },
+    {
+      "type": "table-select",
+      "prompt": "Which Spanish word means 'to go to bed'?",
+      "tiles": [
+        "🛏️ acostarse",
+        "🚶 caminar",
+        "📚 estudiar"
+      ],
+      "gridRows": 1,
+      "gridCols": 3,
+      "correctTile": "🛏️ acostarse"
+    },
+    {
+      "type": "table-select",
+      "prompt": "Which word means 'we go to bed'?",
+      "tiles": [
+        "me acuesto",
+        "se acuesta",
+        "nos acostamos"
+      ],
+      "gridRows": 1,
+      "gridCols": 3,
+      "correctTile": "nos acostamos"
+    },
+    {
+      "type": "table-select",
+      "prompt": "Which word means 'they get dressed'?",
+      "tiles": [
+        "se visten",
+        "nos vestimos",
+        "te vistes"
+      ],
+      "gridRows": 1,
+      "gridCols": 3,
+      "correctTile": "se visten"
+    }
+  ]
+}

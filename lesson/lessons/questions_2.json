@@ -1,0 +1,108 @@
+{
+  "title": "C6 Question Words",
+  "subtitle": "Lesson 2",
+  "questions": [
+    {
+      "type": "table-select",
+      "prompt": "Which word starts the question 'What do you eat?'",
+      "tiles": [
+        "qué",
+        "quién",
+        "dónde"
+      ],
+      "gridRows": 1,
+      "gridCols": 3,
+      "correctTile": "qué"
+    },
+    {
+      "type": "table-select",
+      "prompt": "Which word starts the question 'Who is he?'",
+      "tiles": [
+        "cuándo",
+        "quién",
+        "cómo"
+      ],
+      "gridRows": 1,
+      "gridCols": 3,
+      "correctTile": "quién"
+    },
+    {
+      "type": "table-select",
+      "prompt": "Which word starts the question 'Where do you live?'",
+      "tiles": [
+        "dónde",
+        "por qué",
+        "cuál"
+      ],
+      "gridRows": 1,
+      "gridCols": 3,
+      "correctTile": "dónde"
+    },
+    {
+      "type": "table-select",
+      "prompt": "Which word starts the question 'When do they study?'",
+      "tiles": [
+        "cuándo",
+        "qué",
+        "cómo"
+      ],
+      "gridRows": 1,
+      "gridCols": 3,
+      "correctTile": "cuándo"
+    },
+    {
+      "type": "table-select",
+      "prompt": "Listen and click the word you hear.",
+      "tiles": [
+        "qué",
+        "quién",
+        "dónde"
+      ],
+      "gridRows": 1,
+      "gridCols": 3,
+      "correctTile": "qué",
+      "audio": "qué"
+    },
+    {
+      "type": "table-select",
+      "prompt": "Listen and click the word you hear.",
+      "tiles": [
+        "cuándo",
+        "cómo",
+        "cuál"
+      ],
+      "gridRows": 1,
+      "gridCols": 3,
+      "correctTile": "cómo",
+      "audio": "cómo"
+    },
+    {
+      "type": "type-en-es-typed",
+      "sentence": "what",
+      "answerText": "qué",
+      "answerTexts": [],
+      "audio": "qué"
+    },
+    {
+      "type": "type-en-es-typed",
+      "sentence": "who",
+      "answerText": "quién",
+      "answerTexts": [],
+      "audio": "quién"
+    },
+    {
+      "type": "type-en-es-typed",
+      "sentence": "where",
+      "answerText": "dónde",
+      "answerTexts": [],
+      "audio": "dónde"
+    },
+    {
+      "type": "type-en-es-typed",
+      "sentence": "when",
+      "answerText": "cuándo",
+      "answerTexts": [],
+      "audio": "cuándo"
+    }
+  ]
+}

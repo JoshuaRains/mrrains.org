@@ -1,0 +1,108 @@
+{
+  "title": "C10 Stem-Changing Verbs",
+  "subtitle": "Lesson 3",
+  "questions": [
+    {
+      "type": "table-select",
+      "prompt": "Which phrase means 'I want pizza'?",
+      "tiles": [
+        "quiero pizza",
+        "queremos pizza",
+        "quieren pizza"
+      ],
+      "gridRows": 1,
+      "gridCols": 3,
+      "correctTile": "quiero pizza"
+    },
+    {
+      "type": "table-select",
+      "prompt": "Which phrase means 'they sleep now'?",
+      "tiles": [
+        "duermen ahora",
+        "dormimos ahora",
+        "duermo ahora"
+      ],
+      "gridRows": 1,
+      "gridCols": 3,
+      "correctTile": "duermen ahora"
+    },
+    {
+      "type": "table-select",
+      "prompt": "Listen and click the phrase you hear.",
+      "tiles": [
+        "quieres agua",
+        "quiere agua",
+        "queremos agua"
+      ],
+      "gridRows": 1,
+      "gridCols": 3,
+      "correctTile": "quiere agua",
+      "audio": "quiere agua"
+    },
+    {
+      "type": "table-select",
+      "prompt": "Listen and click the phrase you hear.",
+      "tiles": [
+        "duerme ahora",
+        "duermo ahora",
+        "dormimos ahora"
+      ],
+      "gridRows": 1,
+      "gridCols": 3,
+      "correctTile": "duerme ahora",
+      "audio": "duerme ahora"
+    },
+    {
+      "type": "type-en-es-typed",
+      "sentence": "he wants water",
+      "answerText": "quiere agua",
+      "answerTexts": [],
+      "audio": "quiere agua"
+    },
+    {
+      "type": "type-en-es-typed",
+      "sentence": "they sleep now",
+      "answerText": "duermen ahora",
+      "answerTexts": [],
+      "audio": "duermen ahora"
+    },
+    {
+      "type": "type-en-es-typed",
+      "sentence": "we have lunch now",
+      "answerText": "almorzamos ahora",
+      "answerTexts": [],
+      "audio": "almorzamos ahora"
+    },
+    {
+      "type": "type-en-es-typed",
+      "sentence": "I want pizza",
+      "answerText": "quiero pizza",
+      "answerTexts": [],
+      "audio": "quiero pizza"
+    },
+    {
+      "type": "listen-es-es-typed",
+      "answerText": "quiere agua",
+      "answerTexts": [],
+      "audio": "quiere agua"
+    },
+    {
+      "type": "listen-es-es-typed",
+      "answerText": "duerme ahora",
+      "answerTexts": [],
+      "audio": "duerme ahora"
+    },
+    {
+      "type": "listen-es-es-typed",
+      "answerText": "almorzamos ahora",
+      "answerTexts": [],
+      "audio": "almorzamos ahora"
+    },
+    {
+      "type": "listen-es-es-typed",
+      "answerText": "quiero pizza",
+      "answerTexts": [],
+      "audio": "quiero pizza"
+    }
+  ]
+}

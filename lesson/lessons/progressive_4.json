@@ -1,0 +1,70 @@
+{
+  "title": "C12 Present Progressive",
+  "subtitle": "Lesson 4",
+  "questions": [
+    {
+      "type": "listen-es-en-typed",
+      "answerText": "I am studying now",
+      "answerTexts": [],
+      "audio": "estoy estudiando ahora"
+    },
+    {
+      "type": "listen-es-en-typed",
+      "answerText": "you are eating now",
+      "answerTexts": [],
+      "audio": "estás comiendo ahora"
+    },
+    {
+      "type": "listen-es-en-typed",
+      "answerText": "we are running now",
+      "answerTexts": [],
+      "audio": "estamos corriendo ahora"
+    },
+    {
+      "type": "listen-es-en-typed",
+      "answerText": "they are talking now",
+      "answerTexts": [],
+      "audio": "están hablando ahora"
+    },
+    {
+      "type": "type-en-es-typed",
+      "sentence": "I am reading now",
+      "answerText": "estoy leyendo ahora",
+      "answerTexts": [],
+      "audio": "estoy leyendo ahora"
+    },
+    {
+      "type": "type-en-es-typed",
+      "sentence": "they are reading now",
+      "answerText": "están leyendo ahora",
+      "answerTexts": [],
+      "audio": "están leyendo ahora"
+    },
+    {
+      "type": "type-en-es-typed",
+      "sentence": "we are eating now",
+      "answerText": "estamos comiendo ahora",
+      "answerTexts": [],
+      "audio": "estamos comiendo ahora"
+    },
+    {
+      "type": "type-en-es-typed",
+      "sentence": "he is talking now",
+      "answerText": "está hablando ahora",
+      "answerTexts": [],
+      "audio": "está hablando ahora"
+    },
+    {
+      "type": "listen-es-es-typed",
+      "answerText": "están leyendo ahora",
+      "answerTexts": [],
+      "audio": "están leyendo ahora"
+    },
+    {
+      "type": "listen-es-en-typed",
+      "answerText": "he is talking now",
+      "answerTexts": [],
+      "audio": "está hablando ahora"
+    }
+  ]
+}

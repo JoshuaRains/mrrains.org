@@ -1,0 +1,109 @@
+{
+  "title": "C7 Present Tense of Ir",
+  "subtitle": "Lesson 2",
+  "questions": [
+    {
+      "type": "table-select",
+      "prompt": "Which Spanish word means 'to go'?",
+      "tiles": [
+        "🏃 ir",
+        "🗣️ hablar",
+        "🍽️ comer"
+      ],
+      "gridRows": 1,
+      "gridCols": 3,
+      "correctTile": "🏃 ir"
+    },
+    {
+      "type": "table-select",
+      "prompt": "Which word means 'I go'?",
+      "tiles": [
+        "voy",
+        "vas",
+        "van"
+      ],
+      "gridRows": 1,
+      "gridCols": 3,
+      "correctTile": "voy"
+    },
+    {
+      "type": "table-select",
+      "prompt": "Which word means 'we go'?",
+      "tiles": [
+        "voy",
+        "vamos",
+        "vais"
+      ],
+      "gridRows": 1,
+      "gridCols": 3,
+      "correctTile": "vamos"
+    },
+    {
+      "type": "table-select",
+      "prompt": "Listen and click the form you hear.",
+      "tiles": [
+        "voy",
+        "vas",
+        "va"
+      ],
+      "gridRows": 1,
+      "gridCols": 3,
+      "correctTile": "voy",
+      "audio": "voy"
+    },
+    {
+      "type": "table-select",
+      "prompt": "Listen and click the form you hear.",
+      "tiles": [
+        "vamos",
+        "van",
+        "vais"
+      ],
+      "gridRows": 1,
+      "gridCols": 3,
+      "correctTile": "vais",
+      "audio": "vais"
+    },
+    {
+      "type": "table-select",
+      "prompt": "Listen and click the form you hear.",
+      "tiles": [
+        "va",
+        "vas",
+        "van"
+      ],
+      "gridRows": 1,
+      "gridCols": 3,
+      "correctTile": "van",
+      "audio": "van"
+    },
+    {
+      "type": "type-en-es-typed",
+      "sentence": "I go",
+      "answerText": "voy",
+      "answerTexts": [],
+      "audio": "voy"
+    },
+    {
+      "type": "type-en-es-typed",
+      "sentence": "you go",
+      "answerText": "vas",
+      "answerTexts": [],
+      "audio": "vas"
+    },
+    {
+      "type": "type-en-es-typed",
+      "sentence": "we go",
+      "answerText": "vamos",
+      "answerTexts": [],
+      "audio": "vamos"
+    },
+    {
+      "type": "type-en-es-typed",
+      "sentence": "they go",
+      "answerText": "van",
+      "answerTexts": [],
+      "audio": "van"
+    }
+  ]
+}

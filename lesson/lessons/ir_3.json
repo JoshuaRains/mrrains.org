@@ -1,0 +1,108 @@
+{
+  "title": "C7 Present Tense of Ir",
+  "subtitle": "Lesson 3",
+  "questions": [
+    {
+      "type": "table-select",
+      "prompt": "Which phrase means 'I go to school'?",
+      "tiles": [
+        "voy a la escuela",
+        "vas a la escuela",
+        "vamos a la escuela"
+      ],
+      "gridRows": 1,
+      "gridCols": 3,
+      "correctTile": "voy a la escuela"
+    },
+    {
+      "type": "table-select",
+      "prompt": "Which phrase means 'we go to school'?",
+      "tiles": [
+        "voy a la escuela",
+        "vamos a la escuela",
+        "van a la escuela"
+      ],
+      "gridRows": 1,
+      "gridCols": 3,
+      "correctTile": "vamos a la escuela"
+    },
+    {
+      "type": "table-select",
+      "prompt": "Listen and click the phrase you hear.",
+      "tiles": [
+        "voy a casa",
+        "vas a casa",
+        "va a casa"
+      ],
+      "gridRows": 1,
+      "gridCols": 3,
+      "correctTile": "va a casa",
+      "audio": "va a casa"
+    },
+    {
+      "type": "table-select",
+      "prompt": "Listen and click the phrase you hear.",
+      "tiles": [
+        "vamos al parque",
+        "van al parque",
+        "vais al parque"
+      ],
+      "gridRows": 1,
+      "gridCols": 3,
+      "correctTile": "vamos al parque",
+      "audio": "vamos al parque"
+    },
+    {
+      "type": "type-en-es-typed",
+      "sentence": "he goes",
+      "answerText": "va",
+      "answerTexts": [],
+      "audio": "va"
+    },
+    {
+      "type": "type-en-es-typed",
+      "sentence": "y'all go (Spain)",
+      "answerText": "vais",
+      "answerTexts": [],
+      "audio": "vais"
+    },
+    {
+      "type": "type-en-es-typed",
+      "sentence": "they go",
+      "answerText": "van",
+      "answerTexts": [],
+      "audio": "van"
+    },
+    {
+      "type": "type-en-es-typed",
+      "sentence": "he goes home",
+      "answerText": "va a casa",
+      "answerTexts": [],
+      "audio": "va a casa"
+    },
+    {
+      "type": "listen-es-es-typed",
+      "answerText": "voy",
+      "answerTexts": [],
+      "audio": "voy"
+    },
+    {
+      "type": "listen-es-es-typed",
+      "answerText": "vamos",
+      "answerTexts": [],
+      "audio": "vamos"
+    },
+    {
+      "type": "listen-es-es-typed",
+      "answerText": "van",
+      "answerTexts": [],
+      "audio": "van"
+    },
+    {
+      "type": "listen-es-es-typed",
+      "answerText": "va a casa",
+      "answerTexts": [],
+      "audio": "va a casa"
+    }
+  ]
+}

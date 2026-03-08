@@ -1,0 +1,68 @@
+{
+  "title": "C6 Question Words",
+  "subtitle": "Lesson 4",
+  "questions": [
+    {
+      "type": "listen-es-en-typed",
+      "answerText": "what",
+      "answerTexts": [],
+      "audio": "qué"
+    },
+    {
+      "type": "listen-es-en-typed",
+      "answerText": "who",
+      "answerTexts": [],
+      "audio": "quién"
+    },
+    {
+      "type": "listen-es-en-typed",
+      "answerText": "where",
+      "answerTexts": [],
+      "audio": "dónde"
+    },
+    {
+      "type": "listen-es-en-typed",
+      "answerText": "when",
+      "answerTexts": [],
+      "audio": "cuándo"
+    },
+    {
+      "type": "listen-es-en-typed",
+      "answerText": "why",
+      "answerTexts": [],
+      "audio": "por qué"
+    },
+    {
+      "type": "listen-es-en-typed",
+      "answerText": "how",
+      "answerTexts": [],
+      "audio": "cómo"
+    },
+    {
+      "type": "type-en-es-typed",
+      "sentence": "which",
+      "answerText": "cuál",
+      "answerTexts": [],
+      "audio": "cuál"
+    },
+    {
+      "type": "type-en-es-typed",
+      "sentence": "how much",
+      "answerText": "cuánto",
+      "answerTexts": [],
+      "audio": "cuánto"
+    },
+    {
+      "type": "listen-es-es-typed",
+      "answerText": "cuál",
+      "answerTexts": [],
+      "audio": "cuál"
+    },
+    {
+      "type": "listen-es-es-typed",
+      "answerText": "cuánto",
+      "answerTexts": [],
+      "audio": "cuánto"
+    }
+  ]
+}

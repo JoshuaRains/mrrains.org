@@ -1,0 +1,109 @@
+{
+  "title": "C13 Preterite",
+  "subtitle": "Lesson 2",
+  "questions": [
+    {
+      "type": "table-select",
+      "prompt": "Which word means 'you walked'?",
+      "tiles": [
+        "caminé",
+        "caminaste",
+        "caminó"
+      ],
+      "gridRows": 1,
+      "gridCols": 3,
+      "correctTile": "caminaste"
+    },
+    {
+      "type": "table-select",
+      "prompt": "Which word means 'he looked'?",
+      "tiles": [
+        "miré",
+        "miró",
+        "miramos"
+      ],
+      "gridRows": 1,
+      "gridCols": 3,
+      "correctTile": "miró"
+    },
+    {
+      "type": "table-select",
+      "prompt": "Which word means 'we talked'?",
+      "tiles": [
+        "hablaron",
+        "hablamos",
+        "hablé"
+      ],
+      "gridRows": 1,
+      "gridCols": 3,
+      "correctTile": "hablamos"
+    },
+    {
+      "type": "table-select",
+      "prompt": "Listen and click the word you hear.",
+      "tiles": [
+        "hablé",
+        "hablaste",
+        "habló"
+      ],
+      "gridRows": 1,
+      "gridCols": 3,
+      "correctTile": "hablé",
+      "audio": "hablé"
+    },
+    {
+      "type": "table-select",
+      "prompt": "Listen and click the word you hear.",
+      "tiles": [
+        "caminamos",
+        "caminaron",
+        "caminasteis"
+      ],
+      "gridRows": 1,
+      "gridCols": 3,
+      "correctTile": "caminaron",
+      "audio": "caminaron"
+    },
+    {
+      "type": "table-select",
+      "prompt": "Listen and click the word you hear.",
+      "tiles": [
+        "miró",
+        "miramos",
+        "miraste"
+      ],
+      "gridRows": 1,
+      "gridCols": 3,
+      "correctTile": "miramos",
+      "audio": "miramos"
+    },
+    {
+      "type": "type-en-es-typed",
+      "sentence": "I talked",
+      "answerText": "hablé",
+      "answerTexts": [],
+      "audio": "hablé"
+    },
+    {
+      "type": "type-en-es-typed",
+      "sentence": "you walked",
+      "answerText": "caminaste",
+      "answerTexts": [],
+      "audio": "caminaste"
+    },
+    {
+      "type": "type-en-es-typed",
+      "sentence": "he looked",
+      "answerText": "miró",
+      "answerTexts": [],
+      "audio": "miró"
+    },
+    {
+      "type": "type-en-es-typed",
+      "sentence": "we talked",
+      "answerText": "hablamos",
+      "answerTexts": [],
+      "audio": "hablamos"
+    }
+  ]
+}

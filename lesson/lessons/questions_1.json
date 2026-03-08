@@ -1,0 +1,102 @@
+{
+  "title": "C6 Question Words",
+  "subtitle": "Lesson 1",
+  "questions": [
+    {
+      "type": "table-select",
+      "prompt": "Which Spanish word means 'what'?",
+      "tiles": [
+        "qué",
+        "quién",
+        "dónde"
+      ],
+      "gridRows": 1,
+      "gridCols": 3,
+      "correctTile": "qué"
+    },
+    {
+      "type": "table-select",
+      "prompt": "Which Spanish word means 'who'?",
+      "tiles": [
+        "cuándo",
+        "quién",
+        "cómo"
+      ],
+      "gridRows": 1,
+      "gridCols": 3,
+      "correctTile": "quién"
+    },
+    {
+      "type": "table-select",
+      "prompt": "Which Spanish word means 'where'?",
+      "tiles": [
+        "dónde",
+        "qué",
+        "por qué"
+      ],
+      "gridRows": 1,
+      "gridCols": 3,
+      "correctTile": "dónde"
+    },
+    {
+      "type": "table-select",
+      "prompt": "Which Spanish word means 'when'?",
+      "tiles": [
+        "cuándo",
+        "cómo",
+        "cuál"
+      ],
+      "gridRows": 1,
+      "gridCols": 3,
+      "correctTile": "cuándo"
+    },
+    {
+      "type": "table-select",
+      "prompt": "Which Spanish word means 'why'?",
+      "tiles": [
+        "por qué",
+        "cuánto",
+        "quién"
+      ],
+      "gridRows": 1,
+      "gridCols": 3,
+      "correctTile": "por qué"
+    },
+    {
+      "type": "table-select",
+      "prompt": "Which Spanish word means 'how'?",
+      "tiles": [
+        "cómo",
+        "cuál",
+        "qué"
+      ],
+      "gridRows": 1,
+      "gridCols": 3,
+      "correctTile": "cómo"
+    },
+    {
+      "type": "table-select",
+      "prompt": "Which Spanish word means 'which'?",
+      "tiles": [
+        "cuál",
+        "cómo",
+        "dónde"
+      ],
+      "gridRows": 1,
+      "gridCols": 3,
+      "correctTile": "cuál"
+    },
+    {
+      "type": "table-select",
+      "prompt": "Which Spanish word means 'how much'?",
+      "tiles": [
+        "cuánto",
+        "quién",
+        "cuándo"
+      ],
+      "gridRows": 1,
+      "gridCols": 3,
+      "correctTile": "cuánto"
+    }
+  ]
+}

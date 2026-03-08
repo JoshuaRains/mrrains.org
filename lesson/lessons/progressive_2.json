@@ -1,0 +1,93 @@
+{
+  "title": "C12 Present Progressive",
+  "subtitle": "Lesson 2",
+  "questions": [
+    {
+      "type": "table-select",
+      "prompt": "Listen and click the phrase you hear.",
+      "tiles": [
+        "estoy estudiando ahora",
+        "estás estudiando ahora",
+        "está estudiando ahora"
+      ],
+      "gridRows": 1,
+      "gridCols": 3,
+      "correctTile": "estoy estudiando ahora",
+      "audio": "estoy estudiando ahora"
+    },
+    {
+      "type": "table-select",
+      "prompt": "Listen and click the phrase you hear.",
+      "tiles": [
+        "estás comiendo ahora",
+        "estoy comiendo ahora",
+        "están comiendo ahora"
+      ],
+      "gridRows": 1,
+      "gridCols": 3,
+      "correctTile": "estás comiendo ahora",
+      "audio": "estás comiendo ahora"
+    },
+    {
+      "type": "table-select",
+      "prompt": "Listen and click the phrase you hear.",
+      "tiles": [
+        "estamos corriendo ahora",
+        "están corriendo ahora",
+        "está corriendo ahora"
+      ],
+      "gridRows": 1,
+      "gridCols": 3,
+      "correctTile": "estamos corriendo ahora",
+      "audio": "estamos corriendo ahora"
+    },
+    {
+      "type": "table-select",
+      "prompt": "Listen and click the phrase you hear.",
+      "tiles": [
+        "está leyendo ahora",
+        "estoy leyendo ahora",
+        "estás leyendo ahora"
+      ],
+      "gridRows": 1,
+      "gridCols": 3,
+      "correctTile": "está leyendo ahora",
+      "audio": "está leyendo ahora"
+    },
+    {
+      "type": "type-en-es-typed",
+      "sentence": "I am studying now",
+      "answerText": "estoy estudiando ahora",
+      "answerTexts": [],
+      "audio": "estoy estudiando ahora"
+    },
+    {
+      "type": "type-en-es-typed",
+      "sentence": "you are eating now",
+      "answerText": "estás comiendo ahora",
+      "answerTexts": [],
+      "audio": "estás comiendo ahora"
+    },
+    {
+      "type": "type-en-es-typed",
+      "sentence": "we are running now",
+      "answerText": "estamos corriendo ahora",
+      "answerTexts": [],
+      "audio": "estamos corriendo ahora"
+    },
+    {
+      "type": "type-en-es-typed",
+      "sentence": "he is reading now",
+      "answerText": "está leyendo ahora",
+      "answerTexts": [],
+      "audio": "está leyendo ahora"
+    },
+    {
+      "type": "type-en-es-typed",
+      "sentence": "they are talking now",
+      "answerText": "están hablando ahora",
+      "answerTexts": [],
+      "audio": "están hablando ahora"
+    }
+  ]
+}

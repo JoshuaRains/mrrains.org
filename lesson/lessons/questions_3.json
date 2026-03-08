@@ -1,0 +1,108 @@
+{
+  "title": "C6 Question Words",
+  "subtitle": "Lesson 3",
+  "questions": [
+    {
+      "type": "table-select",
+      "prompt": "Listen and click the word you hear.",
+      "tiles": [
+        "por qué",
+        "cuánto",
+        "cuál"
+      ],
+      "gridRows": 1,
+      "gridCols": 3,
+      "correctTile": "por qué",
+      "audio": "por qué"
+    },
+    {
+      "type": "table-select",
+      "prompt": "Listen and click the word you hear.",
+      "tiles": [
+        "cuánto",
+        "quién",
+        "cómo"
+      ],
+      "gridRows": 1,
+      "gridCols": 3,
+      "correctTile": "cuánto",
+      "audio": "cuánto"
+    },
+    {
+      "type": "table-select",
+      "prompt": "Which word starts the question 'Why do you run?'",
+      "tiles": [
+        "por qué",
+        "qué",
+        "dónde"
+      ],
+      "gridRows": 1,
+      "gridCols": 3,
+      "correctTile": "por qué"
+    },
+    {
+      "type": "table-select",
+      "prompt": "Which word starts the question 'How much do you eat?'",
+      "tiles": [
+        "cuánto",
+        "cuál",
+        "quién"
+      ],
+      "gridRows": 1,
+      "gridCols": 3,
+      "correctTile": "cuánto"
+    },
+    {
+      "type": "type-en-es-typed",
+      "sentence": "why",
+      "answerText": "por qué",
+      "answerTexts": [],
+      "audio": "por qué"
+    },
+    {
+      "type": "type-en-es-typed",
+      "sentence": "how",
+      "answerText": "cómo",
+      "answerTexts": [],
+      "audio": "cómo"
+    },
+    {
+      "type": "type-en-es-typed",
+      "sentence": "which",
+      "answerText": "cuál",
+      "answerTexts": [],
+      "audio": "cuál"
+    },
+    {
+      "type": "type-en-es-typed",
+      "sentence": "how much",
+      "answerText": "cuánto",
+      "answerTexts": [],
+      "audio": "cuánto"
+    },
+    {
+      "type": "listen-es-es-typed",
+      "answerText": "qué",
+      "answerTexts": [],
+      "audio": "qué"
+    },
+    {
+      "type": "listen-es-es-typed",
+      "answerText": "dónde",
+      "answerTexts": [],
+      "audio": "dónde"
+    },
+    {
+      "type": "listen-es-es-typed",
+      "answerText": "por qué",
+      "answerTexts": [],
+      "audio": "por qué"
+    },
+    {
+      "type": "listen-es-es-typed",
+      "answerText": "cuánto",
+      "answerTexts": [],
+      "audio": "cuánto"
+    }
+  ]
+}

@@ -1,0 +1,102 @@
+{
+  "title": "C10 Stem-Changing Verbs",
+  "subtitle": "Lesson 1",
+  "questions": [
+    {
+      "type": "table-select",
+      "prompt": "Which Spanish word means 'to want'?",
+      "tiles": [
+        "💛 querer",
+        "🛏️ dormir",
+        "🍽️ almorzar"
+      ],
+      "gridRows": 1,
+      "gridCols": 3,
+      "correctTile": "💛 querer"
+    },
+    {
+      "type": "table-select",
+      "prompt": "Which word means 'I want'?",
+      "tiles": [
+        "quiero",
+        "queremos",
+        "quiere"
+      ],
+      "gridRows": 1,
+      "gridCols": 3,
+      "correctTile": "quiero"
+    },
+    {
+      "type": "table-select",
+      "prompt": "Which word means 'we want'?",
+      "tiles": [
+        "quiero",
+        "queremos",
+        "quieren"
+      ],
+      "gridRows": 1,
+      "gridCols": 3,
+      "correctTile": "queremos"
+    },
+    {
+      "type": "table-select",
+      "prompt": "Which Spanish word means 'to sleep'?",
+      "tiles": [
+        "🛏️ dormir",
+        "🚶 caminar",
+        "📚 estudiar"
+      ],
+      "gridRows": 1,
+      "gridCols": 3,
+      "correctTile": "🛏️ dormir"
+    },
+    {
+      "type": "table-select",
+      "prompt": "Which word means 'you sleep'?",
+      "tiles": [
+        "duermo",
+        "duermes",
+        "dormimos"
+      ],
+      "gridRows": 1,
+      "gridCols": 3,
+      "correctTile": "duermes"
+    },
+    {
+      "type": "table-select",
+      "prompt": "Which word means 'we sleep'?",
+      "tiles": [
+        "duerme",
+        "dormimos",
+        "duermen"
+      ],
+      "gridRows": 1,
+      "gridCols": 3,
+      "correctTile": "dormimos"
+    },
+    {
+      "type": "table-select",
+      "prompt": "Which Spanish word means 'to have lunch'?",
+      "tiles": [
+        "🍽️ almorzar",
+        "🗣️ hablar",
+        "👀 mirar"
+      ],
+      "gridRows": 1,
+      "gridCols": 3,
+      "correctTile": "🍽️ almorzar"
+    },
+    {
+      "type": "table-select",
+      "prompt": "Which word means 'he has lunch'?",
+      "tiles": [
+        "almuerza",
+        "almorzamos",
+        "almuerzo"
+      ],
+      "gridRows": 1,
+      "gridCols": 3,
+      "correctTile": "almuerza"
+    }
+  ]
+}

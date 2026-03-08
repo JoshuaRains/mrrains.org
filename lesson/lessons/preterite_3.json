@@ -1,0 +1,108 @@
+{
+  "title": "C13 Preterite",
+  "subtitle": "Lesson 3",
+  "questions": [
+    {
+      "type": "table-select",
+      "prompt": "Which phrase means 'I talked yesterday'?",
+      "tiles": [
+        "hablé ayer",
+        "hablo ayer",
+        "hablaba ayer"
+      ],
+      "gridRows": 1,
+      "gridCols": 3,
+      "correctTile": "hablé ayer"
+    },
+    {
+      "type": "table-select",
+      "prompt": "Which phrase means 'they walked yesterday'?",
+      "tiles": [
+        "caminaron ayer",
+        "caminan ayer",
+        "caminábamos ayer"
+      ],
+      "gridRows": 1,
+      "gridCols": 3,
+      "correctTile": "caminaron ayer"
+    },
+    {
+      "type": "table-select",
+      "prompt": "Listen and click the phrase you hear.",
+      "tiles": [
+        "miró ayer",
+        "miraba ayer",
+        "mira ayer"
+      ],
+      "gridRows": 1,
+      "gridCols": 3,
+      "correctTile": "miró ayer",
+      "audio": "miró ayer"
+    },
+    {
+      "type": "table-select",
+      "prompt": "Listen and click the phrase you hear.",
+      "tiles": [
+        "hablamos ayer",
+        "hablamos ahora",
+        "hablaremos mañana"
+      ],
+      "gridRows": 1,
+      "gridCols": 3,
+      "correctTile": "hablamos ayer",
+      "audio": "hablamos ayer"
+    },
+    {
+      "type": "type-en-es-typed",
+      "sentence": "I talked yesterday",
+      "answerText": "hablé ayer",
+      "answerTexts": [],
+      "audio": "hablé ayer"
+    },
+    {
+      "type": "type-en-es-typed",
+      "sentence": "they walked yesterday",
+      "answerText": "caminaron ayer",
+      "answerTexts": [],
+      "audio": "caminaron ayer"
+    },
+    {
+      "type": "type-en-es-typed",
+      "sentence": "he looked yesterday",
+      "answerText": "miró ayer",
+      "answerTexts": [],
+      "audio": "miró ayer"
+    },
+    {
+      "type": "type-en-es-typed",
+      "sentence": "we talked yesterday",
+      "answerText": "hablamos ayer",
+      "answerTexts": [],
+      "audio": "hablamos ayer"
+    },
+    {
+      "type": "listen-es-es-typed",
+      "answerText": "hablé ayer",
+      "answerTexts": [],
+      "audio": "hablé ayer"
+    },
+    {
+      "type": "listen-es-es-typed",
+      "answerText": "caminaron ayer",
+      "answerTexts": [],
+      "audio": "caminaron ayer"
+    },
+    {
+      "type": "listen-es-es-typed",
+      "answerText": "miró ayer",
+      "answerTexts": [],
+      "audio": "miró ayer"
+    },
+    {
+      "type": "listen-es-es-typed",
+      "answerText": "hablamos ayer",
+      "answerTexts": [],
+      "audio": "hablamos ayer"
+    }
+  ]
+}

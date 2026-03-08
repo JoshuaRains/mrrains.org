@@ -1,0 +1,100 @@
+{
+  "title": "C14 Conjunctions",
+  "subtitle": "Lesson 2",
+  "questions": [
+    {
+      "type": "table-select",
+      "prompt": "Listen and click the word you hear.",
+      "tiles": [
+        "y",
+        "o",
+        "pero"
+      ],
+      "gridRows": 1,
+      "gridCols": 3,
+      "correctTile": "y",
+      "audio": "y"
+    },
+    {
+      "type": "table-select",
+      "prompt": "Listen and click the word you hear.",
+      "tiles": [
+        "porque",
+        "pero",
+        "o"
+      ],
+      "gridRows": 1,
+      "gridCols": 3,
+      "correctTile": "porque",
+      "audio": "porque"
+    },
+    {
+      "type": "table-select",
+      "prompt": "Listen and click the phrase you hear.",
+      "tiles": [
+        "agua o jugo",
+        "agua y jugo",
+        "agua pero jugo"
+      ],
+      "gridRows": 1,
+      "gridCols": 3,
+      "correctTile": "agua o jugo",
+      "audio": "agua o jugo"
+    },
+    {
+      "type": "table-select",
+      "prompt": "Listen and click the phrase you hear.",
+      "tiles": [
+        "libros y cuadernos",
+        "libros o cuadernos",
+        "libros pero cuadernos"
+      ],
+      "gridRows": 1,
+      "gridCols": 3,
+      "correctTile": "libros y cuadernos",
+      "audio": "libros y cuadernos"
+    },
+    {
+      "type": "type-en-es-typed",
+      "sentence": "and",
+      "answerText": "y",
+      "answerTexts": [],
+      "audio": "y"
+    },
+    {
+      "type": "type-en-es-typed",
+      "sentence": "or",
+      "answerText": "o",
+      "answerTexts": [],
+      "audio": "o"
+    },
+    {
+      "type": "type-en-es-typed",
+      "sentence": "but",
+      "answerText": "pero",
+      "answerTexts": [],
+      "audio": "pero"
+    },
+    {
+      "type": "type-en-es-typed",
+      "sentence": "because",
+      "answerText": "porque",
+      "answerTexts": [],
+      "audio": "porque"
+    },
+    {
+      "type": "type-en-es-typed",
+      "sentence": "books and notebooks",
+      "answerText": "libros y cuadernos",
+      "answerTexts": [],
+      "audio": "libros y cuadernos"
+    },
+    {
+      "type": "type-en-es-typed",
+      "sentence": "water or juice",
+      "answerText": "agua o jugo",
+      "answerTexts": [],
+      "audio": "agua o jugo"
+    }
+  ]
+}

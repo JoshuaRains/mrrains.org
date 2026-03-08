@@ -1,0 +1,114 @@
+{
+  "title": "C5 Possessive Adjectives",
+  "subtitle": "Lesson 2",
+  "questions": [
+    {
+      "type": "table-select",
+      "prompt": "Which word means 'my notebook'?",
+      "tiles": [
+        "mi cuaderno",
+        "tu cuaderno",
+        "su cuaderno"
+      ],
+      "gridRows": 1,
+      "gridCols": 3,
+      "correctTile": "mi cuaderno"
+    },
+    {
+      "type": "table-select",
+      "prompt": "Which word means 'your books'?",
+      "tiles": [
+        "mi libros",
+        "tus libros",
+        "sus libros"
+      ],
+      "gridRows": 1,
+      "gridCols": 3,
+      "correctTile": "tus libros"
+    },
+    {
+      "type": "table-select",
+      "prompt": "Which word means 'our door'?",
+      "tiles": [
+        "nuestra puerta",
+        "nuestro puerta",
+        "su puerta"
+      ],
+      "gridRows": 1,
+      "gridCols": 3,
+      "correctTile": "nuestra puerta"
+    },
+    {
+      "type": "table-select",
+      "prompt": "Which word means 'their apples'?",
+      "tiles": [
+        "nuestros manzanas",
+        "sus manzanas",
+        "tus manzanas"
+      ],
+      "gridRows": 1,
+      "gridCols": 3,
+      "correctTile": "sus manzanas"
+    },
+    {
+      "type": "table-select",
+      "prompt": "Listen and click the phrase you hear.",
+      "tiles": [
+        "mi libro",
+        "tu libro",
+        "su libro"
+      ],
+      "gridRows": 1,
+      "gridCols": 3,
+      "correctTile": "mi libro",
+      "audio": "mi libro"
+    },
+    {
+      "type": "table-select",
+      "prompt": "Listen and click the phrase you hear.",
+      "tiles": [
+        "tu manzana",
+        "mi manzana",
+        "su manzana"
+      ],
+      "gridRows": 1,
+      "gridCols": 3,
+      "correctTile": "tu manzana",
+      "audio": "tu manzana"
+    },
+    {
+      "type": "table-select",
+      "prompt": "Listen and click the phrase you hear.",
+      "tiles": [
+        "nuestros libros",
+        "sus libros",
+        "vuestros libros"
+      ],
+      "gridRows": 1,
+      "gridCols": 3,
+      "correctTile": "nuestros libros",
+      "audio": "nuestros libros"
+    },
+    {
+      "type": "type-en-es-typed",
+      "sentence": "my book",
+      "answerText": "mi libro",
+      "answerTexts": [],
+      "audio": "mi libro"
+    },
+    {
+      "type": "type-en-es-typed",
+      "sentence": "your apple",
+      "answerText": "tu manzana",
+      "answerTexts": [],
+      "audio": "tu manzana"
+    },
+    {
+      "type": "type-en-es-typed",
+      "sentence": "our books",
+      "answerText": "nuestros libros",
+      "answerTexts": [],
+      "audio": "nuestros libros"
+    }
+  ]
+}

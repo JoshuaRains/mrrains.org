@@ -1,0 +1,134 @@
+{
+  "title": "C8 Present Tense Verbs",
+  "subtitle": "Lesson 4",
+  "questions": [
+    {
+      "type": "table-select",
+      "prompt": "Listen and click the word you hear.",
+      "tiles": [
+        "hablo",
+        "hablas",
+        "hablan"
+      ],
+      "gridRows": 1,
+      "gridCols": 3,
+      "correctTile": "hablo",
+      "audio": "hablo"
+    },
+    {
+      "type": "table-select",
+      "prompt": "Listen and click the word you hear.",
+      "tiles": [
+        "caminamos",
+        "caminas",
+        "caminan"
+      ],
+      "gridRows": 1,
+      "gridCols": 3,
+      "correctTile": "caminas",
+      "audio": "caminas"
+    },
+    {
+      "type": "table-select",
+      "prompt": "Listen and click the word you hear.",
+      "tiles": [
+        "miran",
+        "mira",
+        "miro"
+      ],
+      "gridRows": 1,
+      "gridCols": 3,
+      "correctTile": "mira",
+      "audio": "mira"
+    },
+    {
+      "type": "table-select",
+      "prompt": "Listen and click the word you hear.",
+      "tiles": [
+        "estudian",
+        "estudiamos",
+        "estudio"
+      ],
+      "gridRows": 1,
+      "gridCols": 3,
+      "correctTile": "estudiamos",
+      "audio": "estudiamos"
+    },
+    {
+      "type": "type-en-es-typed",
+      "sentence": "I talk",
+      "answerText": "hablo",
+      "answerTexts": [],
+      "audio": "hablo"
+    },
+    {
+      "type": "type-en-es-typed",
+      "sentence": "you walk",
+      "answerText": "caminas",
+      "answerTexts": [],
+      "audio": "caminas"
+    },
+    {
+      "type": "type-en-es-typed",
+      "sentence": "he looks",
+      "answerText": "mira",
+      "answerTexts": [],
+      "audio": "mira"
+    },
+    {
+      "type": "type-en-es-typed",
+      "sentence": "we study",
+      "answerText": "estudiamos",
+      "answerTexts": [],
+      "audio": "estudiamos"
+    },
+    {
+      "type": "listen-es-es-typed",
+      "answerText": "hablo",
+      "answerTexts": [],
+      "audio": "hablo"
+    },
+    {
+      "type": "listen-es-es-typed",
+      "answerText": "caminas",
+      "answerTexts": [],
+      "audio": "caminas"
+    },
+    {
+      "type": "listen-es-es-typed",
+      "answerText": "mira",
+      "answerTexts": [],
+      "audio": "mira"
+    },
+    {
+      "type": "listen-es-es-typed",
+      "answerText": "estudiamos",
+      "answerTexts": [],
+      "audio": "estudiamos"
+    },
+    {
+      "type": "listen-es-en-typed",
+      "answerText": "I talk",
+      "answerTexts": [],
+      "audio": "hablo"
+    },
+    {
+      "type": "listen-es-en-typed",
+      "answerText": "you walk",
+      "answerTexts": [],
+      "audio": "caminas"
+    },
+    {
+      "type": "listen-es-en-typed",
+      "answerText": "he looks",
+      "answerTexts": [],
+      "audio": "mira"
+    },
+    {
+      "type": "listen-es-en-typed",
+      "answerText": "we study",
+      "answerTexts": [],
+      "audio": "estudiamos"
+    }
+  ]
+}

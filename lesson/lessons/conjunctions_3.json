@@ -1,0 +1,108 @@
+{
+  "title": "C14 Conjunctions",
+  "subtitle": "Lesson 3",
+  "questions": [
+    {
+      "type": "table-select",
+      "prompt": "Which phrase means 'I study and I read'?",
+      "tiles": [
+        "estudio y leo",
+        "estudio o leo",
+        "estudio pero leo"
+      ],
+      "gridRows": 1,
+      "gridCols": 3,
+      "correctTile": "estudio y leo"
+    },
+    {
+      "type": "table-select",
+      "prompt": "Which phrase means 'I eat but I do not drink'?",
+      "tiles": [
+        "como y no bebo",
+        "como pero no bebo",
+        "como porque no bebo"
+      ],
+      "gridRows": 1,
+      "gridCols": 3,
+      "correctTile": "como pero no bebo"
+    },
+    {
+      "type": "table-select",
+      "prompt": "Listen and click the phrase you hear.",
+      "tiles": [
+        "estudio y leo",
+        "estudio o leo",
+        "estudio porque leo"
+      ],
+      "gridRows": 1,
+      "gridCols": 3,
+      "correctTile": "estudio y leo",
+      "audio": "estudio y leo"
+    },
+    {
+      "type": "table-select",
+      "prompt": "Listen and click the phrase you hear.",
+      "tiles": [
+        "quiero agua o jugo",
+        "quiero agua y jugo",
+        "quiero agua porque jugo"
+      ],
+      "gridRows": 1,
+      "gridCols": 3,
+      "correctTile": "quiero agua o jugo",
+      "audio": "quiero agua o jugo"
+    },
+    {
+      "type": "type-en-es-typed",
+      "sentence": "I study and I read",
+      "answerText": "estudio y leo",
+      "answerTexts": [],
+      "audio": "estudio y leo"
+    },
+    {
+      "type": "type-en-es-typed",
+      "sentence": "I eat but I do not drink",
+      "answerText": "como pero no bebo",
+      "answerTexts": [],
+      "audio": "como pero no bebo"
+    },
+    {
+      "type": "type-en-es-typed",
+      "sentence": "I want water or juice",
+      "answerText": "quiero agua o jugo",
+      "answerTexts": [],
+      "audio": "quiero agua o jugo"
+    },
+    {
+      "type": "type-en-es-typed",
+      "sentence": "I study because I want to learn",
+      "answerText": "estudio porque quiero aprender",
+      "answerTexts": [],
+      "audio": "estudio porque quiero aprender"
+    },
+    {
+      "type": "listen-es-es-typed",
+      "answerText": "estudio y leo",
+      "answerTexts": [],
+      "audio": "estudio y leo"
+    },
+    {
+      "type": "listen-es-es-typed",
+      "answerText": "como pero no bebo",
+      "answerTexts": [],
+      "audio": "como pero no bebo"
+    },
+    {
+      "type": "listen-es-es-typed",
+      "answerText": "quiero agua o jugo",
+      "answerTexts": [],
+      "audio": "quiero agua o jugo"
+    },
+    {
+      "type": "listen-es-es-typed",
+      "answerText": "estudio porque quiero aprender",
+      "answerTexts": [],
+      "audio": "estudio porque quiero aprender"
+    }
+  ]
+}

@@ -1,0 +1,90 @@
+{
+  "title": "C5 Possessive Adjectives",
+  "subtitle": "Lesson 3",
+  "questions": [
+    {
+      "type": "table-select",
+      "prompt": "Listen and click the phrase you hear.",
+      "tiles": [
+        "su puerta",
+        "tu puerta",
+        "mi puerta"
+      ],
+      "gridRows": 1,
+      "gridCols": 3,
+      "correctTile": "su puerta",
+      "audio": "su puerta"
+    },
+    {
+      "type": "table-select",
+      "prompt": "Listen and click the phrase you hear.",
+      "tiles": [
+        "nuestra casa",
+        "nuestro casa",
+        "sus casas"
+      ],
+      "gridRows": 1,
+      "gridCols": 3,
+      "correctTile": "nuestra casa",
+      "audio": "nuestra casa"
+    },
+    {
+      "type": "table-select",
+      "prompt": "Listen and click the phrase you hear.",
+      "tiles": [
+        "sus casas",
+        "nuestras casas",
+        "vuestras casas"
+      ],
+      "gridRows": 1,
+      "gridCols": 3,
+      "correctTile": "sus casas",
+      "audio": "sus casas"
+    },
+    {
+      "type": "type-en-es-typed",
+      "sentence": "his door",
+      "answerText": "su puerta",
+      "answerTexts": [],
+      "audio": "su puerta"
+    },
+    {
+      "type": "type-en-es-typed",
+      "sentence": "our house",
+      "answerText": "nuestra casa",
+      "answerTexts": [],
+      "audio": "nuestra casa"
+    },
+    {
+      "type": "type-en-es-typed",
+      "sentence": "their houses",
+      "answerText": "sus casas",
+      "answerTexts": [],
+      "audio": "sus casas"
+    },
+    {
+      "type": "listen-es-es-typed",
+      "answerText": "mi libro",
+      "answerTexts": [],
+      "audio": "mi libro"
+    },
+    {
+      "type": "listen-es-es-typed",
+      "answerText": "tu manzana",
+      "answerTexts": [],
+      "audio": "tu manzana"
+    },
+    {
+      "type": "listen-es-es-typed",
+      "answerText": "nuestra casa",
+      "answerTexts": [],
+      "audio": "nuestra casa"
+    },
+    {
+      "type": "listen-es-es-typed",
+      "answerText": "sus casas",
+      "answerTexts": [],
+      "audio": "sus casas"
+    }
+  ]
+}

@@ -1,0 +1,168 @@
+{
+  "title": "C7 Present Tense of Ir",
+  "subtitle": "Lesson 1",
+  "questions": [
+    {
+      "type": "table-select",
+      "prompt": "Click the pronoun for 'I'.",
+      "tiles": [
+        "yo",
+        "nosotros",
+        "tú",
+        "vosotros",
+        "él / ella / usted",
+        "ellos / ellas / ustedes"
+      ],
+      "gridRows": 3,
+      "gridCols": 2,
+      "correctTile": "yo"
+    },
+    {
+      "type": "table-select",
+      "prompt": "Which word means 'I go'?",
+      "tiles": [
+        "voy",
+        "vas",
+        "vamos"
+      ],
+      "gridRows": 1,
+      "gridCols": 3,
+      "correctTile": "voy"
+    },
+    {
+      "type": "table-select",
+      "prompt": "Click the pronoun for 'you'.",
+      "tiles": [
+        "yo",
+        "nosotros",
+        "tú",
+        "vosotros",
+        "él / ella / usted",
+        "ellos / ellas / ustedes"
+      ],
+      "gridRows": 3,
+      "gridCols": 2,
+      "correctTile": "tú"
+    },
+    {
+      "type": "table-select",
+      "prompt": "Which word means 'you go'?",
+      "tiles": [
+        "voy",
+        "vas",
+        "va"
+      ],
+      "gridRows": 1,
+      "gridCols": 3,
+      "correctTile": "vas"
+    },
+    {
+      "type": "table-select",
+      "prompt": "Click the pronoun for 'he / she / you'.",
+      "tiles": [
+        "yo",
+        "nosotros",
+        "tú",
+        "vosotros",
+        "él / ella / usted",
+        "ellos / ellas / ustedes"
+      ],
+      "gridRows": 3,
+      "gridCols": 2,
+      "correctTile": "él / ella / usted"
+    },
+    {
+      "type": "table-select",
+      "prompt": "Which word means 'he goes'?",
+      "tiles": [
+        "va",
+        "van",
+        "vais"
+      ],
+      "gridRows": 1,
+      "gridCols": 3,
+      "correctTile": "va"
+    },
+    {
+      "type": "table-select",
+      "prompt": "Click the pronoun for 'we'.",
+      "tiles": [
+        "yo",
+        "nosotros",
+        "tú",
+        "vosotros",
+        "él / ella / usted",
+        "ellos / ellas / ustedes"
+      ],
+      "gridRows": 3,
+      "gridCols": 2,
+      "correctTile": "nosotros"
+    },
+    {
+      "type": "table-select",
+      "prompt": "Which word means 'we go'?",
+      "tiles": [
+        "vamos",
+        "voy",
+        "van"
+      ],
+      "gridRows": 1,
+      "gridCols": 3,
+      "correctTile": "vamos"
+    },
+    {
+      "type": "table-select",
+      "prompt": "Click the pronoun for 'y'all (Spain)'.",
+      "tiles": [
+        "yo",
+        "nosotros",
+        "tú",
+        "vosotros",
+        "él / ella / usted",
+        "ellos / ellas / ustedes"
+      ],
+      "gridRows": 3,
+      "gridCols": 2,
+      "correctTile": "vosotros"
+    },
+    {
+      "type": "table-select",
+      "prompt": "Which word means 'y'all go (Spain)'?",
+      "tiles": [
+        "vais",
+        "van",
+        "vas"
+      ],
+      "gridRows": 1,
+      "gridCols": 3,
+      "correctTile": "vais"
+    },
+    {
+      "type": "table-select",
+      "prompt": "Click the pronoun group for 'they / y'all'.",
+      "tiles": [
+        "yo",
+        "nosotros",
+        "tú",
+        "vosotros",
+        "él / ella / usted",
+        "ellos / ellas / ustedes"
+      ],
+      "gridRows": 3,
+      "gridCols": 2,
+      "correctTile": "ellos / ellas / ustedes"
+    },
+    {
+      "type": "table-select",
+      "prompt": "Which word means 'they go'?",
+      "tiles": [
+        "vamos",
+        "van",
+        "va"
+      ],
+      "gridRows": 1,
+      "gridCols": 3,
+      "correctTile": "van"
+    }
+  ]
+}

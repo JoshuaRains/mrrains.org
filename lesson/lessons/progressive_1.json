@@ -1,0 +1,102 @@
+{
+  "title": "C12 Present Progressive",
+  "subtitle": "Lesson 1",
+  "questions": [
+    {
+      "type": "table-select",
+      "prompt": "Which Spanish word means 'studying'?",
+      "tiles": [
+        "📚 estudiando",
+        "🍽️ comiendo",
+        "🏃 corriendo"
+      ],
+      "gridRows": 1,
+      "gridCols": 3,
+      "correctTile": "📚 estudiando"
+    },
+    {
+      "type": "table-select",
+      "prompt": "Which Spanish word means 'eating'?",
+      "tiles": [
+        "📚 estudiando",
+        "🍽️ comiendo",
+        "🏃 corriendo"
+      ],
+      "gridRows": 1,
+      "gridCols": 3,
+      "correctTile": "🍽️ comiendo"
+    },
+    {
+      "type": "table-select",
+      "prompt": "Which Spanish word means 'running'?",
+      "tiles": [
+        "🏃 corriendo",
+        "🗣️ hablando",
+        "📖 leyendo"
+      ],
+      "gridRows": 1,
+      "gridCols": 3,
+      "correctTile": "🏃 corriendo"
+    },
+    {
+      "type": "table-select",
+      "prompt": "Which phrase means 'I am studying now'?",
+      "tiles": [
+        "estoy estudiando ahora",
+        "estás estudiando ahora",
+        "estamos estudiando ahora"
+      ],
+      "gridRows": 1,
+      "gridCols": 3,
+      "correctTile": "estoy estudiando ahora"
+    },
+    {
+      "type": "table-select",
+      "prompt": "Which phrase means 'you are eating now'?",
+      "tiles": [
+        "estoy comiendo ahora",
+        "estás comiendo ahora",
+        "está comiendo ahora"
+      ],
+      "gridRows": 1,
+      "gridCols": 3,
+      "correctTile": "estás comiendo ahora"
+    },
+    {
+      "type": "table-select",
+      "prompt": "Which phrase means 'we are running now'?",
+      "tiles": [
+        "están corriendo ahora",
+        "estamos corriendo ahora",
+        "estoy corriendo ahora"
+      ],
+      "gridRows": 1,
+      "gridCols": 3,
+      "correctTile": "estamos corriendo ahora"
+    },
+    {
+      "type": "table-select",
+      "prompt": "Which phrase means 'he is reading now'?",
+      "tiles": [
+        "está leyendo ahora",
+        "estoy leyendo ahora",
+        "estamos leyendo ahora"
+      ],
+      "gridRows": 1,
+      "gridCols": 3,
+      "correctTile": "está leyendo ahora"
+    },
+    {
+      "type": "table-select",
+      "prompt": "Which phrase means 'they are talking now'?",
+      "tiles": [
+        "están hablando ahora",
+        "está hablando ahora",
+        "estamos hablando ahora"
+      ],
+      "gridRows": 1,
+      "gridCols": 3,
+      "correctTile": "están hablando ahora"
+    }
+  ]
+}

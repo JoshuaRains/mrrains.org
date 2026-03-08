@@ -1,0 +1,70 @@
+{
+  "title": "C11 Reflexive Verbs (Present)",
+  "subtitle": "Lesson 4",
+  "questions": [
+    {
+      "type": "listen-es-en-typed",
+      "answerText": "I wake up",
+      "answerTexts": [],
+      "audio": "me despierto"
+    },
+    {
+      "type": "listen-es-en-typed",
+      "answerText": "she bathes herself",
+      "answerTexts": [],
+      "audio": "se baña"
+    },
+    {
+      "type": "listen-es-en-typed",
+      "answerText": "we go to bed",
+      "answerTexts": [],
+      "audio": "nos acostamos"
+    },
+    {
+      "type": "listen-es-en-typed",
+      "answerText": "they go to bed now",
+      "answerTexts": [],
+      "audio": "se acuestan ahora"
+    },
+    {
+      "type": "type-en-es-typed",
+      "sentence": "I get dressed now",
+      "answerText": "me visto ahora",
+      "answerTexts": [],
+      "audio": "me visto ahora"
+    },
+    {
+      "type": "type-en-es-typed",
+      "sentence": "he gets dressed now",
+      "answerText": "se viste ahora",
+      "answerTexts": [],
+      "audio": "se viste ahora"
+    },
+    {
+      "type": "type-en-es-typed",
+      "sentence": "we wake up now",
+      "answerText": "nos despertamos ahora",
+      "answerTexts": [],
+      "audio": "nos despertamos ahora"
+    },
+    {
+      "type": "type-en-es-typed",
+      "sentence": "they bathe themselves now",
+      "answerText": "se bañan ahora",
+      "answerTexts": [],
+      "audio": "se bañan ahora"
+    },
+    {
+      "type": "listen-es-es-typed",
+      "answerText": "me visto ahora",
+      "answerTexts": [],
+      "audio": "me visto ahora"
+    },
+    {
+      "type": "listen-es-en-typed",
+      "answerText": "they bathe themselves now",
+      "answerTexts": [],
+      "audio": "se bañan ahora"
+    }
+  ]
+}

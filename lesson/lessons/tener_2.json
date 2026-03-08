@@ -1,0 +1,100 @@
+{
+  "title": "C9 Present Tense of Tener",
+  "subtitle": "Lesson 2",
+  "questions": [
+    {
+      "type": "table-select",
+      "prompt": "Listen and click the form you hear.",
+      "tiles": [
+        "tengo",
+        "tienes",
+        "tiene"
+      ],
+      "gridRows": 1,
+      "gridCols": 3,
+      "correctTile": "tengo",
+      "audio": "tengo"
+    },
+    {
+      "type": "table-select",
+      "prompt": "Listen and click the form you hear.",
+      "tiles": [
+        "tenemos",
+        "tienen",
+        "tenéis"
+      ],
+      "gridRows": 1,
+      "gridCols": 3,
+      "correctTile": "tenemos",
+      "audio": "tenemos"
+    },
+    {
+      "type": "table-select",
+      "prompt": "Listen and click the phrase you hear.",
+      "tiles": [
+        "tengo un libro",
+        "tienes un libro",
+        "tiene un libro"
+      ],
+      "gridRows": 1,
+      "gridCols": 3,
+      "correctTile": "tienes un libro",
+      "audio": "tienes un libro"
+    },
+    {
+      "type": "table-select",
+      "prompt": "Listen and click the phrase you hear.",
+      "tiles": [
+        "tenemos una casa",
+        "tenéis una casa",
+        "tienen una casa"
+      ],
+      "gridRows": 1,
+      "gridCols": 3,
+      "correctTile": "tienen una casa",
+      "audio": "tienen una casa"
+    },
+    {
+      "type": "type-en-es-typed",
+      "sentence": "I have",
+      "answerText": "tengo",
+      "answerTexts": [],
+      "audio": "tengo"
+    },
+    {
+      "type": "type-en-es-typed",
+      "sentence": "you have",
+      "answerText": "tienes",
+      "answerTexts": [],
+      "audio": "tienes"
+    },
+    {
+      "type": "type-en-es-typed",
+      "sentence": "we have",
+      "answerText": "tenemos",
+      "answerTexts": [],
+      "audio": "tenemos"
+    },
+    {
+      "type": "type-en-es-typed",
+      "sentence": "they have",
+      "answerText": "tienen",
+      "answerTexts": [],
+      "audio": "tienen"
+    },
+    {
+      "type": "type-en-es-typed",
+      "sentence": "I have a book",
+      "answerText": "tengo un libro",
+      "answerTexts": [],
+      "audio": "tengo un libro"
+    },
+    {
+      "type": "type-en-es-typed",
+      "sentence": "they have a house",
+      "answerText": "tienen una casa",
+      "answerTexts": [],
+      "audio": "tienen una casa"
+    }
+  ]
+}

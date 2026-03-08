@@ -1,0 +1,110 @@
+{
+  "title": "C4 Indefinite Articles",
+  "subtitle": "Lesson 3",
+  "questions": [
+    {
+      "type": "table-select",
+      "prompt": "Listen and click the phrase you hear.",
+      "tiles": [
+        "un cuaderno",
+        "una cuaderno",
+        "unos cuadernos"
+      ],
+      "gridRows": 1,
+      "gridCols": 3,
+      "correctTile": "un cuaderno",
+      "audio": "un cuaderno"
+    },
+    {
+      "type": "table-select",
+      "prompt": "Listen and click the phrase you hear.",
+      "tiles": [
+        "una chica",
+        "un chica",
+        "unas chicas"
+      ],
+      "gridRows": 1,
+      "gridCols": 3,
+      "correctTile": "una chica",
+      "audio": "una chica"
+    },
+    {
+      "type": "table-select",
+      "prompt": "Listen and click the phrase you hear.",
+      "tiles": [
+        "unos cuadernos",
+        "unas cuadernos",
+        "un cuaderno"
+      ],
+      "gridRows": 1,
+      "gridCols": 3,
+      "correctTile": "unos cuadernos",
+      "audio": "unos cuadernos"
+    },
+    {
+      "type": "table-select",
+      "prompt": "Listen and click the phrase you hear.",
+      "tiles": [
+        "unos chicas",
+        "unas chicas",
+        "una chica"
+      ],
+      "gridRows": 1,
+      "gridCols": 3,
+      "correctTile": "unas chicas",
+      "audio": "unas chicas"
+    },
+    {
+      "type": "type-en-es-typed",
+      "sentence": "a notebook",
+      "answerText": "un cuaderno",
+      "answerTexts": [],
+      "audio": "un cuaderno"
+    },
+    {
+      "type": "type-en-es-typed",
+      "sentence": "a girl",
+      "answerText": "una chica",
+      "answerTexts": [],
+      "audio": "una chica"
+    },
+    {
+      "type": "type-en-es-typed",
+      "sentence": "some notebooks",
+      "answerText": "unos cuadernos",
+      "answerTexts": [],
+      "audio": "unos cuadernos"
+    },
+    {
+      "type": "type-en-es-typed",
+      "sentence": "some girls",
+      "answerText": "unas chicas",
+      "answerTexts": [],
+      "audio": "unas chicas"
+    },
+    {
+      "type": "listen-es-es-typed",
+      "answerText": "un cuaderno",
+      "answerTexts": [],
+      "audio": "un cuaderno"
+    },
+    {
+      "type": "listen-es-es-typed",
+      "answerText": "una chica",
+      "answerTexts": [],
+      "audio": "una chica"
+    },
+    {
+      "type": "listen-es-es-typed",
+      "answerText": "unos cuadernos",
+      "answerTexts": [],
+      "audio": "unos cuadernos"
+    },
+    {
+      "type": "listen-es-es-typed",
+      "answerText": "unas chicas",
+      "answerTexts": [],
+      "audio": "unas chicas"
+    }
+  ]
+}

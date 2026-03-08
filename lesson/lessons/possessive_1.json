@@ -1,0 +1,126 @@
+{
+  "title": "C5 Possessive Adjectives",
+  "subtitle": "Lesson 1",
+  "questions": [
+    {
+      "type": "table-select",
+      "prompt": "Which Spanish word means 'my'?",
+      "tiles": [
+        "mi",
+        "tu",
+        "su"
+      ],
+      "gridRows": 1,
+      "gridCols": 3,
+      "correctTile": "mi"
+    },
+    {
+      "type": "table-select",
+      "prompt": "Which Spanish word means 'your'?",
+      "tiles": [
+        "mi",
+        "tu",
+        "su"
+      ],
+      "gridRows": 1,
+      "gridCols": 3,
+      "correctTile": "tu"
+    },
+    {
+      "type": "table-select",
+      "prompt": "Which Spanish word means 'his / her / your'?",
+      "tiles": [
+        "mi",
+        "tu",
+        "su"
+      ],
+      "gridRows": 1,
+      "gridCols": 3,
+      "correctTile": "su"
+    },
+    {
+      "type": "table-select",
+      "prompt": "Which word means 'my book'?",
+      "tiles": [
+        "mi libro",
+        "tu libro",
+        "su libro"
+      ],
+      "gridRows": 1,
+      "gridCols": 3,
+      "correctTile": "mi libro"
+    },
+    {
+      "type": "table-select",
+      "prompt": "Which word means 'your apple'?",
+      "tiles": [
+        "mi manzana",
+        "tu manzana",
+        "su manzana"
+      ],
+      "gridRows": 1,
+      "gridCols": 3,
+      "correctTile": "tu manzana"
+    },
+    {
+      "type": "table-select",
+      "prompt": "Which word means 'his door'?",
+      "tiles": [
+        "mi puerta",
+        "tu puerta",
+        "su puerta"
+      ],
+      "gridRows": 1,
+      "gridCols": 3,
+      "correctTile": "su puerta"
+    },
+    {
+      "type": "table-select",
+      "prompt": "Which Spanish word means 'our'?",
+      "tiles": [
+        "nuestro",
+        "vuestro",
+        "sus"
+      ],
+      "gridRows": 1,
+      "gridCols": 3,
+      "correctTile": "nuestro"
+    },
+    {
+      "type": "table-select",
+      "prompt": "Which Spanish word means 'y'all's (Spain)'?",
+      "tiles": [
+        "nuestro",
+        "vuestro",
+        "sus"
+      ],
+      "gridRows": 1,
+      "gridCols": 3,
+      "correctTile": "vuestro"
+    },
+    {
+      "type": "table-select",
+      "prompt": "Which Spanish word means 'their / y'all's'?",
+      "tiles": [
+        "nuestro",
+        "vuestro",
+        "sus"
+      ],
+      "gridRows": 1,
+      "gridCols": 3,
+      "correctTile": "sus"
+    },
+    {
+      "type": "table-select",
+      "prompt": "Which word means 'our books'?",
+      "tiles": [
+        "nuestro libros",
+        "nuestros libros",
+        "sus libros"
+      ],
+      "gridRows": 1,
+      "gridCols": 3,
+      "correctTile": "nuestros libros"
+    }
+  ]
+}

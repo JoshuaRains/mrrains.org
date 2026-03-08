@@ -1,0 +1,206 @@
+{
+  "title": "C8 Present Tense Verbs",
+  "subtitle": "Lesson 3",
+  "questions": [
+    {
+      "type": "table-select",
+      "prompt": "Click the pronoun for 'I'.",
+      "tiles": [
+        "yo",
+        "nosotros",
+        "tú",
+        "vosotros",
+        "él / ella / usted",
+        "ellos / ellas / ustedes"
+      ],
+      "gridRows": 3,
+      "gridCols": 2,
+      "correctTile": "yo"
+    },
+    {
+      "type": "table-select",
+      "prompt": "In the present tense, which ending matches 'yo'?",
+      "tiles": [
+        "-o",
+        "-amos",
+        "-as",
+        "-áis",
+        "-a",
+        "-an"
+      ],
+      "gridRows": 3,
+      "gridCols": 2,
+      "correctTile": "-o"
+    },
+    {
+      "type": "table-select",
+      "prompt": "Listen and click the word you hear.",
+      "tiles": [
+        "hablo",
+        "hablas",
+        "hablamos"
+      ],
+      "gridRows": 1,
+      "gridCols": 3,
+      "correctTile": "hablo",
+      "audio": "hablo"
+    },
+    {
+      "type": "table-select",
+      "prompt": "Click the pronoun for 'you'.",
+      "tiles": [
+        "yo",
+        "nosotros",
+        "tú",
+        "vosotros",
+        "él / ella / usted",
+        "ellos / ellas / ustedes"
+      ],
+      "gridRows": 3,
+      "gridCols": 2,
+      "correctTile": "tú"
+    },
+    {
+      "type": "table-select",
+      "prompt": "In the present tense, which ending matches 'tú'?",
+      "tiles": [
+        "-o",
+        "-amos",
+        "-as",
+        "-áis",
+        "-a",
+        "-an"
+      ],
+      "gridRows": 3,
+      "gridCols": 2,
+      "correctTile": "-as"
+    },
+    {
+      "type": "table-select",
+      "prompt": "Listen and click the word you hear.",
+      "tiles": [
+        "camino",
+        "caminas",
+        "camináis"
+      ],
+      "gridRows": 1,
+      "gridCols": 3,
+      "correctTile": "caminas",
+      "audio": "caminas"
+    },
+    {
+      "type": "table-select",
+      "prompt": "Click the pronoun group for 'he / she / you'.",
+      "tiles": [
+        "yo",
+        "nosotros",
+        "tú",
+        "vosotros",
+        "él / ella / usted",
+        "ellos / ellas / ustedes"
+      ],
+      "gridRows": 3,
+      "gridCols": 2,
+      "correctTile": "él / ella / usted"
+    },
+    {
+      "type": "table-select",
+      "prompt": "In the present tense, which ending matches 'él / ella / usted'?",
+      "tiles": [
+        "-o",
+        "-amos",
+        "-as",
+        "-áis",
+        "-a",
+        "-an"
+      ],
+      "gridRows": 3,
+      "gridCols": 2,
+      "correctTile": "-a"
+    },
+    {
+      "type": "table-select",
+      "prompt": "Listen and click the word you hear.",
+      "tiles": [
+        "miro",
+        "mira",
+        "miramos"
+      ],
+      "gridRows": 1,
+      "gridCols": 3,
+      "correctTile": "mira",
+      "audio": "mira"
+    },
+    {
+      "type": "table-select",
+      "prompt": "Click the pronoun for 'we'.",
+      "tiles": [
+        "yo",
+        "nosotros",
+        "tú",
+        "vosotros",
+        "él / ella / usted",
+        "ellos / ellas / ustedes"
+      ],
+      "gridRows": 3,
+      "gridCols": 2,
+      "correctTile": "nosotros"
+    },
+    {
+      "type": "table-select",
+      "prompt": "In the present tense, which ending matches 'nosotros'?",
+      "tiles": [
+        "-o",
+        "-amos",
+        "-as",
+        "-áis",
+        "-a",
+        "-an"
+      ],
+      "gridRows": 3,
+      "gridCols": 2,
+      "correctTile": "-amos"
+    },
+    {
+      "type": "table-select",
+      "prompt": "Listen and click the word you hear.",
+      "tiles": [
+        "estudio",
+        "estudiamos",
+        "estudian"
+      ],
+      "gridRows": 1,
+      "gridCols": 3,
+      "correctTile": "estudiamos",
+      "audio": "estudiamos"
+    },
+    {
+      "type": "type-en-es-typed",
+      "sentence": "I talk",
+      "answerText": "hablo",
+      "answerTexts": [],
+      "audio": "hablo"
+    },
+    {
+      "type": "type-en-es-typed",
+      "sentence": "you walk",
+      "answerText": "caminas",
+      "answerTexts": [],
+      "audio": "caminas"
+    },
+    {
+      "type": "type-en-es-typed",
+      "sentence": "he looks",
+      "answerText": "mira",
+      "answerTexts": [],
+      "audio": "mira"
+    },
+    {
+      "type": "type-en-es-typed",
+      "sentence": "we study",
+      "answerText": "estudiamos",
+      "answerTexts": [],
+      "audio": "estudiamos"
+    }
+  ]
+}

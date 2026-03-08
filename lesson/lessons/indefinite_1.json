@@ -1,0 +1,150 @@
+{
+  "title": "C4 Indefinite Articles",
+  "subtitle": "Lesson 1",
+  "questions": [
+    {
+      "type": "table-select",
+      "prompt": "Which word means 'a' for a masculine singular noun?",
+      "tiles": [
+        "un",
+        "una",
+        "unos",
+        "unas"
+      ],
+      "gridRows": 2,
+      "gridCols": 2,
+      "correctTile": "un"
+    },
+    {
+      "type": "table-select",
+      "prompt": "Which word means 'a' for a feminine singular noun?",
+      "tiles": [
+        "un",
+        "una",
+        "unos",
+        "unas"
+      ],
+      "gridRows": 2,
+      "gridCols": 2,
+      "correctTile": "una"
+    },
+    {
+      "type": "table-select",
+      "prompt": "Which word means 'some' for masculine plural nouns?",
+      "tiles": [
+        "un",
+        "una",
+        "unos",
+        "unas"
+      ],
+      "gridRows": 2,
+      "gridCols": 2,
+      "correctTile": "unos"
+    },
+    {
+      "type": "table-select",
+      "prompt": "Which word means 'some' for feminine plural nouns?",
+      "tiles": [
+        "un",
+        "una",
+        "unos",
+        "unas"
+      ],
+      "gridRows": 2,
+      "gridCols": 2,
+      "correctTile": "unas"
+    },
+    {
+      "type": "table-select",
+      "prompt": "Which Spanish word means 'book'?",
+      "tiles": [
+        "📚 libro",
+        "🍎 manzana",
+        "🚪 puerta"
+      ],
+      "gridRows": 1,
+      "gridCols": 3,
+      "correctTile": "📚 libro"
+    },
+    {
+      "type": "table-select",
+      "prompt": "Which is correct for 'a book'?",
+      "tiles": [
+        "un libro",
+        "una libro"
+      ],
+      "gridRows": 1,
+      "gridCols": 2,
+      "correctTile": "un libro"
+    },
+    {
+      "type": "table-select",
+      "prompt": "Which Spanish word means 'apple'?",
+      "tiles": [
+        "🍎 manzana",
+        "📚 cuaderno",
+        "👦 chico"
+      ],
+      "gridRows": 1,
+      "gridCols": 3,
+      "correctTile": "🍎 manzana"
+    },
+    {
+      "type": "table-select",
+      "prompt": "Which is correct for 'an apple'?",
+      "tiles": [
+        "un manzana",
+        "una manzana"
+      ],
+      "gridRows": 1,
+      "gridCols": 2,
+      "correctTile": "una manzana"
+    },
+    {
+      "type": "table-select",
+      "prompt": "Which Spanish word means 'books'?",
+      "tiles": [
+        "📚 libros",
+        "🚪 puertas",
+        "👧 chicas"
+      ],
+      "gridRows": 1,
+      "gridCols": 3,
+      "correctTile": "📚 libros"
+    },
+    {
+      "type": "table-select",
+      "prompt": "Which is correct for 'some books'?",
+      "tiles": [
+        "unos libros",
+        "unas libros"
+      ],
+      "gridRows": 1,
+      "gridCols": 2,
+      "correctTile": "unos libros"
+    },
+    {
+      "type": "table-select",
+      "prompt": "Which Spanish word means 'doors'?",
+      "tiles": [
+        "🍎 manzanas",
+        "🚪 puertas",
+        "👦 chicos"
+      ],
+      "gridRows": 1,
+      "gridCols": 3,
+      "correctTile": "🚪 puertas"
+    },
+    {
+      "type": "table-select",
+      "prompt": "Which is correct for 'some doors'?",
+      "tiles": [
+        "unos puertas",
+        "unas puertas"
+      ],
+      "gridRows": 1,
+      "gridCols": 2,
+      "correctTile": "unas puertas"
+    }
+  ]
+}

@@ -1,0 +1,102 @@
+{
+  "title": "C14 Conjunctions",
+  "subtitle": "Lesson 1",
+  "questions": [
+    {
+      "type": "table-select",
+      "prompt": "Which Spanish word means 'and'?",
+      "tiles": [
+        "y",
+        "o",
+        "pero"
+      ],
+      "gridRows": 1,
+      "gridCols": 3,
+      "correctTile": "y"
+    },
+    {
+      "type": "table-select",
+      "prompt": "Which Spanish word means 'or'?",
+      "tiles": [
+        "y",
+        "o",
+        "porque"
+      ],
+      "gridRows": 1,
+      "gridCols": 3,
+      "correctTile": "o"
+    },
+    {
+      "type": "table-select",
+      "prompt": "Which Spanish word means 'but'?",
+      "tiles": [
+        "pero",
+        "porque",
+        "y"
+      ],
+      "gridRows": 1,
+      "gridCols": 3,
+      "correctTile": "pero"
+    },
+    {
+      "type": "table-select",
+      "prompt": "Which Spanish word means 'because'?",
+      "tiles": [
+        "porque",
+        "pero",
+        "o"
+      ],
+      "gridRows": 1,
+      "gridCols": 3,
+      "correctTile": "porque"
+    },
+    {
+      "type": "table-select",
+      "prompt": "Which phrase means 'books and notebooks'?",
+      "tiles": [
+        "libros y cuadernos",
+        "libros o cuadernos",
+        "libros porque cuadernos"
+      ],
+      "gridRows": 1,
+      "gridCols": 3,
+      "correctTile": "libros y cuadernos"
+    },
+    {
+      "type": "table-select",
+      "prompt": "Which phrase means 'water or juice'?",
+      "tiles": [
+        "agua y jugo",
+        "agua o jugo",
+        "agua pero jugo"
+      ],
+      "gridRows": 1,
+      "gridCols": 3,
+      "correctTile": "agua o jugo"
+    },
+    {
+      "type": "table-select",
+      "prompt": "Which phrase means 'small but good'?",
+      "tiles": [
+        "pequeño pero bueno",
+        "pequeño y bueno",
+        "pequeño porque bueno"
+      ],
+      "gridRows": 1,
+      "gridCols": 3,
+      "correctTile": "pequeño pero bueno"
+    },
+    {
+      "type": "table-select",
+      "prompt": "Which phrase means 'I study because I want to learn'?",
+      "tiles": [
+        "estudio porque quiero aprender",
+        "estudio pero quiero aprender",
+        "estudio o quiero aprender"
+      ],
+      "gridRows": 1,
+      "gridCols": 3,
+      "correctTile": "estudio porque quiero aprender"
+    }
+  ]
+}

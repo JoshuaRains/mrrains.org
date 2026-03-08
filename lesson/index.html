@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
 	<meta charset="utf-8" />
+	<meta name="google" content="notranslate">
 	<meta name="viewport" content="width=device-width,initial-scale=1" />
 	<title>Lesson Demo</title>
 
@@ -54,18 +55,65 @@
 		}
 
 		header{
-			display:flex;
-			align-items:center;
-			justify-content:center;
-			padding:18px 18px 8px;
-		}
-		.topbar{
-			width:min(980px, 100%);
-			display:grid;
-			grid-template-columns: 112px 1fr 112px;
-			align-items:center;
-			gap:14px;
-		}
+	display:flex;
+	flex-direction:column;
+	align-items:center;
+	padding:18px 18px 8px;
+}
+
+.topbar{
+	width:min(980px, 100%);
+	display:grid;
+	grid-template-columns: 112px 1fr 112px;
+	align-items:center;
+	gap:14px;
+}
+
+.lessonMetaBar{
+	width:min(980px, 100%);
+	display:grid;
+	grid-template-columns: 112px 1fr 112px;
+	gap:14px;
+	margin-top:8px;
+}
+
+.lessonMetaBar > *{
+	grid-column:2;
+	grid-row:1;
+	align-self:center;
+}
+
+.lessonMetaTitle{
+	justify-self:start;
+	font-size:14px;
+	letter-spacing:.02em;
+	color:var(--muted2);
+	font-weight:800;
+	text-transform:uppercase;
+	line-height:1.1;
+}
+
+.lessonMetaSubtitle{
+	justify-self:end;
+	font-size:14px;
+	letter-spacing:.02em;
+	color:var(--muted2);
+	font-weight:800;
+	line-height:1.1;
+	text-align:right;
+}
+
+.titleBlock{
+	text-align:center;
+	margin-top:6px;
+}
+
+.lessonPrompt{
+	margin-top:18px;
+	font-size:26px;
+	font-weight:900;
+	color:var(--text);
+}
 
 		.leftControls{
 			display:flex;
@@ -379,32 +427,9 @@
 			gap:18px;
 		}
 
-		.titleBlock{
-			text-align:center;
-			margin-top:6px;
-		}
-		.lessonTitle{
-			font-size:14px;
-			letter-spacing:.02em;
-			color:var(--muted2);
-			font-weight:800;
-			text-transform:uppercase;
-		}
-		.lessonPrompt{
-			margin-top:18px;
-			font-size:26px;
-			font-weight:900;
-			color:var(--text);
-		}
-		#lessonPrompt .promptPrefix{
-			font-size:18px !important;
-			font-weight:900;
-			opacity:0.9;
-			margin-right:10px;
-			letter-spacing:.01em;
-			white-space:nowrap;
-			display:inline-block;
-		}
+
+
+
 
 		.audioRow{
 			margin-top:10px;
@@ -899,52 +924,60 @@
 
 	<div id="appView">
 		<header>
-			<div class="topbar">
-				<div class="leftControls">
-					<button class="historyBtn" id="historyBtn" title="Responses" aria-label="Responses">
-						<span class="material-symbols-rounded" aria-hidden="true">list</span>
-					</button>
+	<div class="topbar">
+		<div class="leftControls">
+			<button class="historyBtn" id="historyBtn" title="Responses" aria-label="Responses">
+				<span class="material-symbols-rounded" aria-hidden="true">list</span>
+			</button>
 
-					<button class="iconBtn" id="closeBtn" title="Exit" aria-label="Exit">
-						<svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-							<path d="M6 6L18 18M18 6L6 18" stroke="white" stroke-width="2" stroke-linecap="round" opacity=".75"/>
-						</svg>
-					</button>
-				</div>
+			<button class="iconBtn" id="closeBtn" title="Exit" aria-label="Exit">
+				<svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+					<path d="M6 6L18 18M18 6L6 18" stroke="white" stroke-width="2" stroke-linecap="round" opacity=".75"/>
+				</svg>
+			</button>
+		</div>
 
-				<div class="progressWrap">
-					<div class="progressTrack">
-						<div class="progressFill" id="progressFill"></div>
-					</div>
-				</div>
-
-				<div class="rightMeta">
-					<button class="infoBtn" id="infoBtn" type="button" title="Info" aria-label="Info">
-						<span class="material-symbols-rounded" aria-hidden="true">info</span>
-					</button>
-
-					<button class="printIconBtn" id="printBtn" type="button" title="Print / Save PDF" aria-label="Print / Save PDF">
-						<span class="material-symbols-rounded" aria-hidden="true">print</span>
-					</button>
-				</div>
+		<div class="progressWrap">
+			<div class="progressTrack">
+				<div class="progressFill" id="progressFill"></div>
 			</div>
-		</header>
+		</div>
+
+		<div class="rightMeta">
+			<button class="infoBtn" id="infoBtn" type="button" title="Info" aria-label="Info">
+				<span class="material-symbols-rounded" aria-hidden="true">info</span>
+			</button>
+
+			<button class="printIconBtn" id="resetBtn" type="button" title="Reset lesson progress" aria-label="Reset lesson progress">
+				<span class="material-symbols-rounded" aria-hidden="true">refresh</span>
+			</button>
+
+			<button class="printIconBtn" id="printBtn" type="button" title="Print / Save PDF" aria-label="Print / Save PDF">
+				<span class="material-symbols-rounded" aria-hidden="true">print</span>
+			</button>
+		</div>
+	</div>
+
+	<div class="lessonMetaBar">
+		<div class="lessonMetaTitle" id="lessonTitle">Loading…</div>
+		<div class="lessonMetaSubtitle" id="lessonSubtitle"></div>
+	</div>
+</header>
 
 		<main>
 			<section class="lesson">
-				<div class="titleBlock">
-					<div class="lessonTitle" id="lessonTitle">Loading…</div>
-					<div class="lessonPrompt" id="lessonPrompt"></div>
+			<div class="titleBlock">
+	<div class="lessonPrompt" id="lessonPrompt"></div>
 
-					<div class="audioRow">
-						<button class="audioBtn" id="audioBtn" type="button" title="Listen">
-							<span aria-hidden="true">🐇</span>
-						</button>
-						<button class="audioBtn small" id="audioSlowBtn" type="button" title="Slow">
-							<span aria-hidden="true">🐢</span>
-						</button>
-					</div>
-				</div>
+	<div class="audioRow">
+		<button class="audioBtn" id="audioBtn" type="button" title="Listen">
+			<span aria-hidden="true">🐇</span>
+		</button>
+		<button class="audioBtn small" id="audioSlowBtn" type="button" title="Slow">
+			<span aria-hidden="true">🐢</span>
+		</button>
+	</div>
+</div>
 
 				<div class="answerArea" id="answerArea">
 					<div class="answerLines" aria-hidden="true">
@@ -1006,7 +1039,8 @@
 			answerArea: document.getElementById("answerArea"),
 			progressFill: document.getElementById("progressFill"),
 			printBtn: document.getElementById("printBtn"),
-			printView: document.getElementById("printView"),
+resetBtn: document.getElementById("resetBtn"),
+printView: document.getElementById("printView"),
 
 			closeBtn: document.getElementById("closeBtn"),
 			audioBtn: document.getElementById("audioBtn"),
@@ -1034,7 +1068,8 @@
 			encourageGif: document.getElementById("encourageGif"),
 
 			typedArea: document.getElementById("typedArea"),
-			typedInput: document.getElementById("typedInput")
+			typedInput: document.getElementById("typedInput"),
+			lessonSubtitle: document.getElementById("lessonSubtitle")
 		};
 
 		let lesson = null;
@@ -1982,7 +2017,6 @@ function onMainButton(){
 	}else if(mode === "feedback"){
 		loadQuestion();
 	}else if(mode === "done"){
-		clearState();
 		window.location.href = "./home";
 	}
 }
@@ -2134,6 +2168,10 @@ els.typedInput.addEventListener("keydown", (e) => {
 				clearState();
 				window.location.href = "./home";
 			});
+			els.resetBtn.addEventListener("click", () => {
+	clearState();
+	window.location.reload();
+});
 
 			els.historyBtn.addEventListener("click", openHistory);
 			els.historyOverlay.addEventListener("click", closeHistory);
@@ -2167,6 +2205,7 @@ els.typedInput.addEventListener("keydown", (e) => {
 			lesson = await res.json();
 
 			els.lessonTitle.textContent = lesson.title || "Lesson";
+			els.lessonSubtitle.textContent = lesson.subtitle || "";
 
 			const saved = loadState();
 			if(saved && restoreFromSavedState(saved)){
@@ -2189,14 +2228,15 @@ els.typedInput.addEventListener("keydown", (e) => {
 		}
 
 		init().catch(err => {
-			console.error(err);
-			els.lessonTitle.textContent = "Error loading lesson JSON";
-			mode = "done";
-			setBottomSheet("wrong", "Error:", "Could not load the lesson file. Serve this folder with a local web server.");
-			els.mainBtn.disabled = false;
-			els.mainBtn.textContent = "DONE";
-			els.mainBtn.onclick = () => window.location.href = "./home";
-		});
+	console.error(err);
+	els.lessonTitle.textContent = "Error loading lesson JSON";
+	els.lessonSubtitle.textContent = "";
+	mode = "done";
+	setBottomSheet("wrong", "Error:", "Could not load the lesson file. Serve this folder with a local web server.");
+	els.mainBtn.disabled = false;
+	els.mainBtn.textContent = "DONE";
+	els.mainBtn.onclick = () => window.location.href = "./home";
+});
 	})();
 	</script>
 </body>

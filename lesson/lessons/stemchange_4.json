@@ -1,0 +1,70 @@
+{
+  "title": "C10 Stem-Changing Verbs",
+  "subtitle": "Lesson 4",
+  "questions": [
+    {
+      "type": "listen-es-en-typed",
+      "answerText": "I want",
+      "answerTexts": [],
+      "audio": "quiero"
+    },
+    {
+      "type": "listen-es-en-typed",
+      "answerText": "they want",
+      "answerTexts": [],
+      "audio": "quieren"
+    },
+    {
+      "type": "listen-es-en-typed",
+      "answerText": "I sleep",
+      "answerTexts": [],
+      "audio": "duermo"
+    },
+    {
+      "type": "listen-es-en-typed",
+      "answerText": "we have lunch now",
+      "answerTexts": [],
+      "audio": "almorzamos ahora"
+    },
+    {
+      "type": "type-en-es-typed",
+      "sentence": "you sleep",
+      "answerText": "duermes",
+      "answerTexts": [],
+      "audio": "duermes"
+    },
+    {
+      "type": "type-en-es-typed",
+      "sentence": "we want water",
+      "answerText": "queremos agua",
+      "answerTexts": [],
+      "audio": "queremos agua"
+    },
+    {
+      "type": "type-en-es-typed",
+      "sentence": "he has lunch",
+      "answerText": "almuerza",
+      "answerTexts": [],
+      "audio": "almuerza"
+    },
+    {
+      "type": "type-en-es-typed",
+      "sentence": "they sleep now",
+      "answerText": "duermen ahora",
+      "answerTexts": [],
+      "audio": "duermen ahora"
+    },
+    {
+      "type": "listen-es-es-typed",
+      "answerText": "duermes",
+      "answerTexts": [],
+      "audio": "duermes"
+    },
+    {
+      "type": "listen-es-en-typed",
+      "answerText": "he has lunch",
+      "answerTexts": [],
+      "audio": "almuerza"
+    }
+  ]
+}

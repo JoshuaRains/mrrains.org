@@ -1,0 +1,108 @@
+{
+  "title": "C11 Reflexive Verbs (Present)",
+  "subtitle": "Lesson 3",
+  "questions": [
+    {
+      "type": "table-select",
+      "prompt": "Which phrase means 'I wake up now'?",
+      "tiles": [
+        "me despierto ahora",
+        "te despiertas ahora",
+        "se despierta ahora"
+      ],
+      "gridRows": 1,
+      "gridCols": 3,
+      "correctTile": "me despierto ahora"
+    },
+    {
+      "type": "table-select",
+      "prompt": "Which phrase means 'they go to bed now'?",
+      "tiles": [
+        "se acuestan ahora",
+        "nos acostamos ahora",
+        "me acuesto ahora"
+      ],
+      "gridRows": 1,
+      "gridCols": 3,
+      "correctTile": "se acuestan ahora"
+    },
+    {
+      "type": "table-select",
+      "prompt": "Listen and click the phrase you hear.",
+      "tiles": [
+        "me visto ahora",
+        "te vistes ahora",
+        "se viste ahora"
+      ],
+      "gridRows": 1,
+      "gridCols": 3,
+      "correctTile": "te vistes ahora",
+      "audio": "te vistes ahora"
+    },
+    {
+      "type": "table-select",
+      "prompt": "Listen and click the phrase you hear.",
+      "tiles": [
+        "nos bañamos ahora",
+        "se bañan ahora",
+        "me baño ahora"
+      ],
+      "gridRows": 1,
+      "gridCols": 3,
+      "correctTile": "nos bañamos ahora",
+      "audio": "nos bañamos ahora"
+    },
+    {
+      "type": "type-en-es-typed",
+      "sentence": "I wake up now",
+      "answerText": "me despierto ahora",
+      "answerTexts": [],
+      "audio": "me despierto ahora"
+    },
+    {
+      "type": "type-en-es-typed",
+      "sentence": "they go to bed now",
+      "answerText": "se acuestan ahora",
+      "answerTexts": [],
+      "audio": "se acuestan ahora"
+    },
+    {
+      "type": "type-en-es-typed",
+      "sentence": "you get dressed now",
+      "answerText": "te vistes ahora",
+      "answerTexts": [],
+      "audio": "te vistes ahora"
+    },
+    {
+      "type": "type-en-es-typed",
+      "sentence": "we bathe ourselves now",
+      "answerText": "nos bañamos ahora",
+      "answerTexts": [],
+      "audio": "nos bañamos ahora"
+    },
+    {
+      "type": "listen-es-es-typed",
+      "answerText": "me despierto ahora",
+      "answerTexts": [],
+      "audio": "me despierto ahora"
+    },
+    {
+      "type": "listen-es-es-typed",
+      "answerText": "se acuestan ahora",
+      "answerTexts": [],
+      "audio": "se acuestan ahora"
+    },
+    {
+      "type": "listen-es-es-typed",
+      "answerText": "te vistes ahora",
+      "answerTexts": [],
+      "audio": "te vistes ahora"
+    },
+    {
+      "type": "listen-es-es-typed",
+      "answerText": "nos bañamos ahora",
+      "answerTexts": [],
+      "audio": "nos bañamos ahora"
+    }
+  ]
+}

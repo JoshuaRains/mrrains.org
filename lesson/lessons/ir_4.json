@@ -1,0 +1,69 @@
+{
+  "title": "C7 Present Tense of Ir",
+  "subtitle": "Lesson 4",
+  "questions": [
+    {
+      "type": "listen-es-en-typed",
+      "answerText": "I go",
+      "answerTexts": [],
+      "audio": "voy"
+    },
+    {
+      "type": "listen-es-en-typed",
+      "answerText": "you go",
+      "answerTexts": [],
+      "audio": "vas"
+    },
+    {
+      "type": "listen-es-en-typed",
+      "answerText": "we go",
+      "answerTexts": [],
+      "audio": "vamos"
+    },
+    {
+      "type": "listen-es-en-typed",
+      "answerText": "they go",
+      "answerTexts": [],
+      "audio": "van"
+    },
+    {
+      "type": "listen-es-en-typed",
+      "answerText": "he goes home",
+      "answerTexts": [],
+      "audio": "va a casa"
+    },
+    {
+      "type": "type-en-es-typed",
+      "sentence": "I go home",
+      "answerText": "voy a casa",
+      "answerTexts": [],
+      "audio": "voy a casa"
+    },
+    {
+      "type": "type-en-es-typed",
+      "sentence": "we go to the park",
+      "answerText": "vamos al parque",
+      "answerTexts": [],
+      "audio": "vamos al parque"
+    },
+    {
+      "type": "type-en-es-typed",
+      "sentence": "they go to school",
+      "answerText": "van a la escuela",
+      "answerTexts": [],
+      "audio": "van a la escuela"
+    },
+    {
+      "type": "listen-es-es-typed",
+      "answerText": "voy a casa",
+      "answerTexts": [],
+      "audio": "voy a casa"
+    },
+    {
+      "type": "listen-es-es-typed",
+      "answerText": "vamos al parque",
+      "answerTexts": [],
+      "audio": "vamos al parque"
+    }
+  ]
+}

@@ -1,0 +1,70 @@
+{
+  "title": "C14 Conjunctions",
+  "subtitle": "Lesson 4",
+  "questions": [
+    {
+      "type": "listen-es-en-typed",
+      "answerText": "and",
+      "answerTexts": [],
+      "audio": "y"
+    },
+    {
+      "type": "listen-es-en-typed",
+      "answerText": "because",
+      "answerTexts": [],
+      "audio": "porque"
+    },
+    {
+      "type": "listen-es-en-typed",
+      "answerText": "I study and I read",
+      "answerTexts": [],
+      "audio": "estudio y leo"
+    },
+    {
+      "type": "listen-es-en-typed",
+      "answerText": "I want water or juice",
+      "answerTexts": [],
+      "audio": "quiero agua o jugo"
+    },
+    {
+      "type": "type-en-es-typed",
+      "sentence": "I read but I do not write",
+      "answerText": "leo pero no escribo",
+      "answerTexts": [],
+      "audio": "leo pero no escribo"
+    },
+    {
+      "type": "type-en-es-typed",
+      "sentence": "I eat and I drink",
+      "answerText": "como y bebo",
+      "answerTexts": [],
+      "audio": "como y bebo"
+    },
+    {
+      "type": "type-en-es-typed",
+      "sentence": "I want apples or oranges",
+      "answerText": "quiero manzanas o naranjas",
+      "answerTexts": [],
+      "audio": "quiero manzanas o naranjas"
+    },
+    {
+      "type": "type-en-es-typed",
+      "sentence": "I study because I want good grades",
+      "answerText": "estudio porque quiero buenas notas",
+      "answerTexts": [],
+      "audio": "estudio porque quiero buenas notas"
+    },
+    {
+      "type": "listen-es-es-typed",
+      "answerText": "leo pero no escribo",
+      "answerTexts": [],
+      "audio": "leo pero no escribo"
+    },
+    {
+      "type": "listen-es-en-typed",
+      "answerText": "I study because I want good grades",
+      "answerTexts": [],
+      "audio": "estudio porque quiero buenas notas"
+    }
+  ]
+}

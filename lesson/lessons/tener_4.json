@@ -1,0 +1,70 @@
+{
+  "title": "C9 Present Tense of Tener",
+  "subtitle": "Lesson 4",
+  "questions": [
+    {
+      "type": "listen-es-en-typed",
+      "answerText": "I have",
+      "answerTexts": [],
+      "audio": "tengo"
+    },
+    {
+      "type": "listen-es-en-typed",
+      "answerText": "we have",
+      "answerTexts": [],
+      "audio": "tenemos"
+    },
+    {
+      "type": "listen-es-en-typed",
+      "answerText": "I have a fever",
+      "answerTexts": [],
+      "audio": "tengo fiebre"
+    },
+    {
+      "type": "listen-es-en-typed",
+      "answerText": "they have hunger",
+      "answerTexts": [],
+      "audio": "tienen hambre"
+    },
+    {
+      "type": "type-en-es-typed",
+      "sentence": "you have a book",
+      "answerText": "tienes un libro",
+      "answerTexts": [],
+      "audio": "tienes un libro"
+    },
+    {
+      "type": "type-en-es-typed",
+      "sentence": "we have a house",
+      "answerText": "tenemos una casa",
+      "answerTexts": [],
+      "audio": "tenemos una casa"
+    },
+    {
+      "type": "type-en-es-typed",
+      "sentence": "he has a fever",
+      "answerText": "tiene fiebre",
+      "answerTexts": [],
+      "audio": "tiene fiebre"
+    },
+    {
+      "type": "type-en-es-typed",
+      "sentence": "they have a house",
+      "answerText": "tienen una casa",
+      "answerTexts": [],
+      "audio": "tienen una casa"
+    },
+    {
+      "type": "listen-es-es-typed",
+      "answerText": "tienes un libro",
+      "answerTexts": [],
+      "audio": "tienes un libro"
+    },
+    {
+      "type": "listen-es-es-typed",
+      "answerText": "tiene fiebre",
+      "answerTexts": [],
+      "audio": "tiene fiebre"
+    }
+  ]
+}

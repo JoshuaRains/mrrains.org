@@ -1,0 +1,120 @@
+{
+  "title": "C13 Preterite",
+  "subtitle": "Lesson 1",
+  "questions": [
+    {
+      "type": "table-select",
+      "prompt": "Which ending matches 'yo' in the preterite for -ar verbs?",
+      "tiles": [
+        "-é",
+        "-aste",
+        "-ó",
+        "-amos",
+        "-asteis",
+        "-aron"
+      ],
+      "gridRows": 3,
+      "gridCols": 2,
+      "correctTile": "-é"
+    },
+    {
+      "type": "table-select",
+      "prompt": "Which ending matches 'tú' in the preterite for -ar verbs?",
+      "tiles": [
+        "-é",
+        "-aste",
+        "-ó",
+        "-amos",
+        "-asteis",
+        "-aron"
+      ],
+      "gridRows": 3,
+      "gridCols": 2,
+      "correctTile": "-aste"
+    },
+    {
+      "type": "table-select",
+      "prompt": "Which ending matches 'él / ella / usted' in the preterite for -ar verbs?",
+      "tiles": [
+        "-é",
+        "-aste",
+        "-ó",
+        "-amos",
+        "-asteis",
+        "-aron"
+      ],
+      "gridRows": 3,
+      "gridCols": 2,
+      "correctTile": "-ó"
+    },
+    {
+      "type": "table-select",
+      "prompt": "Which ending matches 'nosotros' in the preterite for -ar verbs?",
+      "tiles": [
+        "-é",
+        "-aste",
+        "-ó",
+        "-amos",
+        "-asteis",
+        "-aron"
+      ],
+      "gridRows": 3,
+      "gridCols": 2,
+      "correctTile": "-amos"
+    },
+    {
+      "type": "table-select",
+      "prompt": "Which ending matches 'vosotros (Spain)' in the preterite for -ar verbs?",
+      "tiles": [
+        "-é",
+        "-aste",
+        "-ó",
+        "-amos",
+        "-asteis",
+        "-aron"
+      ],
+      "gridRows": 3,
+      "gridCols": 2,
+      "correctTile": "-asteis"
+    },
+    {
+      "type": "table-select",
+      "prompt": "Which ending matches 'ellos / ellas / ustedes' in the preterite for -ar verbs?",
+      "tiles": [
+        "-é",
+        "-aste",
+        "-ó",
+        "-amos",
+        "-asteis",
+        "-aron"
+      ],
+      "gridRows": 3,
+      "gridCols": 2,
+      "correctTile": "-aron"
+    },
+    {
+      "type": "table-select",
+      "prompt": "Which Spanish word means 'to talk'?",
+      "tiles": [
+        "🗣️ hablar",
+        "🚶 caminar",
+        "👀 mirar"
+      ],
+      "gridRows": 1,
+      "gridCols": 3,
+      "correctTile": "🗣️ hablar"
+    },
+    {
+      "type": "table-select",
+      "prompt": "Which word means 'I talked'?",
+      "tiles": [
+        "hablé",
+        "hablas",
+        "hablo"
+      ],
+      "gridRows": 1,
+      "gridCols": 3,
+      "correctTile": "hablé"
+    }
+  ]
+}

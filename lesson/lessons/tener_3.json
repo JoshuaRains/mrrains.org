@@ -1,0 +1,108 @@
+{
+  "title": "C9 Present Tense of Tener",
+  "subtitle": "Lesson 3",
+  "questions": [
+    {
+      "type": "table-select",
+      "prompt": "Which phrase means 'I have a fever'?",
+      "tiles": [
+        "tengo fiebre",
+        "tienes fiebre",
+        "tiene fiebre"
+      ],
+      "gridRows": 1,
+      "gridCols": 3,
+      "correctTile": "tengo fiebre"
+    },
+    {
+      "type": "table-select",
+      "prompt": "Which phrase means 'you have hunger'?",
+      "tiles": [
+        "tengo hambre",
+        "tienes hambre",
+        "tenemos hambre"
+      ],
+      "gridRows": 1,
+      "gridCols": 3,
+      "correctTile": "tienes hambre"
+    },
+    {
+      "type": "table-select",
+      "prompt": "Listen and click the phrase you hear.",
+      "tiles": [
+        "tengo fiebre",
+        "tienes fiebre",
+        "tiene fiebre"
+      ],
+      "gridRows": 1,
+      "gridCols": 3,
+      "correctTile": "tengo fiebre",
+      "audio": "tengo fiebre"
+    },
+    {
+      "type": "table-select",
+      "prompt": "Listen and click the phrase you hear.",
+      "tiles": [
+        "tenemos hambre",
+        "tenéis hambre",
+        "tienen hambre"
+      ],
+      "gridRows": 1,
+      "gridCols": 3,
+      "correctTile": "tienen hambre",
+      "audio": "tienen hambre"
+    },
+    {
+      "type": "type-en-es-typed",
+      "sentence": "he has",
+      "answerText": "tiene",
+      "answerTexts": [],
+      "audio": "tiene"
+    },
+    {
+      "type": "type-en-es-typed",
+      "sentence": "y'all have (Spain)",
+      "answerText": "tenéis",
+      "answerTexts": [],
+      "audio": "tenéis"
+    },
+    {
+      "type": "type-en-es-typed",
+      "sentence": "I have a fever",
+      "answerText": "tengo fiebre",
+      "answerTexts": [],
+      "audio": "tengo fiebre"
+    },
+    {
+      "type": "type-en-es-typed",
+      "sentence": "they have hunger",
+      "answerText": "tienen hambre",
+      "answerTexts": [],
+      "audio": "tienen hambre"
+    },
+    {
+      "type": "listen-es-es-typed",
+      "answerText": "tiene",
+      "answerTexts": [],
+      "audio": "tiene"
+    },
+    {
+      "type": "listen-es-es-typed",
+      "answerText": "tenéis",
+      "answerTexts": [],
+      "audio": "tenéis"
+    },
+    {
+      "type": "listen-es-es-typed",
+      "answerText": "tengo fiebre",
+      "answerTexts": [],
+      "audio": "tengo fiebre"
+    },
+    {
+      "type": "listen-es-es-typed",
+      "answerText": "tienen hambre",
+      "answerTexts": [],
+      "audio": "tienen hambre"
+    }
+  ]
+}

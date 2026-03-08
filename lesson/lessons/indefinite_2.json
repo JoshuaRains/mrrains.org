@@ -1,0 +1,110 @@
+{
+  "title": "C4 Indefinite Articles",
+  "subtitle": "Lesson 2",
+  "questions": [
+    {
+      "type": "table-select",
+      "prompt": "Which is correct for 'a notebook'?",
+      "tiles": [
+        "un cuaderno",
+        "una cuaderno",
+        "unos cuadernos"
+      ],
+      "gridRows": 1,
+      "gridCols": 3,
+      "correctTile": "un cuaderno"
+    },
+    {
+      "type": "table-select",
+      "prompt": "Which is correct for 'a girl'?",
+      "tiles": [
+        "un chica",
+        "una chica",
+        "unas chicas"
+      ],
+      "gridRows": 1,
+      "gridCols": 3,
+      "correctTile": "una chica"
+    },
+    {
+      "type": "table-select",
+      "prompt": "Listen and click the phrase you hear.",
+      "tiles": [
+        "un libro",
+        "una libro",
+        "unos libros"
+      ],
+      "gridRows": 1,
+      "gridCols": 3,
+      "correctTile": "un libro",
+      "audio": "un libro"
+    },
+    {
+      "type": "table-select",
+      "prompt": "Listen and click the phrase you hear.",
+      "tiles": [
+        "una manzana",
+        "un manzana",
+        "unas manzanas"
+      ],
+      "gridRows": 1,
+      "gridCols": 3,
+      "correctTile": "una manzana",
+      "audio": "una manzana"
+    },
+    {
+      "type": "table-select",
+      "prompt": "Listen and click the phrase you hear.",
+      "tiles": [
+        "unos libros",
+        "unas libros",
+        "un libro"
+      ],
+      "gridRows": 1,
+      "gridCols": 3,
+      "correctTile": "unos libros",
+      "audio": "unos libros"
+    },
+    {
+      "type": "table-select",
+      "prompt": "Listen and click the phrase you hear.",
+      "tiles": [
+        "unos puertas",
+        "unas puertas",
+        "una puerta"
+      ],
+      "gridRows": 1,
+      "gridCols": 3,
+      "correctTile": "unas puertas",
+      "audio": "unas puertas"
+    },
+    {
+      "type": "type-en-es-typed",
+      "sentence": "a book",
+      "answerText": "un libro",
+      "answerTexts": [],
+      "audio": "un libro"
+    },
+    {
+      "type": "type-en-es-typed",
+      "sentence": "an apple",
+      "answerText": "una manzana",
+      "answerTexts": [],
+      "audio": "una manzana"
+    },
+    {
+      "type": "type-en-es-typed",
+      "sentence": "some books",
+      "answerText": "unos libros",
+      "answerTexts": [],
+      "audio": "unos libros"
+    },
+    {
+      "type": "type-en-es-typed",
+      "sentence": "some doors",
+      "answerText": "unas puertas",
+      "answerTexts": [],
+      "audio": "unas puertas"
+    }
+  ]
+}

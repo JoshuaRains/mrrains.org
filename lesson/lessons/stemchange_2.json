@@ -1,0 +1,109 @@
+{
+  "title": "C10 Stem-Changing Verbs",
+  "subtitle": "Lesson 2",
+  "questions": [
+    {
+      "type": "table-select",
+      "prompt": "Which word means 'they want'?",
+      "tiles": [
+        "quieren",
+        "queremos",
+        "quieres"
+      ],
+      "gridRows": 1,
+      "gridCols": 3,
+      "correctTile": "quieren"
+    },
+    {
+      "type": "table-select",
+      "prompt": "Which word means 'I sleep'?",
+      "tiles": [
+        "duermo",
+        "duermes",
+        "dormimos"
+      ],
+      "gridRows": 1,
+      "gridCols": 3,
+      "correctTile": "duermo"
+    },
+    {
+      "type": "table-select",
+      "prompt": "Which word means 'we have lunch'?",
+      "tiles": [
+        "almuerzo",
+        "almuerzan",
+        "almorzamos"
+      ],
+      "gridRows": 1,
+      "gridCols": 3,
+      "correctTile": "almorzamos"
+    },
+    {
+      "type": "table-select",
+      "prompt": "Listen and click the form you hear.",
+      "tiles": [
+        "quiero",
+        "queremos",
+        "quieren"
+      ],
+      "gridRows": 1,
+      "gridCols": 3,
+      "correctTile": "quieren",
+      "audio": "quieren"
+    },
+    {
+      "type": "table-select",
+      "prompt": "Listen and click the form you hear.",
+      "tiles": [
+        "duermo",
+        "duermes",
+        "dormimos"
+      ],
+      "gridRows": 1,
+      "gridCols": 3,
+      "correctTile": "duermo",
+      "audio": "duermo"
+    },
+    {
+      "type": "table-select",
+      "prompt": "Listen and click the form you hear.",
+      "tiles": [
+        "almuerzo",
+        "almuerza",
+        "almorzamos"
+      ],
+      "gridRows": 1,
+      "gridCols": 3,
+      "correctTile": "almuerzo",
+      "audio": "almuerzo"
+    },
+    {
+      "type": "type-en-es-typed",
+      "sentence": "I want",
+      "answerText": "quiero",
+      "answerTexts": [],
+      "audio": "quiero"
+    },
+    {
+      "type": "type-en-es-typed",
+      "sentence": "they want",
+      "answerText": "quieren",
+      "answerTexts": [],
+      "audio": "quieren"
+    },
+    {
+      "type": "type-en-es-typed",
+      "sentence": "I sleep",
+      "answerText": "duermo",
+      "answerTexts": [],
+      "audio": "duermo"
+    },
+    {
+      "type": "type-en-es-typed",
+      "sentence": "I have lunch",
+      "answerText": "almuerzo",
+      "answerTexts": [],
+      "audio": "almuerzo"
+    }
+  ]
+}

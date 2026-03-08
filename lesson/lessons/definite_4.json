@@ -1,0 +1,134 @@
+{
+  "title": "C2 Definite Articles",
+  "subtitle": "Lesson 4",
+  "questions": [
+    {
+      "type": "table-select",
+      "prompt": "Listen and click the phrase you hear.",
+      "tiles": [
+        "el libro",
+        "la libro",
+        "los libros"
+      ],
+      "gridRows": 1,
+      "gridCols": 3,
+      "correctTile": "el libro",
+      "audio": "el libro"
+    },
+    {
+      "type": "table-select",
+      "prompt": "Listen and click the phrase you hear.",
+      "tiles": [
+        "la manzana",
+        "el manzana",
+        "las manzanas"
+      ],
+      "gridRows": 1,
+      "gridCols": 3,
+      "correctTile": "la manzana",
+      "audio": "la manzana"
+    },
+    {
+      "type": "table-select",
+      "prompt": "Listen and click the phrase you hear.",
+      "tiles": [
+        "los libros",
+        "las libros",
+        "el libro"
+      ],
+      "gridRows": 1,
+      "gridCols": 3,
+      "correctTile": "los libros",
+      "audio": "los libros"
+    },
+    {
+      "type": "table-select",
+      "prompt": "Listen and click the phrase you hear.",
+      "tiles": [
+        "los manzanas",
+        "las manzanas",
+        "la manzana"
+      ],
+      "gridRows": 1,
+      "gridCols": 3,
+      "correctTile": "las manzanas",
+      "audio": "las manzanas"
+    },
+    {
+      "type": "type-en-es-typed",
+      "sentence": "the book",
+      "answerText": "el libro",
+      "answerTexts": [],
+      "audio": "el libro"
+    },
+    {
+      "type": "type-en-es-typed",
+      "sentence": "the apple",
+      "answerText": "la manzana",
+      "answerTexts": [],
+      "audio": "la manzana"
+    },
+    {
+      "type": "type-en-es-typed",
+      "sentence": "the books",
+      "answerText": "los libros",
+      "answerTexts": [],
+      "audio": "los libros"
+    },
+    {
+      "type": "type-en-es-typed",
+      "sentence": "the apples",
+      "answerText": "las manzanas",
+      "answerTexts": [],
+      "audio": "las manzanas"
+    },
+    {
+      "type": "listen-es-es-typed",
+      "answerText": "el libro",
+      "answerTexts": [],
+      "audio": "el libro"
+    },
+    {
+      "type": "listen-es-es-typed",
+      "answerText": "la manzana",
+      "answerTexts": [],
+      "audio": "la manzana"
+    },
+    {
+      "type": "listen-es-es-typed",
+      "answerText": "los libros",
+      "answerTexts": [],
+      "audio": "los libros"
+    },
+    {
+      "type": "listen-es-es-typed",
+      "answerText": "las manzanas",
+      "answerTexts": [],
+      "audio": "las manzanas"
+    },
+    {
+      "type": "listen-es-en-typed",
+      "answerText": "the book",
+      "answerTexts": [],
+      "audio": "el libro"
+    },
+    {
+      "type": "listen-es-en-typed",
+      "answerText": "the apple",
+      "answerTexts": [],
+      "audio": "la manzana"
+    },
+    {
+      "type": "listen-es-en-typed",
+      "answerText": "the books",
+      "answerTexts": [],
+      "audio": "los libros"
+    },
+    {
+      "type": "listen-es-en-typed",
+      "answerText": "the apples",
+      "answerTexts": [],
+      "audio": "las manzanas"
+    }
+  ]
+}

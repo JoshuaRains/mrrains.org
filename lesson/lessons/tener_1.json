@@ -1,0 +1,102 @@
+{
+  "title": "C9 Present Tense of Tener",
+  "subtitle": "Lesson 1",
+  "questions": [
+    {
+      "type": "table-select",
+      "prompt": "Which Spanish word means 'to have'?",
+      "tiles": [
+        "🫱 tener",
+        "🏃 ir",
+        "🗣️ hablar"
+      ],
+      "gridRows": 1,
+      "gridCols": 3,
+      "correctTile": "🫱 tener"
+    },
+    {
+      "type": "table-select",
+      "prompt": "Which word means 'I have'?",
+      "tiles": [
+        "tengo",
+        "tienes",
+        "tiene"
+      ],
+      "gridRows": 1,
+      "gridCols": 3,
+      "correctTile": "tengo"
+    },
+    {
+      "type": "table-select",
+      "prompt": "Which word means 'you have'?",
+      "tiles": [
+        "tiene",
+        "tengo",
+        "tienes"
+      ],
+      "gridRows": 1,
+      "gridCols": 3,
+      "correctTile": "tienes"
+    },
+    {
+      "type": "table-select",
+      "prompt": "Which word means 'he has'?",
+      "tiles": [
+        "tenemos",
+        "tiene",
+        "tienen"
+      ],
+      "gridRows": 1,
+      "gridCols": 3,
+      "correctTile": "tiene"
+    },
+    {
+      "type": "table-select",
+      "prompt": "Which word means 'we have'?",
+      "tiles": [
+        "tengo",
+        "tienen",
+        "tenemos"
+      ],
+      "gridRows": 1,
+      "gridCols": 3,
+      "correctTile": "tenemos"
+    },
+    {
+      "type": "table-select",
+      "prompt": "Which word means 'they have'?",
+      "tiles": [
+        "tienen",
+        "tenéis",
+        "tiene"
+      ],
+      "gridRows": 1,
+      "gridCols": 3,
+      "correctTile": "tienen"
+    },
+    {
+      "type": "table-select",
+      "prompt": "Which word means 'y'all have (Spain)'?",
+      "tiles": [
+        "tenéis",
+        "tienen",
+        "tienes"
+      ],
+      "gridRows": 1,
+      "gridCols": 3,
+      "correctTile": "tenéis"
+    },
+    {
+      "type": "table-select",
+      "prompt": "Which word means 'I have a book'?",
+      "tiles": [
+        "tengo un libro",
+        "tienes un libro",
+        "tiene un libro"
+      ],
+      "gridRows": 1,
+      "gridCols": 3,
+      "correctTile": "tengo un libro"
+    }
+  ]
+}

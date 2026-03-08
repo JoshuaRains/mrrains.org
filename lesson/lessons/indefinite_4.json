@@ -1,0 +1,82 @@
+{
+  "title": "C4 Indefinite Articles",
+  "subtitle": "Lesson 4",
+  "questions": [
+    {
+      "type": "listen-es-en-typed",
+      "answerText": "a notebook",
+      "answerTexts": [],
+      "audio": "un cuaderno"
+    },
+    {
+      "type": "listen-es-en-typed",
+      "answerText": "a girl",
+      "answerTexts": [],
+      "audio": "una chica"
+    },
+    {
+      "type": "listen-es-en-typed",
+      "answerText": "some notebooks",
+      "answerTexts": [],
+      "audio": "unos cuadernos"
+    },
+    {
+      "type": "listen-es-en-typed",
+      "answerText": "some girls",
+      "answerTexts": [],
+      "audio": "unas chicas"
+    },
+    {
+      "type": "type-en-es-typed",
+      "sentence": "a boy",
+      "answerText": "un chico",
+      "answerTexts": [],
+      "audio": "un chico"
+    },
+    {
+      "type": "type-en-es-typed",
+      "sentence": "a door",
+      "answerText": "una puerta",
+      "answerTexts": [],
+      "audio": "una puerta"
+    },
+    {
+      "type": "type-en-es-typed",
+      "sentence": "some boys",
+      "answerText": "unos chicos",
+      "answerTexts": [],
+      "audio": "unos chicos"
+    },
+    {
+      "type": "type-en-es-typed",
+      "sentence": "some apples",
+      "answerText": "unas manzanas",
+      "answerTexts": [],
+      "audio": "unas manzanas"
+    },
+    {
+      "type": "listen-es-es-typed",
+      "answerText": "un chico",
+      "answerTexts": [],
+      "audio": "un chico"
+    },
+    {
+      "type": "listen-es-es-typed",
+      "answerText": "una puerta",
+      "answerTexts": [],
+      "audio": "una puerta"
+    },
+    {
+      "type": "listen-es-en-typed",
+      "answerText": "some boys",
+      "answerTexts": [],
+      "audio": "unos chicos"
+    },
+    {
+      "type": "listen-es-en-typed",
+      "answerText": "some apples",
+      "answerTexts": [],
+      "audio": "unas manzanas"
+    }
+  ]
+}
