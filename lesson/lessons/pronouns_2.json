@@ -47,7 +47,7 @@
     {
       "type": "table-select",
       "prompt": "Listen and click the pronoun you hear.",
-      "tiles": ["nosotros", "ellos", "ustedes"],
+      "tiles": ["ellos", "ustedes", "nosotros"],
       "gridRows": 1,
       "gridCols": 3,
       "correctTile": "nosotros",

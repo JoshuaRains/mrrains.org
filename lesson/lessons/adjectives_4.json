@@ -5,7 +5,7 @@
       {
         "type": "table-select",
         "prompt": "Listen and click the phrase you hear.",
-        "tiles": ["el chico alto", "el chico bajo", "la chica alta"],
+        "tiles": [ "el chico bajo", "la chica alta", "el chico alto"],
         "gridRows": 1,
         "gridCols": 3,
         "correctTile": "el chico alto",
@@ -14,7 +14,7 @@
       {
         "type": "table-select",
         "prompt": "Listen and click the phrase you hear.",
-        "tiles": ["la manzana pequeña", "la manzana roja", "las manzanas pequeñas"],
+        "tiles": ["la manzana roja", "la manzana pequeña", "las manzanas pequeñas"],
         "gridRows": 1,
         "gridCols": 3,
         "correctTile": "la manzana pequeña",
@@ -23,7 +23,7 @@
       {
         "type": "table-select",
         "prompt": "Listen and click the phrase you hear.",
-        "tiles": ["los libros azules", "los libros verdes", "el libro azul"],
+        "tiles": ["los libros verdes", "el libro azul", "los libros azules"],
         "gridRows": 1,
         "gridCols": 3,
         "correctTile": "los libros azules",
@@ -32,7 +32,7 @@
       {
         "type": "table-select",
         "prompt": "Listen and click the phrase you hear.",
-        "tiles": ["las chicas bajas", "los chicos altos", "la chica baja"],
+        "tiles": [ "los chicos altos", "la chica baja", "las chicas bajas"],
         "gridRows": 1,
         "gridCols": 3,
         "correctTile": "las chicas bajas",

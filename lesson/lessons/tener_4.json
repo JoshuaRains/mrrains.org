@@ -3,68 +3,162 @@
   "subtitle": "Lesson 4",
   "questions": [
     {
-      "type": "listen-es-en-typed",
-      "answerText": "I have",
-      "answerTexts": [],
-      "audio": "tengo"
+      "type": "table-select",
+      "prompt": "Which phrase means 'he has a fever'?",
+      "tiles": ["tiene fiebre", "tengo fiebre", "tenemos fiebre"],
+      "gridRows": 1,
+      "gridCols": 3,
+      "correctTile": "tiene fiebre"
     },
     {
-      "type": "listen-es-en-typed",
-      "answerText": "we have",
-      "answerTexts": [],
-      "audio": "tenemos"
+      "type": "table-select",
+      "prompt": "Which phrase means 'they have a book'?",
+      "tiles": [ "tenemos un libro", "tiene un libro","tienen un libro"],
+      "gridRows": 1,
+      "gridCols": 3,
+      "correctTile": "tienen un libro"
     },
     {
-      "type": "listen-es-en-typed",
-      "answerText": "I have a fever",
-      "answerTexts": [],
-      "audio": "tengo fiebre"
+      "type": "table-select",
+      "prompt": "Which phrase means 'we have a house'?",
+      "tiles": ["tengo una casa","tenemos una casa", "tienen una casa" ],
+      "gridRows": 1,
+      "gridCols": 3,
+      "correctTile": "tenemos una casa"
     },
     {
-      "type": "listen-es-en-typed",
-      "answerText": "they have hunger",
-      "answerTexts": [],
-      "audio": "tienen hambre"
+      "type": "table-select",
+      "prompt": "Which phrase means 'I am hungry'?",
+      "tiles": ["tengo hambre", "tiene hambre", "tienen hambre"],
+      "gridRows": 1,
+      "gridCols": 3,
+      "correctTile": "tengo hambre"
     },
     {
-      "type": "type-en-es-typed",
-      "sentence": "you have a book",
-      "answerText": "tienes un libro",
-      "answerTexts": [],
+      "type": "listen-es-es",
+      "spanish": "tienes un libro",
+      "audio": "tienes un libro",
+      "translation": "You have a book.",
+      "answer": ["tienes", "un", "libro"],
+      "answerAlternates": [["tú", "tienes", "un", "libro"]],
+      "bank": ["tú", "libro", "tengo", "un", "tienes", "fiebre"]
+    },
+    {
+      "type": "listen-es-es",
+      "spanish": "tenemos una casa",
+      "audio": "tenemos una casa",
+      "translation": "We have a house.",
+      "answer": ["tenemos", "una", "casa"],
+      "answerAlternates": [["nosotros", "tenemos", "una", "casa"]],
+      "bank": ["casa", "tenemos", "nosotros", "hambre", "una", "tienen"]
+    },
+    {
+      "type": "listen-es-es",
+      "spanish": "tiene fiebre",
+      "audio": "tiene fiebre",
+      "translation": "He has a fever.",
+      "answer": ["tiene", "fiebre"],
+      "answerAlternates": [
+        ["él", "tiene", "fiebre"],
+        ["ella", "tiene", "fiebre"],
+        ["usted", "tiene", "fiebre"]
+      ],
+      "bank": ["ella", "fiebre", "tiene", "usted", "hambre", "él", "tengo"]
+    },
+    {
+      "type": "listen-es-es",
+      "spanish": "tienen hambre",
+      "audio": "tienen hambre",
+      "translation": "They are hungry.",
+      "answer": ["tienen", "hambre"],
+      "answerAlternates": [
+        ["ellos", "tienen", "hambre"],
+        ["ellas", "tienen", "hambre"],
+        ["ustedes", "tienen", "hambre"]
+      ],
+      "bank": ["ustedes", "hambre", "tienen", "ellas", "ellos", "fiebre", "tiene"]
+    },
+    {
+      "type": "listen-es-en",
+      "spanish": "tengo fiebre",
+      "audio": "tengo fiebre",
+      "translation": "I have a fever.",
+      "answer": ["I", "have", "a", "fever"],
+      "answerAlternates": [["I", "have", "fever"]],
+      "bank": ["have", "fever", "a", "I", "they", "hungry"]
+    },
+    {
+      "type": "listen-es-en",
+      "spanish": "tienen hambre",
+      "audio": "tienen hambre",
+      "translation": "Y'all are hungry.",
+      "answer": ["y'all", "are", "hungry"],
+      "answerAlternates": [["they", "are", "hungry"]],
+      "bank": ["hungry", "they", "are", "y'all", "have", "book"]
+    },
+    {
+      "type": "translate-en-es",
+      "sentence": "You have a book.",
+      "answer": ["tienes", "un", "libro"],
+      "answerAlternates": [["tú", "tienes", "un", "libro"]],
+      "bank": ["libro", "tienes", "un", "tú", "fiebre", "tengo"],
       "audio": "tienes un libro"
     },
     {
-      "type": "type-en-es-typed",
-      "sentence": "we have a house",
-      "answerText": "tenemos una casa",
-      "answerTexts": [],
+      "type": "translate-en-es",
+      "sentence": "We have a house.",
+      "answer": ["tenemos", "una", "casa"],
+      "answerAlternates": [["nosotros", "tenemos", "una", "casa"]],
+      "bank": ["nosotros", "casa", "tenemos", "una", "hambre", "tienen"],
       "audio": "tenemos una casa"
     },
     {
-      "type": "type-en-es-typed",
-      "sentence": "he has a fever",
-      "answerText": "tiene fiebre",
-      "answerTexts": [],
+      "type": "translate-en-es",
+      "sentence": "He has a fever.",
+      "answer": ["tiene", "fiebre"],
+      "answerAlternates": [
+        ["él", "tiene", "fiebre"],
+        ["ella", "tiene", "fiebre"],
+        ["usted", "tiene", "fiebre"]
+      ],
+      "bank": ["él", "fiebre", "usted", "ella", "tiene", "hambre", "tengo"],
       "audio": "tiene fiebre"
     },
     {
-      "type": "type-en-es-typed",
-      "sentence": "they have a house",
-      "answerText": "tienen una casa",
-      "answerTexts": [],
+      "type": "translate-en-es",
+      "sentence": "They have a house.",
+      "answer": ["tienen", "una", "casa"],
+      "answerAlternates": [
+        ["ellos", "tienen", "una", "casa"],
+        ["ellas", "tienen", "una", "casa"],
+        ["ustedes", "tienen", "una", "casa"]
+      ],
+      "bank": ["ustedes", "casa", "ellas", "una", "tienen", "ellos", "libro", "tenemos"],
       "audio": "tienen una casa"
     },
     {
-      "type": "listen-es-es-typed",
-      "answerText": "tienes un libro",
-      "answerTexts": [],
-      "audio": "tienes un libro"
+      "type": "translate-en-es",
+      "sentence": "I am hungry.",
+      "answer": ["tengo", "hambre"],
+      "answerAlternates": [["yo", "tengo", "hambre"]],
+      "bank": ["yo", "hambre", "tiene", "tengo", "fiebre"],
+      "audio": "tengo hambre"
     },
     {
       "type": "listen-es-es-typed",
-      "answerText": "tiene fiebre",
-      "answerTexts": [],
-      "audio": "tiene fiebre"
+      "answerText": "tienen hambre",
+      "answerTexts": [
+        "ellos tienen hambre",
+        "ellas tienen hambre",
+        "ustedes tienen hambre"
+      ],
+      "audio": "tienen hambre"
+    },
+    {
+      "type": "listen-es-en-typed",
+      "answerText": "y'all are hungry",
+      "answerTexts": ["they are hungry"],
+      "audio": "tienen hambre"
     }
   ]
 }

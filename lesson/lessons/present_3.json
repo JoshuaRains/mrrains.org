@@ -178,28 +178,28 @@
       "type": "type-en-es-typed",
       "sentence": "I talk",
       "answerText": "hablo",
-      "answerTexts": [],
+      "answerTexts": ["hablo", "yo hablo"],
       "audio": "hablo"
     },
     {
       "type": "type-en-es-typed",
       "sentence": "you walk",
       "answerText": "caminas",
-      "answerTexts": [],
+      "answerTexts": ["caminas", "tú caminas"],
       "audio": "caminas"
     },
     {
       "type": "type-en-es-typed",
       "sentence": "he looks",
       "answerText": "mira",
-      "answerTexts": [],
+      "answerTexts": ["mira", "él mira"],
       "audio": "mira"
     },
     {
       "type": "type-en-es-typed",
       "sentence": "we study",
       "answerText": "estudiamos",
-      "answerTexts": [],
+      "answerTexts": ["estudiamos", "nosotros estudiamos"],
       "audio": "estudiamos"
     }
   ]

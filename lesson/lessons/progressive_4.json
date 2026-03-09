@@ -3,68 +3,151 @@
   "subtitle": "Lesson 4",
   "questions": [
     {
-      "type": "listen-es-en-typed",
-      "answerText": "I am studying now",
-      "answerTexts": [],
-      "audio": "estoy estudiando ahora"
+      "type": "listen-es-en",
+      "spanish": "yo estoy estudiando ahora",
+      "audio": "yo estoy estudiando ahora",
+      "translation": "I am studying now.",
+      "answer": [
+        "I",
+        "am",
+        "studying",
+        "now"
+      ],
+      "answerAlternates": [
+        [
+          "I",
+          "am",
+          "studying",
+          "right",
+          "now"
+        ]
+      ],
+      "bank": [
+        "studying",
+        "I",
+        "now",
+        "am",
+        "they",
+        "reading",
+        "today"
+      ]
     },
     {
-      "type": "listen-es-en-typed",
-      "answerText": "you are eating now",
-      "answerTexts": [],
-      "audio": "estás comiendo ahora"
+      "type": "listen-es-en",
+      "spanish": "tú estás comiendo ahora",
+      "audio": "tú estás comiendo ahora",
+      "translation": "You are eating now.",
+      "answer": [
+        "you",
+        "are",
+        "eating",
+        "now"
+      ],
+      "answerAlternates": [
+        [
+          "you",
+          "are",
+          "eating",
+          "right",
+          "now"
+        ]
+      ],
+      "bank": [
+        "eating",
+        "you",
+        "now",
+        "are",
+        "we",
+        "talking",
+        "today"
+      ]
     },
     {
-      "type": "listen-es-en-typed",
-      "answerText": "we are running now",
-      "answerTexts": [],
-      "audio": "estamos corriendo ahora"
+      "type": "listen-es-en",
+      "spanish": "nosotros estamos corriendo ahora",
+      "audio": "nosotros estamos corriendo ahora",
+      "translation": "We are running now.",
+      "answer": [
+        "we",
+        "are",
+        "running",
+        "now"
+      ],
+      "answerAlternates": [
+        [
+          "we",
+          "are",
+          "running",
+          "right",
+          "now"
+        ]
+      ],
+      "bank": [
+        "we",
+        "running",
+        "are",
+        "now",
+        "they",
+        "reading",
+        "today"
+      ]
     },
     {
-      "type": "listen-es-en-typed",
-      "answerText": "they are talking now",
-      "answerTexts": [],
-      "audio": "están hablando ahora"
+      "type": "listen-es-en",
+      "spanish": "ellos están hablando ahora",
+      "audio": "ellos están hablando ahora",
+      "translation": "They are talking now.",
+      "answer": [
+        "they",
+        "are",
+        "talking",
+        "now"
+      ],
+      "answerAlternates": [
+        [
+          "they",
+          "are",
+          "talking",
+          "right",
+          "now"
+        ]
+      ],
+      "bank": [
+        "talking",
+        "they",
+        "now",
+        "are",
+        "we",
+        "studying",
+        "today"
+      ]
     },
-    {
-      "type": "type-en-es-typed",
-      "sentence": "I am reading now",
-      "answerText": "estoy leyendo ahora",
-      "answerTexts": [],
-      "audio": "estoy leyendo ahora"
-    },
-    {
-      "type": "type-en-es-typed",
-      "sentence": "they are reading now",
-      "answerText": "están leyendo ahora",
-      "answerTexts": [],
-      "audio": "están leyendo ahora"
-    },
+    
+    
     {
       "type": "type-en-es-typed",
       "sentence": "we are eating now",
       "answerText": "estamos comiendo ahora",
-      "answerTexts": [],
-      "audio": "estamos comiendo ahora"
+      "answerTexts": [
+        "nosotros estamos comiendo ahora"
+      ],
+      "audio": "nosotros estamos comiendo ahora"
     },
     {
       "type": "type-en-es-typed",
       "sentence": "he is talking now",
       "answerText": "está hablando ahora",
-      "answerTexts": [],
-      "audio": "está hablando ahora"
+      "answerTexts": [
+        "él está hablando ahora"
+      ],
+      "audio": "él está hablando ahora"
     },
-    {
-      "type": "listen-es-es-typed",
-      "answerText": "están leyendo ahora",
-      "answerTexts": [],
-      "audio": "están leyendo ahora"
-    },
+    
     {
       "type": "listen-es-en-typed",
       "answerText": "he is talking now",
       "answerTexts": [],
-      "audio": "está hablando ahora"
+      "audio": "él está hablando ahora"
     }
   ]
 }

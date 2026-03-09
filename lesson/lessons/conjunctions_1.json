@@ -18,8 +18,8 @@
       "type": "table-select",
       "prompt": "Which Spanish word means 'or'?",
       "tiles": [
-        "y",
         "o",
+        "y",
         "porque"
       ],
       "gridRows": 1,
@@ -52,51 +52,106 @@
     },
     {
       "type": "table-select",
-      "prompt": "Which phrase means 'books and notebooks'?",
+      "prompt": "Which Spanish word means 'books'?",
       "tiles": [
-        "libros y cuadernos",
-        "libros o cuadernos",
-        "libros porque cuadernos"
+        "📚 libros",
+        "📓 cuadernos",
+        "🚪 puertas"
       ],
       "gridRows": 1,
       "gridCols": 3,
-      "correctTile": "libros y cuadernos"
+      "correctTile": "📚 libros"
     },
     {
       "type": "table-select",
-      "prompt": "Which phrase means 'water or juice'?",
+      "prompt": "Which Spanish word means 'notebooks'?",
       "tiles": [
-        "agua y jugo",
-        "agua o jugo",
-        "agua pero jugo"
+        "🚪 puertas",
+        "📓 cuadernos",
+        "📚 libros"
       ],
       "gridRows": 1,
       "gridCols": 3,
-      "correctTile": "agua o jugo"
+      "correctTile": "📓 cuadernos"
     },
     {
       "type": "table-select",
-      "prompt": "Which phrase means 'small but good'?",
+      "prompt": "Which Spanish word means 'water'?",
       "tiles": [
-        "pequeño pero bueno",
-        "pequeño y bueno",
-        "pequeño porque bueno"
+        "🥤 jugo",
+        "💧 agua",
+        "🍎 manzana"
       ],
       "gridRows": 1,
       "gridCols": 3,
-      "correctTile": "pequeño pero bueno"
+      "correctTile": "💧 agua"
     },
     {
       "type": "table-select",
-      "prompt": "Which phrase means 'I study because I want to learn'?",
+      "prompt": "Which Spanish word means 'juice'?",
       "tiles": [
-        "estudio porque quiero aprender",
-        "estudio pero quiero aprender",
-        "estudio o quiero aprender"
+        "🥤 jugo",
+        "💧 agua",
+        "📚 libros"
       ],
       "gridRows": 1,
       "gridCols": 3,
-      "correctTile": "estudio porque quiero aprender"
+      "correctTile": "🥤 jugo"
+    },
+    {
+      "type": "translate-en-es",
+      "sentence": "books and notebooks",
+      "answer": [
+        "libros",
+        "y",
+        "cuadernos"
+      ],
+      "answerAlternates": [],
+      "bank": [
+        "cuadernos",
+        "o",
+        "libros",
+        "porque",
+        "y"
+      ],
+      "audio": "libros y cuadernos"
+    },
+    {
+      "type": "translate-en-es",
+      "sentence": "water or juice",
+      "answer": [
+        "agua",
+        "o",
+        "jugo"
+      ],
+      "answerAlternates": [],
+      "bank": [
+        "jugo",
+        "agua",
+        "pero",
+        "o",
+        "y"
+      ],
+      "audio": "agua o jugo"
+    },
+    {
+      "type": "translate-en-es",
+      "sentence": "books but not notebooks",
+      "answer": [
+        "libros",
+        "pero",
+        "no",
+        "cuadernos"
+      ],
+      "answerAlternates": [],
+      "bank": [
+        "no",
+        "cuadernos",
+        "pero",
+        "y",
+        "libros"
+      ],
+      "audio": "libros pero no cuadernos"
     }
   ]
 }

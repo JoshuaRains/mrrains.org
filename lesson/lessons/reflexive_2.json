@@ -3,97 +3,144 @@
   "subtitle": "Lesson 2",
   "questions": [
     {
-      "type": "table-select",
-      "prompt": "Listen and click the phrase you hear.",
-      "tiles": [
-        "me despierto",
-        "te despiertas",
-        "se despierta"
+      "type": "listen-es-es",
+      "spanish": "me despierto",
+      "audio": "me despierto",
+      "translation": "I wake up.",
+      "answer": [
+        "me",
+        "despierto"
       ],
-      "gridRows": 1,
-      "gridCols": 3,
-      "correctTile": "me despierto",
-      "audio": "me despierto"
+      "answerAlternates": [
+        [
+          "yo",
+          "me",
+          "despierto"
+        ]
+      ],
+      "bank": [
+        "despierta",
+        "te",
+        "despiertas",
+        "yo",
+        "me",
+        "se",
+        "despierto"
+      ]
     },
     {
-      "type": "table-select",
-      "prompt": "Listen and click the phrase you hear.",
-      "tiles": [
-        "me baño",
-        "se baña",
-        "nos bañamos"
+      "type": "listen-es-es",
+      "spanish": "se baña",
+      "audio": "se baña",
+      "translation": "She bathes herself.",
+      "answer": [
+        "se",
+        "baña"
       ],
-      "gridRows": 1,
-      "gridCols": 3,
-      "correctTile": "se baña",
-      "audio": "se baña"
+      "answerAlternates": [
+        [
+          "ella",
+          "se",
+          "baña"
+        ]
+      ],
+      "bank": [
+        "me",
+        "se",
+        "nos",
+        "ella",
+        "baña",
+        "bañamos",
+        "baño"
+      ]
     },
     {
-      "type": "table-select",
-      "prompt": "Listen and click the phrase you hear.",
-      "tiles": [
-        "me acuesto",
-        "te acuestas",
-        "nos acostamos"
+      "type": "listen-es-es",
+      "spanish": "nos acostamos",
+      "audio": "nos acostamos",
+      "translation": "We go to bed.",
+      "answer": [
+        "nos",
+        "acostamos"
       ],
-      "gridRows": 1,
-      "gridCols": 3,
-      "correctTile": "nos acostamos",
-      "audio": "nos acostamos"
+      "answerAlternates": [
+        [
+          "nosotros",
+          "nos",
+          "acostamos"
+        ]
+      ],
+      "bank": [
+        "acuesto",
+        "nos",
+        "se",
+        "me",
+        "nosotros",
+        "acuesta",
+        "acostamos"
+      ]
     },
     {
-      "type": "table-select",
-      "prompt": "Which phrase means 'I get dressed'?",
-      "tiles": [
-        "me visto",
-        "te vistes",
-        "se viste"
+      "type": "listen-es-es",
+      "spanish": "se visten",
+      "audio": "se visten",
+      "translation": "They get dressed.",
+      "answer": [
+        "se",
+        "visten"
       ],
-      "gridRows": 1,
-      "gridCols": 3,
-      "correctTile": "me visto"
+      "answerAlternates": [
+        [
+          "ellos",
+          "se",
+          "visten"
+        ]
+      ],
+      "bank": [
+        "vestimos",
+        "ellos",
+        "visten",
+        "nos",
+        "te",
+        "vistes",
+        "se"
+      ]
     },
     {
       "type": "type-en-es-typed",
       "sentence": "I wake up",
       "answerText": "me despierto",
-      "answerTexts": [],
+      "answerTexts": [
+        "yo me despierto"
+      ],
       "audio": "me despierto"
     },
     {
       "type": "type-en-es-typed",
       "sentence": "she bathes herself",
       "answerText": "se baña",
-      "answerTexts": [],
+      "answerTexts": [
+        "ella se baña"
+      ],
       "audio": "se baña"
     },
     {
       "type": "type-en-es-typed",
       "sentence": "we go to bed",
       "answerText": "nos acostamos",
-      "answerTexts": [],
+      "answerTexts": [
+        "nosotros nos acostamos"
+      ],
       "audio": "nos acostamos"
     },
     {
       "type": "type-en-es-typed",
-      "sentence": "I get dressed",
-      "answerText": "me visto",
-      "answerTexts": [],
-      "audio": "me visto"
-    },
-    {
-      "type": "type-en-es-typed",
-      "sentence": "you get dressed",
-      "answerText": "te vistes",
-      "answerTexts": [],
-      "audio": "te vistes"
-    },
-    {
-      "type": "type-en-es-typed",
-      "sentence": "he gets dressed",
-      "answerText": "se viste",
-      "answerTexts": [],
-      "audio": "se viste"
+      "sentence": "they get dressed",
+      "answerText": "se visten",
+      "answerTexts": [
+        "ellos se visten"
+      ],
+      "audio": "se visten"
     }
   ]
 }

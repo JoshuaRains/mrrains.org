@@ -4,105 +4,279 @@
   "questions": [
     {
       "type": "table-select",
-      "prompt": "Which phrase means 'I study and I read'?",
+      "prompt": "Which Spanish word means 'to study'?",
       "tiles": [
-        "estudio y leo",
-        "estudio o leo",
-        "estudio pero leo"
+        "📚 estudiar",
+        "📖 leer",
+        "🍽️ comer"
       ],
       "gridRows": 1,
       "gridCols": 3,
-      "correctTile": "estudio y leo"
+      "correctTile": "📚 estudiar"
     },
     {
       "type": "table-select",
-      "prompt": "Which phrase means 'I eat but I do not drink'?",
+      "prompt": "Which Spanish word means 'to read'?",
       "tiles": [
-        "como y no bebo",
-        "como pero no bebo",
-        "como porque no bebo"
+        "🥤 beber",
+        "📖 leer",
+        "✍️ escribir"
       ],
       "gridRows": 1,
       "gridCols": 3,
-      "correctTile": "como pero no bebo"
+      "correctTile": "📖 leer"
     },
     {
       "type": "table-select",
-      "prompt": "Listen and click the phrase you hear.",
+      "prompt": "Which Spanish word means 'to drink'?",
       "tiles": [
-        "estudio y leo",
-        "estudio o leo",
-        "estudio porque leo"
+        "📖 leer",
+        "🥤 beber",
+        "🍽️ comer"
       ],
       "gridRows": 1,
       "gridCols": 3,
-      "correctTile": "estudio y leo",
-      "audio": "estudio y leo"
+      "correctTile": "🥤 beber"
     },
     {
       "type": "table-select",
-      "prompt": "Listen and click the phrase you hear.",
+      "prompt": "Which Spanish word means 'to want'?",
       "tiles": [
-        "quiero agua o jugo",
-        "quiero agua y jugo",
-        "quiero agua porque jugo"
+        "🧠 querer",
+        "📚 estudiar",
+        "✍️ escribir"
       ],
       "gridRows": 1,
       "gridCols": 3,
-      "correctTile": "quiero agua o jugo",
-      "audio": "quiero agua o jugo"
+      "correctTile": "🧠 querer"
+    },
+    {
+      "type": "listen-es-es",
+      "spanish": "estudio y leo",
+      "audio": "estudio y leo",
+      "translation": "I study and I read",
+      "answer": [
+        "estudio",
+        "y",
+        "leo"
+      ],
+      "answerAlternates": [
+        [
+          "yo",
+          "estudio",
+          "y",
+          "leo"
+        ]
+      ],
+      "bank": [
+        "leo",
+        "yo",
+        "y",
+        "estudio",
+        "porque"
+      ]
+    },
+    {
+      "type": "listen-es-es",
+      "spanish": "quiero agua o jugo",
+      "audio": "quiero agua o jugo",
+      "translation": "I want water or juice",
+      "answer": [
+        "quiero",
+        "agua",
+        "o",
+        "jugo"
+      ],
+      "answerAlternates": [
+        [
+          "yo",
+          "quiero",
+          "agua",
+          "o",
+          "jugo"
+        ]
+      ],
+      "bank": [
+        "jugo",
+        "quiero",
+        "agua",
+        "yo",
+        "o"
+      ]
+    },
+    {
+      "type": "translate-en-es",
+      "sentence": "I study and I read",
+      "answer": [
+        "estudio",
+        "y",
+        "leo"
+      ],
+      "answerAlternates": [
+        [
+          "yo",
+          "estudio",
+          "y",
+          "leo"
+        ]
+      ],
+      "bank": [
+        "leo",
+        "o",
+        "estudio",
+        "y",
+        "yo"
+      ],
+      "audio": "yo estudio y leo"
+    },
+    {
+      "type": "translate-en-es",
+      "sentence": "I eat but I do not drink",
+      "answer": [
+        "como",
+        "pero",
+        "no",
+        "bebo"
+      ],
+      "answerAlternates": [
+        [
+          "yo",
+          "como",
+          "pero",
+          "no",
+          "bebo"
+        ]
+      ],
+      "bank": [
+        "pero",
+        "no",
+        "yo",
+        "bebo",
+        "como"
+      ],
+      "audio": "yo como pero no bebo"
+    },
+    {
+      "type": "translate-en-es",
+      "sentence": "I want water or juice",
+      "answer": [
+        "quiero",
+        "agua",
+        "o",
+        "jugo"
+      ],
+      "answerAlternates": [
+        [
+          "yo",
+          "quiero",
+          "agua",
+          "o",
+          "jugo"
+        ]
+      ],
+      "bank": [
+        "agua",
+        "quiero",
+        "jugo",
+        "yo",
+        "o"
+      ],
+      "audio": "yo quiero agua o jugo"
+    },
+    {
+      "type": "translate-en-es",
+      "sentence": "I study because I want to learn",
+      "answer": [
+        "estudio",
+        "porque",
+        "quiero",
+        "aprender"
+      ],
+      "answerAlternates": [
+        [
+          "yo",
+          "estudio",
+          "porque",
+          "quiero",
+          "aprender"
+        ]
+      ],
+      "bank": [
+        "quiero",
+        "porque",
+        "estudio",
+        "yo",
+        "aprender"
+      ],
+      "audio": "yo estudio porque quiero aprender"
     },
     {
       "type": "type-en-es-typed",
       "sentence": "I study and I read",
       "answerText": "estudio y leo",
-      "answerTexts": [],
-      "audio": "estudio y leo"
+      "answerTexts": [
+        "yo estudio y leo"
+      ],
+      "audio": "yo estudio y leo"
     },
     {
       "type": "type-en-es-typed",
       "sentence": "I eat but I do not drink",
       "answerText": "como pero no bebo",
-      "answerTexts": [],
-      "audio": "como pero no bebo"
+      "answerTexts": [
+        "yo como pero no bebo"
+      ],
+      "audio": "yo como pero no bebo"
     },
     {
       "type": "type-en-es-typed",
       "sentence": "I want water or juice",
       "answerText": "quiero agua o jugo",
-      "answerTexts": [],
-      "audio": "quiero agua o jugo"
+      "answerTexts": [
+        "yo quiero agua o jugo"
+      ],
+      "audio": "yo quiero agua o jugo"
     },
     {
       "type": "type-en-es-typed",
       "sentence": "I study because I want to learn",
       "answerText": "estudio porque quiero aprender",
-      "answerTexts": [],
-      "audio": "estudio porque quiero aprender"
+      "answerTexts": [
+        "yo estudio porque quiero aprender"
+      ],
+      "audio": "yo estudio porque quiero aprender"
     },
     {
       "type": "listen-es-es-typed",
       "answerText": "estudio y leo",
-      "answerTexts": [],
-      "audio": "estudio y leo"
+      "answerTexts": [
+        "yo estudio y leo"
+      ],
+      "audio": "yo estudio y leo"
     },
     {
       "type": "listen-es-es-typed",
       "answerText": "como pero no bebo",
-      "answerTexts": [],
-      "audio": "como pero no bebo"
+      "answerTexts": [
+        "yo como pero no bebo"
+      ],
+      "audio": "yo como pero no bebo"
     },
     {
       "type": "listen-es-es-typed",
       "answerText": "quiero agua o jugo",
-      "answerTexts": [],
-      "audio": "quiero agua o jugo"
+      "answerTexts": [
+        "yo quiero agua o jugo"
+      ],
+      "audio": "yo quiero agua o jugo"
     },
     {
       "type": "listen-es-es-typed",
       "answerText": "estudio porque quiero aprender",
-      "answerTexts": [],
-      "audio": "estudio porque quiero aprender"
+      "answerTexts": [
+        "yo estudio porque quiero aprender"
+      ],
+      "audio": "yo estudio porque quiero aprender"
     }
   ]
 }

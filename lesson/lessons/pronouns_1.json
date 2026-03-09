@@ -13,7 +13,7 @@
     {
       "type": "table-select",
       "prompt": "Which word means 'you'?",
-      "tiles": ["tú", "ellos", "ella"],
+      "tiles": ["ellos", "tú",  "ella"],
       "gridRows": 1,
       "gridCols": 3,
       "correctTile": "tú"
@@ -29,7 +29,7 @@
     {
       "type": "table-select",
       "prompt": "Which word means 'she'?",
-      "tiles": ["ella", "ellos", "nosotros"],
+      "tiles": [ "nosotros","ella", "ellos"],
       "gridRows": 1,
       "gridCols": 3,
       "correctTile": "ella"

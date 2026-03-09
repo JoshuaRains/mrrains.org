@@ -94,7 +94,7 @@
     },
     {
       "type": "table-select",
-      "prompt": "Click the pronoun for 'y'all'.",
+      "prompt": "Click the pronoun for 'y'all (Spain)'.",
       "tiles": [
         "yo",
         "nosotros",

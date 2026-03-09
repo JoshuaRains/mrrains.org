@@ -3,91 +3,152 @@
   "subtitle": "Lesson 2",
   "questions": [
     {
-      "type": "table-select",
-      "prompt": "Listen and click the phrase you hear.",
-      "tiles": [
-        "estoy estudiando ahora",
-        "estás estudiando ahora",
-        "está estudiando ahora"
+      "type": "listen-es-es",
+      "spanish": "yo estoy estudiando ahora",
+      "audio": "yo estoy estudiando ahora",
+      "translation": "I am studying now.",
+      "answer": [
+        "estoy",
+        "estudiando",
+        "ahora"
       ],
-      "gridRows": 1,
-      "gridCols": 3,
-      "correctTile": "estoy estudiando ahora",
-      "audio": "estoy estudiando ahora"
+      "answerAlternates": [
+        [
+          "yo",
+          "estoy",
+          "estudiando",
+          "ahora"
+        ]
+      ],
+      "bank": [
+        "ahora",
+        "estudiando",
+        "yo",
+        "estoy",
+        "están",
+        "leyendo",
+        "hablar"
+      ]
     },
     {
-      "type": "table-select",
-      "prompt": "Listen and click the phrase you hear.",
-      "tiles": [
-        "estás comiendo ahora",
-        "estoy comiendo ahora",
-        "están comiendo ahora"
+      "type": "listen-es-es",
+      "spanish": "tú estás comiendo ahora",
+      "audio": "tú estás comiendo ahora",
+      "translation": "You are eating now.",
+      "answer": [
+        "estás",
+        "comiendo",
+        "ahora"
       ],
-      "gridRows": 1,
-      "gridCols": 3,
-      "correctTile": "estás comiendo ahora",
-      "audio": "estás comiendo ahora"
+      "answerAlternates": [
+        [
+          "tú",
+          "estás",
+          "comiendo",
+          "ahora"
+        ]
+      ],
+      "bank": [
+        "comiendo",
+        "ahora",
+        "tú",
+        "estás",
+        "está",
+        "corriendo",
+        "leer"
+      ]
     },
     {
-      "type": "table-select",
-      "prompt": "Listen and click the phrase you hear.",
-      "tiles": [
-        "estamos corriendo ahora",
-        "están corriendo ahora",
-        "está corriendo ahora"
+      "type": "listen-es-es",
+      "spanish": "nosotros estamos corriendo ahora",
+      "audio": "nosotros estamos corriendo ahora",
+      "translation": "We are running now.",
+      "answer": [
+        "estamos",
+        "corriendo",
+        "ahora"
       ],
-      "gridRows": 1,
-      "gridCols": 3,
-      "correctTile": "estamos corriendo ahora",
-      "audio": "estamos corriendo ahora"
+      "answerAlternates": [
+        [
+          "nosotros",
+          "estamos",
+          "corriendo",
+          "ahora"
+        ]
+      ],
+      "bank": [
+        "estamos",
+        "corriendo",
+        "ahora",
+        "nosotros",
+        "estoy",
+        "hablando",
+        "estudiar"
+      ]
     },
     {
-      "type": "table-select",
-      "prompt": "Listen and click the phrase you hear.",
-      "tiles": [
-        "está leyendo ahora",
-        "estoy leyendo ahora",
-        "estás leyendo ahora"
+      "type": "listen-es-es",
+      "spanish": "él está leyendo ahora",
+      "audio": "él está leyendo ahora",
+      "translation": "He is reading now.",
+      "answer": [
+        "está",
+        "leyendo",
+        "ahora"
       ],
-      "gridRows": 1,
-      "gridCols": 3,
-      "correctTile": "está leyendo ahora",
-      "audio": "está leyendo ahora"
+      "answerAlternates": [
+        [
+          "él",
+          "está",
+          "leyendo",
+          "ahora"
+        ]
+      ],
+      "bank": [
+        "él",
+        "leyendo",
+        "ahora",
+        "está",
+        "están",
+        "comiendo",
+        "correr"
+      ]
     },
     {
       "type": "type-en-es-typed",
       "sentence": "I am studying now",
       "answerText": "estoy estudiando ahora",
-      "answerTexts": [],
-      "audio": "estoy estudiando ahora"
+      "answerTexts": [
+        "yo estoy estudiando ahora"
+      ],
+      "audio": "yo estoy estudiando ahora"
     },
     {
       "type": "type-en-es-typed",
       "sentence": "you are eating now",
       "answerText": "estás comiendo ahora",
-      "answerTexts": [],
-      "audio": "estás comiendo ahora"
+      "answerTexts": [
+        "tú estás comiendo ahora"
+      ],
+      "audio": "tú estás comiendo ahora"
     },
     {
       "type": "type-en-es-typed",
       "sentence": "we are running now",
       "answerText": "estamos corriendo ahora",
-      "answerTexts": [],
-      "audio": "estamos corriendo ahora"
-    },
-    {
-      "type": "type-en-es-typed",
-      "sentence": "he is reading now",
-      "answerText": "está leyendo ahora",
-      "answerTexts": [],
-      "audio": "está leyendo ahora"
+      "answerTexts": [
+        "nosotros estamos corriendo ahora"
+      ],
+      "audio": "nosotros estamos corriendo ahora"
     },
     {
       "type": "type-en-es-typed",
       "sentence": "they are talking now",
       "answerText": "están hablando ahora",
-      "answerTexts": [],
-      "audio": "están hablando ahora"
+      "answerTexts": [
+        "ellos están hablando ahora"
+      ],
+      "audio": "ellos están hablando ahora"
     }
   ]
 }

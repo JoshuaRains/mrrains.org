@@ -9,7 +9,7 @@
 			"answerAlternates": [
 				["Yo", "necesito", "una", "venda", "."]
 			],
-			"bank": ["una", "Necesito", "venda", ".", "el", "hospital"],
+			"bank": ["una", "Necesito", "venda", ".", "el", "hospital", "i"],
 			"audio": "Necesito una venda",
 			"info": "bandage_info"
 		}

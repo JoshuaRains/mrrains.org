@@ -4,6 +4,22 @@
     "questions": [
       {
         "type": "table-select",
+        "prompt": "Which Spanish word means 'door'?",
+        "tiles": ["🚪 puerta", "📚 libro", "🍎 manzana"],
+        "gridRows": 1,
+        "gridCols": 3,
+        "correctTile": "🚪 puerta"
+      },
+      {
+        "type": "table-select",
+        "prompt": "Which Spanish word means 'notebook'?",
+        "tiles": [ "🚪 puerta", "🍎 manzana", "📓 cuaderno"],
+        "gridRows": 1,
+        "gridCols": 3,
+        "correctTile": "📓 cuaderno"
+      },
+      {
+        "type": "table-select",
         "prompt": "Listen and click the phrase you hear.",
         "tiles": ["el cuaderno", "la cuaderno", "los cuadernos"],
         "gridRows": 1,

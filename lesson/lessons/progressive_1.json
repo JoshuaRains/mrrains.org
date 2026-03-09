@@ -6,8 +6,8 @@
       "type": "table-select",
       "prompt": "Which Spanish word means 'studying'?",
       "tiles": [
-        "📚 estudiando",
         "🍽️ comiendo",
+        "📚 estudiando",
         "🏃 corriendo"
       ],
       "gridRows": 1,
@@ -18,9 +18,9 @@
       "type": "table-select",
       "prompt": "Which Spanish word means 'eating'?",
       "tiles": [
-        "📚 estudiando",
+        "🗣️ hablando",
         "🍽️ comiendo",
-        "🏃 corriendo"
+        "📖 leyendo"
       ],
       "gridRows": 1,
       "gridCols": 3,
@@ -30,8 +30,8 @@
       "type": "table-select",
       "prompt": "Which Spanish word means 'running'?",
       "tiles": [
+        "📚 estudiando",
         "🏃 corriendo",
-        "🗣️ hablando",
         "📖 leyendo"
       ],
       "gridRows": 1,
@@ -40,63 +40,162 @@
     },
     {
       "type": "table-select",
-      "prompt": "Which phrase means 'I am studying now'?",
+      "prompt": "Which Spanish word means 'reading'?",
       "tiles": [
-        "estoy estudiando ahora",
-        "estás estudiando ahora",
-        "estamos estudiando ahora"
+        "🍽️ comiendo",
+        "📖 leyendo",
+        "🗣️ hablando"
       ],
       "gridRows": 1,
       "gridCols": 3,
-      "correctTile": "estoy estudiando ahora"
+      "correctTile": "📖 leyendo"
     },
     {
       "type": "table-select",
-      "prompt": "Which phrase means 'you are eating now'?",
+      "prompt": "Which Spanish word means 'talking'?",
       "tiles": [
-        "estoy comiendo ahora",
-        "estás comiendo ahora",
-        "está comiendo ahora"
+        "🗣️ hablando",
+        "🏃 corriendo",
+        "📚 estudiando"
       ],
       "gridRows": 1,
       "gridCols": 3,
-      "correctTile": "estás comiendo ahora"
+      "correctTile": "🗣️ hablando"
     },
     {
-      "type": "table-select",
-      "prompt": "Which phrase means 'we are running now'?",
-      "tiles": [
-        "están corriendo ahora",
-        "estamos corriendo ahora",
-        "estoy corriendo ahora"
+      "type": "translate-en-es",
+      "sentence": "I am studying now.",
+      "answer": [
+        "estoy",
+        "estudiando",
+        "ahora"
       ],
-      "gridRows": 1,
-      "gridCols": 3,
-      "correctTile": "estamos corriendo ahora"
+      "answerAlternates": [
+        [
+          "yo",
+          "estoy",
+          "estudiando",
+          "ahora"
+        ]
+      ],
+      "bank": [
+        "ahora",
+        "yo",
+        "estudiando",
+        "estoy",
+        "están",
+        "comiendo",
+        "leer"
+      ],
+      "audio": "yo estoy estudiando ahora"
     },
     {
-      "type": "table-select",
-      "prompt": "Which phrase means 'he is reading now'?",
-      "tiles": [
-        "está leyendo ahora",
-        "estoy leyendo ahora",
-        "estamos leyendo ahora"
+      "type": "translate-en-es",
+      "sentence": "You are eating now.",
+      "answer": [
+        "estás",
+        "comiendo",
+        "ahora"
       ],
-      "gridRows": 1,
-      "gridCols": 3,
-      "correctTile": "está leyendo ahora"
+      "answerAlternates": [
+        [
+          "tú",
+          "estás",
+          "comiendo",
+          "ahora"
+        ]
+      ],
+      "bank": [
+        "comiendo",
+        "estás",
+        "tú",
+        "está",
+        "ahora",
+        "hablando",
+        "estudiar"
+      ],
+      "audio": "tú estás comiendo ahora"
     },
     {
-      "type": "table-select",
-      "prompt": "Which phrase means 'they are talking now'?",
-      "tiles": [
-        "están hablando ahora",
-        "está hablando ahora",
-        "estamos hablando ahora"
+      "type": "translate-en-es",
+      "sentence": "We are running now.",
+      "answer": [
+        "estamos",
+        "corriendo",
+        "ahora"
       ],
-      "gridRows": 1,
-      "gridCols": 3,
-      "correctTile": "están hablando ahora"
+      "answerAlternates": [
+        [
+          "nosotros",
+          "estamos",
+          "corriendo",
+          "ahora"
+        ]
+      ],
+      "bank": [
+        "corriendo",
+        "nosotros",
+        "estudian",
+        "ahora",
+        "estamos",
+        "está",
+        "leer"
+      ],
+      "audio": "nosotros estamos corriendo ahora"
+    },
+    {
+      "type": "translate-en-es",
+      "sentence": "He is reading now.",
+      "answer": [
+        "está",
+        "leyendo",
+        "ahora"
+      ],
+      "answerAlternates": [
+        [
+          "él",
+          "está",
+          "leyendo",
+          "ahora"
+        ]
+      ],
+      "bank": [
+        "ahora",
+        "él",
+        "está",
+        "leyendo",
+        "están",
+        "comiendo",
+        "hablar"
+      ],
+      "audio": "él está leyendo ahora"
+    },
+    {
+      "type": "translate-en-es",
+      "sentence": "They are talking now.",
+      "answer": [
+        "están",
+        "hablando",
+        "ahora"
+      ],
+      "answerAlternates": [
+        [
+          "ellos",
+          "están",
+          "hablando",
+          "ahora"
+        ]
+      ],
+      "bank": [
+        "hablando",
+        "ellos",
+        "ahora",
+        "están",
+        "estoy",
+        "corriendo",
+        "leer"
+      ],
+      "audio": "ellos están hablando ahora"
     }
   ]
 }

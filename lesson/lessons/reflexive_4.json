@@ -3,68 +3,148 @@
   "subtitle": "Lesson 4",
   "questions": [
     {
-      "type": "listen-es-en-typed",
-      "answerText": "I wake up",
-      "answerTexts": [],
-      "audio": "me despierto"
+      "type": "listen-es-en",
+      "spanish": "me visto ahora",
+      "audio": "me visto ahora",
+      "translation": "I get dressed now.",
+      "answer": [
+        "i",
+        "get",
+        "dressed",
+        "now"
+      ],
+      "answerAlternates": [
+        [
+          "i",
+          "am",
+          "getting",
+          "dressed",
+          "now"
+        ]
+      ],
+      "bank": [
+        "get",
+        "dressed",
+        "i",
+        "bath",
+        "up",
+        "we",
+        "now",
+        "he"
+      ]
     },
     {
-      "type": "listen-es-en-typed",
-      "answerText": "she bathes herself",
-      "answerTexts": [],
-      "audio": "se baña"
+      "type": "listen-es-en",
+      "spanish": "se bañan ahora",
+      "audio": "se bañan ahora",
+      "translation": "They bathe themselves now.",
+      "answer": [
+        "they",
+        "bathe",
+        "themselves",
+        "now"
+      ],
+      "answerAlternates": [],
+      "bank": [
+        "they",
+        "bathe",
+        "themselves",
+        "now",
+        "we",
+        "wake",
+        "up",
+        "dress"
+      ]
     },
     {
-      "type": "listen-es-en-typed",
-      "answerText": "we go to bed",
-      "answerTexts": [],
-      "audio": "nos acostamos"
+      "type": "translate-en-es",
+      "sentence": "We wake up now.",
+      "answer": [
+        "nos",
+        "despertamos",
+        "ahora"
+      ],
+      "answerAlternates": [
+        [
+          "nosotros",
+          "nos",
+          "despertamos",
+          "ahora"
+        ]
+      ],
+      "bank": [
+        "me",
+        "visto",
+        "nos",
+        "despertamos",
+        "ahora",
+        "nosotros",
+        "bañan",
+        "se"
+      ],
+      "audio": "nos despertamos ahora"
     },
     {
-      "type": "listen-es-en-typed",
-      "answerText": "they go to bed now",
-      "answerTexts": [],
-      "audio": "se acuestan ahora"
+      "type": "translate-es-en",
+      "sentence": "se viste ahora",
+      "answer": [
+        "he",
+        "gets",
+        "dressed",
+        "now"
+      ],
+      "answerAlternates": [
+        [
+          "she",
+          "gets",
+          "dressed",
+          "now"
+        ],
+        [
+          "you",
+          "get",
+          "dressed",
+          "now"
+        ]
+      ],
+      "bank": [
+        "he",
+        "she",
+        "you",
+        "gets",
+        "get",
+        "dressed",
+        "now",
+        "bathes"
+      ],
+      "audio": "se viste ahora"
     },
     {
       "type": "type-en-es-typed",
       "sentence": "I get dressed now",
       "answerText": "me visto ahora",
-      "answerTexts": [],
+      "answerTexts": [
+        "yo me visto ahora"
+      ],
       "audio": "me visto ahora"
-    },
-    {
-      "type": "type-en-es-typed",
-      "sentence": "he gets dressed now",
-      "answerText": "se viste ahora",
-      "answerTexts": [],
-      "audio": "se viste ahora"
     },
     {
       "type": "type-en-es-typed",
       "sentence": "we wake up now",
       "answerText": "nos despertamos ahora",
-      "answerTexts": [],
+      "answerTexts": [
+        "nosotros nos despertamos ahora"
+      ],
       "audio": "nos despertamos ahora"
-    },
-    {
-      "type": "type-en-es-typed",
-      "sentence": "they bathe themselves now",
-      "answerText": "se bañan ahora",
-      "answerTexts": [],
-      "audio": "se bañan ahora"
     },
     {
       "type": "listen-es-es-typed",
       "answerText": "me visto ahora",
-      "answerTexts": [],
+      "answerTexts": [
+        "yo me visto ahora"
+      ],
       "audio": "me visto ahora"
-    },
-    {
-      "type": "listen-es-en-typed",
-      "answerText": "they bathe themselves now",
-      "answerTexts": [],
-      "audio": "se bañan ahora"
     }
+    
   ]
 }

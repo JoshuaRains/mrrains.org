@@ -29,30 +29,42 @@
       "audio": "porque"
     },
     {
-      "type": "table-select",
-      "prompt": "Listen and click the phrase you hear.",
-      "tiles": [
-        "agua o jugo",
-        "agua y jugo",
-        "agua pero jugo"
+      "type": "listen-es-es",
+      "spanish": "agua o jugo",
+      "audio": "agua o jugo",
+      "translation": "water or juice",
+      "answer": [
+        "agua",
+        "o",
+        "jugo"
       ],
-      "gridRows": 1,
-      "gridCols": 3,
-      "correctTile": "agua o jugo",
-      "audio": "agua o jugo"
+      "answerAlternates": [],
+      "bank": [
+        "jugo",
+        "porque",
+        "agua",
+        "o",
+        "y"
+      ]
     },
     {
-      "type": "table-select",
-      "prompt": "Listen and click the phrase you hear.",
-      "tiles": [
-        "libros y cuadernos",
-        "libros o cuadernos",
-        "libros pero cuadernos"
+      "type": "listen-es-es",
+      "spanish": "libros y cuadernos",
+      "audio": "libros y cuadernos",
+      "translation": "books and notebooks",
+      "answer": [
+        "libros",
+        "y",
+        "cuadernos"
       ],
-      "gridRows": 1,
-      "gridCols": 3,
-      "correctTile": "libros y cuadernos",
-      "audio": "libros y cuadernos"
+      "answerAlternates": [],
+      "bank": [
+        "cuadernos",
+        "libros",
+        "o",
+        "y",
+        "pero"
+      ]
     },
     {
       "type": "type-en-es-typed",
@@ -83,18 +95,92 @@
       "audio": "porque"
     },
     {
-      "type": "type-en-es-typed",
+      "type": "translate-en-es",
       "sentence": "books and notebooks",
-      "answerText": "libros y cuadernos",
-      "answerTexts": [],
+      "answer": [
+        "libros",
+        "y",
+        "cuadernos"
+      ],
+      "answerAlternates": [],
+      "bank": [
+        "y",
+        "cuadernos",
+        "pero",
+        "libros",
+        "o"
+      ],
       "audio": "libros y cuadernos"
     },
     {
-      "type": "type-en-es-typed",
+      "type": "translate-en-es",
       "sentence": "water or juice",
-      "answerText": "agua o jugo",
-      "answerTexts": [],
+      "answer": [
+        "agua",
+        "o",
+        "jugo"
+      ],
+      "answerAlternates": [],
+      "bank": [
+        "jugo",
+        "agua",
+        "y",
+        "o",
+        "porque"
+      ],
       "audio": "agua o jugo"
+    },
+    {
+      "type": "translate-en-es",
+      "sentence": "I study and I read",
+      "answer": [
+        "estudio",
+        "y",
+        "leo"
+      ],
+      "answerAlternates": [
+        [
+          "yo",
+          "estudio",
+          "y",
+          "leo"
+        ]
+      ],
+      "bank": [
+        "leo",
+        "yo",
+        "porque",
+        "y",
+        "estudio"
+      ],
+      "audio": "yo estudio y leo"
+    },
+    {
+      "type": "translate-en-es",
+      "sentence": "I want water or juice",
+      "answer": [
+        "quiero",
+        "agua",
+        "o",
+        "jugo"
+      ],
+      "answerAlternates": [
+        [
+          "yo",
+          "quiero",
+          "agua",
+          "o",
+          "jugo"
+        ]
+      ],
+      "bank": [
+        "agua",
+        "quiero",
+        "o",
+        "jugo",
+        "yo"
+      ],
+      "audio": "yo quiero agua o jugo"
     }
   ]
 }

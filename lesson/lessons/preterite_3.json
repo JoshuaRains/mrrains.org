@@ -3,106 +3,170 @@
   "subtitle": "Lesson 3",
   "questions": [
     {
-      "type": "table-select",
-      "prompt": "Which phrase means 'I talked yesterday'?",
-      "tiles": [
-        "hablé ayer",
-        "hablo ayer",
-        "hablaba ayer"
+      "type": "listen-es-es",
+      "spanish": "miró ayer",
+      "audio": "miró ayer",
+      "translation": "He looked yesterday.",
+      "answer": [
+        "miró",
+        "ayer"
       ],
-      "gridRows": 1,
-      "gridCols": 3,
-      "correctTile": "hablé ayer"
+      "answerAlternates": [
+        [
+          "él",
+          "miró",
+          "ayer"
+        ]
+      ],
+      "bank": [
+        "ayer",
+        "miró",
+        "él",
+        "caminaron",
+        "anoche",
+        "hablamos"
+      ]
     },
     {
-      "type": "table-select",
-      "prompt": "Which phrase means 'they walked yesterday'?",
-      "tiles": [
-        "caminaron ayer",
-        "caminan ayer",
-        "caminábamos ayer"
+      "type": "listen-es-es",
+      "spanish": "caminaron ayer",
+      "audio": "caminaron ayer",
+      "translation": "They walked yesterday.",
+      "answer": [
+        "caminaron",
+        "ayer"
       ],
-      "gridRows": 1,
-      "gridCols": 3,
-      "correctTile": "caminaron ayer"
+      "answerAlternates": [
+        [
+          "ellos",
+          "caminaron",
+          "ayer"
+        ]
+      ],
+      "bank": [
+        "caminaron",
+        "ayer",
+        "ellos",
+        "miró",
+        "hablé",
+        "anoche"
+      ]
     },
     {
-      "type": "table-select",
-      "prompt": "Listen and click the phrase you hear.",
-      "tiles": [
-        "miró ayer",
-        "miraba ayer",
-        "mira ayer"
+      "type": "translate-en-es",
+      "sentence": "We looked last night.",
+      "answer": [
+        "miramos",
+        "anoche"
       ],
-      "gridRows": 1,
-      "gridCols": 3,
-      "correctTile": "miró ayer",
-      "audio": "miró ayer"
+      "answerAlternates": [
+        [
+          "nosotros",
+          "miramos",
+          "anoche"
+        ]
+      ],
+      "bank": [
+        "anoche",
+        "miramos",
+        "nosotros",
+        "ayer",
+        "hablaron",
+        "caminaste"
+      ],
+      "audio": "miramos anoche"
     },
     {
-      "type": "table-select",
-      "prompt": "Listen and click the phrase you hear.",
-      "tiles": [
-        "hablamos ayer",
-        "hablamos ahora",
-        "hablaremos mañana"
+      "type": "translate-en-es",
+      "sentence": "They talked last night.",
+      "answer": [
+        "hablaron",
+        "anoche"
       ],
-      "gridRows": 1,
-      "gridCols": 3,
-      "correctTile": "hablamos ayer",
-      "audio": "hablamos ayer"
+      "answerAlternates": [
+        [
+          "ellos",
+          "hablaron",
+          "anoche"
+        ]
+      ],
+      "bank": [
+        "hablaron",
+        "anoche",
+        "ellos",
+        "ayer",
+        "miró",
+        "caminamos"
+      ],
+      "audio": "hablaron anoche"
     },
     {
       "type": "type-en-es-typed",
       "sentence": "I talked yesterday",
       "answerText": "hablé ayer",
-      "answerTexts": [],
+      "answerTexts": [
+        "yo hablé ayer"
+      ],
       "audio": "hablé ayer"
     },
     {
       "type": "type-en-es-typed",
       "sentence": "they walked yesterday",
       "answerText": "caminaron ayer",
-      "answerTexts": [],
+      "answerTexts": [
+        "ellos caminaron ayer"
+      ],
       "audio": "caminaron ayer"
     },
     {
       "type": "type-en-es-typed",
       "sentence": "he looked yesterday",
       "answerText": "miró ayer",
-      "answerTexts": [],
+      "answerTexts": [
+        "él miró ayer"
+      ],
       "audio": "miró ayer"
     },
     {
       "type": "type-en-es-typed",
-      "sentence": "we talked yesterday",
-      "answerText": "hablamos ayer",
-      "answerTexts": [],
-      "audio": "hablamos ayer"
+      "sentence": "we talked last night",
+      "answerText": "hablamos anoche",
+      "answerTexts": [
+        "nosotros hablamos anoche"
+      ],
+      "audio": "hablamos anoche"
     },
     {
       "type": "listen-es-es-typed",
       "answerText": "hablé ayer",
-      "answerTexts": [],
+      "answerTexts": [
+        "yo hablé ayer"
+      ],
       "audio": "hablé ayer"
     },
     {
       "type": "listen-es-es-typed",
       "answerText": "caminaron ayer",
-      "answerTexts": [],
+      "answerTexts": [
+        "ellos caminaron ayer"
+      ],
       "audio": "caminaron ayer"
     },
     {
       "type": "listen-es-es-typed",
       "answerText": "miró ayer",
-      "answerTexts": [],
+      "answerTexts": [
+        "él miró ayer"
+      ],
       "audio": "miró ayer"
     },
     {
       "type": "listen-es-es-typed",
-      "answerText": "hablamos ayer",
-      "answerTexts": [],
-      "audio": "hablamos ayer"
+      "answerText": "hablamos anoche",
+      "answerTexts": [
+        "nosotros hablamos anoche"
+      ],
+      "audio": "hablamos anoche"
     }
   ]
 }

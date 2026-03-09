@@ -9,6 +9,18 @@
       "audio": "un cuaderno"
     },
     {
+      "type": "table-select",
+      "prompt": "Which Spanish word means 'doors'?",
+      "tiles": [
+        "🍎 manzanas",
+        "🚪 puertas",
+        "👦 chicos"
+      ],
+      "gridRows": 1,
+      "gridCols": 3,
+      "correctTile": "🚪 puertas"
+    },
+    {
       "type": "listen-es-en-typed",
       "answerText": "a girl",
       "answerTexts": [],

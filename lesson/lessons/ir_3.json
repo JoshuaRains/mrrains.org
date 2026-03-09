@@ -56,52 +56,81 @@
       "type": "type-en-es-typed",
       "sentence": "he goes",
       "answerText": "va",
-      "answerTexts": [],
+      "answerTexts": [
+        "va",
+        "él va"
+      ],
       "audio": "va"
     },
     {
       "type": "type-en-es-typed",
       "sentence": "y'all go (Spain)",
       "answerText": "vais",
-      "answerTexts": [],
+      "answerTexts": [
+        "vais",
+        "vosotros vais"
+      ],
       "audio": "vais"
     },
     {
       "type": "type-en-es-typed",
       "sentence": "they go",
       "answerText": "van",
-      "answerTexts": [],
+      "answerTexts": [
+        "van",
+        "ellos van",
+        "ellas van"
+      ],
       "audio": "van"
     },
     {
       "type": "type-en-es-typed",
       "sentence": "he goes home",
       "answerText": "va a casa",
-      "answerTexts": [],
+      "answerTexts": [
+        "va a casa",
+        "él va a casa"
+      ],
       "audio": "va a casa"
     },
     {
       "type": "listen-es-es-typed",
       "answerText": "voy",
-      "answerTexts": [],
+      "answerTexts": [
+        "voy",
+        "yo voy"
+      ],
       "audio": "voy"
     },
     {
       "type": "listen-es-es-typed",
       "answerText": "vamos",
-      "answerTexts": [],
+      "answerTexts": [
+        "vamos",
+        "nosotros vamos"
+      ],
       "audio": "vamos"
     },
     {
       "type": "listen-es-es-typed",
       "answerText": "van",
-      "answerTexts": [],
+      "answerTexts": [
+        "van",
+        "ellos van",
+        "ellas van",
+        "ustedes van"
+      ],
       "audio": "van"
     },
     {
       "type": "listen-es-es-typed",
       "answerText": "va a casa",
-      "answerTexts": [],
+      "answerTexts": [
+        "va a casa",
+        "él va a casa",
+        "ella va a casa",
+        "usted va a casa"
+      ],
       "audio": "va a casa"
     }
   ]

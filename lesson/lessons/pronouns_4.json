@@ -105,7 +105,7 @@
     {
       "type": "listen-es-en-typed",
       "answerText": "y'all",
-      "answerTexts": [],
+      "answerTexts": ["y'all", "you all", "yall"],
       "audio": "ustedes"
     },
     {

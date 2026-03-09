@@ -15,6 +15,23 @@
       "correctTile": "un cuaderno",
       "audio": "un cuaderno"
     },
+    
+    {
+  "type": "table-select",
+  "prompt": "Which Spanish word means 'girl'?",
+  "tiles": ["👧 chica", "👦 chico", "📚 libro"],
+  "gridRows": 1,
+  "gridCols": 3,
+  "correctTile": "👧 chica"
+},
+    {
+    "type": "table-select",
+    "prompt": "Which Spanish word means 'notebook'?",
+    "tiles": ["📓 cuaderno", "🚪 puerta", "🍎 manzana"],
+    "gridRows": 1,
+    "gridCols": 3,
+    "correctTile": "📓 cuaderno"
+    },
     {
       "type": "table-select",
       "prompt": "Listen and click the phrase you hear.",

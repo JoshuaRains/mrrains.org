@@ -81,28 +81,41 @@
       "type": "type-en-es-typed",
       "sentence": "I go",
       "answerText": "voy",
-      "answerTexts": [],
+      "answerTexts": [
+        "voy",
+        "yo voy"
+      ],
       "audio": "voy"
     },
     {
       "type": "type-en-es-typed",
       "sentence": "you go",
       "answerText": "vas",
-      "answerTexts": [],
+      "answerTexts": [
+        "vas",
+        "tú vas"
+      ],
       "audio": "vas"
     },
     {
       "type": "type-en-es-typed",
       "sentence": "we go",
       "answerText": "vamos",
-      "answerTexts": [],
+      "answerTexts": [
+        "vamos",
+        "nosotros vamos"
+      ],
       "audio": "vamos"
     },
     {
       "type": "type-en-es-typed",
       "sentence": "they go",
       "answerText": "van",
-      "answerTexts": [],
+      "answerTexts": [
+        "van",
+        "ellos van",
+        "ellas van"
+      ],
       "audio": "van"
     }
   ]

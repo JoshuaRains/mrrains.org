@@ -69,7 +69,7 @@
       {
         "type": "table-select",
         "prompt": "Which Spanish word means 'door'?",
-        "tiles": ["🚪 puerta", "📚 cuaderno", "👦 chico"],
+        "tiles": ["🚪 puerta", "📓 cuaderno", "👦 chico"],
         "gridRows": 1,
         "gridCols": 3,
         "correctTile": "🚪 puerta"
@@ -85,10 +85,10 @@
       {
         "type": "table-select",
         "prompt": "Which Spanish word means 'notebook'?",
-        "tiles": ["🍎 manzana", "📚 cuaderno", "🚪 puerta"],
+        "tiles": ["🍎 manzana", "📓 cuaderno", "🚪 puerta"],
         "gridRows": 1,
         "gridCols": 3,
-        "correctTile": "📚 cuaderno"
+        "correctTile": "📓 cuaderno"
       },
       {
         "type": "table-select",

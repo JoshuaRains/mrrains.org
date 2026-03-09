@@ -13,7 +13,7 @@
       {
         "type": "table-select",
         "prompt": "Which Spanish word means 'green'?",
-        "tiles": ["🟢 verde", "🔵 azul", "📏 alto"],
+        "tiles": [ "🔵 azul", "📏 alto", "🟢 verde"],
         "gridRows": 1,
         "gridCols": 3,
         "correctTile": "🟢 verde"
@@ -21,7 +21,7 @@
       {
         "type": "table-select",
         "prompt": "Listen and click the phrase you hear.",
-        "tiles": ["el libro rojo", "el libro verde", "la puerta roja"],
+        "tiles": ["el libro verde", "el libro rojo",  "la puerta roja"],
         "gridRows": 1,
         "gridCols": 3,
         "correctTile": "el libro rojo",
@@ -30,7 +30,7 @@
       {
         "type": "table-select",
         "prompt": "Listen and click the phrase you hear.",
-        "tiles": ["la chica baja", "la chica alta", "el chico alto"],
+        "tiles": [ "la chica alta", "el chico alto", "la chica baja"],
         "gridRows": 1,
         "gridCols": 3,
         "correctTile": "la chica baja",
@@ -39,7 +39,7 @@
       {
         "type": "table-select",
         "prompt": "Listen and click the phrase you hear.",
-        "tiles": ["los libros verdes", "los libros rojos", "las puertas verdes"],
+        "tiles": ["los libros rojos", "las puertas verdes", "los libros verdes"],
         "gridRows": 1,
         "gridCols": 3,
         "correctTile": "los libros verdes",
@@ -48,7 +48,7 @@
       {
         "type": "table-select",
         "prompt": "Listen and click the phrase you hear.",
-        "tiles": ["las puertas grandes", "las puertas pequeñas", "la puerta grande"],
+        "tiles": ["las puertas pequeñas", "las puertas grandes", "la puerta grande"],
         "gridRows": 1,
         "gridCols": 3,
         "correctTile": "las puertas grandes",

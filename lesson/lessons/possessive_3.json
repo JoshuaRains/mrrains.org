@@ -19,8 +19,8 @@
       "type": "table-select",
       "prompt": "Listen and click the phrase you hear.",
       "tiles": [
-        "nuestra casa",
         "nuestro casa",
+        "nuestra casa",
         "sus casas"
       ],
       "gridRows": 1,
@@ -32,9 +32,10 @@
       "type": "table-select",
       "prompt": "Listen and click the phrase you hear.",
       "tiles": [
+        "vuestras casas",
         "sus casas",
-        "nuestras casas",
-        "vuestras casas"
+        "nuestras casas"
+        
       ],
       "gridRows": 1,
       "gridCols": 3,

@@ -3,6 +3,14 @@
   "subtitle": "Lesson 4",
   "questions": [
     {
+  "type": "table-select",
+  "prompt": "Which Spanish word means 'book'?",
+  "tiles": ["🚪 puerta", "📚 libro", "🍎 manzana"],
+  "gridRows": 1,
+  "gridCols": 3,
+  "correctTile": "📚 libro"
+},
+    {
       "type": "table-select",
       "prompt": "Listen and click the phrase you hear.",
       "tiles": [
@@ -19,13 +27,13 @@
       "type": "table-select",
       "prompt": "Listen and click the phrase you hear.",
       "tiles": [
-        "la manzana",
-        "el manzana",
-        "las manzanas"
+        "la manzana 🍎",
+        "el manzana 🍎",
+        "las manzanas 🍎🍎"
       ],
       "gridRows": 1,
       "gridCols": 3,
-      "correctTile": "la manzana",
+      "correctTile": "la manzana 🍎",
       "audio": "la manzana"
     },
     {

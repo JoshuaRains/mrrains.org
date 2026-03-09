@@ -7,10 +7,10 @@
       "prompt": "Which ending matches 'yo' in the preterite for -ar verbs?",
       "tiles": [
         "-é",
-        "-aste",
-        "-ó",
         "-amos",
+        "-aste",
         "-asteis",
+        "-ó",
         "-aron"
       ],
       "gridRows": 3,
@@ -22,10 +22,10 @@
       "prompt": "Which ending matches 'tú' in the preterite for -ar verbs?",
       "tiles": [
         "-é",
-        "-aste",
-        "-ó",
         "-amos",
+        "-aste",
         "-asteis",
+        "-ó",
         "-aron"
       ],
       "gridRows": 3,
@@ -37,10 +37,10 @@
       "prompt": "Which ending matches 'él / ella / usted' in the preterite for -ar verbs?",
       "tiles": [
         "-é",
-        "-aste",
-        "-ó",
         "-amos",
+        "-aste",
         "-asteis",
+        "-ó",
         "-aron"
       ],
       "gridRows": 3,
@@ -52,10 +52,10 @@
       "prompt": "Which ending matches 'nosotros' in the preterite for -ar verbs?",
       "tiles": [
         "-é",
-        "-aste",
-        "-ó",
         "-amos",
+        "-aste",
         "-asteis",
+        "-ó",
         "-aron"
       ],
       "gridRows": 3,
@@ -67,10 +67,10 @@
       "prompt": "Which ending matches 'vosotros (Spain)' in the preterite for -ar verbs?",
       "tiles": [
         "-é",
-        "-aste",
-        "-ó",
         "-amos",
+        "-aste",
         "-asteis",
+        "-ó",
         "-aron"
       ],
       "gridRows": 3,
@@ -82,10 +82,10 @@
       "prompt": "Which ending matches 'ellos / ellas / ustedes' in the preterite for -ar verbs?",
       "tiles": [
         "-é",
-        "-aste",
-        "-ó",
         "-amos",
+        "-aste",
         "-asteis",
+        "-ó",
         "-aron"
       ],
       "gridRows": 3,
@@ -96,8 +96,8 @@
       "type": "table-select",
       "prompt": "Which Spanish word means 'to talk'?",
       "tiles": [
-        "🗣️ hablar",
         "🚶 caminar",
+        "🗣️ hablar",
         "👀 mirar"
       ],
       "gridRows": 1,
@@ -106,15 +106,111 @@
     },
     {
       "type": "table-select",
-      "prompt": "Which word means 'I talked'?",
+      "prompt": "Which Spanish word means 'to walk'?",
       "tiles": [
-        "hablé",
-        "hablas",
-        "hablo"
+        "👀 mirar",
+        "🚶 caminar",
+        "🗣️ hablar"
       ],
       "gridRows": 1,
       "gridCols": 3,
-      "correctTile": "hablé"
+      "correctTile": "🚶 caminar"
+    },
+    {
+      "type": "table-select",
+      "prompt": "Which Spanish word means 'to look'?",
+      "tiles": [
+        "🗣️ hablar",
+        "👀 mirar",
+        "🚶 caminar"
+      ],
+      "gridRows": 1,
+      "gridCols": 3,
+      "correctTile": "👀 mirar"
+    },
+    {
+      "type": "table-select",
+      "prompt": "Which Spanish word means 'yesterday'?",
+      "tiles": [
+        "🌙 anoche",
+        "📅 ayer",
+        "📍 aquí"
+      ],
+      "gridRows": 1,
+      "gridCols": 3,
+      "correctTile": "📅 ayer"
+    },
+    {
+      "type": "translate-en-es",
+      "sentence": "I talked yesterday.",
+      "answer": [
+        "hablé",
+        "ayer"
+      ],
+      "answerAlternates": [
+        [
+          "yo",
+          "hablé",
+          "ayer"
+        ]
+      ],
+      "bank": [
+        "yo",
+        "ayer",
+        "hablé",
+        "caminó",
+        "miramos",
+        "anoche"
+      ],
+      "audio": "hablé ayer"
+    },
+    {
+      "type": "translate-en-es",
+      "sentence": "You walked yesterday.",
+      "answer": [
+        "caminaste",
+        "ayer"
+      ],
+      "answerAlternates": [
+        [
+          "tú",
+          "caminaste",
+          "ayer"
+        ]
+      ],
+      "bank": [
+        "ayer",
+        "caminaste",
+        "hablé",
+        "tú",
+        "miró",
+        "anoche"
+      ],
+      "audio": "caminaste ayer"
+    },
+    {
+      "type": "translate-en-es",
+      "sentence": "He looked yesterday.",
+      "answer": [
+        "miró",
+        "ayer"
+      ],
+      "answerAlternates": [
+        [
+          "él",
+          "miró",
+          "ayer"
+        ]
+      ],
+      "bank": [
+        "ayer",
+        "miró",
+        "él",
+        "hablamos",
+        "caminaron",
+        "anoche"
+      ],
+      "audio": "miró ayer"
     }
   ]
 }

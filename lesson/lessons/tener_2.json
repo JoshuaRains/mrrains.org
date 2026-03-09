@@ -5,11 +5,7 @@
     {
       "type": "table-select",
       "prompt": "Listen and click the form you hear.",
-      "tiles": [
-        "tengo",
-        "tienes",
-        "tiene"
-      ],
+      "tiles": ["tengo", "tienes", "tiene"],
       "gridRows": 1,
       "gridCols": 3,
       "correctTile": "tengo",
@@ -18,11 +14,7 @@
     {
       "type": "table-select",
       "prompt": "Listen and click the form you hear.",
-      "tiles": [
-        "tenemos",
-        "tienen",
-        "tenéis"
-      ],
+      "tiles": ["tenemos", "tienen", "tenéis"],
       "gridRows": 1,
       "gridCols": 3,
       "correctTile": "tenemos",
@@ -30,70 +22,102 @@
     },
     {
       "type": "table-select",
-      "prompt": "Listen and click the phrase you hear.",
-      "tiles": [
-        "tengo un libro",
-        "tienes un libro",
-        "tiene un libro"
-      ],
+      "prompt": "Which phrase means 'I have a book'?",
+      "tiles": ["tengo un libro", "tienes un libro", "tiene un libro"],
       "gridRows": 1,
       "gridCols": 3,
-      "correctTile": "tienes un libro",
-      "audio": "tienes un libro"
+      "correctTile": "tengo un libro"
     },
     {
       "type": "table-select",
-      "prompt": "Listen and click the phrase you hear.",
-      "tiles": [
-        "tenemos una casa",
-        "tenéis una casa",
-        "tienen una casa"
-      ],
+      "prompt": "Which phrase means 'we have a house'?",
+      "tiles": ["tenemos una casa", "tienen una casa", "tenéis una casa"],
       "gridRows": 1,
       "gridCols": 3,
-      "correctTile": "tienen una casa",
+      "correctTile": "tenemos una casa"
+    },
+    {
+      "type": "translate-en-es",
+      "sentence": "I have a book.",
+      "answer": ["tengo", "un", "libro"],
+      "answerAlternates": [["yo", "tengo", "un", "libro"]],
+      "bank": ["libro", "yo", "un", "tengo", "casa", "tienes"],
+      "audio": "tengo un libro"
+    },
+    {
+      "type": "translate-en-es",
+      "sentence": "You have a book.",
+      "answer": ["tienes", "un", "libro"],
+      "answerAlternates": [["tú", "tienes", "un", "libro"]],
+      "bank": ["tú", "libro", "tengo", "un", "tienes", "casa"],
+      "audio": "tienes un libro"
+    },
+    {
+      "type": "translate-en-es",
+      "sentence": "We have a house.",
+      "answer": ["tenemos", "una", "casa"],
+      "answerAlternates": [["nosotros", "tenemos", "una", "casa"]],
+      "bank": ["una", "casa", "nosotros", "tenemos", "libro", "tienen"],
+      "audio": "tenemos una casa"
+    },
+    {
+      "type": "translate-en-es",
+      "sentence": "They have a house.",
+      "answer": ["tienen", "una", "casa"],
+      "answerAlternates": [
+        ["ellos", "tienen", "una", "casa"],
+        ["ellas", "tienen", "una", "casa"],
+        ["ustedes", "tienen", "una", "casa"]
+      ],
+      "bank": ["ellas", "casa", "una", "tienen", "ellos", "ustedes", "tenemos", "libro"],
       "audio": "tienen una casa"
     },
     {
-      "type": "type-en-es-typed",
-      "sentence": "I have",
-      "answerText": "tengo",
-      "answerTexts": [],
-      "audio": "tengo"
+      "type": "listen-es-es",
+      "spanish": "tengo un libro",
+      "audio": "tengo un libro",
+      "translation": "I have a book.",
+      "answer": ["tengo", "un", "libro"],
+      "answerAlternates": [["yo", "tengo", "un", "libro"]],
+      "bank": ["yo", "libro", "tienes", "un", "tengo", "casa"]
     },
     {
-      "type": "type-en-es-typed",
-      "sentence": "you have",
-      "answerText": "tienes",
-      "answerTexts": [],
-      "audio": "tienes"
+      "type": "listen-es-es",
+      "spanish": "tenemos una casa",
+      "audio": "tenemos una casa",
+      "translation": "We have a house.",
+      "answer": ["tenemos", "una", "casa"],
+      "answerAlternates": [["nosotros", "tenemos", "una", "casa"]],
+      "bank": ["casa", "tenemos", "nosotros", "una", "libro", "tienen"]
     },
     {
-      "type": "type-en-es-typed",
-      "sentence": "we have",
-      "answerText": "tenemos",
-      "answerTexts": [],
-      "audio": "tenemos"
-    },
-    {
-      "type": "type-en-es-typed",
-      "sentence": "they have",
-      "answerText": "tienen",
-      "answerTexts": [],
-      "audio": "tienen"
+      "type": "translate-en-es",
+      "sentence": "They have a book.",
+      "answer": ["tienen", "un", "libro"],
+      "answerAlternates": [
+        ["ellos", "tienen", "un", "libro"],
+        ["ellas", "tienen", "un", "libro"],
+        ["ustedes", "tienen", "un", "libro"]
+      ],
+      "bank": ["ustedes", "un", "tienen", "ellas", "libro", "ellos", "casa", "tenemos"],
+      "audio": "tienen un libro"
     },
     {
       "type": "type-en-es-typed",
       "sentence": "I have a book",
       "answerText": "tengo un libro",
-      "answerTexts": [],
+      "answerTexts": ["yo tengo un libro"],
       "audio": "tengo un libro"
     },
     {
       "type": "type-en-es-typed",
       "sentence": "they have a house",
       "answerText": "tienen una casa",
-      "answerTexts": [],
+      "answerTexts": [
+        "ellos tienen una casa",
+        "ellas tienen una casa",
+        "ustedes tienen una casa"
+      ],
       "audio": "tienen una casa"
     }
   ]

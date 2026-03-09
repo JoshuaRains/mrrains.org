@@ -3,61 +3,183 @@
   "subtitle": "Lesson 4",
   "questions": [
     {
-      "type": "listen-es-en-typed",
-      "answerText": "I talked",
-      "answerTexts": [],
-      "audio": "hablé"
+      "type": "listen-es-en",
+      "spanish": "hablé ayer",
+      "audio": "hablé ayer",
+      "translation": "I talked yesterday.",
+      "answer": [
+        "i",
+        "talked",
+        "yesterday"
+      ],
+      "answerAlternates": [],
+      "bank": [
+        "i",
+        "talked",
+        "yesterday",
+        "he",
+        "walked",
+        "last",
+        "night"
+      ]
     },
     {
-      "type": "listen-es-en-typed",
-      "answerText": "you walked",
-      "answerTexts": [],
-      "audio": "caminaste"
+      "type": "listen-es-en",
+      "spanish": "caminaron ayer",
+      "audio": "caminaron ayer",
+      "translation": "They walked yesterday.",
+      "answer": [
+        "they",
+        "walked",
+        "yesterday"
+      ],
+      "answerAlternates": [],
+      "bank": [
+        "they",
+        "walked",
+        "yesterday",
+        "we",
+        "looked",
+        "last",
+        "night"
+      ]
     },
     {
-      "type": "listen-es-en-typed",
-      "answerText": "he looked yesterday",
-      "answerTexts": [],
-      "audio": "miró ayer"
+      "type": "listen-es-en",
+      "spanish": "miramos anoche",
+      "audio": "miramos anoche",
+      "translation": "We looked last night.",
+      "answer": [
+        "we",
+        "looked",
+        "last",
+        "night"
+      ],
+      "answerAlternates": [],
+      "bank": [
+        "we",
+        "looked",
+        "last",
+        "night",
+        "they",
+        "talked",
+        "yesterday"
+      ]
     },
     {
-      "type": "listen-es-en-typed",
-      "answerText": "they walked yesterday",
-      "answerTexts": [],
-      "audio": "caminaron ayer"
+      "type": "translate-en-es",
+      "sentence": "They talked yesterday.",
+      "answer": [
+        "hablaron",
+        "ayer"
+      ],
+      "answerAlternates": [
+        [
+          "ellos",
+          "hablaron",
+          "ayer"
+        ]
+      ],
+      "bank": [
+        "ayer",
+        "hablaron",
+        "ellos",
+        "anoche",
+        "miramos",
+        "caminé"
+      ],
+      "audio": "hablaron ayer"
+    },
+    {
+      "type": "translate-en-es",
+      "sentence": "I walked yesterday.",
+      "answer": [
+        "caminé",
+        "ayer"
+      ],
+      "answerAlternates": [
+        [
+          "yo",
+          "caminé",
+          "ayer"
+        ]
+      ],
+      "bank": [
+        "caminé",
+        "ayer",
+        "yo",
+        "anoche",
+        "hablaron",
+        "miró"
+      ],
+      "audio": "caminé ayer"
+    },
+    {
+      "type": "translate-en-es",
+      "sentence": "You talked last night.",
+      "answer": [
+        "hablaste",
+        "anoche"
+      ],
+      "answerAlternates": [
+        [
+          "tú",
+          "hablaste",
+          "anoche"
+        ]
+      ],
+      "bank": [
+        "hablaste",
+        "anoche",
+        "tú",
+        "ayer",
+        "caminaron",
+        "miramos"
+      ],
+      "audio": "hablaste anoche"
     },
     {
       "type": "type-en-es-typed",
       "sentence": "we looked yesterday",
       "answerText": "miramos ayer",
-      "answerTexts": [],
+      "answerTexts": [
+        "nosotros miramos ayer"
+      ],
       "audio": "miramos ayer"
     },
     {
       "type": "type-en-es-typed",
       "sentence": "they talked yesterday",
       "answerText": "hablaron ayer",
-      "answerTexts": [],
+      "answerTexts": [
+        "ellos hablaron ayer"
+      ],
       "audio": "hablaron ayer"
     },
     {
       "type": "type-en-es-typed",
       "sentence": "I walked yesterday",
       "answerText": "caminé ayer",
-      "answerTexts": [],
+      "answerTexts": [
+        "yo caminé ayer"
+      ],
       "audio": "caminé ayer"
     },
     {
       "type": "type-en-es-typed",
-      "sentence": "you talked yesterday",
-      "answerText": "hablaste ayer",
-      "answerTexts": [],
-      "audio": "hablaste ayer"
+      "sentence": "you talked last night",
+      "answerText": "hablaste anoche",
+      "answerTexts": [
+        "tú hablaste anoche"
+      ],
+      "audio": "hablaste anoche"
     },
     {
       "type": "listen-es-es-typed",
       "answerText": "hablaron ayer",
-      "answerTexts": [],
+      "answerTexts": [
+        "ellos hablaron ayer"
+      ],
       "audio": "hablaron ayer"
     },
     {

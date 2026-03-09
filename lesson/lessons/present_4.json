@@ -6,35 +6,35 @@
       "type": "table-select",
       "prompt": "Listen and click the word you hear.",
       "tiles": [
-        "hablo",
-        "hablas",
+        "hablamos",
+        "habla",
         "hablan"
       ],
       "gridRows": 1,
       "gridCols": 3,
-      "correctTile": "hablo",
-      "audio": "hablo"
+      "correctTile": "hablan",
+      "audio": "hablan"
     },
     {
       "type": "table-select",
       "prompt": "Listen and click the word you hear.",
       "tiles": [
-        "caminamos",
         "caminas",
-        "caminan"
+        "camina",
+        "camino"
       ],
       "gridRows": 1,
       "gridCols": 3,
-      "correctTile": "caminas",
-      "audio": "caminas"
+      "correctTile": "camina",
+      "audio": "camina"
     },
     {
       "type": "table-select",
       "prompt": "Listen and click the word you hear.",
       "tiles": [
+        "miramos",
         "miran",
-        "mira",
-        "miro"
+        "mira"
       ],
       "gridRows": 1,
       "gridCols": 3,
@@ -45,90 +45,120 @@
       "type": "table-select",
       "prompt": "Listen and click the word you hear.",
       "tiles": [
+        "estudia",
         "estudian",
-        "estudiamos",
         "estudio"
       ],
       "gridRows": 1,
       "gridCols": 3,
-      "correctTile": "estudiamos",
-      "audio": "estudiamos"
+      "correctTile": "estudia",
+      "audio": "estudia"
     },
     {
       "type": "type-en-es-typed",
-      "sentence": "I talk",
-      "answerText": "hablo",
-      "answerTexts": [],
-      "audio": "hablo"
+      "sentence": "they talk",
+      "answerText": "hablan",
+      "answerTexts": [
+        "hablan",
+        "ellos hablan",
+        "ellas hablan"
+      ],
+      "audio": "hablan"
     },
     {
       "type": "type-en-es-typed",
-      "sentence": "you walk",
-      "answerText": "caminas",
-      "answerTexts": [],
-      "audio": "caminas"
+      "sentence": "she walks",
+      "answerText": "camina",
+      "answerTexts": [
+        "camina",
+        "ella camina"
+      ],
+      "audio": "camina"
     },
     {
       "type": "type-en-es-typed",
-      "sentence": "he looks",
+      "sentence": "you look",
+      "answerText": "miras",
+      "answerTexts": [
+        "miras",
+        "tú miras"
+      ],
+      "audio": "miras"
+    },
+    {
+      "type": "type-en-es-typed",
+      "sentence": "he studies",
+      "answerText": "estudia",
+      "answerTexts": [
+        "estudia",
+        "él estudia"
+      ],
+      "audio": "estudia"
+    },
+    {
+      "type": "listen-es-es-typed",
+      "answerText": "hablan",
+      "answerTexts": [
+        "hablan",
+        "ellos hablan",
+        "ellas hablan",
+        "ustedes hablan"
+      ],
+      "audio": "hablan"
+    },
+    {
+      "type": "listen-es-es-typed",
+      "answerText": "camina",
+      "answerTexts": [
+        "camina",
+        "él camina",
+        "ella camina",
+        "usted camina"
+      ],
+      "audio": "camina"
+    },
+    {
+      "type": "listen-es-es-typed",
       "answerText": "mira",
-      "answerTexts": [],
-      "audio": "mira"
-    },
-    {
-      "type": "type-en-es-typed",
-      "sentence": "we study",
-      "answerText": "estudiamos",
-      "answerTexts": [],
-      "audio": "estudiamos"
-    },
-    {
-      "type": "listen-es-es-typed",
-      "answerText": "hablo",
-      "answerTexts": [],
-      "audio": "hablo"
-    },
-    {
-      "type": "listen-es-es-typed",
-      "answerText": "caminas",
-      "answerTexts": [],
-      "audio": "caminas"
-    },
-    {
-      "type": "listen-es-es-typed",
-      "answerText": "mira",
-      "answerTexts": [],
+      "answerTexts": [
+        "mira",
+        "él mira",
+        "ella mira",
+        "usted mira"
+      ],
       "audio": "mira"
     },
     {
       "type": "listen-es-es-typed",
-      "answerText": "estudiamos",
-      "answerTexts": [],
-      "audio": "estudiamos"
+      "answerText": "estudia",
+      "answerTexts": [
+        "estudia",
+        "él estudia",
+        "ella estudia",
+        "usted estudia"
+      ],
+      "audio": "estudia"
     },
     {
       "type": "listen-es-en-typed",
-      "answerText": "I talk",
-      "answerTexts": [],
-      "audio": "hablo"
+      "answerText": "they talk",
+      "answerTexts": [
+        "they talk",
+        "yall talk",
+        "you all talk",
+        "y'all talk"
+      ],
+      "audio": "hablan"
     },
     {
       "type": "listen-es-en-typed",
-      "answerText": "you walk",
-      "answerTexts": [],
-      "audio": "caminas"
-    },
-    {
-      "type": "listen-es-en-typed",
-      "answerText": "he looks",
-      "answerTexts": [],
-      "audio": "mira"
-    },
-    {
-      "type": "listen-es-en-typed",
-      "answerText": "we study",
-      "answerTexts": [],
-      "audio": "estudiamos"
+      "answerText": "she walks",
+      "answerTexts": [
+        "she walks",
+        "he walks"
+      ],
+      "audio": "camina"
     }
+    
   ]
 }

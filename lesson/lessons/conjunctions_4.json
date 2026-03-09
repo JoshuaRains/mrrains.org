@@ -3,68 +3,184 @@
   "subtitle": "Lesson 4",
   "questions": [
     {
-      "type": "listen-es-en-typed",
-      "answerText": "and",
-      "answerTexts": [],
-      "audio": "y"
+      "type": "listen-es-en",
+      "spanish": "y",
+      "audio": "y",
+      "translation": "and",
+      "answer": [
+        "and"
+      ],
+      "answerAlternates": [],
+      "bank": [
+        "and",
+        "or",
+        "but"
+      ]
     },
     {
-      "type": "listen-es-en-typed",
-      "answerText": "because",
-      "answerTexts": [],
-      "audio": "porque"
+      "type": "listen-es-en",
+      "spanish": "porque",
+      "audio": "porque",
+      "translation": "because",
+      "answer": [
+        "because"
+      ],
+      "answerAlternates": [],
+      "bank": [
+        "because",
+        "but",
+        "or"
+      ]
     },
     {
-      "type": "listen-es-en-typed",
-      "answerText": "I study and I read",
-      "answerTexts": [],
-      "audio": "estudio y leo"
+      "type": "listen-es-en",
+      "spanish": "estudio y leo",
+      "audio": "yo estudio y leo",
+      "translation": "I study and I read",
+      "answer": [
+        "i",
+        "study",
+        "and",
+        "i",
+        "read"
+      ],
+      "answerAlternates": [],
+      "bank": [
+        "i",
+        "read",
+        "and",
+        "study",
+        "drink",
+        "i"
+      ]
     },
     {
-      "type": "listen-es-en-typed",
-      "answerText": "I want water or juice",
-      "answerTexts": [],
-      "audio": "quiero agua o jugo"
+      "type": "listen-es-en",
+      "spanish": "quiero agua o jugo",
+      "audio": "yo quiero agua o jugo",
+      "translation": "I want water or juice",
+      "answer": [
+        "i",
+        "want",
+        "water",
+        "or",
+        "juice"
+      ],
+      "answerAlternates": [],
+      "bank": [
+        "juice",
+        "or",
+        "want",
+        "i",
+        "water",
+        "and"
+      ]
     },
+    {
+      "type": "translate-en-es",
+      "sentence": "I read but I do not write",
+      "answer": [
+        "leo",
+        "pero",
+        "no",
+        "escribo"
+      ],
+      "answerAlternates": [
+        [
+          "yo",
+          "leo",
+          "pero",
+          "no",
+          "escribo"
+        ]
+      ],
+      "bank": [
+        "no",
+        "leo",
+        "yo",
+        "pero",
+        "escribo"
+      ],
+      "audio": "yo leo pero no escribo"
+    },
+    {
+      "type": "translate-en-es",
+      "sentence": "I eat and I drink",
+      "answer": [
+        "como",
+        "y",
+        "bebo"
+      ],
+      "answerAlternates": [
+        [
+          "yo",
+          "como",
+          "y",
+          "bebo"
+        ]
+      ],
+      "bank": [
+        "bebo",
+        "yo",
+        "como",
+        "y",
+        "o"
+      ],
+      "audio": "yo como y bebo"
+    },
+    {
+      "type": "translate-en-es",
+      "sentence": "I want apples or oranges",
+      "answer": [
+        "quiero",
+        "manzanas",
+        "o",
+        "naranjas"
+      ],
+      "answerAlternates": [
+        [
+          "yo",
+          "quiero",
+          "manzanas",
+          "o",
+          "naranjas"
+        ]
+      ],
+      "bank": [
+        "naranjas",
+        "quiero",
+        "yo",
+        "o",
+        "manzanas"
+      ],
+      "audio": "yo quiero manzanas o naranjas"
+    },
+
     {
       "type": "type-en-es-typed",
       "sentence": "I read but I do not write",
       "answerText": "leo pero no escribo",
-      "answerTexts": [],
-      "audio": "leo pero no escribo"
+      "answerTexts": [
+        "yo leo pero no escribo"
+      ],
+      "audio": "yo leo pero no escribo"
     },
     {
       "type": "type-en-es-typed",
       "sentence": "I eat and I drink",
       "answerText": "como y bebo",
-      "answerTexts": [],
-      "audio": "como y bebo"
-    },
-    {
-      "type": "type-en-es-typed",
-      "sentence": "I want apples or oranges",
-      "answerText": "quiero manzanas o naranjas",
-      "answerTexts": [],
-      "audio": "quiero manzanas o naranjas"
-    },
-    {
-      "type": "type-en-es-typed",
-      "sentence": "I study because I want good grades",
-      "answerText": "estudio porque quiero buenas notas",
-      "answerTexts": [],
-      "audio": "estudio porque quiero buenas notas"
+      "answerTexts": [
+        "yo como y bebo"
+      ],
+      "audio": "yo como y bebo"
     },
     {
       "type": "listen-es-es-typed",
       "answerText": "leo pero no escribo",
-      "answerTexts": [],
-      "audio": "leo pero no escribo"
-    },
-    {
-      "type": "listen-es-en-typed",
-      "answerText": "I study because I want good grades",
-      "answerTexts": [],
-      "audio": "estudio porque quiero buenas notas"
+      "answerTexts": [
+        "yo leo pero no escribo"
+      ],
+      "audio": "yo leo pero no escribo"
     }
   ]
 }

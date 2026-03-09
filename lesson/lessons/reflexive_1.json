@@ -7,8 +7,8 @@
       "prompt": "Which Spanish word means 'to wake up'?",
       "tiles": [
         "⏰ despertarse",
-        "🛁 bañarse",
-        "🛏️ acostarse"
+        "🛏️ acostarse",
+        "🛁 bañarse"
       ],
       "gridRows": 1,
       "gridCols": 3,
@@ -16,35 +16,11 @@
     },
     {
       "type": "table-select",
-      "prompt": "Which word means 'I wake up'?",
-      "tiles": [
-        "me despierto",
-        "te despiertas",
-        "se despierta"
-      ],
-      "gridRows": 1,
-      "gridCols": 3,
-      "correctTile": "me despierto"
-    },
-    {
-      "type": "table-select",
-      "prompt": "Which word means 'you wake up'?",
-      "tiles": [
-        "me despierto",
-        "te despiertas",
-        "nos despertamos"
-      ],
-      "gridRows": 1,
-      "gridCols": 3,
-      "correctTile": "te despiertas"
-    },
-    {
-      "type": "table-select",
       "prompt": "Which Spanish word means 'to bathe oneself'?",
       "tiles": [
+        "🍽️ desayunar",
         "🛁 bañarse",
-        "👕 vestirse",
-        "🍽️ desayunar"
+        "👕 vestirse"
       ],
       "gridRows": 1,
       "gridCols": 3,
@@ -52,23 +28,11 @@
     },
     {
       "type": "table-select",
-      "prompt": "Which word means 'she bathes herself'?",
-      "tiles": [
-        "me baño",
-        "se baña",
-        "nos bañamos"
-      ],
-      "gridRows": 1,
-      "gridCols": 3,
-      "correctTile": "se baña"
-    },
-    {
-      "type": "table-select",
       "prompt": "Which Spanish word means 'to go to bed'?",
       "tiles": [
+        "📚 estudiar",
         "🛏️ acostarse",
-        "🚶 caminar",
-        "📚 estudiar"
+        "🚶 caminar"
       ],
       "gridRows": 1,
       "gridCols": 3,
@@ -76,27 +40,115 @@
     },
     {
       "type": "table-select",
-      "prompt": "Which word means 'we go to bed'?",
+      "prompt": "Which Spanish word means 'to get dressed'?",
       "tiles": [
-        "me acuesto",
-        "se acuesta",
-        "nos acostamos"
+        "🧼 lavarse",
+        "👕 vestirse",
+        "🍽️ desayunar"
       ],
       "gridRows": 1,
       "gridCols": 3,
-      "correctTile": "nos acostamos"
+      "correctTile": "👕 vestirse"
     },
     {
-      "type": "table-select",
-      "prompt": "Which word means 'they get dressed'?",
-      "tiles": [
-        "se visten",
-        "nos vestimos",
-        "te vistes"
+      "type": "translate-en-es",
+      "sentence": "I wake up.",
+      "answer": [
+        "me",
+        "despierto"
       ],
-      "gridRows": 1,
-      "gridCols": 3,
-      "correctTile": "se visten"
+      "answerAlternates": [
+        [
+          "yo",
+          "me",
+          "despierto"
+        ]
+      ],
+      "bank": [
+        "despiertas",
+        "yo",
+        "se",
+        "despierto",
+        "me",
+        "despierta",
+        "te"
+      ],
+      "audio": "me despierto"
+    },
+    {
+      "type": "translate-en-es",
+      "sentence": "She bathes herself.",
+      "answer": [
+        "se",
+        "baña"
+      ],
+      "answerAlternates": [
+        [
+          "ella",
+          "se",
+          "baña"
+        ]
+      ],
+      "bank": [
+        "me",
+        "ella",
+        "se",
+        "baño",
+        "bañamos",
+        "baña",
+        "nos"
+      ],
+      "audio": "se baña"
+    },
+    {
+      "type": "translate-en-es",
+      "sentence": "We go to bed.",
+      "answer": [
+        "nos",
+        "acostamos"
+      ],
+      "answerAlternates": [
+        [
+          "nosotros",
+          "nos",
+          "acostamos"
+        ]
+      ],
+      "bank": [
+        "nos",
+        "me",
+        "acuesto",
+        "acuesta",
+        "nosotros",
+        "se",
+        "acostamos"
+      ],
+      "audio": "nos acostamos"
+    },
+    {
+      "type": "translate-en-es",
+      "sentence": "They get dressed.",
+      "answer": [
+        "se",
+        "visten"
+      ],
+      "answerAlternates": [
+        [
+          "ellos",
+          "se",
+          "visten"
+        ]
+      ],
+      "bank": [
+        "ellos",
+        "te",
+        "vistes",
+        "vestimos",
+        "nos",
+        "se",
+        "visten"
+      ],
+      "audio": "se visten"
     }
   ]
 }

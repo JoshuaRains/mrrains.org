@@ -6,13 +6,13 @@
       "type": "table-select",
       "prompt": "Which Spanish word means 'to have'?",
       "tiles": [
-        "🫱 tener",
+        "🤲 tener",
         "🏃 ir",
         "🗣️ hablar"
       ],
       "gridRows": 1,
       "gridCols": 3,
-      "correctTile": "🫱 tener"
+      "correctTile": "🤲 tener"
     },
     {
       "type": "table-select",

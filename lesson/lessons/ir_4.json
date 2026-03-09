@@ -29,41 +29,27 @@
     {
       "type": "listen-es-en-typed",
       "answerText": "he goes home",
-      "answerTexts": [],
+      "answerTexts": ["he goes home", "she goes home", "you go home"],
       "audio": "va a casa"
     },
     {
       "type": "type-en-es-typed",
       "sentence": "I go home",
       "answerText": "voy a casa",
-      "answerTexts": [],
+      "answerTexts": [
+        "voy a casa",
+        "yo voy a casa"
+      ],
       "audio": "voy a casa"
-    },
-    {
-      "type": "type-en-es-typed",
-      "sentence": "we go to the park",
-      "answerText": "vamos al parque",
-      "answerTexts": [],
-      "audio": "vamos al parque"
-    },
-    {
-      "type": "type-en-es-typed",
-      "sentence": "they go to school",
-      "answerText": "van a la escuela",
-      "answerTexts": [],
-      "audio": "van a la escuela"
     },
     {
       "type": "listen-es-es-typed",
       "answerText": "voy a casa",
-      "answerTexts": [],
+      "answerTexts": [
+        "voy a casa",
+        "yo voy a casa"
+      ],
       "audio": "voy a casa"
-    },
-    {
-      "type": "listen-es-es-typed",
-      "answerText": "vamos al parque",
-      "answerTexts": [],
-      "audio": "vamos al parque"
     }
   ]
 }
