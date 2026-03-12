@@ -81,28 +81,28 @@
       "type": "type-en-es-typed",
       "sentence": "I want",
       "answerText": "quiero",
-      "answerTexts": [],
+      "answerTexts": [yo quiero, quiero],
       "audio": "quiero"
     },
     {
       "type": "type-en-es-typed",
       "sentence": "they want",
       "answerText": "quieren",
-      "answerTexts": [],
+      "answerTexts": [ellos quieren, quieren],
       "audio": "quieren"
     },
     {
       "type": "type-en-es-typed",
       "sentence": "I sleep",
       "answerText": "duermo",
-      "answerTexts": [],
+      "answerTexts": [yo duermo, duermo],
       "audio": "duermo"
     },
     {
       "type": "type-en-es-typed",
       "sentence": "I have lunch",
       "answerText": "almuerzo",
-      "answerTexts": [],
+      "answerTexts": [tengo almuerzo, almuerzo],
       "audio": "almuerzo"
     }
   ]
