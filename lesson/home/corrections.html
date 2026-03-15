@@ -1,0 +1,333 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1" />
+	<title>Spanish Lessons</title>
+
+	<style>
+		:root{
+			--bg:#f3f3f3;
+			--panel:#ffffff;
+			--text:#111111;
+			--line:#222222;
+			--muted:#555555;
+			--link:#0b57d0;
+		}
+
+		*{box-sizing:border-box}
+		html,body{height:100%}
+
+		body{
+			margin:0;
+			font-family:Arial, Helvetica, sans-serif;
+			background:var(--bg);
+			color:var(--text);
+		}
+
+		.wrap{
+			max-width:980px;
+			margin:0 auto;
+			padding:32px 24px 48px;
+		}
+
+		h1{
+			margin:0 0 28px;
+			font-size:48px;
+			line-height:1.05;
+			font-weight:700;
+		}
+
+		.sub{
+			margin:-10px 0 28px;
+			font-size:16px;
+			color:var(--muted);
+		}
+
+		.lessonTable{
+			width:100%;
+			border-collapse:collapse;
+			background:var(--panel);
+			table-layout:fixed;
+		}
+
+		.lessonTable td,
+		.lessonTable th{
+			border:2px solid var(--line);
+			vertical-align:top;
+			padding:0;
+		}
+
+		.categoryCell{
+			width:34%;
+			padding:14px 16px;
+			font-size:22px;
+			font-weight:400;
+			line-height:1.2;
+			background:#f8f8f8;
+		}
+
+		.lessonCell{
+			padding:12px 16px 14px;
+		}
+
+		.lessonList{
+			list-style:none;
+			margin:0;
+			padding:0;
+		}
+
+		.lessonList li{
+			margin:0 0 8px;
+		}
+
+		.lessonList li:last-child{
+			margin-bottom:0;
+		}
+
+		.lessonList a{
+			color:var(--link);
+			font-size:18px;
+			text-decoration:underline;
+		}
+
+		.lessonList a:hover{
+			text-decoration-thickness:2px;
+		}
+
+		.empty{
+			color:#777;
+			font-size:17px;
+		}
+
+		.sectionSpacer td{
+			border:none;
+			height:14px;
+			padding:0;
+			background:transparent;
+		}
+
+		@media (max-width: 700px){
+			.wrap{
+				padding:24px 14px 36px;
+			}
+
+			h1{
+				font-size:36px;
+			}
+
+			.lessonTable,
+			.lessonTable tbody,
+			.lessonTable tr,
+			.lessonTable td{
+				display:block;
+				width:100%;
+			}
+
+			.sectionSpacer{
+				display:none;
+			}
+
+			.categoryCell{
+				border-bottom:none !important;
+				width:100%;
+				font-size:20px;
+			}
+
+			.lessonCell{
+				border-top:none !important;
+			}
+		}
+	</style>
+</head>
+<body>
+	<div class="wrap">
+		<h1>Available Lessons:</h1>
+		<p class="sub">Do the lessons for any concepts you want to get points for. Work your way from top to bottom. <b>Be sure to write down your answers.</b></p>
+
+		<table class="lessonTable" aria-label="Available Spanish lessons">
+			<tbody>
+				<tr>
+					<td class="categoryCell">C1 - Subject Pronouns</td>
+					<td class="lessonCell">
+						<ul class="lessonList">
+							<li><a href="../index.html?l=pronouns_1">Lesson 1</a></li>
+							<li><a href="../index.html?l=pronouns_2">Lesson 2</a></li>
+							<li><a href="../index.html?l=pronouns_3">Lesson 3</a></li>
+							<li><a href="../index.html?l=pronouns_4">Lesson 4</a></li>
+						</ul>
+					</td>
+				</tr>
+
+				<tr>
+					<td class="categoryCell">C2 - Definite Articles</td>
+					<td class="lessonCell">
+						<ul class="lessonList">
+							<li><a href="../index.html?l=definite_1">Lesson 1</a></li>
+							<li><a href="../index.html?l=definite_2">Lesson 2</a></li>
+							<li><a href="../index.html?l=definite_3">Lesson 3</a></li>
+							<li><a href="../index.html?l=definite_4">Lesson 4</a></li>
+						</ul>
+					</td>
+				</tr>
+
+				<tr>
+					<td class="categoryCell">C3 - Indefinite Articles</td>
+					<td class="lessonCell">
+						<ul class="lessonList">
+							<li><a href="../index.html?l=indefinite_1">Lesson 1</a></li>
+							<li><a href="../index.html?l=indefinite_2">Lesson 2</a></li>
+							<li><a href="../index.html?l=indefinite_3">Lesson 3</a></li>
+							<li><a href="../index.html?l=indefinite_4">Lesson 4</a></li>
+						</ul>
+					</td>
+				</tr>
+
+				<tr>
+					<td class="categoryCell">C4 - Noun Gender and Number</td>
+					<td class="lessonCell">
+						<ul class="lessonList">
+							<li><a href="../index.html?l=gender_1">Lesson 1</a></li>
+							<li><a href="../index.html?l=gender_2">Lesson 2</a></li>
+							<li><a href="../index.html?l=gender_3">Lesson 3</a></li>
+							<li><a href="../index.html?l=gender_4">Lesson 4</a></li>
+						</ul>
+					</td>
+				</tr>
+
+				<tr>
+					<td class="categoryCell">C5 - Adjectives</td>
+					<td class="lessonCell">
+						<ul class="lessonList">
+							<li><a href="../index.html?l=adjectives_1">Lesson 1</a></li>
+							<li><a href="../index.html?l=adjectives_2">Lesson 2</a></li>
+							<li><a href="../index.html?l=adjectives_3">Lesson 3</a></li>
+							<li><a href="../index.html?l=adjectives_4">Lesson 4</a></li>
+						</ul>
+					</td>
+				</tr>
+
+				<tr>
+					<td class="categoryCell">C6 - Possessive Adjectives</td>
+					<td class="lessonCell">
+						<ul class="lessonList">
+							<li><a href="../index.html?l=possessive_1">Lesson 1</a></li>
+							<li><a href="../index.html?l=possessive_2">Lesson 2</a></li>
+							<li><a href="../index.html?l=possessive_3">Lesson 3</a></li>
+							<li><a href="../index.html?l=possessive_4">Lesson 4</a></li>
+						</ul>
+					</td>
+				</tr>
+
+				<tr>
+					<td class="categoryCell">C7 - Question Words</td>
+					<td class="lessonCell">
+						<ul class="lessonList">
+							<li><a href="../index.html?l=questions_1">Lesson 1</a></li>
+							<li><a href="../index.html?l=questions_2">Lesson 2</a></li>
+							<li><a href="../index.html?l=questions_3">Lesson 3</a></li>
+							<li><a href="../index.html?l=questions_4">Lesson 4</a></li>
+						</ul>
+					</td>
+				</tr>
+
+				<tr>
+					<td class="categoryCell">C8 - Present Tense Verbs</td>
+					<td class="lessonCell">
+						<ul class="lessonList">
+							<li><a href="../index.html?l=present_1">Lesson 1</a></li>
+							<li><a href="../index.html?l=present_2">Lesson 2</a></li>
+							<li><a href="../index.html?l=present_3">Lesson 3</a></li>
+							<li><a href="../index.html?l=present_4">Lesson 4</a></li>
+						</ul>
+					</td>
+				</tr>
+
+				<tr>
+					<td class="categoryCell">C9 - Present Tense of <em>Ir</em></td>
+					<td class="lessonCell">
+						<ul class="lessonList">
+							<li><a href="../index.html?l=ir_1">Lesson 1</a></li>
+							<li><a href="../index.html?l=ir_2">Lesson 2</a></li>
+							<li><a href="../index.html?l=ir_3">Lesson 3</a></li>
+							<li><a href="../index.html?l=ir_4">Lesson 4</a></li>
+						</ul>
+					</td>
+				</tr>
+
+				<tr>
+					<td class="categoryCell">C10 - Present Tense of <em>Tener</em></td>
+					<td class="lessonCell">
+						<ul class="lessonList">
+							<li><a href="../index.html?l=tener_1">Lesson 1</a></li>
+							<li><a href="../index.html?l=tener_2">Lesson 2</a></li>
+							<li><a href="../index.html?l=tener_3">Lesson 3</a></li>
+							<li><a href="../index.html?l=tener_4">Lesson 4</a></li>
+						</ul>
+					</td>
+				</tr>
+
+				<tr>
+					<td class="categoryCell">C11 - Stem-Changing Verbs</td>
+					<td class="lessonCell">
+						<ul class="lessonList">
+							<li><a href="../index.html?l=stemchange_1">Lesson 1</a></li>
+							<li><a href="../index.html?l=stemchange_2">Lesson 2</a></li>
+							<li><a href="../index.html?l=stemchange_3">Lesson 3</a></li>
+							<li><a href="../index.html?l=stemchange_4">Lesson 4</a></li>
+						</ul>
+					</td>
+				</tr>
+
+				<tr>
+					<td class="categoryCell">C12 - Reflexive Verbs</td>
+					<td class="lessonCell">
+						<ul class="lessonList">
+							<li><a href="../index.html?l=reflexive_1">Lesson 1</a></li>
+							<li><a href="../index.html?l=reflexive_2">Lesson 2</a></li>
+							<li><a href="../index.html?l=reflexive_3">Lesson 3</a></li>
+							<li><a href="../index.html?l=reflexive_4">Lesson 4</a></li>
+						</ul>
+					</td>
+				</tr>
+
+				<tr>
+					<td class="categoryCell">C13 - Present Progressive</td>
+					<td class="lessonCell">
+						<ul class="lessonList">
+							<li><a href="../index.html?l=progressive_1">Lesson 1</a></li>
+							<li><a href="../index.html?l=progressive_2">Lesson 2</a></li>
+							<li><a href="../index.html?l=progressive_3">Lesson 3</a></li>
+							<li><a href="../index.html?l=progressive_4">Lesson 4</a></li>
+						</ul>
+					</td>
+				</tr>
+
+				<tr>
+					<td class="categoryCell">C14 - Preterite</td>
+					<td class="lessonCell">
+						<ul class="lessonList">
+							<li><a href="../index.html?l=preterite_1">Lesson 1</a></li>
+							<li><a href="../index.html?l=preterite_2">Lesson 2</a></li>
+							<li><a href="../index.html?l=preterite_3">Lesson 3</a></li>
+							<li><a href="../index.html?l=preterite_4">Lesson 4</a></li>
+						</ul>
+					</td>
+				</tr>
+
+				<tr>
+					<td class="categoryCell">C15 - Conjunctions</td>
+					<td class="lessonCell">
+						<ul class="lessonList">
+							<li><a href="../index.html?l=conjunctions_1">Lesson 1</a></li>
+							<li><a href="../index.html?l=conjunctions_2">Lesson 2</a></li>
+							<li><a href="../index.html?l=conjunctions_3">Lesson 3</a></li>
+							<li><a href="../index.html?l=conjunctions_4">Lesson 4</a></li>
+						</ul>
+					</td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
+</body>
+</html>
