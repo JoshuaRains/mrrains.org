@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<title>Simple Desktop Demo</title>
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+		<style>
+		:root{
+			--green-1:#517860;
+			--green-2:#5c8a6d;
+			--green-3:#79b791;
+			--green-4:#abd1b5;
+			--line:#102016;
+			--text:#eef5ef;
+			--window-bg:#f3f7f4;
+		}
+
+		*{ box-sizing:border-box; }
+		html,body{
+			font-family:'Noto Sans', sans-serif;
+			background-image: url('https://i.pinimg.com/originals/b2/2a/a2/b22aa22b2f3f55b6468361158d52e2e7.gif');;
+            background-size:100% auto;
+			background-repeat:no-repeat;
+			background-color: #11222A;
+            color:var(--text);
+		}
+
+		body.dragging-window,
+		body.dragging-window *{
+			user-select:none !important;
+			-webkit-user-select:none !important;
+			cursor:grabbing !important;
+		}
+
+		button{ font:inherit; }
+
+		desktop-app{ display:none; }
+
+		.desktop{
+			position:relative;
+			width:100%;
+			height:100%;
+			padding:18px;
+		}
+
+		.icon-grid{
+			display:flex;
+			flex-direction:column;
+			gap:14px;
+			align-items:flex-start;
+			position:relative;
+			z-index:1;
+		}
+
+		.desktop-icon{
+			width:88px;
+			background:transparent;
+			border:none;
+			color:var(--text);
+			cursor:pointer;
+			padding:6px;
+			border-radius:12px;
+			display:flex;
+			flex-direction:column;
+			align-items:center;
+			gap:8px;
+			text-align:center;
+		}
+
+		.desktop-icon:hover{
+			background:rgba(121,183,145,.14);
+		}
+
+		.desktop-icon-badge{
+	width:54px;
+	height:54px;
+	display:grid;
+	place-items:center;
+	flex:0 0 54px;
+}
+
+.desktop-icon-badge img{
+	width:42px;
+	height:42px;
+	object-fit:contain;
+	display:block;
+}
+
+		.desktop-icon-label{
+			font-size:12px;
+			line-height:1.2;
+		}
+
+		.window-layer{
+			position:absolute;
+			inset:0;
+			z-index:20;
+			pointer-events:none;
+		}
+
+		.window-layer.drag-active .window:not(.dragging){
+			pointer-events:none;
+		}
+
+		.window{
+			position:absolute;
+			top:60px;
+			left:120px;
+			background:var(--window-bg);
+			color:#162019;
+			border:3px solid var(--line);
+			border-radius:14px;
+			box-shadow:0 24px 40px rgba(0,0,0,.45);
+			overflow:hidden;
+			pointer-events:auto;
+			transform-origin:top left;
+			animation:windowOpen .22s ease-out forwards;
+		}
+
+		.window.closing{
+			animation:windowClose .16s ease-in forwards;
+		}
+
+		.window.maximized{
+			top:12px !important;
+			left:12px !important;
+			width:calc(100vw - 24px) !important;
+			height:calc(100vh - 24px) !important;
+		}
+
+		.titlebar{
+			height:38px;
+			display:flex;
+			align-items:center;
+			justify-content:space-between;
+			padding:0 8px 0 12px;
+			background:linear-gradient(180deg, var(--green-2), var(--green-1));
+			border-bottom:3px solid var(--line);
+			cursor:grab;
+		}
+
+		.window.dragging,
+		.window.dragging iframe{
+			pointer-events:none;
+		}
+
+		.window.dragging .titlebar{
+			cursor:grabbing;
+		}
+
+		.titlebar-left{
+			display:flex;
+			align-items:center;
+			gap:8px;
+			min-width:0;
+		}
+
+		.titlebar-left img{
+			width:18px;
+			height:18px;
+			object-fit:contain;
+			display:block;
+			filter:none;
+		}
+
+		.titlebar-title{
+			font-size:14px;
+			font-weight:700;
+			color:#fff;
+			white-space:nowrap;
+			overflow:hidden;
+			text-overflow:ellipsis;
+		}
+
+		.window-controls{
+			display:flex;
+			gap:6px;
+		}
+
+		.win-btn{
+			width:24px;
+			height:24px;
+			border:2px solid var(--line);
+			border-radius:6px;
+			background:#d9ebde;
+			color:#102016;
+			cursor:pointer;
+			padding:0;
+			display:grid;
+			place-items:center;
+		}
+
+		.win-btn img{
+			width:14px;
+			height:14px;
+			object-fit:contain;
+			display:block;
+			filter:brightness(0);
+		}
+
+		.win-btn:hover{ background:#f6fcf7; }
+		.win-btn.close:hover{ background:#f8d8d8; }
+
+		.window-body{
+			width:100%;
+			height:calc(100% - 38px);
+			background:#fff;
+		}
+
+		.window-body iframe{
+			width:100%;
+			height:100%;
+			border:none;
+			display:block;
+			background:#fff;
+		}
+
+		@keyframes windowOpen{
+			0%{
+				opacity:0;
+				transform:translateY(12px) scale(.94);
+			}
+			100%{
+				opacity:1;
+				transform:translateY(0) scale(1);
+			}
+		}
+
+		@keyframes windowClose{
+			0%{
+				opacity:1;
+				transform:translateY(0) scale(1);
+			}
+			100%{
+				opacity:0;
+				transform:translateY(10px) scale(.94);
+			}
+		}
+	</style>
+</head>
+<body>
+	<div class="desktop" id="desktop">
+		<div class="icon-grid" id="iconGrid"></div>
+		<div class="window-layer" id="windowLayer"></div>
+
+		<desktop-app
+			name="Music"
+			icon="../assets/pixelart/disc.png"
+			src="./music.html"
+			width="350"
+			height="600"
+			maximizable="false"
+			newtab="false">
+		</desktop-app>
+
+        <desktop-app
+			name="Notes"
+			icon="../assets/raul4.gif"
+			src="https://docs.google.com/document/d/1I9HiLNSHVk2UyMG52OxsewXdHC-971sikZQwMg83U2I/edit?tab=t.0"
+			
+			width="800"
+			height="700"
+			maximizable="true"
+			newtab="true">
+		</desktop-app>
+
+	
+
+        
+	</div>
+
+	<script>
+		const iconGrid = document.getElementById('iconGrid');
+		const windowLayer = document.getElementById('windowLayer');
+		let zIndexCounter = 10;
+		const openWindows = new Map();
+
+		function getApps(){
+			return [...document.querySelectorAll('desktop-app')].map((el, index) => ({
+				id: `app-${index}`,
+				name: el.getAttribute('name') || 'App',
+				icon: el.getAttribute('icon') || '',
+				src: el.getAttribute('src') || '',
+				width: parseInt(el.getAttribute('width') || '700', 10),
+				height: parseInt(el.getAttribute('height') || '500', 10),
+				fixed: (el.getAttribute('fixed') || 'false') === 'true',
+				maximizable: (el.getAttribute('maximizable') || 'true') !== 'false',
+				newtab: (el.getAttribute('newtab') || 'false') === 'true'
+			}));
+		}
+
+		function renderIcons(){
+			const apps = getApps();
+			iconGrid.innerHTML = apps.map(app => `
+				<button class="desktop-icon" data-app-id="${app.id}">
+					<span class="desktop-icon-badge">
+						<img src="${app.icon}" alt="" style="image-rendering: pixelated; ">
+					</span>
+					<span class="desktop-icon-label">${app.name}</span>
+				</button>
+			`).join('');
+
+			iconGrid.querySelectorAll('.desktop-icon').forEach(button => {
+				button.addEventListener('click', () => {
+					const app = apps.find(a => a.id === button.dataset.appId);
+					if(app) openApp(app);
+				});
+			});
+		}
+
+		function openApp(app){
+			if(openWindows.has(app.id)){
+				focusWindow(openWindows.get(app.id));
+				return;
+			}
+
+			const win = document.createElement('div');
+			win.className = 'window';
+			win.style.width = app.width + 'px';
+			win.style.height = app.height + 'px';
+			win.style.left = Math.max(120, 120 + openWindows.size * 24) + 'px';
+			win.style.top = Math.max(60, 60 + openWindows.size * 24) + 'px';
+			win.style.zIndex = ++zIndexCounter;
+			win.dataset.appId = app.id;
+
+			const controlsHtml = [
+				app.newtab ? `<button class="win-btn newtab" aria-label="Open in new tab"><img src="../assets/vector_icons/open.svg" alt=""></button>` : '',
+				app.maximizable ? `<button class="win-btn maximize" aria-label="Toggle full screen"><img src="../assets/vector_icons/toolbar.svg" alt=""></button>` : '',
+				`<button class="win-btn close" aria-label="Close"><img src="../assets/vector_icons/close.svg" alt=""></button>`
+			].join('');
+
+			win.innerHTML = `
+				<div class="titlebar">
+					<div class="titlebar-left">
+						<img src="${app.icon}" alt="">
+						<span class="titlebar-title">${app.name}</span>
+					</div>
+					<div class="window-controls">${controlsHtml}</div>
+				</div>
+				<div class="window-body">
+					<iframe src="${app.src}" title="${app.name}"></iframe>
+				</div>
+			`;
+
+			windowLayer.appendChild(win);
+			openWindows.set(app.id, win);
+			bindWindowControls(win, app);
+			focusWindow(win);
+		}
+
+		function focusWindow(win){
+			if(!win) return;
+			win.style.zIndex = ++zIndexCounter;
+		}
+
+		function bindWindowControls(win, app){
+			win.addEventListener('mousedown', () => focusWindow(win));
+
+			const closeBtn = win.querySelector('.close');
+			if(closeBtn){
+				closeBtn.addEventListener('click', () => {
+					win.classList.add('closing');
+					setTimeout(() => {
+						openWindows.delete(win.dataset.appId);
+						win.remove();
+					}, 150);
+				});
+			}
+
+			const newTabBtn = win.querySelector('.newtab');
+			if(newTabBtn){
+				newTabBtn.addEventListener('click', () => {
+					window.open(app.src, '_blank');
+				});
+			}
+
+			const maximizeBtn = win.querySelector('.maximize');
+			if(maximizeBtn){
+				const maximizeImg = maximizeBtn.querySelector('img');
+				maximizeBtn.addEventListener('click', () => {
+					const isMaximized = win.classList.toggle('maximized');
+					maximizeImg.src = isMaximized ? '../assets/vector_icons/stack.svg' : '../assets/vector_icons/toolbar.svg';
+					focusWindow(win);
+				});
+			}
+
+			const titlebar = win.querySelector('.titlebar');
+			let isDragging = false;
+			let dragOffsetX = 0;
+			let dragOffsetY = 0;
+
+			titlebar.addEventListener('mousedown', (e) => {
+				if(e.button !== 0) return;
+				if(e.target.closest('.window-controls')) return;
+				if(win.classList.contains('maximized')) return;
+				if(app.fixed) return;
+
+				e.preventDefault();
+				isDragging = true;
+				dragOffsetX = e.clientX - win.offsetLeft;
+				dragOffsetY = e.clientY - win.offsetTop;
+				focusWindow(win);
+				win.classList.add('dragging');
+				windowLayer.classList.add('drag-active');
+				document.body.classList.add('dragging-window');
+				document.addEventListener('mousemove', onDrag, true);
+				document.addEventListener('mouseup', stopDrag, true);
+			});
+
+			function onDrag(e){
+				if(!isDragging) return;
+				e.preventDefault();
+				const maxLeft = Math.max(12, window.innerWidth - win.offsetWidth - 12);
+				const maxTop = Math.max(12, window.innerHeight - win.offsetHeight - 12);
+				const nextLeft = e.clientX - dragOffsetX;
+				const nextTop = e.clientY - dragOffsetY;
+				win.style.left = Math.min(Math.max(12, nextLeft), maxLeft) + 'px';
+				win.style.top = Math.min(Math.max(12, nextTop), maxTop) + 'px';
+			}
+
+			function stopDrag(){
+				if(!isDragging) return;
+				isDragging = false;
+				win.classList.remove('dragging');
+				windowLayer.classList.remove('drag-active');
+				document.body.classList.remove('dragging-window');
+				document.removeEventListener('mousemove', onDrag, true);
+				document.removeEventListener('mouseup', stopDrag, true);
+			}
+		}
+
+		renderIcons();
+	</script>
+</body>
+</html>

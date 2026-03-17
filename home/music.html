@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<title>Music Player</title>
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;600;700&family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,700,1,0" rel="stylesheet">
+	<style>
+		:root{
+			--bg:#0b0d0c;
+			--panel:#141916;
+			--panel-2:#1b231e;
+			--green-1:#517860;
+			--green-2:#5c8a6d;
+			--green-3:#79b791;
+			--text:#eef3ef;
+			--muted:#b7c8bc;
+			--line:rgba(255,255,255,.08);
+		}
+
+		*{ box-sizing:border-box; }
+		html,body{
+			margin:0;
+			width:100%;
+			height:100%;
+			background:var(--bg);
+			font-family:'Noto Sans', sans-serif;
+			color:var(--text);
+		}
+
+		body{
+			display:flex;
+			align-items:center;
+			justify-content:center;
+			padding:18px;
+		}
+
+		.player{
+			width:min(100%, 460px);
+			background:linear-gradient(180deg, var(--panel), var(--panel-2));
+			border:1px solid var(--line);
+			border-radius:20px;
+			box-shadow:0 20px 40px rgba(0,0,0,.35);
+			overflow:hidden;
+		}
+
+		.video-wrap{
+			aspect-ratio:16 / 9;
+			background:#000;
+		}
+
+		.video-wrap iframe{
+			width:100%;
+			height:100%;
+			border:none;
+			display:block;
+		}
+
+		.info{
+			padding:16px 16px 10px;
+		}
+
+		.title{
+			font-size:18px;
+			font-weight:700;
+			line-height:1.25;
+			margin:0 0 6px;
+		}
+
+		.subtitle{
+			font-size:13px;
+			color:var(--muted);
+			margin:0;
+		}
+
+		.controls{
+			display:flex;
+			align-items:center;
+			justify-content:center;
+			gap:12px;
+			padding:14px 16px 18px;
+		}
+
+		.control-btn{
+			width:52px;
+			height:52px;
+			border:none;
+			border-radius:999px;
+			background:#243029;
+			color:var(--text);
+			cursor:pointer;
+			display:grid;
+			place-items:center;
+			transition:transform .12s ease, background .12s ease;
+		}
+
+		.control-btn:hover{
+			background:#2e3c33;
+		}
+
+		.control-btn:active{
+			transform:scale(.96);
+		}
+
+		.control-btn.primary{
+			width:64px;
+			height:64px;
+			background:linear-gradient(180deg, var(--green-2), var(--green-1));
+		}
+
+		.material-symbols-outlined{
+			font-variation-settings:
+			'FILL' 1,
+			'wght' 700,
+			'GRAD' 0,
+			'opsz' 24;
+			font-size:30px;
+			line-height:1;
+		}
+
+		.playlist{
+			border-top:1px solid var(--line);
+			padding:10px;
+			max-height:180px;
+			overflow:auto;
+		}
+
+		.track{
+			width:100%;
+			text-align:left;
+			border:none;
+			background:transparent;
+			color:var(--text);
+			padding:10px 12px;
+			border-radius:12px;
+			cursor:pointer;
+		}
+
+		.track:hover{
+			background:rgba(255,255,255,.05);
+		}
+
+		.track.active{
+			background:rgba(121,183,145,.18);
+		}
+
+		.track-name{
+			font-size:14px;
+			font-weight:600;
+			margin:0 0 4px;
+		}
+
+		.track-url{
+			font-size:11px;
+			color:var(--muted);
+			margin:0;
+			white-space:nowrap;
+			overflow:hidden;
+			text-overflow:ellipsis;
+		}
+	</style>
+</head>
+<body>
+	<div class="player">
+		<div class="video-wrap">
+			<iframe id="playerFrame" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen></iframe>
+		</div>
+
+		<div class="info">
+			<h1 class="title" id="trackTitle">Loading...</h1>
+			<p class="subtitle" id="trackSubtitle">YouTube playlist</p>
+		</div>
+
+		<div class="controls">
+			<button class="control-btn" id="prevBtn" aria-label="Previous track">
+				<span class="material-symbols-outlined">skip_previous</span>
+			</button>
+			<button class="control-btn primary" id="playPauseBtn" aria-label="Play or pause">
+				<span class="material-symbols-outlined" id="playPauseIcon">play_arrow</span>
+			</button>
+			<button class="control-btn" id="nextBtn" aria-label="Next track">
+				<span class="material-symbols-outlined">skip_next</span>
+			</button>
+		</div>
+
+		<div class="playlist" id="playlist"></div>
+	</div>
+
+	<script>
+		const tracks = [
+			{
+				title: 'Improv in C major',
+				url: 'https://www.youtube.com/watch?v=EjYWFGlaTKo&list=RDgvBuTYCZ1IY&index=7'
+			},
+			{
+				title: 'Pencils Scurried Illegibly Across the Window',
+				url: 'https://www.youtube.com/watch?v=ZFk0G8tvb-0&list=RDgvBuTYCZ1IY&index=6'
+			},
+			{
+				title: 'Ambient Song #16',
+				url: 'https://www.youtube.com/watch?v=96YCJaUFxaM&list=RDgvBuTYCZ1IY&index=4'
+			},
+            {
+				title: 'Radio Rivadavia AM 630',
+				url: 'https://www.youtube.com/watch?v=eaumTx_ACkM'
+			}
+		];
+
+		const playerFrame = document.getElementById('playerFrame');
+		const trackTitle = document.getElementById('trackTitle');
+		const trackSubtitle = document.getElementById('trackSubtitle');
+		const playlistEl = document.getElementById('playlist');
+		const playPauseBtn = document.getElementById('playPauseBtn');
+		const playPauseIcon = document.getElementById('playPauseIcon');
+		const prevBtn = document.getElementById('prevBtn');
+		const nextBtn = document.getElementById('nextBtn');
+
+		let currentIndex = 0;
+		let isPlaying = true;
+
+		function getVideoId(url){
+			try{
+				const parsed = new URL(url);
+				if(parsed.hostname.includes('youtu.be')){
+					return parsed.pathname.slice(1);
+				}
+				return parsed.searchParams.get('v') || '';
+			}catch(err){
+				return '';
+			}
+		}
+
+		function getEmbedUrl(url, autoplay = true){
+			const videoId = getVideoId(url);
+			const auto = autoplay ? '1' : '0';
+			return `https://www.youtube.com/embed/${videoId}?autoplay=${auto}&rel=0&modestbranding=1`;
+		}
+
+		function renderPlaylist(){
+			playlistEl.innerHTML = tracks.map((track, index) => `
+				<button class="track ${index === currentIndex ? 'active' : ''}" data-index="${index}">
+					<p class="track-name">${track.title}</p>
+					<p class="track-url">${track.url}</p>
+				</button>
+			`).join('');
+
+			playlistEl.querySelectorAll('.track').forEach(button => {
+				button.addEventListener('click', () => {
+					currentIndex = Number(button.dataset.index);
+					isPlaying = true;
+					loadCurrentTrack();
+				});
+			});
+		}
+
+		function loadCurrentTrack(){
+			const track = tracks[currentIndex];
+			trackTitle.textContent = track.title;
+			trackSubtitle.textContent = `Track ${currentIndex + 1} of ${tracks.length}`;
+			playerFrame.src = getEmbedUrl(track.url, isPlaying);
+			playPauseIcon.textContent = isPlaying ? 'pause' : 'play_arrow';
+			renderPlaylist();
+		}
+
+		function nextTrack(){
+			currentIndex = (currentIndex + 1) % tracks.length;
+			isPlaying = true;
+			loadCurrentTrack();
+		}
+
+		function prevTrack(){
+			currentIndex = (currentIndex - 1 + tracks.length) % tracks.length;
+			isPlaying = true;
+			loadCurrentTrack();
+		}
+
+		playPauseBtn.addEventListener('click', () => {
+			isPlaying = !isPlaying;
+			loadCurrentTrack();
+		});
+
+		prevBtn.addEventListener('click', prevTrack);
+		nextBtn.addEventListener('click', nextTrack);
+
+		loadCurrentTrack();
+	</script>
+</body>
+</html>
