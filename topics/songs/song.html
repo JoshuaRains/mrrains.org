@@ -1,0 +1,893 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Actividad de Canción</title>
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+	<style>
+		:root{
+			--bg1:#eef6f0;
+			--bg2:#d9eadf;
+			--panel:#ffffff;
+			--panelBorder:rgba(81,120,96,.18);
+			--text:#173126;
+			--muted:#6c7f74;
+
+			--green1:#517860;
+			--green2:#5c8a6d;
+			--green3:#3f614d;
+
+			--lineBg:#ffffff;
+			--lineBorder:rgba(81,120,96,.12);
+			--lineShadow:0 8px 20px rgba(42,73,56,.08);
+
+			--buttonBg:#edf4ef;
+			--buttonBorder:rgba(81,120,96,.18);
+			--buttonHover:#e2eee6;
+
+			--success:#3f8f54;
+			--successDark:#327245;
+			--danger:#d84f4f;
+
+			--blankBorder:#9eb4a6;
+			--blankFocus:#517860;
+		}
+
+		*{
+			box-sizing:border-box;
+		}
+
+		html,body{
+			margin:0;
+			padding:0;
+			min-height:100%;
+			font-family:"Noto Sans", Arial, sans-serif;
+			background:linear-gradient(180deg, var(--bg1) 0%, var(--bg2) 100%);
+			color:var(--text);
+		}
+
+		body{
+			display:flex;
+			flex-direction:column;
+		}
+
+		#header{
+			position:sticky;
+			top:0;
+			z-index:1000;
+			padding:16px 18px 12px;
+			background:rgba(238,246,240,.9);
+			backdrop-filter:blur(10px);
+			border-bottom:1px solid rgba(81,120,96,.12);
+		}
+
+		#top-bar{
+			max-width:1100px;
+			margin:0 auto;
+			display:flex;
+			align-items:center;
+			justify-content:flex-end;
+			gap:16px;
+			padding:14px 16px;
+			border-radius:18px;
+			background:rgba(255,255,255,.78);
+			border:1px solid var(--panelBorder);
+			box-shadow:0 10px 28px rgba(32,59,45,.08);
+		}
+
+		#symbol-buttons{
+			display:flex;
+			align-items:center;
+			gap:8px;
+			flex-wrap:wrap;
+		}
+
+		#symbol-buttons button{
+			appearance:none;
+			border:none;
+			border-radius:12px;
+			padding:10px 14px;
+			font-size:18px;
+			font-weight:700;
+			cursor:pointer;
+			background:var(--buttonBg);
+			color:var(--green3);
+			border:1px solid var(--buttonBorder);
+			box-shadow:0 2px 8px rgba(32,59,45,.06);
+			transition:transform .15s ease, background .15s ease, box-shadow .15s ease;
+		}
+
+		#symbol-buttons button:hover{
+			background:var(--buttonHover);
+			transform:translateY(-1px);
+			box-shadow:0 6px 14px rgba(32,59,45,.10);
+		}
+
+		#progressBarContainer{
+			max-width:1100px;
+			margin:12px auto 0;
+			height:12px;
+			border-radius:999px;
+			background:rgba(81,120,96,.12);
+			overflow:hidden;
+			box-shadow:inset 0 1px 3px rgba(0,0,0,.05);
+		}
+
+		#progressBar{
+			height:100%;
+			width:0%;
+			border-radius:999px;
+			background:linear-gradient(90deg, var(--green1), var(--green2));
+			transition:width .25s ease;
+		}
+
+		#scrollable-area{
+			padding:24px 20px 48px;
+		}
+
+		#song-shell{
+			max-width:1100px;
+			margin:0 auto;
+			background:rgba(255,255,255,.55);
+			border:1px solid rgba(81,120,96,.10);
+			border-radius:28px;
+			padding:26px 22px 28px;
+			box-shadow:0 16px 40px rgba(36,64,49,.08);
+		}
+
+		#song-title{
+			margin:0 0 24px;
+			font-size:clamp(28px, 3vw, 40px);
+			line-height:1.1;
+			font-weight:800;
+			text-align:center;
+			color:var(--green3);
+			letter-spacing:-0.02em;
+		}
+
+		#song-container{
+			display:flex;
+			flex-direction:column;
+			gap:12px;
+		}
+
+		.sentence{
+			display:grid;
+			grid-template-columns:auto 1fr;
+			align-items:center;
+			gap:12px;
+			padding:12px 14px;
+			border-radius:18px;
+			background:var(--lineBg);
+			border:1px solid var(--lineBorder);
+			box-shadow:var(--lineShadow);
+		}
+
+		.sentence-line{
+			font-size:25px;
+			line-height:1.6;
+			min-width:0;
+			word-break:break-word;
+		}
+
+		.line-btn{
+			appearance:none;
+			border:none;
+			border-radius:14px;
+			height:48px;
+			min-width:48px;
+			padding:0 14px;
+			display:inline-flex;
+			align-items:center;
+			justify-content:center;
+			font-size:20px;
+			font-weight:800;
+			cursor:pointer;
+			background:var(--buttonBg);
+			color:var(--green3);
+			border:1px solid var(--buttonBorder);
+			box-shadow:0 2px 8px rgba(32,59,45,.06);
+			transition:transform .15s ease, background .15s ease, box-shadow .15s ease, color .15s ease;
+		}
+
+		.line-btn:hover{
+			background:var(--buttonHover);
+			transform:translateY(-1px);
+			box-shadow:0 6px 14px rgba(32,59,45,.10);
+		}
+
+		.line-btn.playing{
+			background:linear-gradient(180deg, var(--green1), var(--green2));
+			color:#fff;
+			border-color:transparent;
+			box-shadow:0 8px 18px rgba(63,143,84,.22);
+		}
+
+		.blank{
+			min-width:175px;
+			padding:4px 6px 5px;
+			border:none;
+			border-bottom:3px solid var(--blankBorder);
+			background:transparent;
+			outline:none;
+			font:inherit;
+			font-weight:700;
+			color:var(--text);
+			text-align:center;
+			transition:border-color .15s ease, background .15s ease, color .15s ease;
+		}
+
+		.blank:focus{
+			border-bottom-color:var(--blankFocus);
+			background:rgba(81,120,96,.05);
+		}
+
+		.blank.correct{
+			border-bottom-color:var(--success);
+			color:var(--successDark);
+			background:rgba(63,143,84,.07);
+		}
+
+		.blank.incorrect{
+			border-bottom-color:var(--danger);
+			background:rgba(216,79,79,.06);
+		}
+
+		.blank:disabled{
+			opacity:1;
+		}
+
+		.clickable{
+			cursor:help;
+			text-decoration:underline;
+			text-decoration-style:dotted;
+			text-decoration-color:rgba(81,120,96,.45);
+			text-underline-offset:4px;
+		}
+
+		#translationBox{
+			position:absolute;
+			display:none;
+			max-width:260px;
+			padding:10px 12px;
+			border-radius:12px;
+			background:#ffffff;
+			border:1px solid rgba(81,120,96,.18);
+			box-shadow:0 14px 30px rgba(26,48,37,.16);
+			color:var(--text);
+			font-size:15px;
+			line-height:1.4;
+			z-index:2000;
+		}
+
+		#widthTester{
+			position:absolute;
+			visibility:hidden;
+			white-space:pre;
+			font:inherit;
+			font-size:25px;
+			font-weight:700;
+		}
+
+		@media (max-width:800px){
+			#header{
+				padding:12px 12px 10px;
+			}
+
+			#top-bar{
+				padding:12px;
+				justify-content:center;
+			}
+
+			#scrollable-area{
+				padding:16px 12px 32px;
+			}
+
+			#song-shell{
+				padding:18px 14px 22px;
+				border-radius:22px;
+			}
+
+			.sentence{
+				grid-template-columns:44px 1fr;
+				gap:10px;
+				padding:10px;
+				border-radius:16px;
+			}
+
+			.sentence-line{
+				font-size:21px;
+				line-height:1.5;
+			}
+
+			.line-btn{
+				min-width:44px;
+				height:44px;
+				padding:0 10px;
+				font-size:18px;
+				border-radius:12px;
+			}
+		}
+	</style>
+</head>
+<body>
+	<audio id="audioPlayer" src="../../../assets/Nuestra_cancion.mp3"></audio>
+
+	<div id="header">
+		<div id="top-bar">
+			<div id="symbol-buttons">
+				<button class="symbolBtn" data-symbol="á">á</button>
+				<button class="symbolBtn" data-symbol="é">é</button>
+				<button class="symbolBtn" data-symbol="í">í</button>
+				<button class="symbolBtn" data-symbol="ó">ó</button>
+				<button class="symbolBtn" data-symbol="ú">ú</button>
+				<button class="symbolBtn" data-symbol="ñ">ñ</button>
+				<button class="symbolBtn" data-symbol="ü">ü</button>
+				<button class="symbolBtn" data-symbol="¿">¿</button>
+				<button class="symbolBtn" data-symbol="¡">¡</button>
+			</div>
+		</div>
+
+		<div id="progressBarContainer">
+			<div id="progressBar"></div>
+		</div>
+	</div>
+
+	<div id="scrollable-area">
+		<div id="song-shell">
+			<h1 id="song-title">Nuestra Canción</h1>
+			<div id="song-container"></div>
+		</div>
+	</div>
+
+	<span id="widthTester"></span>
+	<div id="translationBox"></div>
+
+	<script>
+		    var songLyrics = `Te dije adiós
+Llegaste tarde para despedirnos
+Y si el destino apresurado quiso herirnos
+Yo descubrí una solución para el dolor
+
+Hice la canción
+Que me pedías cuando aún no te quería
+Y prometiste enamorarme algún día
+Mientras reías, el Sol acarició mi corazón
+
+Con flores
+Te llevaste mi tristeza
+Con colores
+Dibujaste la nobleza de la mano
+A tu lado, creció nuestra ilusión
+
+A ciegas
+Nos entregamos, aunque muchos se opusieran
+Disimulamos nuestro amor, nos inventamos
+En cada rincón
+Nuestra canción
+
+No fue el adiós
+Suficiente para despedirnos
+Y si el destino no lograba predecirlo
+Tú me enseñaste una solución para el dolor
+
+Fue la canción
+Que te pedía cuando aún no me querías
+Cuando era todo pura fantasía
+Quién lo diría, el Sol hizo brillar tu corazón
+
+Con flores
+Recordaba tu belleza
+Con colores
+Te tomaba por sorpresa de la mano
+A tu lado, creció nuestra ilusión
+
+A ciegas
+Nos entregamos, aunque muchos se opusieran
+Disimulamos nuestro amor, nos inventamos
+En cada rincón
+Nuestra canción
+
+Dile a la jardinera que traigo flores
+Dile a la jardinera que traigo amor
+Dile a la jardinera que traigo flores
+Dile a la jardinera que traigo amor
+
+Con flores
+Te llevaste mi tristeza
+Con colores
+Dibujaste la nobleza de la mano
+A tu lado, creció nuestra ilusión
+
+A ciegas
+Nos entregamos, aunque muchos se opusieran
+Disimulamos nuestro amor, nos inventamos
+En cada rincón
+Nuestra canción`;
+
+    var blanksMapping = {
+      0: [ { wordIndex: 1, blankIndex: "0", answer: "dije", hint: "decir", english: "I said" } ],
+      1: [ { wordIndex: 0, blankIndex: "1", answer: "llegaste", hint: "llegar", english: "You arrived" } ],
+      2: [ { wordIndex: 5, blankIndex: "2", answer: "quiso", hint: "querer", english: "wanted" } ],
+      3: [ { wordIndex: 1, blankIndex: "3", answer: "descubrí", hint: "descubrir", english: "I discovered" } ],
+      4: [ { wordIndex: 0, blankIndex: "4", answer: "hice", hint: "hacer", english: "I made" } ],
+      6: [ { wordIndex: 1, blankIndex: "5", answer: "prometiste", hint: "prometer", english: "You promised" } ],
+      7: [ { wordIndex: 4, blankIndex: "6", answer: "acarició", hint: "acariciar", english: "caressed" } ],
+      9: [ { wordIndex: 1, blankIndex: "7", answer: "llevaste", hint: "llevar", english: "You took away" } ],
+      11: [ { wordIndex: 0, blankIndex: "8", answer: "dibujaste", hint: "dibujar", english: "You drew" } ],
+      12: [ { wordIndex: 3, blankIndex: "9", answer: "creció", hint: "crecer", english: "grew" } ],
+      14: [ { wordIndex: 1, blankIndex: "10", answer: "entregamos", hint: "entregar", english: "gave ourselves" } ],
+      15: [ { wordIndex: 4, blankIndex: "11", answer: "inventamos", hint: "inventar", english: "invented" } ],
+      18: [ { wordIndex: 1, blankIndex: "12", answer: "fue", hint: "ser", english: "was" } ],
+      21: [ { wordIndex: 2, blankIndex: "13", answer: "enseñaste", hint: "enseñar", english: "taught" } ],
+      22: [ { wordIndex: 0, blankIndex: "14", answer: "fue", hint: "ser", english: "was" } ],
+      25: [ { wordIndex: 5, blankIndex: "15", answer: "hizo", hint: "hacer", english: "made" } ],
+      30: [ { wordIndex: 3, blankIndex: "16", answer: "creció", hint: "crecer", english: "grew" } ],
+      32: [ { wordIndex: 1, blankIndex: "17", answer: "entregamos", hint: "entregar", english: "gave ourselves" } ],
+      33: [ { wordIndex: 4, blankIndex: "18", answer: "inventamos", hint: "inventar", english: "invented" } ],
+      41: [ { wordIndex: 1, blankIndex: "19", answer: "llevaste", hint: "llevar", english: "You took away" } ],
+      43: [ { wordIndex: 0, blankIndex: "20", answer: "dibujaste", hint: "dibujar", english: "You drew" } ],
+      44: [ { wordIndex: 3, blankIndex: "21", answer: "creció", hint: "crecer", english: "grew" } ],
+      46: [ { wordIndex: 1, blankIndex: "22", answer: "entregamos", hint: "entregar", english: "gave ourselves" } ],
+      47: [ { wordIndex: 4, blankIndex: "23", answer: "inventamos", hint: "inventar", english: "invented" } ]
+    };
+
+    var answers = {
+      "answers": [
+        { "blankIndex": "0", "text": "dije", "hint": "decir", "english": "I said" },
+        { "blankIndex": "1", "text": "llegaste", "hint": "llegar", "english": "You arrived" },
+        { "blankIndex": "2", "text": "quiso", "hint": "querer", "english": "wanted" },
+        { "blankIndex": "3", "text": "descubrí", "hint": "descubrir", "english": "I discovered" },
+        { "blankIndex": "4", "text": "hice", "hint": "hacer", "english": "I made" },
+        { "blankIndex": "5", "text": "prometiste", "hint": "prometer", "english": "You promised" },
+        { "blankIndex": "6", "text": "acarició", "hint": "acariciar", "english": "caressed" },
+        { "blankIndex": "7", "text": "llevaste", "hint": "llevar", "english": "You took away" },
+        { "blankIndex": "8", "text": "dibujaste", "hint": "dibujar", "english": "You drew" },
+        { "blankIndex": "9", "text": "creció", "hint": "crecer", "english": "grew" },
+        { "blankIndex": "10", "text": "entregamos", "hint": "entregar", "english": "gave ourselves" },
+        { "blankIndex": "11", "text": "inventamos", "hint": "inventar", "english": "invented" },
+        { "blankIndex": "12", "text": "fue", "hint": "ser", "english": "was" },
+        { "blankIndex": "13", "text": "enseñaste", "hint": "enseñar", "english": "taught" },
+        { "blankIndex": "14", "text": "fue", "hint": "ser", "english": "was" },
+        { "blankIndex": "15", "text": "hizo", "hint": "hacer", "english": "made" },
+        { "blankIndex": "16", "text": "creció", "hint": "crecer", "english": "grew" },
+        { "blankIndex": "17", "text": "entregamos", "hint": "entregar", "english": "gave ourselves" },
+        { "blankIndex": "18", "text": "inventamos", "hint": "inventar", "english": "invented" },
+        { "blankIndex": "19", "text": "llevaste", "hint": "llevar", "english": "You took away" },
+        { "blankIndex": "20", "text": "dibujaste", "hint": "dibujar", "english": "You drew" },
+        { "blankIndex": "21", "text": "creció", "hint": "crecer", "english": "grew" },
+        { "blankIndex": "22", "text": "entregamos", "hint": "entregar", "english": "gave ourselves" },
+        { "blankIndex": "23", "text": "inventamos", "hint": "inventar", "english": "invented" }
+      ]
+    };
+
+    var wordTranslations = {
+      "te": "to you",
+      "dije": "I said",
+      "adiós": "goodbye",
+      "llegaste": "You arrived",
+      "tarde": "late",
+      "para": "for",
+      "despedirnos": "farewell",
+      "y": "and",
+      "si": "if",
+      "el": "the",
+      "destino": "destiny",
+      "apresurado": "hurried",
+      "quiso": "wanted",
+      "herirnos": "to hurt us",
+      "yo": "I",
+      "descubrí": "I discovered",
+      "una": "a",
+      "solución": "solution",
+      "dolor": "pain",
+      "hice": "I made",
+      "la": "the",
+      "canción": "song",
+      "que": "that",
+      "me": "me",
+      "pedías": "you asked for",
+      "cuando": "when",
+      "aún": "still",
+      "no": "not",
+      "quería": "I didn't love",
+      "prometiste": "You promised",
+      "enamorarme": "to make me fall in love",
+      "algún": "some",
+      "día": "day",
+      "mientras": "while",
+      "reías": "you laughed",
+      "sol": "Sun",
+      "acarició": "caressed",
+      "mi": "my",
+      "corazón": "heart",
+      "con": "with",
+      "flores": "flowers",
+      "llevaste": "You took away",
+      "tristeza": "sadness",
+      "colores": "colors",
+      "dibujaste": "You drew",
+      "nobleza": "nobility",
+      "de": "of",
+      "mano": "hand",
+      "lado": "side",
+      "creció": "grew",
+      "nuestra": "our",
+      "ilusión": "hope",
+      "a": "to",
+      "ciegas": "blindly",
+      "nos": "we",
+      "entregamos": "gave ourselves",
+      "aunque": "although",
+      "muchos": "many",
+      "se": "themselves",
+      "opusieran": "opposed",
+      "disimulamos": "we concealed",
+      "amor": "love",
+      "inventamos": "we invented",
+      "en": "in",
+      "cada": "every",
+      "rincón": "corner",
+      "no": "not",
+      "fue": "was",
+      "suficiente": "enough",
+      "lograba": "managed",
+      "predecirlo": "to predict it",
+      "tú": "You",
+      "enseñaste": "taught",
+      "pedía": "I asked for",
+      "querías": "you didn't love",
+      "era": "was",
+      "todo": "all",
+      "pura": "pure",
+      "fantasía": "fantasy",
+      "quién": "who",
+      "lo": "it",
+      "diría": "would have said",
+      "brillar": "shine",
+      "recordaba": "I remembered",
+      "belleza": "beauty",
+      "tomaba": "I took",
+      "por": "by",
+      "sorpresa": "surprise",
+      "dile": "tell",
+      "jardinera": "gardener",
+      "traigo": "I bring",
+      "amor": "love"
+    };
+
+        var lineTimestamps = {
+  0: { start: 18.00, end: 19.44 },
+  1: { start: 19.44, end: 24.28 },
+  2: { start: 24.28, end: 28.73 },
+  3: { start: 28.73, end: 35.28 },
+  4: { start: 35.28, end: 37.28 },
+  5: { start: 37.28, end: 42.07 },
+  6: { start: 42.07, end: 46.90 },
+  7: { start: 46.90, end: 53.69 },
+  8: { start: 53.69, end: 55.77 },
+  9: { start: 55.77, end: 58.64 },
+  10: { start: 58.64, end: 60.42 },
+  11: { start: 60.42, end: 64.57 },
+  12: { start: 64.57, end: 68.75 },
+  13: { start: 68.75, end: 73.87 },
+  14: { start: 73.87, end: 77.91 },
+  15: { start: 77.91, end: 82.50 },
+  16: { start: 82.50, end: 85.08 },
+  17: { start: 85.08, end: 88.47 },
+  18: { start: 88.47, end: 93.64 },
+  19: { start: 93.64, end: 98.25 },
+  20: { start: 98.25, end: 102.82 },
+  21: { start: 102.82, end: 109.51 },
+  22: { start: 109.51, end: 111.47 },
+  23: { start: 111.47, end: 116.14 },
+  24: { start: 116.14, end: 121.01 },
+  25: { start: 121.01, end: 128.53 },
+  26: { start: 128.53, end: 132.23 },
+  27: { start: 132.23, end: 135.11 },
+  28: { start: 135.11, end: 136.70 },
+  29: { start: 136.70, end: 140.79 },
+  30: { start: 140.79, end: 144.83 },
+  31: { start: 144.83, end: 149.67 },
+  32: { start: 149.67, end: 154.38 },
+  33: { start: 154.38, end: 158.73 },
+  34: { start: 158.73, end: 161.55 },
+  35: { start: 161.55, end: 165.18 },
+  36: { start: 165.18, end: 188.34 },
+  37: { start: 188.34, end: 193.07 },
+  38: { start: 193.07, end: 197.34 },
+  39: { start: 197.34, end: 201.61 },
+  40: { start: 201.61, end: 204.14 },
+  41: { start: 204.14, end: 206.80 },
+  42: { start: 206.80, end: 208.73 },
+  43: { start: 208.73, end: 212.64 },
+  44: { start: 212.64, end: 216.56 },
+  45: { start: 216.56, end: 221.96 },
+  46: { start: 221.96, end: 226.09 },
+  47: { start: 226.09, end: 230.44 },
+  48: { start: 230.44, end: 233.23 },
+  49: { start: 233.23, end: 237.34 },
+};
+
+
+
+		const audioPlayer = document.getElementById("audioPlayer");
+		const songContainer = document.getElementById("song-container");
+		const translationBox = document.getElementById("translationBox");
+		const widthTester = document.getElementById("widthTester");
+		const progressBar = document.getElementById("progressBar");
+
+		let activeInput = null;
+		let clipStopHandler = null;
+		let activePlayBtn = null;
+
+		function normalizeAnswer(value){
+			return String(value || "")
+				.normalize("NFD")
+				.replace(/[\u0300-\u036f]/g, "")
+				.toLowerCase()
+				.trim()
+				.replace(/\s+/g, " ");
+		}
+
+		function measureInputWidth(answer){
+			widthTester.textContent = answer || "";
+			return Math.max(widthTester.offsetWidth + 18, 88);
+		}
+
+		function updateProgress(){
+			const allBlanks = [...document.querySelectorAll(".blank")];
+			if(!allBlanks.length){
+				progressBar.style.width = "0%";
+				return;
+			}
+
+			const correctCount = allBlanks.filter(blank => blank.dataset.correct === "true").length;
+			const percent = (correctCount / allBlanks.length) * 100;
+			progressBar.style.width = percent + "%";
+		}
+
+		function showTranslation(target, text){
+			translationBox.textContent = text;
+			translationBox.style.display = "block";
+
+			const rect = target.getBoundingClientRect();
+			const scrollX = window.scrollX;
+			const scrollY = window.scrollY;
+
+			requestAnimationFrame(() => {
+				const boxWidth = translationBox.offsetWidth;
+				const left = Math.max(12, rect.left + scrollX + rect.width / 2 - boxWidth / 2);
+				const top = rect.bottom + scrollY + 8;
+				translationBox.style.left = left + "px";
+				translationBox.style.top = top + "px";
+			});
+		}
+
+		function hideTranslation(){
+			translationBox.style.display = "none";
+		}
+
+		function insertSymbol(symbol){
+			if(!activeInput) return;
+
+			const start = activeInput.selectionStart ?? activeInput.value.length;
+			const end = activeInput.selectionEnd ?? activeInput.value.length;
+			const value = activeInput.value;
+
+			activeInput.value = value.slice(0, start) + symbol + value.slice(end);
+			activeInput.focus();
+			activeInput.setSelectionRange(start + symbol.length, start + symbol.length);
+			activeInput.dispatchEvent(new Event("input", { bubbles:true }));
+		}
+
+		function getAnswerData(blankIndex){
+			if(!answers || !answers.answers) return null;
+			return answers.answers.find(item => String(item.blankIndex) === String(blankIndex)) || null;
+		}
+
+		function clearPlayingState(){
+			if(activePlayBtn){
+				activePlayBtn.classList.remove("playing");
+				activePlayBtn.textContent = "▶";
+				activePlayBtn = null;
+			}
+		}
+
+		function stopCurrentClip(){
+			if(clipStopHandler){
+				audioPlayer.removeEventListener("timeupdate", clipStopHandler);
+				clipStopHandler = null;
+			}
+			audioPlayer.pause();
+			clearPlayingState();
+		}
+
+		function playLineClip(lineIndex, buttonEl){
+			if(typeof lineTimestamps === "undefined" || !lineTimestamps[lineIndex]){
+				console.warn("No timestamps defined for line", lineIndex);
+				return;
+			}
+
+			const timestamps = lineTimestamps[lineIndex];
+			stopCurrentClip();
+
+			activePlayBtn = buttonEl;
+			activePlayBtn.classList.add("playing");
+			activePlayBtn.textContent = "❚❚";
+
+			audioPlayer.currentTime = timestamps.start;
+
+			clipStopHandler = function(){
+				if(audioPlayer.currentTime >= timestamps.end){
+					stopCurrentClip();
+				}
+			};
+
+			audioPlayer.addEventListener("timeupdate", clipStopHandler);
+			audioPlayer.play();
+		}
+
+		function buildLineContent(lineText, lineIndex){
+			const fragment = document.createDocumentFragment();
+			const words = lineText.split(" ");
+			const blanksForLine = blanksMapping[lineIndex] || [];
+
+			words.forEach((word, wordIndex) => {
+				const blankData = blanksForLine.find(b => b.wordIndex === wordIndex);
+
+				if(blankData){
+					const answerData = getAnswerData(blankData.blankIndex) || blankData;
+
+					const input = document.createElement("input");
+					input.type = "text";
+					input.className = "blank";
+					input.setAttribute("data-blank-index", blankData.blankIndex);
+					input.dataset.answer = answerData.text || blankData.answer || "";
+					input.dataset.correct = "false";
+					input.placeholder = answerData.hint || blankData.hint || "";
+					input.autocomplete = "off";
+					input.spellcheck = false;
+					input.style.width = measureInputWidth(input.dataset.answer) + "px";
+
+					input.addEventListener("focus", () => {
+						activeInput = input;
+					});
+
+					input.addEventListener("input", () => {
+						const isCorrect = normalizeAnswer(input.value) === normalizeAnswer(input.dataset.answer);
+
+						input.classList.remove("incorrect");
+
+						if(isCorrect){
+							input.classList.add("correct");
+							input.dataset.correct = "true";
+						}else{
+							input.classList.remove("correct");
+							input.dataset.correct = "false";
+						}
+
+						const newWidth = Math.max(measureInputWidth(input.value || input.dataset.answer), 88);
+						input.style.width = newWidth + "px";
+
+						updateProgress();
+					});
+
+					input.addEventListener("blur", () => {
+						const value = normalizeAnswer(input.value);
+						const correct = normalizeAnswer(input.dataset.answer);
+
+						if(value && value !== correct){
+							input.classList.add("incorrect");
+						}
+					});
+
+					input.addEventListener("click", e => {
+						e.stopPropagation();
+						const answerInfo = getAnswerData(input.getAttribute("data-blank-index"));
+						if(answerInfo && answerInfo.english){
+							showTranslation(input, answerInfo.english);
+						}
+					});
+
+					fragment.appendChild(input);
+				}else{
+					const span = document.createElement("span");
+					const cleanWord = word.replace(/[.,!?;:¿¡]/g, "").toLowerCase();
+					const translation = (wordTranslations && wordTranslations[cleanWord]) ? wordTranslations[cleanWord] : null;
+
+					if(translation){
+						span.className = "clickable";
+						span.textContent = word;
+						span.addEventListener("click", e => {
+							e.stopPropagation();
+							showTranslation(span, translation);
+						});
+					}else{
+						span.textContent = word;
+					}
+
+					fragment.appendChild(span);
+				}
+
+				if(wordIndex < words.length - 1){
+					fragment.appendChild(document.createTextNode(" "));
+				}
+			});
+
+			return fragment;
+		}
+
+		function renderSong(){
+			if(
+				typeof songLyrics === "undefined" ||
+				typeof blanksMapping === "undefined" ||
+				typeof answers === "undefined" ||
+				typeof wordTranslations === "undefined" ||
+				typeof lineTimestamps === "undefined"
+			){
+				songContainer.innerHTML = "<p style='margin:0;color:#b00020;font-weight:700;'>Paste your full original data block first, including lineTimestamps.</p>";
+				return;
+			}
+
+			const lines = songLyrics.split("\n").filter(line => line.trim() !== "");
+			songContainer.innerHTML = "";
+
+			lines.forEach((lineText, lineIndex) => {
+				const sentence = document.createElement("div");
+				sentence.className = "sentence";
+
+				const playBtn = document.createElement("button");
+				playBtn.type = "button";
+				playBtn.className = "line-btn";
+				playBtn.textContent = "▶";
+				playBtn.addEventListener("click", () => {
+					const isSameButtonPlaying = activePlayBtn === playBtn;
+					if(isSameButtonPlaying){
+						stopCurrentClip();
+					}else{
+						playLineClip(lineIndex, playBtn);
+					}
+				});
+
+				const sentenceLine = document.createElement("div");
+				sentenceLine.className = "sentence-line";
+				sentenceLine.appendChild(buildLineContent(lineText, lineIndex));
+
+				sentence.appendChild(playBtn);
+				sentence.appendChild(sentenceLine);
+
+				songContainer.appendChild(sentence);
+			});
+
+			updateProgress();
+		}
+
+		document.querySelectorAll(".symbolBtn").forEach(btn => {
+			btn.addEventListener("mousedown", e => {
+				e.preventDefault();
+			});
+			btn.addEventListener("click", () => insertSymbol(btn.dataset.symbol));
+		});
+
+		document.addEventListener("click", e => {
+			if(
+				!e.target.classList.contains("clickable") &&
+				!e.target.classList.contains("symbolBtn") &&
+				!e.target.classList.contains("blank")
+			){
+				hideTranslation();
+			}
+		});
+
+		audioPlayer.addEventListener("ended", () => {
+			stopCurrentClip();
+		});
+
+		renderSong();
+	</script>
+</body>
+</html>
