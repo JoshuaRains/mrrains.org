@@ -3,21 +3,26 @@
 <head>
 	<meta charset="UTF-8" />
 	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-	<title>Music Player</title>
+	<title>Music</title>
 	<link rel="preconnect" href="https://fonts.googleapis.com">
 	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 	<link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;600;700&family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,700,1,0" rel="stylesheet">
 	<style>
 		:root{
-			--bg:#0b0d0c;
-			--panel:#141916;
-			--panel-2:#1b231e;
+			--bg:#0f1511;
+			--panel:#152019;
+			--panel-2:#1a261f;
+			--panel-3:#101712;
 			--green-1:#517860;
 			--green-2:#5c8a6d;
 			--green-3:#79b791;
+			--green-4:#abd1b5;
 			--text:#eef3ef;
 			--muted:#b7c8bc;
 			--line:rgba(255,255,255,.08);
+			--line-strong:rgba(255,255,255,.14);
+			--input-bg:rgba(255,255,255,.07);
+			--danger:#d87070;
 		}
 
 		*{ box-sizing:border-box; }
@@ -31,56 +36,150 @@
 		}
 
 		body{
-			display:flex;
-			align-items:center;
-			justify-content:center;
-			padding:18px;
-		}
-
-		.player{
-			width:min(100%, 460px);
-			background:linear-gradient(180deg, var(--panel), var(--panel-2));
-			border:1px solid var(--line);
-			border-radius:20px;
-			box-shadow:0 20px 40px rgba(0,0,0,.35);
+			padding:12px;
 			overflow:hidden;
 		}
 
-		.video-wrap{
-			aspect-ratio:16 / 9;
-			background:#000;
+		.app-shell,
+		.player{ height:100%; }
+
+		.player{
+			background:linear-gradient(180deg, var(--panel), var(--panel-2));
+			border:1px solid var(--line);
+			border-radius:22px;
+			box-shadow:0 20px 40px rgba(0,0,0,.35);
+			overflow:hidden;
+			display:grid;
+			grid-template-rows:auto auto auto auto auto 1fr;
 		}
 
-		.video-wrap iframe{
+		.player.manage-mode{
+			grid-template-rows:auto auto auto 1fr;
+		}
+
+		.header{
+			display:flex;
+			justify-content:space-between;
+			align-items:center;
+			gap:12px;
+			padding:14px 16px 0;
+		}
+
+		.header-title{ font-size:18px; font-weight:700; }
+		.role-pill{
+			display:inline-flex;
+			align-items:center;
+			gap:8px;
+			height:34px;
+			padding:0 12px;
+			border-radius:999px;
+			background:rgba(255,255,255,.06);
+			color:var(--muted);
+			font-size:12px;
+			font-weight:700;
+		}
+
+		.status-row{
+			padding:0 16px;
+			display:flex;
+			align-items:center;
+			justify-content:space-between;
+			gap:10px;
+			min-height:26px;
+		}
+
+		.status-text{ font-size:12px; color:var(--muted); }
+
+		.mode-switch{
+			display:flex;
+			gap:10px;
+			padding:0 16px 12px;
+		}
+
+		.mode-btn{
+			flex:1;
+			height:44px;
+			border-radius:14px;
+			border:1px solid var(--line);
+			background:rgba(255,255,255,.04);
+			color:var(--text);
+			cursor:pointer;
+			display:flex;
+			align-items:center;
+			justify-content:center;
+			gap:10px;
+			font-weight:700;
+		}
+
+		.mode-btn.active{
+			background:linear-gradient(180deg, var(--green-2), var(--green-1));
+			border-color:transparent;
+		}
+
+		.mode-btn[disabled]{ opacity:.45; cursor:not-allowed; }
+
+		.player-area,
+		.info,
+		.controls{
+			transition:opacity .16s ease, transform .16s ease;
+		}
+
+		.player.manage-mode .player-area,
+		.player.manage-mode .info,
+		.player.manage-mode .controls{
+			display:none;
+		}
+
+		.player-area{
+			padding:0 16px;
+			display:grid;
+			grid-template-columns:minmax(0,1fr);
+		}
+
+		.video-wrap{
+			position:relative;
 			width:100%;
 			height:100%;
-			border:none;
+			aspect-ratio:16 / 9;
+			min-height:185px;
+			max-height:240px;
+			background:#000;
+			border-radius:18px;
+			overflow:hidden;
+		}
+
+		#playerTarget,
+		#playerTarget iframe{
+			width:100% !important;
+			height:100% !important;
 			display:block;
 		}
 
-		.info{
-			padding:16px 16px 10px;
-		}
-
-		.title{
-			font-size:18px;
-			font-weight:700;
-			line-height:1.25;
-			margin:0 0 6px;
-		}
-
-		.subtitle{
-			font-size:13px;
+		.video-overlay{
+			position:absolute;
+			inset:0;
+			display:grid;
+			place-items:center;
+			padding:18px;
+			text-align:center;
+			background:linear-gradient(180deg, #101411, #161d18);
 			color:var(--muted);
-			margin:0;
+			font-size:14px;
+			z-index:2;
 		}
+
+		.video-overlay.hidden{ display:none; }
+
+		.info{ padding:14px 16px 8px; }
+		.title{ font-size:19px; font-weight:700; line-height:1.25; margin:0 0 6px; }
+		.subtitle{ font-size:13px; color:var(--muted); margin:0; }
 
 		.controls{
 			display:flex;
 			align-items:center;
 			justify-content:center;
 			gap:12px;
-			padding:14px 16px 18px;
+			padding:0 16px 16px;
 		}
 
 		.control-btn{
@@ -96,195 +195,755 @@
 			transition:transform .12s ease, background .12s ease;
 		}
 
-		.control-btn:hover{
-			background:#2e3c33;
+		.control-btn:hover{ background:#2e3c33; }
+		.control-btn:active{ transform:scale(.96); }
+		.control-btn.primary{ width:64px; height:64px; background:linear-gradient(180deg, var(--green-2), var(--green-1)); }
+		.control-btn[disabled]{ opacity:.45; cursor:not-allowed; }
+
+		.panel-body{
+			min-height:0;
+			display:grid;
+			grid-template-columns:1fr;
+			padding:0 12px 12px;
 		}
 
-		.control-btn:active{
-			transform:scale(.96);
-		}
-
-		.control-btn.primary{
-			width:64px;
-			height:64px;
-			background:linear-gradient(180deg, var(--green-2), var(--green-1));
-		}
-
-		.material-symbols-outlined{
-			font-variation-settings:
-			'FILL' 1,
-			'wght' 700,
-			'GRAD' 0,
-			'opsz' 24;
-			font-size:30px;
-			line-height:1;
-		}
-
-		.playlist{
+		.pane{
+			display:none;
+			min-height:0;
 			border-top:1px solid var(--line);
-			padding:10px;
-			max-height:180px;
-			overflow:auto;
+			padding-top:12px;
 		}
 
-		.track{
+		.pane.active{ display:grid; }
+		.play-pane{ grid-template-rows:auto 1fr; gap:10px; }
+		.admin-pane{ grid-template-rows:auto auto 1fr; gap:12px; }
+
+		.toolbar-row{
+			display:flex;
+			gap:10px;
+			align-items:center;
+		}
+
+		.select,
+		.input,
+		.textarea{
+			width:100%;
+			border-radius:14px;
+			border:1px solid var(--line-strong);
+			background:var(--input-bg);
+			color:var(--text);
+			padding:12px 14px;
+			outline:none;
+		}
+
+		.select{
+			appearance:none;
+			-webkit-appearance:none;
+			background-image:linear-gradient(45deg, transparent 50%, var(--muted) 50%), linear-gradient(135deg, var(--muted) 50%, transparent 50%);
+			background-position:calc(100% - 22px) calc(50% - 3px), calc(100% - 16px) calc(50% - 3px);
+			background-size:6px 6px, 6px 6px;
+			background-repeat:no-repeat;
+			padding-right:34px;
+		}
+
+		.select option{
+			background:var(--panel-3);
+			color:var(--text);
+		}
+
+		.select:focus,
+		.input:focus,
+		.textarea:focus{ box-shadow:0 0 0 3px rgba(121,183,145,.14); border-color:var(--green-3); }
+		.textarea{ min-height:110px; resize:vertical; }
+
+		.small-btn,
+		.action-btn,
+		.delete-btn{
+			border:none;
+			border-radius:14px;
+			cursor:pointer;
+			font-weight:700;
+		}
+
+		.small-btn{
+			height:44px;
+			padding:0 14px;
+			background:rgba(255,255,255,.07);
+			color:var(--text);
+			white-space:nowrap;
+		}
+
+		.action-btn{
+			height:46px;
+			padding:0 16px;
+			background:linear-gradient(180deg, var(--green-2), var(--green-1));
+			color:#fff;
+		}
+
+		.delete-btn{
+			height:40px;
+			padding:0 14px;
+			background:rgba(216,112,112,.14);
+			color:#ffd3d3;
+		}
+
+		.playlist,
+		.admin-list{
+			min-height:0;
+			overflow:auto;
+			padding-right:2px;
+		}
+
+		.track,
+		.admin-track{
 			width:100%;
 			text-align:left;
 			border:none;
 			background:transparent;
 			color:var(--text);
-			padding:10px 12px;
-			border-radius:12px;
+			padding:12px;
+			border-radius:14px;
 			cursor:pointer;
 		}
 
-		.track:hover{
-			background:rgba(255,255,255,.05);
-		}
+		.track:hover,
+		.admin-track:hover{ background:rgba(255,255,255,.05); }
+		.track.active{ background:rgba(121,183,145,.18); }
 
-		.track.active{
-			background:rgba(121,183,145,.18);
-		}
+		.track-name,
+		.admin-track-title{ font-size:14px; font-weight:600; margin:0 0 4px; }
+		.track-url,
+		.admin-track-meta{ font-size:11px; color:var(--muted); margin:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
 
-		.track-name{
-			font-size:14px;
-			font-weight:600;
-			margin:0 0 4px;
-		}
-
-		.track-url{
-			font-size:11px;
+		.empty-state{
+			padding:18px 14px;
+			border:1px dashed rgba(255,255,255,.12);
+			border-radius:16px;
 			color:var(--muted);
-			margin:0;
-			white-space:nowrap;
-			overflow:hidden;
-			text-overflow:ellipsis;
+			font-size:13px;
+			text-align:center;
+		}
+
+		.admin-card{
+			border:1px solid var(--line);
+			background:rgba(255,255,255,.03);
+			border-radius:18px;
+			padding:14px;
+			display:grid;
+			gap:12px;
+		}
+
+		.admin-grid{ display:grid; gap:10px; }
+		.admin-grid.two{ grid-template-columns:1fr 1fr; }
+		.helper{ font-size:12px; color:var(--muted); }
+		.message{ min-height:18px; font-size:12px; color:#d8e9dc; }
+		.message.error{ color:#f0c6c6; }
+		.tag-row,
+		.checkbox-list{ display:flex; flex-wrap:wrap; gap:8px; }
+
+		.tag,
+		.checkbox-pill{
+			display:inline-flex;
+			align-items:center;
+			gap:6px;
+			min-height:28px;
+			padding:6px 10px;
+			border-radius:999px;
+			background:rgba(121,183,145,.16);
+			font-size:11px;
+			font-weight:700;
+		}
+
+		.checkbox-pill{
+			background:rgba(255,255,255,.06);
+			cursor:pointer;
+			user-select:none;
+		}
+
+		.checkbox-pill input{ accent-color:var(--green-3); }
+		.admin-item-actions{ display:flex; gap:8px; flex-wrap:wrap; }
+
+		@media (max-width:760px){
+			body{ padding:8px; }
+			.player{ border-radius:18px; }
+			.admin-grid.two{ grid-template-columns:1fr; }
+			.video-wrap{ min-height:170px; max-height:none; }
 		}
 	</style>
 </head>
 <body>
-	<div class="player">
-		<div class="video-wrap">
-			<iframe id="playerFrame" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen></iframe>
-		</div>
+	<div class="app-shell">
+		<div class="player" id="playerShell">
+			<div class="header">
+				<div class="header-title">Music</div>
+				<div class="role-pill" id="rolePill">
+					<span class="material-symbols-outlined" style="font-size:18px;">person</span>
+					<span id="rolePillText">Checking login…</span>
+				</div>
+			</div>
 
-		<div class="info">
-			<h1 class="title" id="trackTitle">Loading...</h1>
-			<p class="subtitle" id="trackSubtitle">YouTube playlist</p>
-		</div>
+			<div class="status-row">
+				<div class="status-text" id="statusText">Connecting...</div>
+			</div>
 
-		<div class="controls">
-			<button class="control-btn" id="prevBtn" aria-label="Previous track">
-				<span class="material-symbols-outlined">skip_previous</span>
-			</button>
-			<button class="control-btn primary" id="playPauseBtn" aria-label="Play or pause">
-				<span class="material-symbols-outlined" id="playPauseIcon">play_arrow</span>
-			</button>
-			<button class="control-btn" id="nextBtn" aria-label="Next track">
-				<span class="material-symbols-outlined">skip_next</span>
-			</button>
-		</div>
+			<div class="mode-switch">
+				<button class="mode-btn active" id="playModeBtn" type="button">
+					<span class="material-symbols-outlined">play_circle</span>
+					<span>Play</span>
+				</button>
+				<button class="mode-btn" id="manageModeBtn" type="button" disabled>
+					<span class="material-symbols-outlined">library_add</span>
+					<span>Add Songs</span>
+				</button>
+			</div>
 
-		<div class="playlist" id="playlist"></div>
+			<div class="player-area">
+				<div class="video-wrap">
+					<div id="playerTarget"></div>
+					<div class="video-overlay" id="videoOverlay">Select a song to load the player.</div>
+				</div>
+			</div>
+
+			<div class="info">
+				<h1 class="title" id="trackTitle">Loading...</h1>
+				<p class="subtitle" id="trackSubtitle">Playlist</p>
+			</div>
+
+			<div class="controls">
+				<button class="control-btn" id="prevBtn" aria-label="Previous track" type="button">
+					<span class="material-symbols-outlined">skip_previous</span>
+				</button>
+				<button class="control-btn primary" id="playPauseBtn" aria-label="Play or pause" type="button">
+					<span class="material-symbols-outlined" id="playPauseIcon">play_arrow</span>
+				</button>
+				<button class="control-btn" id="nextBtn" aria-label="Next track" type="button">
+					<span class="material-symbols-outlined">skip_next</span>
+				</button>
+			</div>
+
+			<div class="panel-body">
+				<div class="pane play-pane active" id="playPane">
+					<div class="toolbar-row">
+						<select class="select" id="playlistSelect"></select>
+					</div>
+					<div class="playlist" id="playlist"></div>
+				</div>
+
+				<div class="pane admin-pane" id="adminPane">
+					<div class="admin-card">
+						<div class="admin-grid two">
+							<div>
+								<div class="helper" style="margin-bottom:6px;">New playlist name</div>
+								<input class="input" id="newPlaylistName" type="text" placeholder="Lo-fi, Spanish radio, Study mix...">
+							</div>
+							<div style="display:flex; align-items:end;">
+								<button class="action-btn" id="createPlaylistBtn" type="button" style="width:100%;">Create playlist</button>
+							</div>
+						</div>
+						<div class="message" id="playlistMessage"></div>
+					</div>
+
+					<div class="admin-card">
+						<div class="admin-grid">
+							<input class="input" id="songTitleInput" type="text" placeholder="Song title">
+							<input class="input" id="songUrlInput" type="url" placeholder="YouTube URL">
+							<div>
+								<div class="helper" style="margin-bottom:8px;">Add to playlists</div>
+								<div class="checkbox-list" id="songPlaylistChecks"></div>
+							</div>
+							<button class="action-btn" id="saveSongBtn" type="button">Save song</button>
+							<div class="message" id="songMessage"></div>
+						</div>
+					</div>
+
+					<div class="admin-list" id="adminSongList"></div>
+				</div>
+			</div>
+		</div>
 	</div>
 
-	<script>
-		const tracks = [
-			{
-				title: 'Improv in C major',
-				url: 'https://www.youtube.com/watch?v=EjYWFGlaTKo&list=RDgvBuTYCZ1IY&index=7'
-			},
-			{
-				title: 'Pencils Scurried Illegibly Across the Window',
-				url: 'https://www.youtube.com/watch?v=ZFk0G8tvb-0&list=RDgvBuTYCZ1IY&index=6'
-			},
-			{
-				title: 'Ambient Song #16',
-				url: 'https://www.youtube.com/watch?v=96YCJaUFxaM&list=RDgvBuTYCZ1IY&index=4'
-			},
-            {
-				title: 'Radio Rivadavia AM 630',
-				url: 'https://www.youtube.com/watch?v=eaumTx_ACkM'
-			}
-		];
+	<script src="https://www.youtube.com/iframe_api"></script>
+	<script type="module">
+		import { initializeApp } from 'https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js';
+		import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js';
+		import { getDatabase, ref, onValue, push, set, serverTimestamp, remove } from 'https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js';
 
-		const playerFrame = document.getElementById('playerFrame');
+	
+const firebaseConfig = {
+  apiKey: "AIzaSyBJ2GgWuXk6SZRA1ZGO7FkfYjTvewqu3_4",
+  authDomain: "homescreen-df0a1.firebaseapp.com",
+  projectId: "homescreen-df0a1",
+  storageBucket: "homescreen-df0a1.firebasestorage.app",
+  messagingSenderId: "371920647149",
+  appId: "1:371920647149:web:17f4f40918c03c4187ede4"
+};
+
+
+
+		const OWNER_EMAIL = 'owner@mrrains.org';
+		const STUDENT_EMAIL = 'student@mrrains.org';
+
+		const app = initializeApp(firebaseConfig);
+		const auth = getAuth(app);
+		const db = getDatabase(app);
+
+		const playerShell = document.getElementById('playerShell');
 		const trackTitle = document.getElementById('trackTitle');
 		const trackSubtitle = document.getElementById('trackSubtitle');
 		const playlistEl = document.getElementById('playlist');
+		const playlistSelect = document.getElementById('playlistSelect');
 		const playPauseBtn = document.getElementById('playPauseBtn');
 		const playPauseIcon = document.getElementById('playPauseIcon');
 		const prevBtn = document.getElementById('prevBtn');
 		const nextBtn = document.getElementById('nextBtn');
+		const rolePillText = document.getElementById('rolePillText');
+		const statusText = document.getElementById('statusText');
+		const playModeBtn = document.getElementById('playModeBtn');
+		const manageModeBtn = document.getElementById('manageModeBtn');
+		const playPane = document.getElementById('playPane');
+		const adminPane = document.getElementById('adminPane');
+		const newPlaylistName = document.getElementById('newPlaylistName');
+		const createPlaylistBtn = document.getElementById('createPlaylistBtn');
+		const playlistMessage = document.getElementById('playlistMessage');
+		const songTitleInput = document.getElementById('songTitleInput');
+		const songUrlInput = document.getElementById('songUrlInput');
+		const songPlaylistChecks = document.getElementById('songPlaylistChecks');
+		const saveSongBtn = document.getElementById('saveSongBtn');
+		const songMessage = document.getElementById('songMessage');
+		const adminSongList = document.getElementById('adminSongList');
+		const videoOverlay = document.getElementById('videoOverlay');
 
+		let player;
+		let playerReady = false;
+		let apiReady = false;
+		let isPlaying = false;
 		let currentIndex = 0;
-		let isPlaying = true;
+		let currentPlaylistId = 'all';
+		let allTracks = [];
+		let filteredTracks = [];
+		let playlists = [];
+		let authMeta = null;
+		let currentUser = null;
+		let activeMode = 'play';
+		let pendingVideoId = '';
+		let pendingAutoplay = false;
+
+		function readSessionMetadata(){
+			try{
+				return JSON.parse(localStorage.getItem('desktopAuthMeta') || 'null');
+			}catch(err){
+				return null;
+			}
+		}
+
+		function isLoggedIn(){
+			return !!currentUser;
+		}
 
 		function getVideoId(url){
 			try{
 				const parsed = new URL(url);
-				if(parsed.hostname.includes('youtu.be')){
-					return parsed.pathname.slice(1);
-				}
+				if(parsed.hostname.includes('youtu.be')) return parsed.pathname.slice(1);
+				if(parsed.pathname.startsWith('/shorts/')) return parsed.pathname.split('/')[2] || '';
+				if(parsed.pathname.startsWith('/embed/')) return parsed.pathname.split('/')[2] || '';
 				return parsed.searchParams.get('v') || '';
 			}catch(err){
 				return '';
 			}
 		}
 
-		function getEmbedUrl(url, autoplay = true){
-			const videoId = getVideoId(url);
-			const auto = autoplay ? '1' : '0';
-			return `https://www.youtube.com/embed/${videoId}?autoplay=${auto}&rel=0&modestbranding=1`;
+		function setOverlay(message = ''){
+			videoOverlay.textContent = message;
+			videoOverlay.classList.toggle('hidden', !message);
+		}
+
+		function ensurePlayer(){
+			if(!apiReady || player) return;
+			player = new YT.Player('playerTarget', {
+				width: '100%',
+				height: '100%',
+				videoId: '',
+				playerVars: {
+					rel: 0,
+					modestbranding: 1,
+					playsinline: 1
+				},
+				events: {
+					onReady: () => {
+						playerReady = true;
+						if(pendingVideoId){
+							loadIntoPlayer(pendingVideoId, pendingAutoplay);
+						}
+						updateTransportDisabled();
+					},
+					onStateChange: (event) => {
+						isPlaying = event.data === YT.PlayerState.PLAYING;
+						playPauseIcon.textContent = isPlaying ? 'pause' : 'play_arrow';
+						if(event.data === YT.PlayerState.ENDED) nextTrack();
+					}
+				}
+			});
+		}
+
+		function loadIntoPlayer(videoId, autoplay){
+			if(!playerReady || !player) return;
+			setOverlay('');
+			if(autoplay){
+				player.loadVideoById(videoId);
+			}else{
+				player.cueVideoById(videoId);
+				isPlaying = false;
+				playPauseIcon.textContent = 'play_arrow';
+			}
+		}
+
+		window.onYouTubeIframeAPIReady = function(){
+			apiReady = true;
+			ensurePlayer();
+		};
+
+		window.setTimeout(() => {
+			if(!apiReady){
+				setOverlay('The YouTube player could not load. Check the video link or browser privacy settings.');
+			}
+		}, 5000);
+
+		function setMode(mode){
+			if(mode === 'manage' && !isLoggedIn()) mode = 'play';
+			activeMode = mode;
+			playerShell.classList.toggle('manage-mode', mode === 'manage');
+			playModeBtn.classList.toggle('active', mode === 'play');
+			manageModeBtn.classList.toggle('active', mode === 'manage');
+			playPane.classList.toggle('active', mode === 'play');
+			adminPane.classList.toggle('active', mode === 'manage');
+		}
+
+		function updateRoleUi(){
+			if(currentUser && currentUser.email === OWNER_EMAIL){
+				rolePillText.textContent = 'Mr. Rains';
+				statusText.textContent = 'Signed in. You can play music and add songs/playlists.';
+			}else if(currentUser && currentUser.email === STUDENT_EMAIL){
+				rolePillText.textContent = 'Student';
+				statusText.textContent = 'Signed in. You can play music and add songs/playlists.';
+			}else if(isLoggedIn()){
+				rolePillText.textContent = 'Signed in';
+				statusText.textContent = 'Signed in. You can play music and add songs/playlists.';
+			}else{
+				rolePillText.textContent = 'Not logged in';
+				statusText.textContent = 'Use the Login app on the desktop first.';
+			}
+
+			manageModeBtn.disabled = !isLoggedIn();
+			createPlaylistBtn.disabled = !isLoggedIn();
+			saveSongBtn.disabled = !isLoggedIn();
+			if(!isLoggedIn() && activeMode === 'manage') setMode('play');
+		}
+
+		function renderPlaylistOptions(){
+			const options = [{ id: 'all', name: 'All songs' }, ...playlists];
+			playlistSelect.innerHTML = options.map(item => `<option value="${item.id}">${escapeHtml(item.name)}</option>`).join('');
+			if(!options.some(item => item.id === currentPlaylistId)) currentPlaylistId = 'all';
+			playlistSelect.value = currentPlaylistId;
+
+			if(!playlists.length){
+				songPlaylistChecks.innerHTML = '<div class="helper">Create a playlist first.</div>';
+				return;
+			}
+
+			songPlaylistChecks.innerHTML = playlists.map(item => `
+				<label class="checkbox-pill">
+					<input type="checkbox" value="${item.id}">
+					<span>${escapeHtml(item.name)}</span>
+				</label>
+			`).join('');
+		}
+
+		function filterTracks(){
+			filteredTracks = currentPlaylistId === 'all'
+				? [...allTracks]
+				: allTracks.filter(track => (track.playlistIds || []).includes(currentPlaylistId));
+			if(currentIndex >= filteredTracks.length) currentIndex = 0;
 		}
 
 		function renderPlaylist(){
-			playlistEl.innerHTML = tracks.map((track, index) => `
-				<button class="track ${index === currentIndex ? 'active' : ''}" data-index="${index}">
-					<p class="track-name">${track.title}</p>
-					<p class="track-url">${track.url}</p>
+			filterTracks();
+
+			if(!filteredTracks.length){
+				playlistEl.innerHTML = '<div class="empty-state">No songs are in this playlist yet.</div>';
+				trackTitle.textContent = 'No songs yet';
+				trackSubtitle.textContent = currentPlaylistId === 'all' ? 'Add songs in Add Songs mode.' : 'This playlist is empty.';
+				playPauseIcon.textContent = 'play_arrow';
+				isPlaying = false;
+				setOverlay('No song selected yet.');
+				updateTransportDisabled();
+				return;
+			}
+
+			playlistEl.innerHTML = filteredTracks.map((track, index) => `
+				<button class="track ${index === currentIndex ? 'active' : ''}" data-index="${index}" type="button">
+					<p class="track-name">${escapeHtml(track.title)}</p>
+					<p class="track-url">${escapeHtml(track.url)}</p>
 				</button>
 			`).join('');
 
 			playlistEl.querySelectorAll('.track').forEach(button => {
 				button.addEventListener('click', () => {
 					currentIndex = Number(button.dataset.index);
-					isPlaying = true;
-					loadCurrentTrack();
+					loadCurrentTrack(true);
+				});
+			});
+
+			updateTransportDisabled();
+		}
+
+		function renderAdminSongList(){
+			if(!allTracks.length){
+				adminSongList.innerHTML = '<div class="empty-state">No songs have been added yet.</div>';
+				return;
+			}
+
+			adminSongList.innerHTML = allTracks.map(track => {
+				const tags = (track.playlistIds || []).map(id => playlists.find(item => item.id === id)?.name).filter(Boolean);
+				return `
+					<div class="admin-card">
+						<div>
+							<div class="admin-track-title">${escapeHtml(track.title)}</div>
+							<div class="admin-track-meta">${escapeHtml(track.url)}</div>
+						</div>
+						<div class="tag-row">${tags.length ? tags.map(tag => `<span class="tag">${escapeHtml(tag)}</span>`).join('') : '<span class="helper">No playlist assigned</span>'}</div>
+						<div class="admin-item-actions">
+							<button class="delete-btn" data-delete-song="${track.id}" type="button">Delete song</button>
+						</div>
+					</div>
+				`;
+			}).join('');
+
+			adminSongList.querySelectorAll('[data-delete-song]').forEach(button => {
+				button.addEventListener('click', async () => {
+					if(!isLoggedIn()) return;
+					const id = button.getAttribute('data-delete-song');
+					try{
+						await remove(ref(db, `music/tracks/${id}`));
+						setMessage(songMessage, 'Song deleted.');
+					}catch(err){
+						console.error(err);
+						setMessage(songMessage, 'Could not delete song.', true);
+					}
 				});
 			});
 		}
 
-		function loadCurrentTrack(){
-			const track = tracks[currentIndex];
-			trackTitle.textContent = track.title;
-			trackSubtitle.textContent = `Track ${currentIndex + 1} of ${tracks.length}`;
-			playerFrame.src = getEmbedUrl(track.url, isPlaying);
-			playPauseIcon.textContent = isPlaying ? 'pause' : 'play_arrow';
+		function maybeRenderCurrentTrack(){
 			renderPlaylist();
+			if(filteredTracks.length) loadCurrentTrack(false);
+		}
+
+		function loadCurrentTrack(autoplay = false){
+			if(!filteredTracks.length) return;
+			const track = filteredTracks[currentIndex];
+			const videoId = getVideoId(track.url);
+			trackTitle.textContent = track.title;
+			const currentPlaylistName = currentPlaylistId === 'all'
+				? 'All songs'
+				: (playlists.find(item => item.id === currentPlaylistId)?.name || 'Playlist');
+			trackSubtitle.textContent = `${currentPlaylistName} • Track ${currentIndex + 1} of ${filteredTracks.length}`;
+			renderPlaylist();
+
+			if(!videoId){
+				setOverlay('This song has an invalid YouTube link.');
+				return;
+			}
+
+			pendingVideoId = videoId;
+			pendingAutoplay = autoplay;
+			ensurePlayer();
+
+			if(playerReady && player){
+				loadIntoPlayer(videoId, autoplay);
+			}else{
+				setOverlay('Loading player...');
+			}
 		}
 
 		function nextTrack(){
-			currentIndex = (currentIndex + 1) % tracks.length;
-			isPlaying = true;
-			loadCurrentTrack();
+			if(!filteredTracks.length) return;
+			currentIndex = (currentIndex + 1) % filteredTracks.length;
+			loadCurrentTrack(true);
 		}
 
 		function prevTrack(){
-			currentIndex = (currentIndex - 1 + tracks.length) % tracks.length;
-			isPlaying = true;
-			loadCurrentTrack();
+			if(!filteredTracks.length) return;
+			currentIndex = (currentIndex - 1 + filteredTracks.length) % filteredTracks.length;
+			loadCurrentTrack(true);
 		}
 
-		playPauseBtn.addEventListener('click', () => {
-			isPlaying = !isPlaying;
-			loadCurrentTrack();
+		function setMessage(el, text, isError = false){
+			el.textContent = text;
+			el.classList.toggle('error', !!isError);
+		}
+
+		function updateTransportDisabled(){
+			const disabled = !filteredTracks.length;
+			playPauseBtn.disabled = disabled;
+			prevBtn.disabled = disabled;
+			nextBtn.disabled = disabled;
+		}
+
+		function selectedPlaylistIds(){
+			return [...songPlaylistChecks.querySelectorAll('input[type="checkbox"]:checked')].map(input => input.value);
+		}
+
+		function escapeHtml(value){
+			return String(value ?? '')
+				.replaceAll('&', '&amp;')
+				.replaceAll('<', '&lt;')
+				.replaceAll('>', '&gt;')
+				.replaceAll('"', '&quot;')
+				.replaceAll("'", '&#39;');
+		}
+
+		playlistSelect.addEventListener('change', () => {
+			currentPlaylistId = playlistSelect.value;
+			currentIndex = 0;
+			maybeRenderCurrentTrack();
 		});
 
+		playModeBtn.addEventListener('click', () => setMode('play'));
+		manageModeBtn.addEventListener('click', () => {
+			if(isLoggedIn()) setMode('manage');
+		});
 		prevBtn.addEventListener('click', prevTrack);
 		nextBtn.addEventListener('click', nextTrack);
+		playPauseBtn.addEventListener('click', () => {
+			if(!playerReady || !player || !filteredTracks.length) return;
+			if(isPlaying){
+				player.pauseVideo();
+				isPlaying = false;
+				playPauseIcon.textContent = 'play_arrow';
+			}else{
+				player.playVideo();
+				isPlaying = true;
+				playPauseIcon.textContent = 'pause';
+				setOverlay('');
+			}
+		});
 
-		loadCurrentTrack();
+		createPlaylistBtn.addEventListener('click', async () => {
+			if(!isLoggedIn()) return;
+			const name = newPlaylistName.value.trim();
+			if(!name){
+				setMessage(playlistMessage, 'Type a playlist name first.', true);
+				return;
+			}
+
+			const duplicate = playlists.some(item => item.name.trim().toLowerCase() === name.toLowerCase());
+			if(duplicate){
+				setMessage(playlistMessage, 'That playlist already exists.', true);
+				return;
+			}
+
+			try{
+				const playlistsRef = ref(db, 'music/playlists');
+				const newRef = push(playlistsRef);
+				await set(newRef, { name, createdAt: serverTimestamp() });
+				newPlaylistName.value = '';
+				setMessage(playlistMessage, 'Playlist created.');
+			}catch(err){
+				console.error(err);
+				setMessage(playlistMessage, 'Could not create playlist.', true);
+			}
+		});
+
+		saveSongBtn.addEventListener('click', async () => {
+			if(!isLoggedIn()) return;
+			const title = songTitleInput.value.trim();
+			const url = songUrlInput.value.trim();
+			const playlistIds = selectedPlaylistIds();
+			const videoId = getVideoId(url);
+
+			if(!title || !url){
+				setMessage(songMessage, 'Fill in the title and URL.', true);
+				return;
+			}
+			if(!videoId){
+				setMessage(songMessage, 'Enter a valid YouTube link.', true);
+				return;
+			}
+			if(!playlistIds.length){
+				setMessage(songMessage, 'Select at least one playlist.', true);
+				return;
+			}
+
+			const playlistMap = Object.fromEntries(playlistIds.map(id => [id, true]));
+
+			try{
+				const tracksRef = ref(db, 'music/tracks');
+				const newRef = push(tracksRef);
+				await set(newRef, {
+					title,
+					url,
+					playlistIds: playlistMap,
+					createdAt: serverTimestamp()
+				});
+				songTitleInput.value = '';
+				songUrlInput.value = '';
+				songPlaylistChecks.querySelectorAll('input[type="checkbox"]').forEach(input => { input.checked = false; });
+				setMessage(songMessage, 'Song saved.');
+			}catch(err){
+				console.error(err);
+				setMessage(songMessage, 'Could not save song.', true);
+			}
+		});
+
+		onAuthStateChanged(auth, (user) => {
+			currentUser = user;
+			authMeta = readSessionMetadata();
+			updateRoleUi();
+		});
+
+		window.addEventListener('storage', (event) => {
+			if(event.key === 'desktopAuthMeta'){
+				authMeta = readSessionMetadata();
+				updateRoleUi();
+			}
+		});
+
+		window.addEventListener('desktop-auth-changed', (event) => {
+			authMeta = event.detail || readSessionMetadata();
+			updateRoleUi();
+		});
+
+		onValue(ref(db, 'music/playlists'), (snapshot) => {
+			const raw = snapshot.val() || {};
+			playlists = Object.entries(raw)
+				.map(([id, value]) => ({ id, name: value?.name || 'Untitled playlist', createdAt: value?.createdAt || 0 }))
+				.sort((a, b) => String(a.name).localeCompare(String(b.name)));
+			renderPlaylistOptions();
+			renderAdminSongList();
+			maybeRenderCurrentTrack();
+		});
+
+		onValue(ref(db, 'music/tracks'), (snapshot) => {
+			const raw = snapshot.val() || {};
+			allTracks = Object.entries(raw)
+				.map(([id, value]) => ({
+					id,
+					title: value?.title || 'Untitled song',
+					url: value?.url || '',
+					playlistIds: value?.playlistIds ? Object.keys(value.playlistIds).filter(key => value.playlistIds[key]) : [],
+					createdAt: value?.createdAt || 0
+				}))
+				.sort((a, b) => String(a.title).localeCompare(String(b.title)));
+			renderAdminSongList();
+			maybeRenderCurrentTrack();
+		});
+
+		updateRoleUi();
+		renderPlaylistOptions();
+		renderPlaylist();
+		updateTransportDisabled();
+		setMode('play');
+		setOverlay('Select a song to load the player.');
 	</script>
 </body>
 </html>

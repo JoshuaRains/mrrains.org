@@ -6,8 +6,8 @@
 	<title>Mrrains.org</title>
 	<link rel="preconnect" href="https://fonts.googleapis.com">
 	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-	<link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;600;700&display=swap" rel="stylesheet">
-		<style>
+	<link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;600;700&family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,700,1,0" rel="stylesheet">
+	<style>
 		:root{
 			--green-1:#517860;
 			--green-2:#5c8a6d;
@@ -16,16 +16,23 @@
 			--line:#102016;
 			--text:#eef5ef;
 			--window-bg:#f3f7f4;
+			--panel-dark:rgba(10,18,13,.82);
+			--panel-line:rgba(255,255,255,.12);
+			--danger:#d85e5e;
 		}
 
 		*{ box-sizing:border-box; }
 		html,body{
+			margin:0;
+			width:100%;
+			height:100%;
 			font-family:'Noto Sans', sans-serif;
-			background-image: url('https://i.pinimg.com/originals/b2/2a/a2/b22aa22b2f3f55b6468361158d52e2e7.gif');;
-            background-size:100% auto;
+			background-image:url('https://i.pinimg.com/originals/b2/2a/a2/b22aa22b2f3f55b6468361158d52e2e7.gif');
+			background-size:100% auto;
 			background-repeat:no-repeat;
-			background-color: #11222A;
-            color:var(--text);
+			background-color:#11222A;
+			color:var(--text);
+			overflow:hidden;
 		}
 
 		body.dragging-window,
@@ -35,8 +42,7 @@
 			cursor:grabbing !important;
 		}
 
-		button{ font:inherit; }
-
+		button,input{ font:inherit; }
 		desktop-app{ display:none; }
 
 		.desktop{
@@ -53,6 +59,7 @@
 			align-items:flex-start;
 			position:relative;
 			z-index:1;
+			padding-top:20px;
 		}
 
 		.desktop-icon{
@@ -70,29 +77,10 @@
 			text-align:center;
 		}
 
-		.desktop-icon:hover{
-			background:rgba(121,183,145,.14);
-		}
-
-		.desktop-icon-badge{
-	width:60px;
-	height:54px;
-	display:grid;
-	place-items:center;
-	flex:0 0 60px;
-}
-
-.desktop-icon-badge img{
-	width:60px;
-	height:60px;
-	object-fit:contain;
-	display:block;
-}
-
-		.desktop-icon-label{
-			font-size:15px;
-			line-height:1.2;
-		}
+		.desktop-icon:hover{ background:rgba(121,183,145,.14); }
+		.desktop-icon-badge{ width:60px; height:54px; display:grid; place-items:center; flex:0 0 60px; }
+		.desktop-icon-badge img{ width:60px; height:60px; object-fit:contain; display:block; }
+		.desktop-icon-label{ font-size:15px; line-height:1.2; }
 
 		.window-layer{
 			position:absolute;
@@ -101,9 +89,7 @@
 			pointer-events:none;
 		}
 
-		.window-layer.drag-active .window:not(.dragging){
-			pointer-events:none;
-		}
+		.window-layer.drag-active .window:not(.dragging){ pointer-events:none; }
 
 		.window{
 			position:absolute;
@@ -120,10 +106,7 @@
 			animation:windowOpen .22s ease-out forwards;
 		}
 
-		.window.closing{
-			animation:windowClose .16s ease-in forwards;
-		}
-
+		.window.closing{ animation:windowClose .16s ease-in forwards; }
 		.window.maximized{
 			top:12px !important;
 			left:12px !important;
@@ -143,42 +126,12 @@
 		}
 
 		.window.dragging,
-		.window.dragging iframe{
-			pointer-events:none;
-		}
-
-		.window.dragging .titlebar{
-			cursor:grabbing;
-		}
-
-		.titlebar-left{
-			display:flex;
-			align-items:center;
-			gap:8px;
-			min-width:0;
-		}
-
-		.titlebar-left img{
-			width:18px;
-			height:18px;
-			object-fit:contain;
-			display:block;
-			filter:none;
-		}
-
-		.titlebar-title{
-			font-size:14px;
-			font-weight:700;
-			color:#fff;
-			white-space:nowrap;
-			overflow:hidden;
-			text-overflow:ellipsis;
-		}
-
-		.window-controls{
-			display:flex;
-			gap:6px;
-		}
+		.window.dragging iframe{ pointer-events:none; }
+		.window.dragging .titlebar{ cursor:grabbing; }
+		.titlebar-left{ display:flex; align-items:center; gap:8px; min-width:0; }
+		.titlebar-left img{ width:18px; height:18px; object-fit:contain; display:block; filter:none; }
+		.titlebar-title{ font-size:14px; font-weight:700; color:#fff; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+		.window-controls{ display:flex; gap:6px; }
 
 		.win-btn{
 			width:24px;
@@ -193,14 +146,7 @@
 			place-items:center;
 		}
 
-		.win-btn img{
-			width:14px;
-			height:14px;
-			object-fit:contain;
-			display:block;
-			filter:brightness(0);
-		}
-
+		.win-btn img{ width:14px; height:14px; object-fit:contain; display:block; filter:brightness(0); }
 		.win-btn:hover{ background:#f6fcf7; }
 		.win-btn.close:hover{ background:#f8d8d8; }
 
@@ -210,34 +156,89 @@
 			background:#fff;
 		}
 
-		.window-body iframe{
-			width:100%;
+		.window-body iframe{ width:100%; height:100%; border:none; display:block; background:#fff; }
+
+		.auth-app{
 			height:100%;
-			border:none;
-			display:block;
-			background:#fff;
+			background:linear-gradient(180deg, #eef5ef 0%, #e4eee6 100%);
+			padding:24px;
+			display:flex;
+			align-items:center;
+			justify-content:center;
 		}
 
+		.auth-panel{
+			width:min(100%, 380px);
+			background:linear-gradient(180deg, rgba(81,120,96,.98), rgba(55,88,67,.98));
+			border:3px solid var(--line);
+			border-radius:22px;
+			box-shadow:0 18px 30px rgba(0,0,0,.18);
+			padding:22px;
+			color:#fff;
+		}
+
+		.auth-panel h2{ margin:0 0 8px; font-size:28px; }
+		.auth-panel p{ margin:0 0 18px; color:rgba(255,255,255,.86); font-size:14px; line-height:1.45; }
+		.auth-status{
+			margin:0 0 16px;
+			padding:12px 14px;
+			border-radius:16px;
+			background:rgba(255,255,255,.12);
+			border:1px solid rgba(255,255,255,.14);
+			font-size:13px;
+			line-height:1.45;
+		}
+
+		.auth-field-label{ display:block; margin-bottom:8px; font-size:13px; font-weight:700; }
+
+		.auth-input{
+			width:100%;
+			height:48px;
+			border-radius:14px;
+			border:1px solid rgba(255,255,255,.14);
+			background:rgba(255,255,255,.1);
+			color:var(--text);
+			padding:0 14px;
+			outline:none;
+		}
+
+		.auth-input::placeholder{ color:rgba(255,255,255,.58); }
+		.auth-input:focus{ border-color:var(--green-4); box-shadow:0 0 0 3px rgba(171,209,181,.18); }
+		.auth-actions{ display:flex; gap:10px; margin-top:18px; }
+
+		.auth-btn{
+			border:none;
+			border-radius:14px;
+			height:46px;
+			padding:0 16px;
+			cursor:pointer;
+			font-weight:700;
+		}
+
+		.auth-btn.primary{
+			flex:1;
+			background:#f2faf4;
+			color:#254233;
+		}
+
+		.auth-btn.secondary{
+			background:rgba(255,255,255,.12);
+			color:#fff;
+		}
+
+		.auth-btn:disabled{ opacity:.5; cursor:not-allowed; }
+
+		.auth-message{ min-height:22px; margin-top:12px; font-size:13px; color:#ffe0e0; }
+		.auth-message.ok{ color:#def5e5; }
+
 		@keyframes windowOpen{
-			0%{
-				opacity:0;
-				transform:translateY(12px) scale(.94);
-			}
-			100%{
-				opacity:1;
-				transform:translateY(0) scale(1);
-			}
+			0%{ opacity:0; transform:translateY(12px) scale(.94); }
+			100%{ opacity:1; transform:translateY(0) scale(1); }
 		}
 
 		@keyframes windowClose{
-			0%{
-				opacity:1;
-				transform:translateY(0) scale(1);
-			}
-			100%{
-				opacity:0;
-				transform:translateY(10px) scale(.94);
-			}
+			0%{ opacity:1; transform:translateY(0) scale(1); }
+			100%{ opacity:0; transform:translateY(10px) scale(.94); }
 		}
 	</style>
 </head>
@@ -247,20 +248,30 @@
 		<div class="window-layer" id="windowLayer"></div>
 
 		<desktop-app
+			name="Login"
+			icon="../assets/pixelart/profile.png"
+			width="460"
+			height="600"
+			maximizable="false"
+			newtab="false"
+			authapp="true">
+		</desktop-app>
+
+
+		<desktop-app
 			name="Music"
 			icon="../assets/pixelart/disc.png"
 			src="./music.html"
-			width="350"
-			height="600"
+			width="420"
+			height="720"
 			maximizable="false"
 			newtab="false">
 		</desktop-app>
 
-        <desktop-app
+		<desktop-app
 			name="Notes"
 			icon="../assets/notepad.png"
 			src="https://docs.google.com/document/d/1I9HiLNSHVk2UyMG52OxsewXdHC-971sikZQwMg83U2I/edit?tab=t.0"
-			
 			width="800"
 			height="700"
 			maximizable="true"
@@ -271,25 +282,128 @@
 			name="Grade Calculator"
 			icon="../assets/calculator.png"
 			src="../pages/tools/gradecalculator/index.html"
-			
 			width="850"
 			height="600"
 			maximizable="true"
 			newtab="true">
 		</desktop-app>
-
-		
-
-	
-
-        
 	</div>
 
-	<script>
+
+	<script type="module">
+		import { initializeApp } from 'https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js';
+		import { getAuth, setPersistence, browserLocalPersistence, signInWithEmailAndPassword, signOut, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js';
+
+	
+const firebaseConfig = {
+  apiKey: "AIzaSyBJ2GgWuXk6SZRA1ZGO7FkfYjTvewqu3_4",
+  authDomain: "homescreen-df0a1.firebaseapp.com",
+  projectId: "homescreen-df0a1",
+  storageBucket: "homescreen-df0a1.firebasestorage.app",
+  messagingSenderId: "371920647149",
+  appId: "1:371920647149:web:17f4f40918c03c4187ede4"
+};
+
+		const LOGIN_CANDIDATES = [
+			{
+				email: 'owner@mrrains.org',
+				role: 'owner',
+				label: 'Logged in as Mr. Rains'
+			},
+			{
+				email: 'student@mrrains.org',
+				role: 'student',
+				label: 'Logged in as Student'
+			}
+		];
+
 		const iconGrid = document.getElementById('iconGrid');
 		const windowLayer = document.getElementById('windowLayer');
+		let loginWindow = null;
+
 		let zIndexCounter = 10;
 		const openWindows = new Map();
+
+		const app = initializeApp(firebaseConfig);
+		const auth = getAuth(app);
+		await setPersistence(auth, browserLocalPersistence);
+
+		function saveSessionMetadata(meta){
+			localStorage.setItem('desktopAuthMeta', JSON.stringify(meta));
+			window.dispatchEvent(new CustomEvent('desktop-auth-changed', { detail: meta }));
+		}
+
+		function clearSessionMetadata(){
+			localStorage.removeItem('desktopAuthMeta');
+			window.dispatchEvent(new CustomEvent('desktop-auth-changed', { detail: null }));
+		}
+
+		function readSessionMetadata(){
+			try{
+				return JSON.parse(localStorage.getItem('desktopAuthMeta') || 'null');
+			}catch(err){
+				return null;
+			}
+		}
+
+		function getSessionSummary(){
+			const meta = readSessionMetadata();
+			const user = auth.currentUser;
+			if(meta && user && user.email === meta.email){
+				return {
+					title: meta.label || (meta.role === 'owner' ? 'Logged in as Mr. Rains' : 'Logged in as Student'),
+					email: user.email || meta.email || '',
+					loggedIn: true
+				};
+			}
+			return {
+				title: 'Not signed in',
+				email: 'Enter the shared password to sign in as the owner or student account.',
+				loggedIn: false
+			};
+		}
+
+		function renderAuthApp(){
+			if(!loginWindow || !document.body.contains(loginWindow)) return;
+			const body = loginWindow.querySelector('.window-body');
+			const summary = getSessionSummary();
+			body.innerHTML = `
+				<div class="auth-app">
+					<div class="auth-panel">
+						<h2>Log in</h2>
+						<p>This desktop uses one shared password box. It tries the owner account first, then the student account.</p>
+						<div class="auth-status">
+							<strong>${summary.title}</strong><br>${summary.email}
+						</div>
+						<label class="auth-field-label" for="loginPasswordInput">Password</label>
+						<input class="auth-input" id="loginPasswordInput" type="password" autocomplete="current-password" placeholder="Enter password">
+						<div class="auth-actions">
+							<button class="auth-btn secondary" id="logoutBtn" type="button" ${summary.loggedIn ? '' : 'disabled'}>Log out</button>
+							<button class="auth-btn primary" id="loginBtn" type="button">Log in</button>
+						</div>
+						<div class="auth-message" id="authMessage"></div>
+					</div>
+				</div>
+			`;
+
+			const passwordInput = body.querySelector('#loginPasswordInput');
+			const authMessage = body.querySelector('#authMessage');
+			const loginBtn = body.querySelector('#loginBtn');
+			const logoutBtn = body.querySelector('#logoutBtn');
+
+			loginBtn.addEventListener('click', () => handleLogin(passwordInput, authMessage, loginBtn));
+			passwordInput.addEventListener('keydown', (e) => {
+				if(e.key === 'Enter') handleLogin(passwordInput, authMessage, loginBtn);
+			});
+
+			logoutBtn?.addEventListener('click', async () => {
+				await signOut(auth);
+				clearSessionMetadata();
+				renderAuthApp();
+			});
+
+			setTimeout(() => passwordInput.focus(), 20);
+		}
 
 		function getApps(){
 			return [...document.querySelectorAll('desktop-app')].map((el, index) => ({
@@ -301,7 +415,8 @@
 				height: parseInt(el.getAttribute('height') || '500', 10),
 				fixed: (el.getAttribute('fixed') || 'false') === 'true',
 				maximizable: (el.getAttribute('maximizable') || 'true') !== 'false',
-				newtab: (el.getAttribute('newtab') || 'false') === 'true'
+				newtab: (el.getAttribute('newtab') || 'false') === 'true',
+				authApp: (el.getAttribute('authapp') || 'false') === 'true'
 			}));
 		}
 
@@ -310,7 +425,7 @@
 			iconGrid.innerHTML = apps.map(app => `
 				<button class="desktop-icon" data-app-id="${app.id}">
 					<span class="desktop-icon-badge">
-						<img src="${app.icon}" alt="" style="image-rendering: pixelated; ">
+						<img src="${app.icon}" alt="" style="image-rendering:pixelated;">
 					</span>
 					<span class="desktop-icon-label">${app.name}</span>
 				</button>
@@ -353,15 +468,18 @@
 					</div>
 					<div class="window-controls">${controlsHtml}</div>
 				</div>
-				<div class="window-body">
-					<iframe src="${app.src}" title="${app.name}"></iframe>
-				</div>
+				<div class="window-body">${app.authApp ? '' : `<iframe src="${app.src}" title="${app.name}"></iframe>`}</div>
 			`;
+
+			if(app.authApp){
+				loginWindow = win;
+			}
 
 			windowLayer.appendChild(win);
 			openWindows.set(app.id, win);
 			bindWindowControls(win, app);
 			focusWindow(win);
+			if(app.authApp) renderAuthApp();
 		}
 
 		function focusWindow(win){
@@ -378,6 +496,7 @@
 					win.classList.add('closing');
 					setTimeout(() => {
 						openWindows.delete(win.dataset.appId);
+						if(loginWindow === win) loginWindow = null;
 						win.remove();
 					}, 150);
 				});
@@ -445,7 +564,71 @@
 			}
 		}
 
+		async function handleLogin(passwordInput, authMessage, loginBtn){
+			const password = passwordInput.value.trim();
+
+			if(!password){
+				authMessage.textContent = 'Enter a password.';
+				authMessage.classList.remove('ok');
+				return;
+			}
+
+			loginBtn.disabled = true;
+			authMessage.textContent = 'Signing in...';
+			authMessage.classList.add('ok');
+
+			let lastError = null;
+
+			try{
+				for(const candidate of LOGIN_CANDIDATES){
+					try{
+						await signInWithEmailAndPassword(auth, candidate.email, password);
+						saveSessionMetadata({ email: candidate.email, role: candidate.role, label: candidate.label });
+						authMessage.textContent = 'Logged in.';
+						authMessage.classList.add('ok');
+						passwordInput.value = '';
+						renderAuthApp();
+						return;
+					}catch(err){
+						lastError = err;
+						const code = err?.code || '';
+						if(code && code !== 'auth/invalid-credential' && code !== 'auth/wrong-password' && code !== 'auth/invalid-login-credentials' && code !== 'auth/user-not-found'){
+							throw err;
+						}
+					}
+				}
+
+				authMessage.textContent = 'Password not recognized.';
+				authMessage.classList.remove('ok');
+			}catch(err){
+				console.error(err);
+				authMessage.textContent = err?.message || lastError?.message || 'Could not sign in.';
+				authMessage.classList.remove('ok');
+			}finally{
+				loginBtn.disabled = false;
+			}
+		}
+
+
+		onAuthStateChanged(auth, (user) => {
+			const meta = readSessionMetadata();
+			if(user && meta && user.email === meta.email){
+				renderAuthApp();
+			}else if(user && !meta){
+				const fallbackMeta = { email: user.email || '', role: 'student', label: 'Logged in' };
+				saveSessionMetadata(fallbackMeta);
+				renderAuthApp();
+			}else{
+				clearSessionMetadata();
+				renderAuthApp();
+			}
+		});
+
 		renderIcons();
+		const loginApp = getApps().find(app => app.authApp);
+		if(loginApp){
+			openApp(loginApp);
+		}
 	</script>
 </body>
 </html>
