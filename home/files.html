@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<title>Mrrains.org</title>
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+	<style>
+		:root{
+			--green-1:#517860;
+			--green-2:#5c8a6d;
+			--green-3:#78a98a;
+			--panel:rgba(15,28,22,.88);
+			--panel-2:rgba(255,255,255,.08);
+			--line:rgba(255,255,255,.12);
+			--text:#eef7f1;
+			--muted:rgba(238,247,241,.72);
+			--shadow:0 20px 40px rgba(0,0,0,.32);
+			--radius:18px;
+		}
+
+		*{ box-sizing:border-box; }
+
+		html,body{
+			margin:0;
+			width:100%;
+			height:100%;
+			overflow:hidden;
+			font-family:"Noto Sans", sans-serif;
+			color:var(--text);
+			background:linear-gradient(to bottom, var(--green-1), var(--green-2));
+		}
+
+		#desktop{
+			position:relative;
+			width:100%;
+			height:100%;
+			overflow:hidden;
+		}
+
+		.desktop-icons{
+			position:absolute;
+			top:24px;
+			left:24px;
+			display:grid;
+			grid-template-columns:repeat(auto-fill, 92px);
+			gap:18px 18px;
+			align-content:start;
+			z-index:1;
+		}
+
+		.desktop-icon{
+			width:92px;
+			display:flex;
+			flex-direction:column;
+			align-items:center;
+			gap:8px;
+			padding:8px 6px;
+			border-radius:16px;
+			cursor:pointer;
+			user-select:none;
+			transition:background .16s ease, transform .16s ease;
+		}
+
+		.desktop-icon:hover{
+			background:rgba(255,255,255,.08);
+			transform:translateY(-1px);
+		}
+
+		.desktop-icon img{
+			width:56px;
+			height:56px;
+			object-fit:contain;
+			display:block;
+			pointer-events:none;
+		}
+
+		.desktop-icon span{
+			font-size:12px;
+			font-weight:600;
+			line-height:1.15;
+			text-align:center;
+			color:#f4fff7;
+			text-shadow:0 1px 3px rgba(0,0,0,.35);
+			word-break:break-word;
+		}
+
+		.window{
+			position:absolute;
+			width:760px;
+			height:500px;
+			background:linear-gradient(to bottom, rgba(28,43,36,.96), rgba(21,33,28,.96));
+			border:1px solid rgba(255,255,255,.14);
+			border-radius:20px;
+			box-shadow:var(--shadow);
+			backdrop-filter:blur(14px);
+			overflow:hidden;
+		}
+
+		.titlebar{
+			height:48px;
+			display:flex;
+			align-items:center;
+			justify-content:space-between;
+			padding:0 10px 0 14px;
+			background:linear-gradient(to bottom, rgba(255,255,255,.08), rgba(255,255,255,.03));
+			border-bottom:1px solid var(--line);
+			cursor:move;
+		}
+
+		.titlebar-left{
+			display:flex;
+			align-items:center;
+			gap:10px;
+			min-width:0;
+		}
+
+		.titlebar-left img{
+			width:20px;
+			height:20px;
+			object-fit:contain;
+			display:block;
+		}
+
+		.titlebar-title{
+			font-size:14px;
+			font-weight:700;
+			white-space:nowrap;
+			overflow:hidden;
+			text-overflow:ellipsis;
+		}
+
+		.window-controls{
+			display:flex;
+			align-items:center;
+			gap:8px;
+			flex-shrink:0;
+		}
+
+		.window-controls button{
+			width:30px;
+			height:30px;
+			border:none;
+			border-radius:10px;
+			background:rgba(255,255,255,.08);
+			color:#f4fff7;
+			font-size:16px;
+			cursor:pointer;
+			transition:background .15s ease, transform .15s ease;
+		}
+
+		.window-controls button:hover{
+			background:rgba(255,255,255,.16);
+			transform:translateY(-1px);
+		}
+
+		.window-body{
+			height:calc(100% - 48px);
+			background:rgba(10,18,14,.18);
+		}
+
+		.window-body iframe{
+			width:100%;
+			height:100%;
+			border:none;
+			display:block;
+			background:#fff;
+		}
+
+		.files-shell{
+			height:100%;
+			display:flex;
+			flex-direction:column;
+			padding:18px;
+			gap:16px;
+			background:
+				radial-gradient(circle at top right, rgba(120,169,138,.14), transparent 34%),
+				linear-gradient(to bottom, rgba(255,255,255,.03), rgba(255,255,255,.01));
+		}
+
+		.files-header{
+			padding:4px 4px 0;
+		}
+
+		.files-title{
+			font-size:24px;
+			font-weight:700;
+			letter-spacing:.2px;
+		}
+
+		.files-subtitle{
+			margin-top:4px;
+			font-size:13px;
+			color:var(--muted);
+		}
+
+		.files-grid{
+			display:grid;
+			grid-template-columns:repeat(auto-fill, minmax(170px, 1fr));
+			gap:14px;
+			min-height:0;
+			overflow:auto;
+			padding-right:4px;
+		}
+
+		.file-card{
+			display:flex;
+			flex-direction:column;
+			align-items:flex-start;
+			gap:10px;
+			padding:16px;
+			border:1px solid rgba(255,255,255,.12);
+			border-radius:18px;
+			background:linear-gradient(to bottom, rgba(255,255,255,.06), rgba(255,255,255,.03));
+			cursor:pointer;
+			transition:transform .15s ease, border-color .15s ease, background .15s ease;
+		}
+
+		.file-card:hover{
+			transform:translateY(-2px);
+			border-color:rgba(255,255,255,.22);
+			background:linear-gradient(to bottom, rgba(255,255,255,.10), rgba(255,255,255,.05));
+		}
+
+		.file-card img{
+			width:42px;
+			height:42px;
+			object-fit:contain;
+			display:block;
+		}
+
+		.file-card-title{
+			font-size:15px;
+			font-weight:700;
+		}
+
+		.file-card-desc{
+			font-size:12px;
+			line-height:1.35;
+			color:var(--muted);
+		}
+	</style>
+</head>
+<body>
+	<div id="desktop">
+		<div id="desktopIcons" class="desktop-icons"></div>
+	</div>
+
+	<script>
+		const apps = [
+			{
+				id: "files",
+				name: "Files",
+				icon: "folder.png",
+				openIcon: "folder_open.png",
+				customApp: true
+			},
+			{
+				id: "music",
+				name: "Music",
+				icon: "music.png",
+				src: "music.html"
+			},
+			{
+				id: "notes",
+				name: "Notes",
+				icon: "notes.png",
+				src: "notes.html"
+			},
+			{
+				id: "lessons",
+				name: "Lessons",
+				icon: "lessons.png",
+				src: "lessons.html"
+			}
+		];
+
+		const filesItems = [
+			{
+				appId: "music",
+				title: "Music",
+				desc: "Open your music player.",
+				icon: "music.png"
+			},
+			{
+				appId: "notes",
+				title: "Notes",
+				desc: "Open your notes workspace.",
+				icon: "notes.png"
+			},
+			{
+				appId: "lessons",
+				title: "Lessons",
+				desc: "Open the lessons page.",
+				icon: "lessons.png"
+			}
+		];
+
+		const desktop = document.getElementById("desktop");
+		const desktopIcons = document.getElementById("desktopIcons");
+
+		let zCounter = 20;
+		const openWindows = new Map();
+
+		function escapeHtml(str){
+			return String(str).replace(/[&<>"']/g, function(m){
+				return ({
+					"&":"&amp;",
+					"<":"&lt;",
+					">":"&gt;",
+					'"':"&quot;",
+					"'":"&#39;"
+				})[m];
+			});
+		}
+
+		function getAppIcon(app){
+			if(app.id === "files"){
+				return openWindows.has(app.id) ? (app.openIcon || app.icon) : app.icon;
+			}
+			return app.icon;
+		}
+
+		function renderDesktopIcons(){
+			desktopIcons.innerHTML = "";
+
+			apps.forEach(app => {
+				const icon = document.createElement("div");
+				icon.className = "desktop-icon";
+				icon.dataset.appId = app.id;
+				icon.innerHTML = `
+					<img src="${getAppIcon(app)}" alt="${escapeHtml(app.name)}">
+					<span>${escapeHtml(app.name)}</span>
+				`;
+				icon.addEventListener("dblclick", () => openApp(app.id));
+				icon.addEventListener("click", () => bringWindowToFront(app.id));
+				desktopIcons.appendChild(icon);
+			});
+		}
+
+		function bringWindowToFront(appId){
+			const win = openWindows.get(appId);
+			if(!win) return;
+			zCounter++;
+			win.style.zIndex = zCounter;
+		}
+
+		function closeApp(appId){
+			const win = openWindows.get(appId);
+			if(!win) return;
+			win.remove();
+			openWindows.delete(appId);
+			renderDesktopIcons();
+		}
+
+		function makeWindowDraggable(win, handle){
+			let isDragging = false;
+			let startX = 0;
+			let startY = 0;
+			let startLeft = 0;
+			let startTop = 0;
+
+			handle.addEventListener("mousedown", e => {
+				if(e.target.closest(".window-controls")) return;
+				isDragging = true;
+				startX = e.clientX;
+				startY = e.clientY;
+				startLeft = win.offsetLeft;
+				startTop = win.offsetTop;
+				zCounter++;
+				win.style.zIndex = zCounter;
+				document.body.style.userSelect = "none";
+			});
+
+			window.addEventListener("mousemove", e => {
+				if(!isDragging) return;
+
+				const nextLeft = startLeft + (e.clientX - startX);
+				const nextTop = startTop + (e.clientY - startY);
+
+				const maxLeft = window.innerWidth - win.offsetWidth;
+				const maxTop = window.innerHeight - win.offsetHeight;
+
+				win.style.left = Math.max(0, Math.min(maxLeft, nextLeft)) + "px";
+				win.style.top = Math.max(0, Math.min(maxTop, nextTop)) + "px";
+			});
+
+			window.addEventListener("mouseup", () => {
+				isDragging = false;
+				document.body.style.userSelect = "";
+			});
+		}
+
+		function buildFilesAppContent(){
+			return `
+				<div class="files-shell">
+					<div class="files-header">
+						<div class="files-title">Files</div>
+						<div class="files-subtitle">Open apps and shortcuts from one place.</div>
+					</div>
+					<div class="files-grid">
+						${filesItems.map(item => `
+							<button class="file-card" type="button" data-open-app="${escapeHtml(item.appId)}">
+								<img src="${escapeHtml(item.icon)}" alt="">
+								<div class="file-card-title">${escapeHtml(item.title)}</div>
+								<div class="file-card-desc">${escapeHtml(item.desc)}</div>
+							</button>
+						`).join("")}
+					</div>
+				</div>
+			`;
+		}
+
+		function wireFilesApp(win){
+			win.querySelectorAll("[data-open-app]").forEach(btn => {
+				btn.addEventListener("click", () => {
+					const appId = btn.dataset.openApp;
+					openApp(appId);
+				});
+			});
+		}
+
+		function openApp(appId){
+			const app = apps.find(a => a.id === appId);
+			if(!app) return;
+
+			if(openWindows.has(appId)){
+				bringWindowToFront(appId);
+				return;
+			}
+
+			const win = document.createElement("div");
+			win.className = "window";
+			win.style.left = Math.max(24, 90 + openWindows.size * 28) + "px";
+			win.style.top = Math.max(24, 70 + openWindows.size * 24) + "px";
+			win.style.zIndex = ++zCounter;
+
+			const controlsHtml = `
+				<button type="button" class="close-btn" aria-label="Close">×</button>
+			`;
+
+			if(app.customApp && app.id === "files"){
+				win.innerHTML = `
+					<div class="titlebar">
+						<div class="titlebar-left">
+							<img src="${getAppIcon(app)}" alt="">
+							<span class="titlebar-title">${escapeHtml(app.name)}</span>
+						</div>
+						<div class="window-controls">${controlsHtml}</div>
+					</div>
+					<div class="window-body">${buildFilesAppContent()}</div>
+				`;
+			}else{
+				win.innerHTML = `
+					<div class="titlebar">
+						<div class="titlebar-left">
+							<img src="${escapeHtml(app.icon)}" alt="">
+							<span class="titlebar-title">${escapeHtml(app.name)}</span>
+						</div>
+						<div class="window-controls">${controlsHtml}</div>
+					</div>
+					<div class="window-body">
+						<iframe src="${escapeHtml(app.src || "about:blank")}" title="${escapeHtml(app.name)}"></iframe>
+					</div>
+				`;
+			}
+
+			desktop.appendChild(win);
+			openWindows.set(appId, win);
+
+			makeWindowDraggable(win, win.querySelector(".titlebar"));
+
+			win.addEventListener("mousedown", () => {
+				zCounter++;
+				win.style.zIndex = zCounter;
+			});
+
+			win.querySelector(".close-btn").addEventListener("click", () => {
+				closeApp(appId);
+			});
+
+			if(app.customApp && app.id === "files"){
+				wireFilesApp(win);
+			}
+
+			renderDesktopIcons();
+		}
+
+		renderDesktopIcons();
+	</script>
+</body>
+</html>

@@ -65,7 +65,11 @@
 			padding:14px 16px 0;
 		}
 
-		.header-title{ font-size:18px; font-weight:700; }
+		.header-title{
+			font-size:18px;
+			font-weight:700;
+		}
+
 		.role-pill{
 			display:inline-flex;
 			align-items:center;
@@ -88,7 +92,10 @@
 			min-height:26px;
 		}
 
-		.status-text{ font-size:12px; color:var(--muted); }
+		.status-text{
+			font-size:12px;
+			color:var(--muted);
+		}
 
 		.mode-switch{
 			display:flex;
@@ -116,7 +123,10 @@
 			border-color:transparent;
 		}
 
-		.mode-btn[disabled]{ opacity:.45; cursor:not-allowed; }
+		.mode-btn[disabled]{
+			opacity:.45;
+			cursor:not-allowed;
+		}
 
 		.player-area,
 		.info,
@@ -148,10 +158,10 @@
 			overflow:hidden;
 		}
 
-		#playerTarget,
-		#playerTarget iframe{
-			width:100% !important;
-			height:100% !important;
+		#playerFrame{
+			width:100%;
+			height:100%;
+			border:none;
 			display:block;
 		}
 
@@ -168,11 +178,26 @@
 			z-index:2;
 		}
 
-		.video-overlay.hidden{ display:none; }
+		.video-overlay.hidden{
+			display:none;
+		}
 
-		.info{ padding:14px 16px 8px; }
-		.title{ font-size:19px; font-weight:700; line-height:1.25; margin:0 0 6px; }
-		.subtitle{ font-size:13px; color:var(--muted); margin:0; }
+		.info{
+			padding:14px 16px 8px;
+		}
+
+		.title{
+			font-size:19px;
+			font-weight:700;
+			line-height:1.25;
+			margin:0 0 6px;
+		}
+
+		.subtitle{
+			font-size:13px;
+			color:var(--muted);
+			margin:0;
+		}
 
 		.controls{
 			display:flex;
@@ -195,10 +220,24 @@
 			transition:transform .12s ease, background .12s ease;
 		}
 
-		.control-btn:hover{ background:#2e3c33; }
-		.control-btn:active{ transform:scale(.96); }
-		.control-btn.primary{ width:64px; height:64px; background:linear-gradient(180deg, var(--green-2), var(--green-1)); }
-		.control-btn[disabled]{ opacity:.45; cursor:not-allowed; }
+		.control-btn:hover{
+			background:#2e3c33;
+		}
+
+		.control-btn:active{
+			transform:scale(.96);
+		}
+
+		.control-btn.primary{
+			width:64px;
+			height:64px;
+			background:linear-gradient(180deg, var(--green-2), var(--green-1));
+		}
+
+		.control-btn[disabled]{
+			opacity:.45;
+			cursor:not-allowed;
+		}
 
 		.panel-body{
 			min-height:0;
@@ -214,9 +253,19 @@
 			padding-top:12px;
 		}
 
-		.pane.active{ display:grid; }
-		.play-pane{ grid-template-rows:auto 1fr; gap:10px; }
-		.admin-pane{ grid-template-rows:auto auto 1fr; gap:12px; }
+		.pane.active{
+			display:grid;
+		}
+
+		.play-pane{
+			grid-template-rows:auto 1fr;
+			gap:10px;
+		}
+
+		.admin-pane{
+			grid-template-rows:auto auto 1fr;
+			gap:12px;
+		}
 
 		.toolbar-row{
 			display:flex;
@@ -253,8 +302,15 @@
 
 		.select:focus,
 		.input:focus,
-		.textarea:focus{ box-shadow:0 0 0 3px rgba(121,183,145,.14); border-color:var(--green-3); }
-		.textarea{ min-height:110px; resize:vertical; }
+		.textarea:focus{
+			box-shadow:0 0 0 3px rgba(121,183,145,.14);
+			border-color:var(--green-3);
+		}
+
+		.textarea{
+			min-height:110px;
+			resize:vertical;
+		}
 
 		.small-btn,
 		.action-btn,
@@ -307,13 +363,30 @@
 		}
 
 		.track:hover,
-		.admin-track:hover{ background:rgba(255,255,255,.05); }
-		.track.active{ background:rgba(121,183,145,.18); }
+		.admin-track:hover{
+			background:rgba(255,255,255,.05);
+		}
+
+		.track.active{
+			background:rgba(121,183,145,.18);
+		}
 
 		.track-name,
-		.admin-track-title{ font-size:14px; font-weight:600; margin:0 0 4px; }
+		.admin-track-title{
+			font-size:14px;
+			font-weight:600;
+			margin:0 0 4px;
+		}
+
 		.track-url,
-		.admin-track-meta{ font-size:11px; color:var(--muted); margin:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+		.admin-track-meta{
+			font-size:11px;
+			color:var(--muted);
+			margin:0;
+			white-space:nowrap;
+			overflow:hidden;
+			text-overflow:ellipsis;
+		}
 
 		.empty-state{
 			padding:18px 14px;
@@ -333,13 +406,36 @@
 			gap:12px;
 		}
 
-		.admin-grid{ display:grid; gap:10px; }
-		.admin-grid.two{ grid-template-columns:1fr 1fr; }
-		.helper{ font-size:12px; color:var(--muted); }
-		.message{ min-height:18px; font-size:12px; color:#d8e9dc; }
-		.message.error{ color:#f0c6c6; }
+		.admin-grid{
+			display:grid;
+			gap:10px;
+		}
+
+		.admin-grid.two{
+			grid-template-columns:1fr 1fr;
+		}
+
+		.helper{
+			font-size:12px;
+			color:var(--muted);
+		}
+
+		.message{
+			min-height:18px;
+			font-size:12px;
+			color:#d8e9dc;
+		}
+
+		.message.error{
+			color:#f0c6c6;
+		}
+
 		.tag-row,
-		.checkbox-list{ display:flex; flex-wrap:wrap; gap:8px; }
+		.checkbox-list{
+			display:flex;
+			flex-wrap:wrap;
+			gap:8px;
+		}
 
 		.tag,
 		.checkbox-pill{
@@ -360,14 +456,33 @@
 			user-select:none;
 		}
 
-		.checkbox-pill input{ accent-color:var(--green-3); }
-		.admin-item-actions{ display:flex; gap:8px; flex-wrap:wrap; }
+		.checkbox-pill input{
+			accent-color:var(--green-3);
+		}
+
+		.admin-item-actions{
+			display:flex;
+			gap:8px;
+			flex-wrap:wrap;
+		}
 
 		@media (max-width:760px){
-			body{ padding:8px; }
-			.player{ border-radius:18px; }
-			.admin-grid.two{ grid-template-columns:1fr; }
-			.video-wrap{ min-height:170px; max-height:none; }
+			body{
+				padding:8px;
+			}
+
+			.player{
+				border-radius:18px;
+			}
+
+			.admin-grid.two{
+				grid-template-columns:1fr;
+			}
+
+			.video-wrap{
+				min-height:170px;
+				max-height:none;
+			}
 		}
 	</style>
 </head>
@@ -399,8 +514,13 @@
 
 			<div class="player-area">
 				<div class="video-wrap">
-					<div id="playerTarget"></div>
-					<div class="video-overlay" id="videoOverlay">Select a song to load the player.</div>
+					<iframe
+						id="playerFrame"
+						allow="autoplay; encrypted-media; picture-in-picture; fullscreen"
+						allowfullscreen
+						referrerpolicy="strict-origin-when-cross-origin"
+					></iframe>
+					<div class="video-overlay hidden" id="videoOverlay"></div>
 				</div>
 			</div>
 
@@ -462,23 +582,19 @@
 		</div>
 	</div>
 
-	<script src="https://www.youtube.com/iframe_api"></script>
 	<script type="module">
 		import { initializeApp } from 'https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js';
 		import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js';
 		import { getDatabase, ref, onValue, push, set, serverTimestamp, remove } from 'https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js';
 
-	
-const firebaseConfig = {
-  apiKey: "AIzaSyBJ2GgWuXk6SZRA1ZGO7FkfYjTvewqu3_4",
-  authDomain: "homescreen-df0a1.firebaseapp.com",
-  projectId: "homescreen-df0a1",
-  storageBucket: "homescreen-df0a1.firebasestorage.app",
-  messagingSenderId: "371920647149",
-  appId: "1:371920647149:web:17f4f40918c03c4187ede4"
-};
-
-
+		const firebaseConfig = {
+			apiKey: "AIzaSyBJ2GgWuXk6SZRA1ZGO7FkfYjTvewqu3_4",
+			authDomain: "homescreen-df0a1.firebaseapp.com",
+			projectId: "homescreen-df0a1",
+			storageBucket: "homescreen-df0a1.firebasestorage.app",
+			messagingSenderId: "371920647149",
+			appId: "1:371920647149:web:17f4f40918c03c4187ede4"
+		};
 
 		const OWNER_EMAIL = 'owner@mrrains.org';
 		const STUDENT_EMAIL = 'student@mrrains.org';
@@ -488,6 +604,7 @@ const firebaseConfig = {
 		const db = getDatabase(app);
 
 		const playerShell = document.getElementById('playerShell');
+		const playerFrame = document.getElementById('playerFrame');
 		const trackTitle = document.getElementById('trackTitle');
 		const trackSubtitle = document.getElementById('trackSubtitle');
 		const playlistEl = document.getElementById('playlist');
@@ -513,10 +630,7 @@ const firebaseConfig = {
 		const adminSongList = document.getElementById('adminSongList');
 		const videoOverlay = document.getElementById('videoOverlay');
 
-		let player;
-		let playerReady = false;
-		let apiReady = false;
-		let isPlaying = false;
+		let isPlaying = true;
 		let currentIndex = 0;
 		let currentPlaylistId = 'all';
 		let allTracks = [];
@@ -525,8 +639,6 @@ const firebaseConfig = {
 		let authMeta = null;
 		let currentUser = null;
 		let activeMode = 'play';
-		let pendingVideoId = '';
-		let pendingAutoplay = false;
 
 		function readSessionMetadata(){
 			try{
@@ -543,13 +655,31 @@ const firebaseConfig = {
 		function getVideoId(url){
 			try{
 				const parsed = new URL(url);
-				if(parsed.hostname.includes('youtu.be')) return parsed.pathname.slice(1);
-				if(parsed.pathname.startsWith('/shorts/')) return parsed.pathname.split('/')[2] || '';
-				if(parsed.pathname.startsWith('/embed/')) return parsed.pathname.split('/')[2] || '';
+
+				if(parsed.hostname.includes('youtu.be')){
+					return parsed.pathname.slice(1);
+				}
+
+				if(parsed.pathname.startsWith('/shorts/')){
+					return parsed.pathname.split('/')[2] || '';
+				}
+
+				if(parsed.pathname.startsWith('/embed/')){
+					return parsed.pathname.split('/')[2] || '';
+				}
+
 				return parsed.searchParams.get('v') || '';
 			}catch(err){
 				return '';
 			}
+		}
+
+		function getEmbedUrl(url, autoplay = true){
+			const videoId = getVideoId(url);
+			if(!videoId) return '';
+
+			const auto = autoplay ? '1' : '0';
+			return `https://www.youtube.com/embed/${videoId}?autoplay=${auto}&rel=0&modestbranding=1&playsinline=1`;
 		}
 
 		function setOverlay(message = ''){
@@ -557,59 +687,15 @@ const firebaseConfig = {
 			videoOverlay.classList.toggle('hidden', !message);
 		}
 
-		function ensurePlayer(){
-			if(!apiReady || player) return;
-			player = new YT.Player('playerTarget', {
-				width: '100%',
-				height: '100%',
-				videoId: '',
-				playerVars: {
-					rel: 0,
-					modestbranding: 1,
-					playsinline: 1
-				},
-				events: {
-					onReady: () => {
-						playerReady = true;
-						if(pendingVideoId){
-							loadIntoPlayer(pendingVideoId, pendingAutoplay);
-						}
-						updateTransportDisabled();
-					},
-					onStateChange: (event) => {
-						isPlaying = event.data === YT.PlayerState.PLAYING;
-						playPauseIcon.textContent = isPlaying ? 'pause' : 'play_arrow';
-						if(event.data === YT.PlayerState.ENDED) nextTrack();
-					}
-				}
-			});
+		function stopPlayback(){
+			playerFrame.src = '';
+			isPlaying = false;
+			playPauseIcon.textContent = 'play_arrow';
 		}
-
-		function loadIntoPlayer(videoId, autoplay){
-			if(!playerReady || !player) return;
-			setOverlay('');
-			if(autoplay){
-				player.loadVideoById(videoId);
-			}else{
-				player.cueVideoById(videoId);
-				isPlaying = false;
-				playPauseIcon.textContent = 'play_arrow';
-			}
-		}
-
-		window.onYouTubeIframeAPIReady = function(){
-			apiReady = true;
-			ensurePlayer();
-		};
-
-		window.setTimeout(() => {
-			if(!apiReady){
-				setOverlay('The YouTube player could not load. Check the video link or browser privacy settings.');
-			}
-		}, 5000);
 
 		function setMode(mode){
 			if(mode === 'manage' && !isLoggedIn()) mode = 'play';
+
 			activeMode = mode;
 			playerShell.classList.toggle('manage-mode', mode === 'manage');
 			playModeBtn.classList.toggle('active', mode === 'play');
@@ -636,13 +722,44 @@ const firebaseConfig = {
 			manageModeBtn.disabled = !isLoggedIn();
 			createPlaylistBtn.disabled = !isLoggedIn();
 			saveSongBtn.disabled = !isLoggedIn();
-			if(!isLoggedIn() && activeMode === 'manage') setMode('play');
+
+			if(!isLoggedIn() && activeMode === 'manage'){
+				setMode('play');
+			}
+		}
+
+		function escapeHtml(value){
+			return String(value ?? '')
+				.replaceAll('&', '&amp;')
+				.replaceAll('<', '&lt;')
+				.replaceAll('>', '&gt;')
+				.replaceAll('"', '&quot;')
+				.replaceAll("'", '&#39;');
+		}
+
+		function setMessage(el, text, isError = false){
+			el.textContent = text;
+			el.classList.toggle('error', !!isError);
+		}
+
+		function updateTransportDisabled(){
+			const disabled = !filteredTracks.length;
+			playPauseBtn.disabled = disabled;
+			prevBtn.disabled = disabled;
+			nextBtn.disabled = disabled;
 		}
 
 		function renderPlaylistOptions(){
 			const options = [{ id: 'all', name: 'All songs' }, ...playlists];
-			playlistSelect.innerHTML = options.map(item => `<option value="${item.id}">${escapeHtml(item.name)}</option>`).join('');
-			if(!options.some(item => item.id === currentPlaylistId)) currentPlaylistId = 'all';
+
+			playlistSelect.innerHTML = options.map(item => `
+				<option value="${item.id}">${escapeHtml(item.name)}</option>
+			`).join('');
+
+			if(!options.some(item => item.id === currentPlaylistId)){
+				currentPlaylistId = 'all';
+			}
+
 			playlistSelect.value = currentPlaylistId;
 
 			if(!playlists.length){
@@ -662,7 +779,10 @@ const firebaseConfig = {
 			filteredTracks = currentPlaylistId === 'all'
 				? [...allTracks]
 				: allTracks.filter(track => (track.playlistIds || []).includes(currentPlaylistId));
-			if(currentIndex >= filteredTracks.length) currentIndex = 0;
+
+			if(currentIndex >= filteredTracks.length){
+				currentIndex = 0;
+			}
 		}
 
 		function renderPlaylist(){
@@ -672,8 +792,7 @@ const firebaseConfig = {
 				playlistEl.innerHTML = '<div class="empty-state">No songs are in this playlist yet.</div>';
 				trackTitle.textContent = 'No songs yet';
 				trackSubtitle.textContent = currentPlaylistId === 'all' ? 'Add songs in Add Songs mode.' : 'This playlist is empty.';
-				playPauseIcon.textContent = 'play_arrow';
-				isPlaying = false;
+				stopPlayback();
 				setOverlay('No song selected yet.');
 				updateTransportDisabled();
 				return;
@@ -689,7 +808,8 @@ const firebaseConfig = {
 			playlistEl.querySelectorAll('.track').forEach(button => {
 				button.addEventListener('click', () => {
 					currentIndex = Number(button.dataset.index);
-					loadCurrentTrack(true);
+					isPlaying = true;
+					loadCurrentTrack();
 				});
 			});
 
@@ -703,14 +823,22 @@ const firebaseConfig = {
 			}
 
 			adminSongList.innerHTML = allTracks.map(track => {
-				const tags = (track.playlistIds || []).map(id => playlists.find(item => item.id === id)?.name).filter(Boolean);
+				const tags = (track.playlistIds || [])
+					.map(id => playlists.find(item => item.id === id)?.name)
+					.filter(Boolean);
+
 				return `
 					<div class="admin-card">
 						<div>
 							<div class="admin-track-title">${escapeHtml(track.title)}</div>
 							<div class="admin-track-meta">${escapeHtml(track.url)}</div>
 						</div>
-						<div class="tag-row">${tags.length ? tags.map(tag => `<span class="tag">${escapeHtml(tag)}</span>`).join('') : '<span class="helper">No playlist assigned</span>'}</div>
+						<div class="tag-row">
+							${tags.length
+								? tags.map(tag => `<span class="tag">${escapeHtml(tag)}</span>`).join('')
+								: '<span class="helper">No playlist assigned</span>'
+							}
+						</div>
 						<div class="admin-item-actions">
 							<button class="delete-btn" data-delete-song="${track.id}" type="button">Delete song</button>
 						</div>
@@ -721,7 +849,9 @@ const firebaseConfig = {
 			adminSongList.querySelectorAll('[data-delete-song]').forEach(button => {
 				button.addEventListener('click', async () => {
 					if(!isLoggedIn()) return;
+
 					const id = button.getAttribute('data-delete-song');
+
 					try{
 						await remove(ref(db, `music/tracks/${id}`));
 						setMessage(songMessage, 'Song deleted.');
@@ -733,73 +863,61 @@ const firebaseConfig = {
 			});
 		}
 
-		function maybeRenderCurrentTrack(){
-			renderPlaylist();
-			if(filteredTracks.length) loadCurrentTrack(false);
-		}
-
-		function loadCurrentTrack(autoplay = false){
-			if(!filteredTracks.length) return;
-			const track = filteredTracks[currentIndex];
-			const videoId = getVideoId(track.url);
-			trackTitle.textContent = track.title;
-			const currentPlaylistName = currentPlaylistId === 'all'
-				? 'All songs'
-				: (playlists.find(item => item.id === currentPlaylistId)?.name || 'Playlist');
-			trackSubtitle.textContent = `${currentPlaylistName} • Track ${currentIndex + 1} of ${filteredTracks.length}`;
-			renderPlaylist();
-
-			if(!videoId){
-				setOverlay('This song has an invalid YouTube link.');
+		function loadCurrentTrack(){
+			if(!filteredTracks.length){
+				stopPlayback();
 				return;
 			}
 
-			pendingVideoId = videoId;
-			pendingAutoplay = autoplay;
-			ensurePlayer();
+			const track = filteredTracks[currentIndex];
+			const embedUrl = getEmbedUrl(track.url, isPlaying);
 
-			if(playerReady && player){
-				loadIntoPlayer(videoId, autoplay);
-			}else{
-				setOverlay('Loading player...');
+			trackTitle.textContent = track.title;
+
+			const currentPlaylistName = currentPlaylistId === 'all'
+				? 'All songs'
+				: (playlists.find(item => item.id === currentPlaylistId)?.name || 'Playlist');
+
+			trackSubtitle.textContent = `${currentPlaylistName} • Track ${currentIndex + 1} of ${filteredTracks.length}`;
+
+			if(!embedUrl){
+				stopPlayback();
+				setOverlay('This song has an invalid YouTube link.');
+				renderPlaylist();
+				return;
+			}
+
+			setOverlay('');
+			playerFrame.src = embedUrl;
+			playPauseIcon.textContent = isPlaying ? 'pause' : 'play_arrow';
+			renderPlaylist();
+		}
+
+		function maybeRenderCurrentTrack(){
+			renderPlaylist();
+
+			if(filteredTracks.length){
+				loadCurrentTrack();
 			}
 		}
 
 		function nextTrack(){
 			if(!filteredTracks.length) return;
 			currentIndex = (currentIndex + 1) % filteredTracks.length;
-			loadCurrentTrack(true);
+			isPlaying = true;
+			loadCurrentTrack();
 		}
 
 		function prevTrack(){
 			if(!filteredTracks.length) return;
 			currentIndex = (currentIndex - 1 + filteredTracks.length) % filteredTracks.length;
-			loadCurrentTrack(true);
-		}
-
-		function setMessage(el, text, isError = false){
-			el.textContent = text;
-			el.classList.toggle('error', !!isError);
-		}
-
-		function updateTransportDisabled(){
-			const disabled = !filteredTracks.length;
-			playPauseBtn.disabled = disabled;
-			prevBtn.disabled = disabled;
-			nextBtn.disabled = disabled;
+			isPlaying = true;
+			loadCurrentTrack();
 		}
 
 		function selectedPlaylistIds(){
-			return [...songPlaylistChecks.querySelectorAll('input[type="checkbox"]:checked')].map(input => input.value);
-		}
-
-		function escapeHtml(value){
-			return String(value ?? '')
-				.replaceAll('&', '&amp;')
-				.replaceAll('<', '&lt;')
-				.replaceAll('>', '&gt;')
-				.replaceAll('"', '&quot;')
-				.replaceAll("'", '&#39;');
+			return [...songPlaylistChecks.querySelectorAll('input[type="checkbox"]:checked')]
+				.map(input => input.value);
 		}
 
 		playlistSelect.addEventListener('change', () => {
@@ -809,34 +927,36 @@ const firebaseConfig = {
 		});
 
 		playModeBtn.addEventListener('click', () => setMode('play'));
+
 		manageModeBtn.addEventListener('click', () => {
-			if(isLoggedIn()) setMode('manage');
+			if(isLoggedIn()){
+				setMode('manage');
+			}
 		});
+
 		prevBtn.addEventListener('click', prevTrack);
 		nextBtn.addEventListener('click', nextTrack);
+
 		playPauseBtn.addEventListener('click', () => {
-			if(!playerReady || !player || !filteredTracks.length) return;
-			if(isPlaying){
-				player.pauseVideo();
-				isPlaying = false;
-				playPauseIcon.textContent = 'play_arrow';
-			}else{
-				player.playVideo();
-				isPlaying = true;
-				playPauseIcon.textContent = 'pause';
-				setOverlay('');
-			}
+			if(!filteredTracks.length) return;
+			isPlaying = !isPlaying;
+			loadCurrentTrack();
 		});
 
 		createPlaylistBtn.addEventListener('click', async () => {
 			if(!isLoggedIn()) return;
+
 			const name = newPlaylistName.value.trim();
+
 			if(!name){
 				setMessage(playlistMessage, 'Type a playlist name first.', true);
 				return;
 			}
 
-			const duplicate = playlists.some(item => item.name.trim().toLowerCase() === name.toLowerCase());
+			const duplicate = playlists.some(item =>
+				item.name.trim().toLowerCase() === name.toLowerCase()
+			);
+
 			if(duplicate){
 				setMessage(playlistMessage, 'That playlist already exists.', true);
 				return;
@@ -845,7 +965,12 @@ const firebaseConfig = {
 			try{
 				const playlistsRef = ref(db, 'music/playlists');
 				const newRef = push(playlistsRef);
-				await set(newRef, { name, createdAt: serverTimestamp() });
+
+				await set(newRef, {
+					name,
+					createdAt: serverTimestamp()
+				});
+
 				newPlaylistName.value = '';
 				setMessage(playlistMessage, 'Playlist created.');
 			}catch(err){
@@ -856,6 +981,7 @@ const firebaseConfig = {
 
 		saveSongBtn.addEventListener('click', async () => {
 			if(!isLoggedIn()) return;
+
 			const title = songTitleInput.value.trim();
 			const url = songUrlInput.value.trim();
 			const playlistIds = selectedPlaylistIds();
@@ -865,29 +991,37 @@ const firebaseConfig = {
 				setMessage(songMessage, 'Fill in the title and URL.', true);
 				return;
 			}
+
 			if(!videoId){
 				setMessage(songMessage, 'Enter a valid YouTube link.', true);
 				return;
 			}
+
 			if(!playlistIds.length){
 				setMessage(songMessage, 'Select at least one playlist.', true);
 				return;
 			}
 
-			const playlistMap = Object.fromEntries(playlistIds.map(id => [id, true]));
+			const playlistMap = Object.fromEntries(
+				playlistIds.map(id => [id, true])
+			);
 
 			try{
 				const tracksRef = ref(db, 'music/tracks');
 				const newRef = push(tracksRef);
+
 				await set(newRef, {
 					title,
 					url,
 					playlistIds: playlistMap,
 					createdAt: serverTimestamp()
 				});
+
 				songTitleInput.value = '';
 				songUrlInput.value = '';
-				songPlaylistChecks.querySelectorAll('input[type="checkbox"]').forEach(input => { input.checked = false; });
+				songPlaylistChecks.querySelectorAll('input[type="checkbox"]').forEach(input => {
+					input.checked = false;
+				});
 				setMessage(songMessage, 'Song saved.');
 			}catch(err){
 				console.error(err);
@@ -895,45 +1029,55 @@ const firebaseConfig = {
 			}
 		});
 
-		onAuthStateChanged(auth, (user) => {
+		onAuthStateChanged(auth, user => {
 			currentUser = user;
 			authMeta = readSessionMetadata();
 			updateRoleUi();
 		});
 
-		window.addEventListener('storage', (event) => {
+		window.addEventListener('storage', event => {
 			if(event.key === 'desktopAuthMeta'){
 				authMeta = readSessionMetadata();
 				updateRoleUi();
 			}
 		});
 
-		window.addEventListener('desktop-auth-changed', (event) => {
+		window.addEventListener('desktop-auth-changed', event => {
 			authMeta = event.detail || readSessionMetadata();
 			updateRoleUi();
 		});
 
-		onValue(ref(db, 'music/playlists'), (snapshot) => {
+		onValue(ref(db, 'music/playlists'), snapshot => {
 			const raw = snapshot.val() || {};
+
 			playlists = Object.entries(raw)
-				.map(([id, value]) => ({ id, name: value?.name || 'Untitled playlist', createdAt: value?.createdAt || 0 }))
+				.map(([id, value]) => ({
+					id,
+					name: value?.name || 'Untitled playlist',
+					createdAt: value?.createdAt || 0
+				}))
 				.sort((a, b) => String(a.name).localeCompare(String(b.name)));
+
 			renderPlaylistOptions();
 			renderAdminSongList();
 			maybeRenderCurrentTrack();
 		});
 
-		onValue(ref(db, 'music/tracks'), (snapshot) => {
+		onValue(ref(db, 'music/tracks'), snapshot => {
 			const raw = snapshot.val() || {};
+
 			allTracks = Object.entries(raw)
 				.map(([id, value]) => ({
 					id,
 					title: value?.title || 'Untitled song',
 					url: value?.url || '',
-					playlistIds: value?.playlistIds ? Object.keys(value.playlistIds).filter(key => value.playlistIds[key]) : [],
+					playlistIds: value?.playlistIds
+						? Object.keys(value.playlistIds).filter(key => value.playlistIds[key])
+						: [],
 					createdAt: value?.createdAt || 0
 				}))
 				.sort((a, b) => String(a.title).localeCompare(String(b.title)));
+
 			renderAdminSongList();
 			maybeRenderCurrentTrack();
 		});

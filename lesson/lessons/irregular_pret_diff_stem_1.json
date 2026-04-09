@@ -1,0 +1,84 @@
+{
+  "title": "Irregular Preterite Verbs",
+  "subtitle": "Lesson 1",
+  "questions": [
+    {
+      "type": "table-select",
+      "prompt": "Which Spanish word means 'to have'?",
+      "tiles": ["tener", "estar", "poder"],
+      "gridRows": 1,
+      "gridCols": 3,
+      "correctTile": "tener"
+    },
+    {
+      "type": "table-select",
+      "prompt": "Which Spanish word means 'to be'?",
+      "tiles": ["venir", "estar", "querer"],
+      "gridRows": 1,
+      "gridCols": 3,
+      "correctTile": "estar"
+    },
+    {
+      "type": "table-select",
+      "prompt": "What is the new stem for tener?",
+      "tiles": ["tuv-", "estuv-", "pud-"],
+      "gridRows": 1,
+      "gridCols": 3,
+      "correctTile": "tuv-"
+    },
+    {
+      "type": "table-select",
+      "prompt": "What is the new stem for estar?",
+      "tiles": ["quis-", "estuv-", "sup-"],
+      "gridRows": 1,
+      "gridCols": 3,
+      "correctTile": "estuv-"
+    },
+    {
+      "type": "translate-en-es",
+      "sentence": "You had a lot of homework last night.",
+      "answer": ["tuviste", "mucha", "tarea", "anoche"],
+      "answerAlternates": [["tú", "tuviste", "mucha", "tarea", "anoche"]],
+      "bank": ["tú", "tuviste", "mucha", "tarea", "anoche", "estuviste", "en", "casa"]
+    },
+    {
+      "type": "translate-en-es",
+      "sentence": "We were at school this morning.",
+      "answer": ["estuvimos", "en", "la", "escuela", "esta", "mañana"],
+      "answerAlternates": [["nosotros", "estuvimos", "en", "la", "escuela", "esta", "mañana"]],
+      "bank": ["nosotros", "estuvimos", "en", "la", "escuela", "esta", "mañana", "tuvimos"]
+    },
+    {
+      "type": "translate-en-es",
+      "sentence": "She had a big problem yesterday.",
+      "answer": ["tuvo", "un", "problema", "grande", "ayer"],
+      "answerAlternates": [["ella", "tuvo", "un", "problema", "grande", "ayer"]],
+      "bank": ["ella", "tuvo", "un", "problema", "grande", "ayer", "estuvo", "en", "clase"]
+    },
+    {
+      "type": "listen-es-es",
+      "spanish": "tú tuviste mucha tarea anoche",
+      "audio": "tú tuviste mucha tarea anoche",
+      "translation": "You had a lot of homework last night.",
+      "answer": ["tuviste", "mucha", "tarea", "anoche"],
+      "answerAlternates": [["tú", "tuviste", "mucha", "tarea", "anoche"]],
+      "bank": ["tú", "tuviste", "mucha", "tarea", "anoche", "estuviste", "en", "casa"]
+    },
+    {
+      "type": "listen-es-es",
+      "spanish": "nosotros estuvimos en la escuela esta mañana",
+      "audio": "nosotros estuvimos en la escuela esta mañana",
+      "translation": "We were at school this morning.",
+      "answer": ["estuvimos", "en", "la", "escuela", "esta", "mañana"],
+      "answerAlternates": [["nosotros", "estuvimos", "en", "la", "escuela", "esta", "mañana"]],
+      "bank": ["nosotros", "estuvimos", "en", "la", "escuela", "esta", "mañana", "tuvimos"]
+    },
+    {
+      "type": "type-en-es-typed",
+      "sentence": "He was at home last night.",
+      "answerText": "estuvo en casa anoche",
+      "answerTexts": ["él estuvo en casa anoche"],
+      "audio": "él estuvo en casa anoche"
+    }
+  ]
+}
