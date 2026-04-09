@@ -1,0 +1,87 @@
+{
+  "title": "Imperfect Tense",
+  "subtitle": "Lesson 4",
+  "questions": [
+    {
+      "type": "table-select",
+      "prompt": "Which imperfect form belongs to ser?",
+      "tiles": ["era", "iba", "veía"],
+      "gridRows": 1,
+      "gridCols": 3,
+      "correctTile": "era",
+      "info": "imperfect_4_info.html"
+    },
+    {
+      "type": "table-select",
+      "prompt": "Which imperfect form means 'we used to go'?",
+      "tiles": ["éramos", "íbamos", "veíamos"],
+      "gridRows": 1,
+      "gridCols": 3,
+      "correctTile": "íbamos",
+      "info": "imperfect_4_info.html"
+    },
+    {
+      "type": "table-select",
+      "prompt": "Which verb is irregular in the imperfect?",
+      "tiles": ["hablar", "comer", "ver"],
+      "gridRows": 1,
+      "gridCols": 3,
+      "correctTile": "ver",
+      "info": "imperfect_4_info.html"
+    },
+    {
+      "type": "translate-en-es",
+      "sentence": "I used to be very shy.",
+      "answer": ["era", "muy", "tímido"],
+      "answerAlternates": [["yo", "era", "muy", "tímido"], ["yo", "era", "muy", "tímida"]],
+      "bank": ["yo", "era", "muy", "tímido", "tímida", "fui", "iba"],
+      "info": "imperfect_4_info.html"
+    },
+    {
+      "type": "translate-en-es",
+      "sentence": "We used to go to the park.",
+      "answer": ["íbamos", "al", "parque"],
+      "answerAlternates": [["nosotros", "íbamos", "al", "parque"]],
+      "bank": ["nosotros", "íbamos", "al", "parque", "fuimos", "casa"],
+      "info": "imperfect_4_info.html"
+    },
+    {
+      "type": "translate-en-es",
+      "sentence": "They used to see the teacher.",
+      "answer": ["veían", "al", "profesor"],
+      "answerAlternates": [["ellos", "veían", "al", "profesor"], ["ellas", "veían", "al", "profesor"]],
+      "bank": ["ellos", "ellas", "veían", "al", "profesor", "vieron", "la", "profesora"],
+      "info": "imperfect_4_info.html"
+    },
+    {
+      "type": "translate-es-en",
+      "sentence": "éramos buenos amigos",
+      "answer": ["we", "used", "to", "be", "good", "friends"],
+      "answerAlternates": [["we", "were", "good", "friends"]],
+      "bank": ["we", "used", "to", "be", "good", "friends", "they", "students"],
+      "info": "imperfect_4_info.html"
+    },
+    {
+      "type": "translate-es-en",
+      "sentence": "iba a la biblioteca",
+      "answer": ["he", "used", "to", "go", "to", "the", "library"],
+      "answerAlternates": [["she", "used", "to", "go", "to", "the", "library"]],
+      "bank": ["he", "she", "used", "to", "go", "to", "the", "library", "park"],
+      "info": "imperfect_4_info.html"
+    },
+    {
+      "type": "type-en-es-typed",
+      "sentence": "you used to see the movie",
+      "answerText": "veías la película",
+      "answerTexts": ["tú veías la película"],
+      "info": "imperfect_4_info.html"
+    },
+    {
+      "type": "type-es-en-typed",
+      "sentence": "eran muy inteligentes",
+      "answerText": "they used to be very intelligent",
+      "answerTexts": ["they were very intelligent"],
+      "info": "imperfect_4_info.html"
+    }
+  ]
+}

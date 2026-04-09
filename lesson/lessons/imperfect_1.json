@@ -1,0 +1,88 @@
+{
+  "title": "Imperfect Tense",
+  "subtitle": "Lesson 1",
+  "questions": [
+    {
+      "type": "table-select",
+      "prompt": "Which ending matches 'yo' for regular -ar verbs in the imperfect?",
+      "tiles": ["-aba", "-abas", "-ábamos", "-aban"],
+      "gridRows": 2,
+      "gridCols": 2,
+      "correctTile": "-aba",
+      "info": "imperfect_1_info.html"
+    },
+    {
+      "type": "table-select",
+      "prompt": "Which ending matches 'tú' for regular -ar verbs in the imperfect?",
+      "tiles": ["-aba", "-abas", "-ábamos", "-aban"],
+      "gridRows": 2,
+      "gridCols": 2,
+      "correctTile": "-abas",
+      "info": "imperfect_1_info.html"
+    },
+    {
+      "type": "table-select",
+      "prompt": "Which ending matches 'nosotros' for regular -ar verbs in the imperfect?",
+      "tiles": ["-aba", "-ábamos", "-aban", "-ías"],
+      "gridRows": 2,
+      "gridCols": 2,
+      "correctTile": "-ábamos",
+      "info": "imperfect_1_info.html"
+    },
+    {
+      "type": "table-select",
+      "prompt": "Which Spanish word means 'used to talk'?",
+      "tiles": ["hablaba", "hablé", "hablo"],
+      "gridRows": 1,
+      "gridCols": 3,
+      "correctTile": "hablaba",
+      "info": "imperfect_1_info.html"
+    },
+    {
+      "type": "translate-en-es",
+      "sentence": "I used to talk in class.",
+      "answer": ["hablaba", "en", "clase"],
+      "answerAlternates": [["yo", "hablaba", "en", "clase"]],
+      "bank": ["yo", "hablaba", "en", "clase", "hablé", "escuela"],
+      "info": "imperfect_1_info.html"
+    },
+    {
+      "type": "translate-en-es",
+      "sentence": "You used to study every day.",
+      "answer": ["estudiabas", "todos", "los", "días"],
+      "answerAlternates": [["tú", "estudiabas", "todos", "los", "días"]],
+      "bank": ["tú", "estudiabas", "todos", "los", "días", "estudiaste", "ayer"],
+      "info": "imperfect_1_info.html"
+    },
+    {
+      "type": "translate-en-es",
+      "sentence": "He used to walk to school.",
+      "answer": ["caminaba", "a", "la", "escuela"],
+      "answerAlternates": [["él", "caminaba", "a", "la", "escuela"]],
+      "bank": ["él", "caminaba", "a", "la", "escuela", "caminó", "casa"],
+      "info": "imperfect_1_info.html"
+    },
+    {
+      "type": "translate-es-en",
+      "sentence": "mirábamos la televisión",
+      "answer": ["we", "used", "to", "watch", "tv"],
+      "answerAlternates": [["we", "were", "watching", "tv"]],
+      "bank": ["we", "used", "to", "watch", "tv", "they", "yesterday"],
+      "info": "imperfect_1_info.html"
+    },
+    {
+      "type": "type-en-es-typed",
+      "sentence": "we used to talk in Spanish",
+      "answerText": "hablábamos en español",
+      "answerTexts": ["nosotros hablábamos en español"],
+      "info": "imperfect_1_info.html"
+    },
+    {
+      "type": "type-en-es-typed",
+      "sentence": "they used to study a lot",
+      "answerText": "estudiaban mucho",
+      "answerTexts": ["ellos estudiaban mucho", "ellas estudiaban mucho"],
+      "info": "imperfect_1_info.html"
+    }
+  ]
+}

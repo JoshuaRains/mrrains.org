@@ -1,0 +1,87 @@
+{
+  "title": "Imperfect Tense",
+  "subtitle": "Lesson 5",
+  "questions": [
+    {
+      "type": "table-select",
+      "prompt": "Which form is the imperfect of hablar for 'ellos'?",
+      "tiles": ["hablaron", "hablaban", "hablarán"],
+      "gridRows": 1,
+      "gridCols": 3,
+      "correctTile": "hablaban",
+      "info": "imperfect_5_info.html"
+    },
+    {
+      "type": "table-select",
+      "prompt": "Which form is the imperfect of comer for 'nosotros'?",
+      "tiles": ["comíamos", "comimos", "comeremos"],
+      "gridRows": 1,
+      "gridCols": 3,
+      "correctTile": "comíamos",
+      "info": "imperfect_5_info.html"
+    },
+    {
+      "type": "table-select",
+      "prompt": "Which form is the imperfect of ir for 'yo'?",
+      "tiles": ["iba", "fui", "voy"],
+      "gridRows": 1,
+      "gridCols": 3,
+      "correctTile": "iba",
+      "info": "imperfect_5_info.html"
+    },
+    {
+      "type": "translate-en-es",
+      "sentence": "When I was young, I used to read a lot.",
+      "answer": ["cuando", "era", "joven", "leía", "mucho"],
+      "answerAlternates": [["yo", "leía", "mucho", "cuando", "era", "joven"]],
+      "bank": ["cuando", "era", "joven", "yo", "leía", "mucho", "leí", "ayer"],
+      "info": "imperfect_5_info.html"
+    },
+    {
+      "type": "translate-en-es",
+      "sentence": "We used to go to my grandmother's house every summer.",
+      "answer": ["íbamos", "a", "la", "casa", "de", "mi", "abuela", "cada", "verano"],
+      "answerAlternates": [["nosotros", "íbamos", "a", "la", "casa", "de", "mi", "abuela", "cada", "verano"]],
+      "bank": ["nosotros", "íbamos", "a", "la", "casa", "de", "mi", "abuela", "cada", "verano", "fuimos"],
+      "info": "imperfect_5_info.html"
+    },
+    {
+      "type": "translate-en-es",
+      "sentence": "They used to drink water and talk.",
+      "answer": ["bebían", "agua", "y", "hablaban"],
+      "answerAlternates": [["ellos", "bebían", "agua", "y", "hablaban"], ["ellas", "bebían", "agua", "y", "hablaban"]],
+      "bank": ["ellos", "ellas", "bebían", "agua", "y", "hablaban", "bebieron", "hablaron"],
+      "info": "imperfect_5_info.html"
+    },
+    {
+      "type": "translate-es-en",
+      "sentence": "veíamos muchas películas",
+      "answer": ["we", "used", "to", "see", "many", "movies"],
+      "answerAlternates": [["we", "were", "watching", "many", "movies"]],
+      "bank": ["we", "used", "to", "see", "many", "movies", "they", "books"],
+      "info": "imperfect_5_info.html"
+    },
+    {
+      "type": "translate-es-en",
+      "sentence": "siempre eras muy amable",
+      "answer": ["you", "were", "always", "very", "kind"],
+      "answerAlternates": [["you", "used", "to", "be", "always", "very", "kind"]],
+      "bank": ["you", "were", "always", "very", "kind", "smart", "today"],
+      "info": "imperfect_5_info.html"
+    },
+    {
+      "type": "type-en-es-typed",
+      "sentence": "she used to live near the school",
+      "answerText": "vivía cerca de la escuela",
+      "answerTexts": ["ella vivía cerca de la escuela"],
+      "info": "imperfect_5_info.html"
+    },
+    {
+      "type": "type-es-en-typed",
+      "sentence": "a veces íbamos al parque",
+      "answerText": "sometimes we used to go to the park",
+      "answerTexts": ["sometimes we were going to the park"],
+      "info": "imperfect_5_info.html"
+    }
+  ]
+}

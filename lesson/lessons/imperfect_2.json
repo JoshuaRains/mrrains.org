@@ -1,0 +1,88 @@
+{
+  "title": "Imperfect Tense",
+  "subtitle": "Lesson 2",
+  "questions": [
+    {
+      "type": "table-select",
+      "prompt": "Which ending matches 'yo' for regular -er and -ir verbs in the imperfect?",
+      "tiles": ["-ía", "-ías", "-íamos", "-ían"],
+      "gridRows": 2,
+      "gridCols": 2,
+      "correctTile": "-ía",
+      "info": "imperfect_2_info.html"
+    },
+    {
+      "type": "table-select",
+      "prompt": "Which ending matches 'nosotros' for regular -er and -ir verbs in the imperfect?",
+      "tiles": ["-ía", "-íamos", "-ían", "-aba"],
+      "gridRows": 2,
+      "gridCols": 2,
+      "correctTile": "-íamos",
+      "info": "imperfect_2_info.html"
+    },
+    {
+      "type": "table-select",
+      "prompt": "Which Spanish word means 'used to eat'?",
+      "tiles": ["comía", "comí", "como"],
+      "gridRows": 1,
+      "gridCols": 3,
+      "correctTile": "comía",
+      "info": "imperfect_2_info.html"
+    },
+    {
+      "type": "table-select",
+      "prompt": "Which Spanish word means 'used to live'?",
+      "tiles": ["vivía", "viví", "vivo"],
+      "gridRows": 1,
+      "gridCols": 3,
+      "correctTile": "vivía",
+      "info": "imperfect_2_info.html"
+    },
+    {
+      "type": "translate-en-es",
+      "sentence": "I used to eat in the cafeteria.",
+      "answer": ["comía", "en", "la", "cafetería"],
+      "answerAlternates": [["yo", "comía", "en", "la", "cafetería"]],
+      "bank": ["yo", "comía", "en", "la", "cafetería", "comí", "casa"],
+      "info": "imperfect_2_info.html"
+    },
+    {
+      "type": "translate-en-es",
+      "sentence": "You used to read at night.",
+      "answer": ["leías", "por", "la", "noche"],
+      "answerAlternates": [["tú", "leías", "por", "la", "noche"]],
+      "bank": ["tú", "leías", "por", "la", "noche", "leíste", "ayer"],
+      "info": "imperfect_2_info.html"
+    },
+    {
+      "type": "translate-en-es",
+      "sentence": "We used to live in Texas.",
+      "answer": ["vivíamos", "en", "Texas"],
+      "answerAlternates": [["nosotros", "vivíamos", "en", "Texas"]],
+      "bank": ["nosotros", "vivíamos", "en", "Texas", "vivimos", "escuela"],
+      "info": "imperfect_2_info.html"
+    },
+    {
+      "type": "translate-es-en",
+      "sentence": "bebían agua",
+      "answer": ["they", "used", "to", "drink", "water"],
+      "answerAlternates": [["they", "were", "drinking", "water"]],
+      "bank": ["they", "used", "to", "drink", "water", "we", "juice"],
+      "info": "imperfect_2_info.html"
+    },
+    {
+      "type": "type-en-es-typed",
+      "sentence": "she used to write in class",
+      "answerText": "escribía en clase",
+      "answerTexts": ["ella escribía en clase"],
+      "info": "imperfect_2_info.html"
+    },
+    {
+      "type": "type-es-en-typed",
+      "sentence": "comíamos pizza",
+      "answerText": "we used to eat pizza",
+      "answerTexts": ["we were eating pizza"],
+      "info": "imperfect_2_info.html"
+    }
+  ]
+}

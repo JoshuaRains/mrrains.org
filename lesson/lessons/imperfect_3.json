@@ -1,0 +1,78 @@
+{
+  "title": "Imperfect Tense",
+  "subtitle": "Lesson 3",
+  "questions": [
+    {
+      "type": "table-select",
+      "prompt": "Which clue word often goes with the imperfect?",
+      "tiles": ["siempre", "ayer", "anoche"],
+      "gridRows": 1,
+      "gridCols": 3,
+      "correctTile": "siempre",
+      "info": "imperfect_3_info.html"
+    },
+    {
+      "type": "table-select",
+      "prompt": "Which phrase means 'as a child'?",
+      "tiles": ["de niño", "esta noche", "mañana"],
+      "gridRows": 1,
+      "gridCols": 3,
+      "correctTile": "de niño",
+      "info": "imperfect_3_info.html"
+    },
+    {
+      "type": "translate-en-es",
+      "sentence": "As a child, I used to play soccer.",
+      "answer": ["de", "niño", "jugaba", "al", "fútbol"],
+      "answerAlternates": [["yo", "jugaba", "al", "fútbol", "de", "niño"]],
+      "bank": ["de", "niño", "yo", "jugaba", "al", "fútbol", "jugué", "ayer"],
+      "info": "imperfect_3_info.html"
+    },
+    {
+      "type": "translate-en-es",
+      "sentence": "We used to eat there every day.",
+      "answer": ["comíamos", "allí", "todos", "los", "días"],
+      "answerAlternates": [["nosotros", "comíamos", "allí", "todos", "los", "días"]],
+      "bank": ["nosotros", "comíamos", "allí", "todos", "los", "días", "comimos", "ayer"],
+      "info": "imperfect_3_info.html"
+    },
+    {
+      "type": "translate-en-es",
+      "sentence": "She used to read sometimes.",
+      "answer": ["leía", "a", "veces"],
+      "answerAlternates": [["ella", "leía", "a", "veces"]],
+      "bank": ["ella", "leía", "a", "veces", "leyó", "siempre"],
+      "info": "imperfect_3_info.html"
+    },
+    {
+      "type": "translate-es-en",
+      "sentence": "siempre estudiábamos juntos",
+      "answer": ["we", "always", "used", "to", "study", "together"],
+      "answerAlternates": [["we", "were", "always", "studying", "together"]],
+      "bank": ["we", "always", "used", "to", "study", "together", "they", "today"],
+      "info": "imperfect_3_info.html"
+    },
+    {
+      "type": "translate-es-en",
+      "sentence": "de niña vivía en una casa pequeña",
+      "answer": ["as", "a", "child", "she", "used", "to", "live", "in", "a", "small", "house"],
+      "answerAlternates": [["as", "a", "girl", "she", "used", "to", "live", "in", "a", "small", "house"]],
+      "bank": ["as", "a", "child", "she", "used", "to", "live", "in", "a", "small", "house", "big"],
+      "info": "imperfect_3_info.html"
+    },
+    {
+      "type": "type-en-es-typed",
+      "sentence": "they used to drink coffee every day",
+      "answerText": "bebían café todos los días",
+      "answerTexts": ["ellos bebían café todos los días", "ellas bebían café todos los días"],
+      "info": "imperfect_3_info.html"
+    },
+    {
+      "type": "type-es-en-typed",
+      "sentence": "a veces caminabas a la escuela",
+      "answerText": "sometimes you used to walk to school",
+      "answerTexts": ["sometimes you were walking to school"],
+      "info": "imperfect_3_info.html"
+    }
+  ]
+}

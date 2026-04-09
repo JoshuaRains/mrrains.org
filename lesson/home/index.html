@@ -9,20 +9,18 @@
 
 	<style>
 		:root{
-			--bg:#111b21;
-			--text:#e7f2ff;
-			--muted:rgba(231,242,255,.72);
-			--shadow:0 10px 18px rgba(0,0,0,.35);
-
-			--node-size:64px;
-			--text-gap:10px;
-			--lane-base-left:200px;
-
-			--panel:rgba(255,255,255,.06);
-			--panelLine:rgba(255,255,255,.10);
-			--inputBg:rgba(255,255,255,.08);
-			--inputBgFocus:rgba(255,255,255,.11);
-			--green:#35c759;
+			--bg:#10181d;
+			--panel:#17232a;
+			--panel-2:#1d2d36;
+			--panel-line:rgba(255,255,255,.08);
+			--text:#edf6ff;
+			--muted:rgba(237,246,255,.68);
+			--muted-2:rgba(237,246,255,.52);
+			--shadow:0 18px 36px rgba(0,0,0,.28);
+			--green:#58cc02;
+			--ring-bg:rgba(255,255,255,.10);
+			--button:#22333d;
+			--button-hover:#2a3d48;
 		}
 
 		*{ box-sizing:border-box; }
@@ -36,271 +34,302 @@
 		}
 
 		.wrap{
-			max-width:620px;
+			max-width:1220px;
 			margin:0 auto;
-			padding:20px 16px 48px;
+			padding:28px 18px 56px;
 		}
 
 		.header{
-			margin-bottom:18px;
-			padding-left:8px;
+			display:flex;
+			flex-direction:column;
+			align-items:flex-start;
+			gap:10px;
+			margin-bottom:26px;
 		}
 
 		.headerTitle{
 			margin:0;
-			font-size:32px;
-			line-height:1.05;
-			letter-spacing:.2px;
-			color:var(--text);
+			font-size:38px;
+			line-height:1.02;
+			letter-spacing:.02em;
 		}
 
 		.headerSub{
-			margin:7px 0 0;
-			font-size:14px;
+			margin:0;
+			max-width:760px;
 			color:var(--muted);
+			font-size:15px;
+			line-height:1.4;
 		}
 
-		.lessonCodeCard{
-			margin-top:16px;
-			padding:14px;
-			border-radius:18px;
-			background:var(--panel);
-			border:1px solid var(--panelLine);
-			box-shadow:var(--shadow);
-		}
-
-		.lessonCodeLabel{
-			display:block;
-			margin:0 0 10px;
-			font-size:13px;
-			color:var(--muted);
-		}
-
-		.lessonCodeRow{
+		.topTools{
 			display:flex;
-			gap:10px;
+			flex-wrap:wrap;
 			align-items:center;
+			gap:12px;
+			width:100%;
+			margin-top:8px;
 		}
 
 		.lessonCodeInline{
-	margin-top:12px;
-	display:flex;
-	align-items:center;
-	gap:8px;
-	max-width:340px;
-}
-
-.lessonCodeInput{
-	flex:1;
-	min-width:0;
-	height:38px;
-	padding:0 12px;
-	border-radius:12px;
-	border:1px solid rgba(255,255,255,.10);
-	background:rgba(255,255,255,.04);
-	color:var(--text);
-	font-size:14px;
-	outline:none;
-	transition:border-color .14s ease, background .14s ease, box-shadow .14s ease;
-}
-
-.lessonCodeInput::placeholder{
-	color:rgba(231,242,255,.42);
-}
-
-.lessonCodeInput:focus{
-	background:rgba(255,255,255,.06);
-	border-color:rgba(255,255,255,.18);
-	box-shadow:0 0 0 3px rgba(255,255,255,.05);
-}
-
-.lessonCodeBtn{
-	height:38px;
-	padding:0 14px;
-	border:none;
-	border-radius:12px;
-	background:transparent;
-	color:var(--muted);
-	font-size:14px;
-	font-weight:600;
-	cursor:pointer;
-	transition:background .14s ease, color .14s ease, transform .14s ease;
-}
-
-.lessonCodeBtn:hover,
-.lessonCodeBtn:focus-visible{
-	background:rgba(255,255,255,.06);
-	color:var(--text);
-	outline:none;
-}
-
-.lessonCodeBtn:active{
-	transform:translateY(1px);
-}
-
-		.lessonCodeHint{
-			margin:10px 2px 0;
-			font-size:12px;
-			color:rgba(231,242,255,.58);
+			display:flex;
+			align-items:center;
+			gap:8px;
+			width:min(360px, 100%);
 		}
 
-		.pathArea{
-			position:relative;
-			padding:10px 0 18px;
+		.lessonCodeInput{
+			flex:1;
+			min-width:0;
+			height:42px;
+			padding:0 14px;
+			border-radius:14px;
+			border:1px solid var(--panel-line);
+			background:rgba(255,255,255,.04);
+			color:var(--text);
+			font-size:14px;
+			outline:none;
+			transition:border-color .15s ease, background .15s ease, box-shadow .15s ease;
 		}
 
-		.list{
-			list-style:none;
-			padding:0;
-			margin:0;
+		.lessonCodeInput::placeholder{
+			color:rgba(237,246,255,.38);
+		}
+
+		.lessonCodeInput:focus{
+			background:rgba(255,255,255,.06);
+			border-color:rgba(255,255,255,.18);
+			box-shadow:0 0 0 4px rgba(255,255,255,.04);
+		}
+
+		.lessonCodeBtn{
+			height:42px;
+			padding:0 16px;
+			border:none;
+			border-radius:14px;
+			background:#f5fbff;
+			color:#122029;
+			font-size:14px;
+			font-weight:800;
+			cursor:pointer;
+			transition:transform .12s ease, filter .12s ease;
+		}
+
+		.lessonCodeBtn:hover{ filter:brightness(.97); }
+		.lessonCodeBtn:active{ transform:translateY(1px); }
+
+		.topicGrid{
+			display:grid;
+			grid-template-columns:repeat(auto-fit, minmax(270px, 1fr));
+			gap:16px;
+			align-items:stretch;
+		}
+
+		.topicCard{
 			display:flex;
 			flex-direction:column;
-			gap:22px;
-			position:relative;
+			gap:16px;
+			padding:18px;
+			border-radius:24px;
+			background:
+				linear-gradient(180deg, rgba(255,255,255,.03), transparent 34%),
+				var(--panel);
+			border:1px solid var(--panel-line);
+			box-shadow:var(--shadow);
+			min-height:250px;
 		}
 
-		.rowLink{
-			display:block;
-			text-decoration:none;
-			color:inherit;
-			border-radius:18px;
-			outline:none;
+		.topicTop{
+			display:flex;
+			align-items:flex-start;
+			gap:14px;
 		}
 
-		.row{
-			position:relative;
-			min-height:78px;
+		.topicMeter{
+			--topic-progress:0;
+			width:72px;
+			height:72px;
+			border-radius:999px;
+			padding:6px;
+			background:
+				conic-gradient(
+					var(--green) calc(var(--topic-progress) * 1turn),
+					var(--ring-bg) 0
+				);
+			flex:0 0 auto;
 		}
 
-		.lane{
-			position:relative;
-			height:78px;
+		.topicMeterInner{
 			width:100%;
-		}
-
-		.nodeWrap{
-			position:absolute;
-			left:calc(var(--lane-base-left) + var(--shift, 0px));
-			top:50%;
-			transform:translateY(-50%);
-		}
-
-		.node{
-			position:relative;
-			width:var(--node-size);
-			height:var(--node-size);
+			height:100%;
 			border-radius:999px;
 			display:grid;
 			place-items:center;
-			box-shadow:var(--shadow);
-			border:1px solid rgba(255,255,255,.10);
-			cursor:pointer;
-			outline:none;
-			transition:transform .14s ease, box-shadow .14s ease, filter .14s ease;
+			background:var(--panel-2);
+			border:1px solid rgba(255,255,255,.06);
+			position:relative;
+			overflow:hidden;
 		}
 
-		.rowLink:hover .node,
-		.rowLink:focus-visible .node{
-			transform:translateY(-3px);
-			box-shadow:0 14px 24px rgba(0,0,0,.42);
-			filter:brightness(1.04);
-		}
-
-		.rowLink:active .node{
-			transform:translateY(-1px);
-		}
-
-		.node::before{
-			content:"";
-			position:absolute;
-			width:16px;
-			height:16px;
-			border-radius:999px;
-			left:14px;
-			top:12px;
-			background:rgba(255,255,255,.22);
-			pointer-events:none;
-		}
-
-		.material-symbols-rounded{
+		.topicMeterInner .material-symbols-rounded{
 			font-variation-settings:'FILL' 1,'wght' 700,'GRAD' 0,'opsz' 24;
-			color:rgba(255,255,255,.95);
-			font-size:31px;
+			font-size:28px;
 			line-height:1;
+			color:#fff;
 		}
 
-		.info{
-			position:absolute;
-			top:50%;
-			transform:translateY(-50%);
-			left:calc(var(--lane-base-left) + var(--shift, 0px) + var(--node-size) + var(--text-gap));
-			right:0;
+		.topicBody{
 			min-width:0;
 		}
 
-		.title{
-			font-size:18px;
-			letter-spacing:.2px;
-			line-height:1.08;
+		.topicTitle{
 			margin:0;
-			color:var(--text);
-			white-space:nowrap;
-			overflow:hidden;
-			text-overflow:ellipsis;
+			font-size:21px;
+			line-height:1.08;
+			letter-spacing:.01em;
 		}
 
-		.subtitle{
-			margin:6px 0 0;
-			font-size:12px;
+		.topicProgressLine{
+			display:flex;
+			align-items:center;
+			justify-content:space-between;
+			gap:12px;
+			font-size:13px;
+			font-weight:800;
 			color:var(--muted);
-			white-space:nowrap;
-			overflow:hidden;
-			text-overflow:ellipsis;
 		}
 
-		.c-green { background:#35c759; }
-		.c-blue  { background:#3b82f6; }
-		.c-orange{ background:#f59e0b; }
-		.c-pink  { background:#fb7185; }
-		.c-purple{ background:#8b5cf6; }
-		.c-teal  { background:#14b8a6; }
-		.c-red   { background:#ef4444; }
-		.c-cyan  { background:#06b6d4; }
-		.c-lime  { background:#84cc16; }
-		.c-amber { background:#fbbf24; }
+		.topicProgressLine strong{
+			color:var(--text);
+			font-size:14px;
+		}
 
-		@media (max-width: 520px){
-	:root{
-		--node-size:60px;
-		--text-gap:8px;
-		--lane-base-left:72px;
-	}
+		.progressBar{
+			height:10px;
+			border-radius:999px;
+			background:rgba(255,255,255,.07);
+			overflow:hidden;
+			border:1px solid rgba(255,255,255,.06);
+		}
 
-	.wrap{
-		padding:16px 12px 38px;
-	}
+		.progressBarFill{
+			height:100%;
+			width:0%;
+			border-radius:999px;
+			background:linear-gradient(90deg, #79e61b, var(--green));
+			transition:width .2s ease;
+		}
 
-	.headerTitle{
-		font-size:28px;
-	}
+		.topicActions{
+			display:flex;
+			flex-wrap:wrap;
+			gap:10px;
+			margin-top:auto;
+		}
 
-	.title{
-		font-size:16px;
-	}
+		.primaryAction{
+			display:inline-flex;
+			align-items:center;
+			justify-content:center;
+			gap:8px;
+			min-height:42px;
+			padding:0 14px;
+			border-radius:14px;
+			background:#f3fbf4;
+			color:#0f2010;
+			text-decoration:none;
+			font-size:14px;
+			font-weight:900;
+			letter-spacing:.01em;
+			transition:transform .12s ease, filter .12s ease;
+		}
 
-	.subtitle{
-		font-size:11px;
-	}
+		.primaryAction:hover{ filter:brightness(.97); }
+		.primaryAction:active{ transform:translateY(1px); }
 
-	.lessonCodeInline{
-		max-width:none;
-	}
-}
+		.secondaryHint{
+			color:var(--muted-2);
+			font-size:12px;
+			font-weight:700;
+			align-self:center;
+		}
 
-		@media (max-width: 400px){
-			:root{
-				--node-size:56px;
-				--lane-base-left:62px;
+		.lessonPicker{
+			display:flex;
+			flex-wrap:wrap;
+			gap:8px;
+		}
+
+		.lessonChip{
+			display:inline-flex;
+			align-items:center;
+			justify-content:center;
+			min-height:36px;
+			min-width:44px;
+			padding:0 12px;
+			border-radius:999px;
+			border:1px solid rgba(255,255,255,.08);
+			background:var(--button);
+			color:var(--text);
+			text-decoration:none;
+			font-size:13px;
+			font-weight:800;
+			transition:background .15s ease, transform .12s ease, border-color .15s ease;
+		}
+
+		.lessonChip:hover{
+			background:var(--button-hover);
+			border-color:rgba(255,255,255,.15);
+		}
+
+		.lessonChip:active{
+			transform:translateY(1px);
+		}
+
+		.lessonChip.done{
+			background:rgba(88,204,2,.12);
+			border-color:rgba(88,204,2,.24);
+			color:#d7ffba;
+		}
+
+		.lessonChip.next{
+			background:rgba(59,130,246,.14);
+			border-color:rgba(59,130,246,.28);
+			color:#d7ebff;
+		}
+
+		.topicComplete .topicCard,
+		.topicCard.topicComplete{
+			border-color:rgba(88,204,2,.16);
+		}
+
+		.emptyState{
+			padding:24px;
+			border-radius:22px;
+			border:1px solid var(--panel-line);
+			background:rgba(255,255,255,.03);
+			color:var(--muted);
+			font-weight:700;
+		}
+
+		.topicCount{
+			color:var(--muted);
+			font-size:13px;
+			font-weight:800;
+			margin-top:6px;
+		}
+
+		@media (max-width: 720px){
+			.wrap{
+				padding:20px 14px 42px;
+			}
+
+			.headerTitle{
+				font-size:32px;
+			}
+
+			.topicGrid{
+				grid-template-columns:1fr;
 			}
 		}
 	</style>
@@ -309,326 +338,160 @@
 <body>
 	<div class="wrap">
 		<div class="header">
-	<h1 class="headerTitle">Lessons</h1>
-	<p class="headerSub">Choose a lesson to begin.</p>
+			<h1 class="headerTitle">Lessons</h1>
 
-	<div class="lessonCodeInline" aria-label="Open lesson by code">
-		<input
-			id="lessonCodeInput"
-			class="lessonCodeInput"
-			type="text"
-			placeholder="Enter lesson code"
-			autocomplete="off"
-			autocapitalize="none"
-			spellcheck="false"
-		/>
-		<button id="lessonCodeBtn" class="lessonCodeBtn" type="button">Go</button>
-	</div>
-</div>
-
-		<div class="pathArea">
-			<ul class="list">
-				<li>
-					<a class="rowLink" href="../index.html?l=gender_1" aria-label="Open Noun Gender Lesson 1">
-						<div class="row" style="--shift:-24px;">
-							<div class="lane">
-								<div class="nodeWrap">
-									<div class="node c-green" title="Noun Gender Lesson 1">
-										<span class="material-symbols-rounded">category</span>
-									</div>
-								</div>
-								<div class="info">
-									<p class="title">Noun gender</p>
-									<p class="subtitle">Lesson 1</p>
-								</div>
-							</div>
-						</div>
-					</a>
-				</li>
-
-				<li>
-					<a class="rowLink" href="../index.html?l=gender_2" aria-label="Open Noun Gender Lesson 2">
-						<div class="row" style="--shift:14px;">
-							<div class="lane">
-								<div class="nodeWrap">
-									<div class="node c-blue" title="Noun Gender Lesson 2">
-										<span class="material-symbols-rounded">view_list</span>
-									</div>
-								</div>
-								<div class="info">
-									<p class="title">Noun gender</p>
-									<p class="subtitle">Lesson 2</p>
-								</div>
-							</div>
-						</div>
-					</a>
-				</li>
-
-				<li>
-					<a class="rowLink" href="../index.html?l=gender_3" aria-label="Open Noun Gender Lesson 3">
-						<div class="row" style="--shift:44px;">
-							<div class="lane">
-								<div class="nodeWrap">
-									<div class="node c-purple" title="Noun Gender Lesson 3">
-										<span class="material-symbols-rounded">rule</span>
-									</div>
-								</div>
-								<div class="info">
-									<p class="title">Noun gender</p>
-									<p class="subtitle">Lesson 3</p>
-								</div>
-							</div>
-						</div>
-					</a>
-				</li>
-
-				<li>
-					<a class="rowLink" href="../index.html?l=definite_1" aria-label="Open Definite Articles Lesson 1">
-						<div class="row" style="--shift:20px;">
-							<div class="lane">
-								<div class="nodeWrap">
-									<div class="node c-orange" title="Definite Articles Lesson 1">
-										<span class="material-symbols-rounded">article</span>
-									</div>
-								</div>
-								<div class="info">
-									<p class="title">Definite articles</p>
-									<p class="subtitle">Lesson 1</p>
-								</div>
-							</div>
-						</div>
-					</a>
-				</li>
-
-				<li>
-					<a class="rowLink" href="../index.html?l=definite_2" aria-label="Open Definite Articles Lesson 2">
-						<div class="row" style="--shift:-8px;">
-							<div class="lane">
-								<div class="nodeWrap">
-									<div class="node c-teal" title="Definite Articles Lesson 2">
-										<span class="material-symbols-rounded">grid_view</span>
-									</div>
-								</div>
-								<div class="info">
-									<p class="title">Definite articles</p>
-									<p class="subtitle">Lesson 2</p>
-								</div>
-							</div>
-						</div>
-					</a>
-				</li>
-
-				<li>
-					<a class="rowLink" href="../index.html?l=definite_3" aria-label="Open Definite Articles Lesson 3">
-						<div class="row" style="--shift:-42px;">
-							<div class="lane">
-								<div class="nodeWrap">
-									<div class="node c-pink" title="Definite Articles Lesson 3">
-										<span class="material-symbols-rounded">checklist</span>
-									</div>
-								</div>
-								<div class="info">
-									<p class="title">Definite articles</p>
-									<p class="subtitle">Lesson 3</p>
-								</div>
-							</div>
-						</div>
-					</a>
-				</li>
-
-				<li>
-					<a class="rowLink" href="../index.html?l=pronouns_1" aria-label="Open Subject Pronouns Lesson 1">
-						<div class="row" style="--shift:-24px;">
-							<div class="lane">
-								<div class="nodeWrap">
-									<div class="node c-cyan" title="Subject Pronouns Lesson 1">
-										<span class="material-symbols-rounded">person</span>
-									</div>
-								</div>
-								<div class="info">
-									<p class="title">Subject pronouns</p>
-									<p class="subtitle">Lesson 1</p>
-								</div>
-							</div>
-						</div>
-					</a>
-				</li>
-
-				<li>
-					<a class="rowLink" href="../index.html?l=pronouns_2" aria-label="Open Subject Pronouns Lesson 2">
-						<div class="row" style="--shift:8px;">
-							<div class="lane">
-								<div class="nodeWrap">
-									<div class="node c-blue" title="Subject Pronouns Lesson 2">
-										<span class="material-symbols-rounded">hearing</span>
-									</div>
-								</div>
-								<div class="info">
-									<p class="title">Subject pronouns</p>
-									<p class="subtitle">Lesson 2</p>
-								</div>
-							</div>
-						</div>
-					</a>
-				</li>
-
-				<li>
-					<a class="rowLink" href="../index.html?l=pronouns_3" aria-label="Open Subject Pronouns Lesson 3">
-						<div class="row" style="--shift:38px;">
-							<div class="lane">
-								<div class="nodeWrap">
-									<div class="node c-purple" title="Subject Pronouns Lesson 3">
-										<span class="material-symbols-rounded">edit_note</span>
-									</div>
-								</div>
-								<div class="info">
-									<p class="title">Subject pronouns</p>
-									<p class="subtitle">Lesson 3</p>
-								</div>
-							</div>
-						</div>
-					</a>
-				</li>
-
-				<li>
-					<a class="rowLink" href="../index.html?l=pronouns_4" aria-label="Open Subject Pronouns Lesson 4">
-						<div class="row" style="--shift:14px;">
-							<div class="lane">
-								<div class="nodeWrap">
-									<div class="node c-amber" title="Subject Pronouns Lesson 4">
-										<span class="material-symbols-rounded">headphones</span>
-									</div>
-								</div>
-								<div class="info">
-									<p class="title">Subject pronouns</p>
-									<p class="subtitle">Lesson 4</p>
-								</div>
-							</div>
-						</div>
-					</a>
-				</li>
-
-				<li>
-					<a class="rowLink" href="../index.html?l=present_1" aria-label="Open Regular Present Tense Lesson 1">
-						<div class="row" style="--shift:-12px;">
-							<div class="lane">
-								<div class="nodeWrap">
-									<div class="node c-teal" title="Regular Present Tense Lesson 1">
-										<span class="material-symbols-rounded">spellcheck</span>
-									</div>
-								</div>
-								<div class="info">
-									<p class="title">Regular present tense</p>
-									<p class="subtitle">Lesson 1</p>
-								</div>
-							</div>
-						</div>
-					</a>
-				</li>
-
-				<li>
-					<a class="rowLink" href="../index.html?l=present_2" aria-label="Open Regular Present Tense Lesson 2">
-						<div class="row" style="--shift:-40px;">
-							<div class="lane">
-								<div class="nodeWrap">
-									<div class="node c-red" title="Regular Present Tense Lesson 2">
-										<span class="material-symbols-rounded">quiz</span>
-									</div>
-								</div>
-								<div class="info">
-									<p class="title">Regular present tense</p>
-									<p class="subtitle">Lesson 2</p>
-								</div>
-							</div>
-						</div>
-					</a>
-				</li>
-
-				<li>
-					<a class="rowLink" href="../index.html?l=adjectives_1" aria-label="Open Adjectives Lesson 1">
-						<div class="row" style="--shift:-18px;">
-							<div class="lane">
-								<div class="nodeWrap">
-									<div class="node c-lime" title="Adjectives Lesson 1">
-										<span class="material-symbols-rounded">style</span>
-									</div>
-								</div>
-								<div class="info">
-									<p class="title">Adjectives</p>
-									<p class="subtitle">Lesson 1</p>
-								</div>
-							</div>
-						</div>
-					</a>
-				</li>
-
-				<li>
-					<a class="rowLink" href="../index.html?l=adjectives_2" aria-label="Open Adjectives Lesson 2">
-						<div class="row" style="--shift:16px;">
-							<div class="lane">
-								<div class="nodeWrap">
-									<div class="node c-blue" title="Adjectives Lesson 2">
-										<span class="material-symbols-rounded">palette</span>
-									</div>
-								</div>
-								<div class="info">
-									<p class="title">Adjectives</p>
-									<p class="subtitle">Lesson 2</p>
-								</div>
-							</div>
-						</div>
-					</a>
-				</li>
-
-				<li>
-					<a class="rowLink" href="../index.html?l=adjectives_3" aria-label="Open Adjectives Lesson 3">
-						<div class="row" style="--shift:44px;">
-							<div class="lane">
-								<div class="nodeWrap">
-									<div class="node c-pink" title="Adjectives Lesson 3">
-										<span class="material-symbols-rounded">match_case</span>
-									</div>
-								</div>
-								<div class="info">
-									<p class="title">Adjectives</p>
-									<p class="subtitle">Lesson 3</p>
-								</div>
-							</div>
-						</div>
-					</a>
-				</li>
-
-				<li>
-					<a class="rowLink" href="../index.html?l=adjectives_4" aria-label="Open Adjectives Lesson 4">
-						<div class="row" style="--shift:10px;">
-							<div class="lane">
-								<div class="nodeWrap">
-									<div class="node c-purple" title="Adjectives Lesson 4">
-										<span class="material-symbols-rounded">school</span>
-									</div>
-								</div>
-								<div class="info">
-									<p class="title">Adjectives</p>
-									<p class="subtitle">Lesson 4</p>
-								</div>
-							</div>
-						</div>
-					</a>
-				</li>
-			</ul>
+			<div class="topTools">
+				<div class="lessonCodeInline" aria-label="Open lesson by code">
+					<input
+						id="lessonCodeInput"
+						class="lessonCodeInput"
+						type="text"
+						placeholder="Enter lesson code"
+						autocomplete="off"
+						autocapitalize="none"
+						spellcheck="false"
+					/>
+					<button id="lessonCodeBtn" class="lessonCodeBtn" type="button">Go</button>
+				</div>
+			</div>
 		</div>
+
+		<div class="topicGrid" id="topicGrid"></div>
 	</div>
 
 	<script>
 		const lessonCodeInput = document.getElementById("lessonCodeInput");
 		const lessonCodeBtn = document.getElementById("lessonCodeBtn");
+		const topicGrid = document.getElementById("topicGrid");
+
+		const TOPICS = [
+			{ title: "Noun gender", icon: "category", lessons: ["gender_1","gender_2","gender_3","gender_4"] },
+			{ title: "Definite articles", icon: "article", lessons: ["definite_1","definite_2","definite_3","definite_4"] },
+			{ title: "Indefinite articles", icon: "grid_view", lessons: ["indefinite_1","indefinite_2","indefinite_3","indefinite_4"] },
+			{ title: "Subject pronouns", icon: "person", lessons: ["pronouns_1","pronouns_2","pronouns_3","pronouns_4"] },
+			{ title: "Possessives", icon: "bookmark", lessons: ["possessive_1","possessive_2","possessive_3","possessive_4"] },
+			{ title: "Question words", icon: "help", lessons: ["questions_1","questions_2","questions_3","questions_4"] },
+			{ title: "Conjunctions", icon: "join_inner", lessons: ["conjunctions_1","conjunctions_2","conjunctions_3","conjunctions_4"] },
+			{ title: "Adjectives", icon: "style", lessons: ["adjectives_1","adjectives_2","adjectives_3","adjectives_4"] },
+			{ title: "Regular present tense", icon: "spellcheck", lessons: ["present_1","present_2","present_3","present_4"] },
+			{ title: "Stem-changing verbs", icon: "alt_route", lessons: ["stemchange_1","stemchange_2","stemchange_3","stemchange_4"] },
+			{ title: "Tener", icon: "bolt", lessons: ["tener_1","tener_2","tener_3","tener_4"] },
+			{ title: "Ir", icon: "near_me", lessons: ["ir_1","ir_2","ir_3","ir_4"] },
+			{ title: "Present progressive", icon: "timelapse", lessons: ["progressive_1","progressive_2","progressive_3","progressive_4"] },
+			{ title: "Reflexive verbs", icon: "autorenew", lessons: ["reflexive_1","reflexive_2","reflexive_3","reflexive_4"] },
+			{ title: "Preterite", icon: "event_available", lessons: ["preterite_1","preterite_2","preterite_3","preterite_4"] },
+			{ title: "Irregular preterite", icon: "update", lessons: ["irregular_pret_diff_stem_1","irregular_pret_diff_stem_2","irregular_pret_diff_stem_3","irregular_pret_diff_stem_4","irregular_pret_diff_stem_5"] },
+			{ title: "Imperfect tense", icon: "history_edu", lessons: ["imperfect_1","imperfect_2","imperfect_3","imperfect_4","imperfect_5"] }
+		];
+
+		function makeCompletionKey(code){
+			return "duoCloneCompleted::" + encodeURIComponent(String(code || "lesson"));
+		}
+
+		function isLessonCompleted(code){
+			return !!localStorage.getItem(makeCompletionKey(code));
+		}
+
+		function openLesson(code){
+			window.location.href = `../index.html?l=${encodeURIComponent(code)}`;
+		}
 
 		function openLessonFromCode(){
 			const code = lessonCodeInput.value.trim();
 			if(!code) return;
 
 			const safeCode = code.replace(/\s+/g, "");
-			window.location.href = `../index.html?l=${encodeURIComponent(safeCode)}`;
+			openLesson(safeCode);
+		}
+
+		function createLessonChip(code, index, nextLesson){
+			const chip = document.createElement("a");
+			chip.className = "lessonChip";
+			chip.href = `../index.html?l=${encodeURIComponent(code)}`;
+			chip.textContent = `L${index + 1}`;
+			chip.title = code;
+
+			if(isLessonCompleted(code)){
+				chip.classList.add("done");
+			}
+			if(code === nextLesson && !isLessonCompleted(code)){
+				chip.classList.add("next");
+			}
+
+			return chip;
+		}
+
+		function renderTopicCards(){
+			topicGrid.innerHTML = "";
+
+			for(const topic of TOPICS){
+				const article = document.createElement("article");
+				article.className = "topicCard";
+				article.setAttribute("data-topic", topic.title);
+				article.setAttribute("data-lessons", topic.lessons.join(","));
+				article.innerHTML = `
+					<div class="topicTop">
+						<div class="topicMeter">
+							<div class="topicMeterInner">
+								<span class="material-symbols-rounded">${topic.icon}</span>
+							</div>
+						</div>
+						<div class="topicBody">
+							<h2 class="topicTitle">${topic.title}</h2>
+							<div class="topicCount">${topic.lessons.length} lessons</div>
+						</div>
+					</div>
+					<div class="topicProgressLine"><strong>0 / ${topic.lessons.length}</strong><span>completed</span></div>
+					<div class="progressBar"><div class="progressBarFill"></div></div>
+					<div class="topicActions">
+						<a class="primaryAction" href="../index.html?l=${encodeURIComponent(topic.lessons[0])}">Start topic</a>
+						<div class="secondaryHint">Choose any lesson below</div>
+					</div>
+					<div class="lessonPicker"></div>
+				`;
+				topicGrid.appendChild(article);
+			}
+		}
+
+		function refreshTopicCards(){
+			const cards = Array.from(topicGrid.querySelectorAll(".topicCard"));
+
+			for(const card of cards){
+				const rawLessons = (card.getAttribute("data-lessons") || "").trim();
+				const lessons = rawLessons ? rawLessons.split(",").map(part => part.trim()).filter(Boolean) : [];
+				const completed = lessons.filter(isLessonCompleted).length;
+				const total = lessons.length;
+				const nextLesson = lessons.find(code => !isLessonCompleted(code)) || lessons[0] || "";
+				const ratio = total ? (completed / total) : 0;
+
+				card.style.setProperty("--topic-progress", String(ratio));
+				card.classList.toggle("topicComplete", total > 0 && completed === total);
+
+				const progressLineStrong = card.querySelector(".topicProgressLine strong");
+				const progressFill = card.querySelector(".progressBarFill");
+				const primaryAction = card.querySelector(".primaryAction");
+				const picker = card.querySelector(".lessonPicker");
+
+				if(progressLineStrong){
+					progressLineStrong.textContent = `${completed} / ${total}`;
+				}
+
+				if(progressFill){
+					progressFill.style.width = `${Math.round(ratio * 100)}%`;
+				}
+
+				if(primaryAction && nextLesson){
+					primaryAction.href = `../index.html?l=${encodeURIComponent(nextLesson)}`;
+					primaryAction.textContent = completed === total ? "Review topic" : (completed === 0 ? "Start topic" : "Continue topic");
+				}
+
+				if(picker){
+					picker.innerHTML = "";
+					for(let i = 0; i < lessons.length; i++){
+						picker.appendChild(createLessonChip(lessons[i], i, nextLesson));
+					}
+				}
+			}
 		}
 
 		lessonCodeBtn.addEventListener("click", openLessonFromCode);
@@ -639,6 +502,11 @@
 				openLessonFromCode();
 			}
 		});
+
+		renderTopicCards();
+		refreshTopicCards();
+		window.addEventListener("focus", refreshTopicCards);
+		window.addEventListener("storage", refreshTopicCards);
 	</script>
 </body>
 </html>

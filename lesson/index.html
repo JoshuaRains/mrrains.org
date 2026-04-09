@@ -108,12 +108,65 @@
 	margin-top:6px;
 }
 
-.lessonPrompt{
+		.lessonPrompt{
 	margin-top:18px;
 	font-size:26px;
 	font-weight:900;
 	color:var(--text);
 }
+
+		.lessonDoneCard{
+			display:none;
+			width:min(760px, 100%);
+			margin-top:18px;
+			padding:28px 24px;
+			border-radius:24px;
+			border:1px solid rgba(88,204,2,.22);
+			background:
+				linear-gradient(180deg, rgba(88,204,2,.16), rgba(88,204,2,.06)),
+				rgba(255,255,255,.03);
+			text-align:center;
+			box-shadow:0 18px 32px rgba(0,0,0,.20);
+		}
+		.lessonDoneCard.show{
+			display:block;
+		}
+		.lessonDoneIcon{
+			width:72px;
+			height:72px;
+			margin:0 auto 16px;
+			border-radius:999px;
+			display:grid;
+			place-items:center;
+			background:rgba(255,255,255,.10);
+			border:1px solid rgba(255,255,255,.14);
+			font-size:34px;
+		}
+		.lessonDoneTitle{
+			font-size:28px;
+			font-weight:1000;
+			line-height:1.05;
+			color:rgba(233,240,246,.97);
+		}
+		.lessonDoneBody{
+			margin-top:10px;
+			color:var(--muted);
+			font-weight:850;
+			line-height:1.35;
+		}
+		.lessonDoneMeta{
+			margin-top:16px;
+			display:inline-flex;
+			align-items:center;
+			justify-content:center;
+			gap:8px;
+			padding:10px 14px;
+			border-radius:999px;
+			background:rgba(255,255,255,.08);
+			border:1px solid rgba(255,255,255,.12);
+			font-weight:900;
+			color:rgba(233,240,246,.92);
+		}
 
 		.leftControls{
 			display:flex;
@@ -979,6 +1032,13 @@
 	</div>
 </div>
 
+				<div class="lessonDoneCard" id="lessonDoneCard" aria-live="polite">
+					<div class="lessonDoneIcon" aria-hidden="true">★</div>
+					<div class="lessonDoneTitle" id="lessonDoneTitle">Lesson complete!</div>
+					<div class="lessonDoneBody" id="lessonDoneBody">You mastered every sentence.</div>
+					<div class="lessonDoneMeta" id="lessonDoneMeta">0 / 0 correct</div>
+				</div>
+
 				<div class="answerArea" id="answerArea">
 					<div class="answerLines" aria-hidden="true">
 						<div class="answerLine"></div>
@@ -1034,6 +1094,10 @@
 		const els = {
 			lessonTitle: document.getElementById("lessonTitle"),
 			lessonPrompt: document.getElementById("lessonPrompt"),
+			lessonDoneCard: document.getElementById("lessonDoneCard"),
+			lessonDoneTitle: document.getElementById("lessonDoneTitle"),
+			lessonDoneBody: document.getElementById("lessonDoneBody"),
+			lessonDoneMeta: document.getElementById("lessonDoneMeta"),
 			bankTiles: document.getElementById("bankTiles"),
 			answerTiles: document.getElementById("answerTiles"),
 			answerArea: document.getElementById("answerArea"),
@@ -1094,7 +1158,9 @@ printView: document.getElementById("printView"),
 		let currentlyPlayingAudio = null;
 
 		let lessonPath = "./lesson.json";
+		let lessonCode = "lesson";
 		let stateKey = null;
+		let completionKey = null;
 
 		let selectedGridIndex = null;
 
@@ -1139,6 +1205,38 @@ function normalizeTypedText(s){
 			return "duoCloneState::" + encodeURIComponent(path);
 		}
 
+		function lessonCodeFromPath(path){
+			const m = String(path || "").match(/\/([^\/?#]+)\.json$/i);
+			return m ? m[1] : "lesson";
+		}
+
+		function makeCompletionKey(code){
+			return "duoCloneCompleted::" + encodeURIComponent(String(code || "lesson"));
+		}
+
+		function saveCompletion(){
+			if(!completionKey || !lesson) return;
+
+			const payload = {
+				version: 1,
+				lessonCode,
+				lessonPath,
+				title: lesson.title || "Lesson",
+				subtitle: lesson.subtitle || "",
+				completedAt: new Date().toISOString(),
+				totalQuestions: Array.isArray(lesson.questions) ? lesson.questions.length : 0
+			};
+
+			try{
+				localStorage.setItem(completionKey, JSON.stringify(payload));
+			}catch(_e){}
+		}
+
+		function clearCompletion(){
+			if(!completionKey) return;
+			try{ localStorage.removeItem(completionKey); }catch(_e){}
+		}
+
 		function saveState(){
 			if(!stateKey) return;
 
@@ -1175,6 +1273,33 @@ function normalizeTypedText(s){
 		function clearState(){
 			if(!stateKey) return;
 			try{ localStorage.removeItem(stateKey); }catch(_e){}
+		}
+
+		function getCorrectCount(){
+			return responseHistory.filter(item => item && item.correct).length;
+		}
+
+		function showLessonDoneUI(){
+			const totalQuestions = Array.isArray(lesson?.questions) ? lesson.questions.length : 0;
+			const correctCount = getCorrectCount();
+
+			els.lessonPrompt.textContent = "";
+			els.lessonDoneTitle.textContent = "Lesson complete!";
+			els.lessonDoneBody.textContent = "Nice work. You can head back to the lesson list or reopen this lesson for another round.";
+			els.lessonDoneMeta.textContent = `${correctCount} / ${totalQuestions} correct`;
+			els.lessonDoneCard.classList.add("show");
+
+			els.answerArea.classList.add("hidden");
+			els.answerTiles.innerHTML = "";
+			els.bankTiles.innerHTML = "";
+			els.bankTiles.className = "bankTiles";
+			els.typedArea.classList.remove("show");
+			els.typedInput.value = "";
+			els.typedInput.disabled = true;
+		}
+
+		function hideLessonDoneUI(){
+			els.lessonDoneCard.classList.remove("show");
 		}
 
 		function shuffle(arr){
@@ -1788,6 +1913,8 @@ function restoreQuestionUI(){
 	const q = lesson.questions[currentIndex];
 	const spec = getQuestionSpec(q);
 
+	hideLessonDoneUI();
+
 	canPlayTileAudio = !hasEnglishAnswerChoices(q) && spec.tileLanguage === "es";
 	currentSentenceAudioKey = spec.audioKey;
 
@@ -1860,10 +1987,7 @@ function restoreQuestionUI(){
 			if(queue.length === 0){
 				mode = "done";
 				currentIndex = null;
-				els.lessonPrompt.textContent = " ";
-				els.bankTiles.innerHTML = "";
-				els.answerTiles.innerHTML = "";
-				els.answerArea.classList.remove("hidden");
+				showLessonDoneUI();
 				setProgress();
 				setBottomSheet("done", "Lesson complete!", "Click DONE to return to lessons.");
 				updateMainButton();
@@ -1871,6 +1995,7 @@ function restoreQuestionUI(){
 				setAudioButtonsVisible(false);
 				els.infoBtn.disabled = true;
 				els.infoBtn.title = "No extra info for this question";
+				saveCompletion();
 				saveState();
 				return;
 			}
@@ -1884,6 +2009,7 @@ function restoreQuestionUI(){
 			selectedGridIndex = null;
 			typedAnswer = "";
 			els.typedInput.value = "";
+			els.typedInput.disabled = false;
 
 			restoreQuestionUI();
 			saveState();
@@ -2120,11 +2246,13 @@ function onMainButton(){
 
 			if(currentIndex === null){
 				mode = "done";
+				showLessonDoneUI();
 				setBottomSheet("done", "Lesson complete!", "Click DONE to return to lessons.");
 				updateMainButton();
 				setAudioButtonsVisible(false);
 				els.infoBtn.disabled = true;
 				els.infoBtn.title = "No extra info for this question";
+				saveCompletion();
 				return true;
 			}
 
@@ -2150,7 +2278,9 @@ function onMainButton(){
 
 		async function init(){
 			lessonPath = getLessonPathFromUrl();
+			lessonCode = lessonCodeFromPath(lessonPath);
 			stateKey = makeStateKey(lessonPath);
+			completionKey = makeCompletionKey(lessonCode);
 
 			els.typedInput.addEventListener("input", () => {
 	typedAnswer = els.typedInput.value;
@@ -2170,6 +2300,7 @@ els.typedInput.addEventListener("keydown", (e) => {
 			});
 			els.resetBtn.addEventListener("click", () => {
 	clearState();
+	clearCompletion();
 	window.location.reload();
 });
 
