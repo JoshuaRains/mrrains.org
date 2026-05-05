@@ -289,6 +289,27 @@
 		</desktop-app>
 
 		<desktop-app
+			name="Review Game"
+			icon="../assets/vector_icons/vote.svg"
+			src="../pages/tools/reviewgame/index.html"
+			width="1200"
+			height="820"
+			maximizable="true"
+			newtab="true">
+		</desktop-app>
+
+		<desktop-app
+			name="Google Translate"
+			icon="../assets/vector_icons/translate.svg"
+			src="https://translate.google.com/?sl=auto&tl=es&op=translate"
+			width="900"
+			height="650"
+			maximizable="true"
+			newtab="true"
+			directopen="true">
+		</desktop-app>
+
+		<desktop-app
 			name="Lessons"
 			icon="../assets/pixelart/lesson.png"
 			src="../pages/tools/gradecalculator/index.html"
@@ -436,6 +457,7 @@ const firebaseConfig = {
 				fixed: (el.getAttribute('fixed') || 'false') === 'true',
 				maximizable: (el.getAttribute('maximizable') || 'true') !== 'false',
 				newtab: (el.getAttribute('newtab') || 'false') === 'true',
+				directOpen: (el.getAttribute('directopen') || 'false') === 'true',
 				authApp: (el.getAttribute('authapp') || 'false') === 'true'
 			}));
 		}
@@ -460,6 +482,11 @@ const firebaseConfig = {
 		}
 
 		function openApp(app){
+			if(app.directOpen){
+				window.open(app.src, '_blank');
+				return;
+			}
+
 			if(openWindows.has(app.id)){
 				focusWindow(openWindows.get(app.id));
 				return;

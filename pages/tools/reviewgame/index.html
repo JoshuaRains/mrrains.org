@@ -1,0 +1,854 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1" />
+	<title>Review Game Slides</title>
+	<style>
+		:root {
+			color-scheme: light;
+			--ink: #253047;
+			--muted: #64708a;
+			--paper: #fffdf8;
+			--panel: rgba(255, 255, 255, .78);
+			--line: rgba(77, 91, 124, .16);
+			--shadow: 0 18px 55px rgba(84, 92, 126, .18);
+			--yellow: #fff0a8;
+			--yellow-strong: #e4bd25;
+			--green: #ccefc8;
+			--green-strong: #64b96a;
+			--blue: #cce9ff;
+			--blue-strong: #5ba9df;
+			--pink: #ffd4e5;
+			--pink-strong: #df78a0;
+		}
+
+		* {
+			box-sizing: border-box;
+		}
+
+		html,
+		body {
+			min-height: 100%;
+			margin: 0;
+		}
+
+		body {
+			color: var(--ink);
+			font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+			background:
+				linear-gradient(135deg, rgba(255, 240, 168, .55), rgba(204, 233, 255, .5) 42%, rgba(255, 212, 229, .52)),
+				radial-gradient(circle at top left, rgba(204, 239, 200, .9), transparent 32%),
+				var(--paper);
+		}
+
+		button,
+		input {
+			font: inherit;
+		}
+
+		button {
+			border: 0;
+			cursor: pointer;
+		}
+
+		.app {
+			min-height: 100vh;
+			padding: clamp(14px, 2vw, 28px);
+		}
+
+		.controller {
+			display: grid;
+			grid-template-rows: auto auto minmax(0, 1fr);
+			gap: 14px;
+			max-width: 1500px;
+			min-height: calc(100vh - clamp(28px, 4vw, 56px));
+			margin: 0 auto;
+		}
+
+		.panel {
+			background: var(--panel);
+			border: 1px solid rgba(255, 255, 255, .84);
+			border-radius: 8px;
+			box-shadow: var(--shadow);
+			backdrop-filter: blur(18px);
+		}
+
+		.setup-row {
+			display: grid;
+			grid-template-columns: minmax(240px, .8fr) minmax(280px, 1fr) minmax(320px, .9fr);
+			gap: 14px;
+			align-items: stretch;
+		}
+
+		.header {
+			padding: 18px 20px;
+		}
+
+		.header h1,
+		.display-title h1 {
+			margin: 0;
+			font-size: clamp(1.6rem, 3vw, 2.35rem);
+			letter-spacing: 0;
+		}
+
+		.header p {
+			margin: 6px 0 0;
+			color: var(--muted);
+			line-height: 1.45;
+		}
+
+		.field {
+			display: grid;
+			gap: 8px;
+			padding: 18px 20px;
+		}
+
+		label {
+			color: var(--muted);
+			font-size: .82rem;
+			font-weight: 800;
+			letter-spacing: .04em;
+			text-transform: uppercase;
+		}
+
+		input {
+			width: 100%;
+			border: 1px solid var(--line);
+			border-radius: 8px;
+			background: rgba(255, 255, 255, .76);
+			color: var(--ink);
+			padding: 11px 12px;
+			outline: none;
+		}
+
+		input:focus {
+			border-color: rgba(91, 169, 223, .7);
+			box-shadow: 0 0 0 4px rgba(204, 233, 255, .7);
+		}
+
+		.actions {
+			display: grid;
+			grid-template-columns: repeat(3, minmax(0, 1fr));
+			gap: 10px;
+			padding: 18px 20px;
+			align-content: center;
+		}
+
+		.btn {
+			min-height: 42px;
+			border-radius: 8px;
+			background: #fff;
+			color: var(--ink);
+			font-weight: 800;
+			box-shadow: inset 0 0 0 1px var(--line);
+			transition: transform .16s ease, box-shadow .16s ease;
+		}
+
+		.btn:hover,
+		.score-btn:hover,
+		.icon-btn:hover {
+			transform: translateY(-1px);
+			box-shadow: 0 10px 22px rgba(84, 92, 126, .14), inset 0 0 0 1px rgba(77, 91, 124, .2);
+		}
+
+		.btn.primary {
+			background: linear-gradient(135deg, #fff0a8, #cce9ff);
+		}
+
+		.btn.danger {
+			background: #fff2f5;
+			color: #9b4160;
+		}
+
+		.team-list {
+			display: grid;
+			grid-template-columns: repeat(4, minmax(0, 1fr));
+			gap: 12px;
+		}
+
+		.team-card {
+			--team-bg: #fff;
+			--team-accent: #999;
+			position: relative;
+			display: grid;
+			gap: 12px;
+			padding: 16px;
+			background: linear-gradient(135deg, rgba(255, 255, 255, .7), var(--team-bg));
+			border: 1px solid rgba(255, 255, 255, .75);
+			border-radius: 8px;
+			box-shadow: 0 12px 30px rgba(84, 92, 126, .12);
+			overflow: hidden;
+		}
+
+		.team-card::before {
+			content: "";
+			position: absolute;
+			inset: 0 auto 0 0;
+			width: 8px;
+			background: var(--team-accent);
+		}
+
+		.team-top {
+			display: grid;
+			grid-template-columns: minmax(0, 1fr) 84px;
+			gap: 12px;
+			align-items: center;
+			padding-left: 8px;
+		}
+
+		.team-name {
+			font-size: 1.1rem;
+			font-weight: 900;
+		}
+
+		.score-input {
+			text-align: center;
+			font-size: 1.2rem;
+			font-weight: 900;
+			padding: 9px;
+		}
+
+		.score-buttons {
+			display: grid;
+			grid-template-columns: repeat(4, 1fr);
+			gap: 8px;
+			padding-left: 8px;
+		}
+
+		.score-btn {
+			min-height: 40px;
+			border-radius: 8px;
+			background: rgba(255, 255, 255, .72);
+			color: var(--ink);
+			font-weight: 900;
+			box-shadow: inset 0 0 0 1px rgba(77, 91, 124, .12);
+			transition: transform .16s ease, box-shadow .16s ease;
+		}
+
+		.score-btn.minus {
+			background: #ffd6d6;
+			color: #9d3f3f;
+			box-shadow: inset 0 0 0 1px rgba(157, 63, 63, .16);
+		}
+
+		.slide-controls {
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			gap: 12px;
+			padding: 18px;
+		}
+
+		.main-stage {
+			display: grid;
+			grid-template-rows: auto minmax(0, 1fr);
+			min-height: min(58vh, 620px);
+			overflow: hidden;
+		}
+
+		.slide-toolbar {
+			display: grid;
+			grid-template-columns: minmax(0, 1fr) auto;
+			gap: 12px;
+			align-items: center;
+			padding: 14px 16px;
+			border-bottom: 1px solid var(--line);
+		}
+
+		.slide-toolbar h2 {
+			margin: 0;
+			font-size: 1rem;
+		}
+
+		.muted-status {
+			color: var(--muted);
+			font-size: .9rem;
+			font-weight: 800;
+		}
+
+		.icon-btn {
+			width: 72px;
+			height: 56px;
+			border-radius: 8px;
+			background: rgba(255, 255, 255, .84);
+			color: var(--ink);
+			font-size: 1.8rem;
+			font-weight: 900;
+			box-shadow: inset 0 0 0 1px var(--line);
+			transition: transform .16s ease, box-shadow .16s ease;
+		}
+
+		.preview-wrap,
+		.display-slide-wrap {
+			position: relative;
+			min-height: 0;
+			padding: 14px;
+		}
+
+		.preview-wrap {
+			background: rgba(255, 255, 255, .32);
+		}
+
+		.slide-image {
+			display: block;
+			width: 100%;
+			height: 100%;
+			min-height: 280px;
+			border: 0;
+			border-radius: 8px;
+			background: rgba(255, 255, 255, .58);
+			box-shadow: inset 0 0 0 1px var(--line);
+		}
+
+		.slide-image {
+			object-fit: contain;
+			padding: 0;
+		}
+
+		.empty-state {
+			position: absolute;
+			inset: 14px;
+			display: grid;
+			place-items: center;
+			padding: 24px;
+			text-align: center;
+			color: var(--muted);
+			border-radius: 8px;
+			background: rgba(255, 255, 255, .82);
+			pointer-events: none;
+		}
+
+		.hidden {
+			display: none;
+		}
+
+		.display {
+			height: calc(100vh - clamp(28px, 4vw, 56px));
+			display: grid;
+			grid-template-rows: auto minmax(0, 1fr);
+			gap: 10px;
+			min-height: 0;
+		}
+
+		.scores-row {
+			display: grid;
+			grid-template-columns: repeat(4, minmax(0, 1fr));
+			gap: 10px;
+			padding: 0;
+		}
+
+		.score-tile {
+			--team-bg: #fff;
+			--team-accent: #999;
+			display: grid;
+			grid-template-columns: minmax(0, 1fr) auto;
+			align-items: end;
+			gap: 12px;
+			padding: clamp(9px, 1.5vh, 16px) clamp(12px, 1.4vw, 20px);
+			border-radius: 8px;
+			background: linear-gradient(145deg, rgba(255, 255, 255, .78), var(--team-bg));
+			border: 1px solid rgba(255, 255, 255, .85);
+			box-shadow: var(--shadow);
+		}
+
+		.score-tile .name {
+			font-size: clamp(.95rem, 2.2vh, 1.45rem);
+			font-weight: 900;
+		}
+
+		.score-tile .score {
+			color: var(--team-accent);
+			font-size: clamp(2.4rem, 7.2vh, 5.3rem);
+			font-weight: 1000;
+			line-height: .86;
+			font-variant-numeric: tabular-nums;
+		}
+
+		.display-slide-wrap {
+			padding: 0;
+		}
+
+		.remote-note {
+			position: fixed;
+			left: 50%;
+			bottom: 18px;
+			transform: translateX(-50%);
+			max-width: min(680px, calc(100vw - 32px));
+			padding: 10px 14px;
+			border-radius: 8px;
+			background: rgba(37, 48, 71, .82);
+			color: white;
+			font-size: .92rem;
+			opacity: 0;
+			pointer-events: none;
+			transition: opacity .2s ease;
+			text-align: center;
+		}
+
+		.remote-note.show {
+			opacity: 1;
+		}
+
+		.team-yellow {
+			--team-bg: var(--yellow);
+			--team-accent: var(--yellow-strong);
+		}
+
+		.team-green {
+			--team-bg: var(--green);
+			--team-accent: var(--green-strong);
+		}
+
+		.team-blue {
+			--team-bg: var(--blue);
+			--team-accent: var(--blue-strong);
+		}
+
+		.team-pink {
+			--team-bg: var(--pink);
+			--team-accent: var(--pink-strong);
+		}
+
+		@media (max-width: 980px) {
+			.setup-row,
+			.team-list {
+				grid-template-columns: repeat(2, minmax(0, 1fr));
+			}
+
+			.field,
+			.actions {
+				grid-column: span 1;
+			}
+
+			.scores-row {
+				grid-template-columns: repeat(2, minmax(0, 1fr));
+			}
+		}
+
+		@media (max-width: 640px) {
+			.app {
+				padding: 10px;
+			}
+
+			.actions,
+			.setup-row,
+			.team-list,
+			.scores-row {
+				grid-template-columns: 1fr;
+			}
+
+			.icon-btn {
+				flex: 1;
+			}
+		}
+	</style>
+</head>
+
+<body>
+	<div class="app" id="app"></div>
+
+	<script>
+		const TEAMS = [
+			{ id: "yellow", name: "Yellow", className: "team-yellow" },
+			{ id: "green", name: "Green", className: "team-green" },
+			{ id: "blue", name: "Blue", className: "team-blue" },
+			{ id: "pink", name: "Pink", className: "team-pink" }
+		];
+
+		const LS_KEY = "reviewGameSlides.v1";
+		const isDisplayMode = new URLSearchParams(window.location.search).get("display") === "1";
+		const channel = "BroadcastChannel" in window ? new BroadcastChannel("review-game-slides") : null;
+		let displayWindow = null;
+		let noteTimer = 0;
+		let state = loadState();
+		let lastHandledSlideCommandId = state.slideCommand?.id || 0;
+
+		function defaultState() {
+			return {
+				scores: {
+					yellow: 0,
+					green: 0,
+					blue: 0,
+					pink: 0
+				},
+				slideIndex: 1,
+				slideCount: 0,
+				imageDeckVersion: 0,
+				slideCommand: null
+			};
+		}
+
+		function loadState() {
+			try {
+				const raw = localStorage.getItem(LS_KEY);
+				if (!raw) return defaultState();
+				const parsed = JSON.parse(raw);
+				return {
+					...defaultState(),
+					...parsed,
+					scores: { ...defaultState().scores, ...(parsed.scores || {}) },
+					slideIndex: Math.max(1, numberValue(parsed.slideIndex) || 1),
+					slideCount: Math.max(0, numberValue(parsed.slideCount) || 0),
+					imageDeckVersion: numberValue(parsed.imageDeckVersion) || 0,
+					slideCommand: parsed.slideCommand && typeof parsed.slideCommand === "object" ? parsed.slideCommand : null
+				};
+			} catch {
+				return defaultState();
+			}
+		}
+
+		function saveState(announce = true) {
+			localStorage.setItem(LS_KEY, JSON.stringify(state));
+			if (announce && channel) channel.postMessage({ type: "state", state });
+		}
+
+		function render() {
+			if (isDisplayMode) renderDisplay();
+			else renderController();
+			applyStateToFrames();
+			updateEmptyStates();
+		}
+
+		function teamCards() {
+			return TEAMS.map(team => `
+				<div class="team-card ${team.className}">
+					<div class="team-top">
+						<div class="team-name">${team.name}</div>
+						<input class="score-input" type="number" inputmode="numeric" value="${state.scores[team.id]}" data-score-input="${team.id}" aria-label="${team.name} score">
+					</div>
+					<div class="score-buttons">
+						<button class="score-btn minus" data-add="${team.id}" data-value="-1">-1</button>
+						<button class="score-btn" data-add="${team.id}" data-value="1">+1</button>
+						<button class="score-btn" data-add="${team.id}" data-value="3">+3</button>
+						<button class="score-btn" data-add="${team.id}" data-value="4">+4</button>
+					</div>
+				</div>
+			`).join("");
+		}
+
+		function renderController() {
+			document.title = "Review Game Controls";
+			document.getElementById("app").innerHTML = `
+				<main class="controller">
+					<section class="setup-row">
+						<div class="panel header">
+							<h1>Review Game</h1>
+							<p>Load exported slide images, control team scores, and send the scoreboard to another screen.</p>
+						</div>
+						<div class="panel field">
+							<label for="slideImages">Exported slide images</label>
+							<input type="file" id="slideImages" accept="image/*" multiple>
+						</div>
+						<div class="panel actions">
+							<button class="btn primary" id="openDisplay">Open Scoreboard</button>
+							<button class="btn" id="openDisplayTab">Open New Tab</button>
+							<button class="btn danger" id="resetScores">Reset Scores</button>
+						</div>
+					</section>
+
+					<section class="team-list">
+						${teamCards()}
+					</section>
+
+					<section class="panel slide-controls">
+						<button class="icon-btn" id="prevSlide" title="Previous slide" aria-label="Previous slide">&#8592;</button>
+						<button class="btn" id="slideNumber" title="Current slide">Slide ${state.slideIndex}</button>
+						<button class="icon-btn" id="nextSlide" title="Next slide" aria-label="Next slide">&#8594;</button>
+					</section>
+
+					<section class="panel main-stage">
+						<div class="slide-toolbar">
+							<h2>Slide Preview</h2>
+							<div class="muted-status" id="deckStatus">${deckStatusText()}</div>
+						</div>
+						<div class="preview-wrap">
+							<img class="slide-image hidden" alt="Current slide preview">
+							<div class="empty-state" data-empty>Add exported slide images to preview your deck.</div>
+						</div>
+					</section>
+				</main>
+				<div class="remote-note" id="remoteNote"></div>
+			`;
+			bindController();
+		}
+
+		function renderDisplay() {
+			document.title = "Review Game Scoreboard";
+			document.getElementById("app").innerHTML = `
+				<main class="display">
+					<section class="scores-row">
+						${TEAMS.map(team => `
+							<div class="score-tile ${team.className}">
+								<div class="name">${team.name}</div>
+								<div class="score" data-score="${team.id}">${state.scores[team.id]}</div>
+							</div>
+						`).join("")}
+					</section>
+					<section class="display-slide-wrap">
+						<img class="slide-image hidden" id="slideImage" alt="Current slide">
+						<div class="empty-state" data-empty>Add exported slide images in the control panel.</div>
+					</section>
+				</main>
+				<div class="remote-note" id="remoteNote"></div>
+			`;
+		}
+
+		function bindController() {
+			document.getElementById("slideImages").addEventListener("change", async event => {
+				const files = Array.from(event.target.files || [])
+					.filter(file => file.type.startsWith("image/"))
+					.sort((a, b) => a.name.localeCompare(b.name, undefined, { numeric: true, sensitivity: "base" }));
+				if (!files.length) return;
+
+				showNote("Loading slide images...");
+				const dataUrls = await Promise.all(files.map(readFileAsDataUrl));
+				await saveImageSlides(dataUrls);
+				state.slideCount = dataUrls.length;
+				state.imageDeckVersion = Date.now();
+				state.slideIndex = 1;
+				saveState();
+				applyStateToFrames();
+				updateEmptyStates();
+				showNote(`${dataUrls.length} slide images loaded.`);
+			});
+
+			document.getElementById("openDisplay").addEventListener("click", () => {
+				openDisplayWindow("popup");
+			});
+
+			document.getElementById("openDisplayTab").addEventListener("click", () => {
+				openDisplayWindow("tab");
+			});
+
+			document.getElementById("resetScores").addEventListener("click", () => {
+				if (!confirm("Reset all team scores to 0?")) return;
+				for (const team of TEAMS) state.scores[team.id] = 0;
+				saveState();
+				updateScores();
+			});
+
+			document.querySelectorAll("[data-score-input]").forEach(input => {
+				input.addEventListener("change", event => {
+					const teamId = event.target.dataset.scoreInput;
+					state.scores[teamId] = numberValue(event.target.value);
+					saveState();
+					updateScores();
+				});
+			});
+
+			document.querySelectorAll("[data-add]").forEach(button => {
+				button.addEventListener("click", event => {
+					const teamId = event.currentTarget.dataset.add;
+					const value = numberValue(event.currentTarget.dataset.value);
+					state.scores[teamId] = numberValue(state.scores[teamId]) + value;
+					saveState();
+					updateScores();
+				});
+			});
+
+			document.getElementById("prevSlide").addEventListener("click", () => remoteSlide("previous"));
+			document.getElementById("nextSlide").addEventListener("click", () => remoteSlide("next"));
+		}
+
+		function openDisplayWindow(mode = "popup") {
+			const displayUrl = new URL(window.location.href);
+			displayUrl.search = "?display=1";
+			displayUrl.hash = "";
+			const url = displayUrl.toString();
+			displayWindow = mode === "tab"
+				? window.open(url, "_blank")
+				: window.open(url, "reviewGameScoreboard", "popup=yes,width=1400,height=900");
+			if (!displayWindow) showNote("Your browser blocked the scoreboard window. Allow popups for this page and try again.");
+			else setTimeout(() => broadcastState(), 450);
+		}
+
+		async function applyStateToFrames() {
+			document.querySelectorAll("#slideNumber").forEach(el => {
+				const count = state.slideCount ? ` / ${state.slideCount}` : "";
+				el.textContent = `Slide ${state.slideIndex}${count}`;
+			});
+			document.querySelectorAll("#deckStatus").forEach(el => {
+				el.textContent = deckStatusText();
+			});
+
+			const imageSrc = state.slideCount ? await getImageSlide(state.slideIndex) : "";
+			document.querySelectorAll(".slide-image").forEach(image => {
+				image.classList.toggle("hidden", !imageSrc);
+				image.src = imageSrc || "";
+			});
+		}
+
+		function updateScores() {
+			TEAMS.forEach(team => {
+				document.querySelectorAll(`[data-score="${team.id}"]`).forEach(el => {
+					el.textContent = state.scores[team.id];
+				});
+				document.querySelectorAll(`[data-score-input="${team.id}"]`).forEach(el => {
+					if (document.activeElement !== el) el.value = state.scores[team.id];
+				});
+			});
+		}
+
+		function updateEmptyStates() {
+			document.querySelectorAll("[data-empty]").forEach(el => {
+				el.classList.toggle("hidden", state.slideCount > 0);
+			});
+		}
+
+		function broadcastState() {
+			if (channel) channel.postMessage({ type: "state", state });
+		}
+
+		function remoteSlide(direction) {
+			state.slideIndex = direction === "previous"
+				? Math.max(1, numberValue(state.slideIndex) - 1)
+				: Math.max(1, numberValue(state.slideIndex) + 1);
+			if (state.slideCount) {
+				state.slideIndex = Math.min(state.slideIndex, state.slideCount);
+			}
+			const command = {
+				id: Date.now() + Math.random(),
+				direction,
+				slideIndex: state.slideIndex
+			};
+			state.slideCommand = command;
+			lastHandledSlideCommandId = command.id;
+			saveState();
+			applyStateToFrames();
+			if (channel) channel.postMessage({ type: "slide", command });
+			if (displayWindow && !displayWindow.closed) {
+				displayWindow.postMessage({ type: "slide", command }, window.location.origin);
+			}
+			showNote("Slide command sent to the scoreboard.");
+		}
+
+		function handleSlideCommand(command) {
+			if (!command || command.id === lastHandledSlideCommandId) return;
+			if (command.direction !== "previous" && command.direction !== "next") return;
+			lastHandledSlideCommandId = command.id;
+			if (command.slideIndex) {
+				state.slideIndex = Math.max(1, numberValue(command.slideIndex) || 1);
+				if (state.slideCount) {
+					state.slideIndex = Math.min(state.slideIndex, state.slideCount);
+				}
+				applyStateToFrames();
+			}
+			if (isDisplayMode) showNote("Slide command received.");
+		}
+
+		function openSlideDb() {
+			return new Promise((resolve, reject) => {
+				const request = indexedDB.open("review-game-slide-images", 1);
+				request.onupgradeneeded = () => {
+					request.result.createObjectStore("slides", { keyPath: "id" });
+				};
+				request.onsuccess = () => resolve(request.result);
+				request.onerror = () => reject(request.error);
+			});
+		}
+
+		async function saveImageSlides(dataUrls) {
+			const db = await openSlideDb();
+			await new Promise((resolve, reject) => {
+				const tx = db.transaction("slides", "readwrite");
+				const store = tx.objectStore("slides");
+				store.clear();
+				dataUrls.forEach((dataUrl, index) => {
+					store.put({ id: index + 1, dataUrl });
+				});
+				tx.oncomplete = resolve;
+				tx.onerror = () => reject(tx.error);
+			});
+			db.close();
+		}
+
+		async function getImageSlide(slideIndex) {
+			const db = await openSlideDb();
+			const slide = await new Promise((resolve, reject) => {
+				const request = db.transaction("slides", "readonly")
+					.objectStore("slides")
+					.get(Math.max(1, numberValue(slideIndex) || 1));
+				request.onsuccess = () => resolve(request.result);
+				request.onerror = () => reject(request.error);
+			});
+			db.close();
+			return slide?.dataUrl || "";
+		}
+
+		function readFileAsDataUrl(file) {
+			return new Promise((resolve, reject) => {
+				const reader = new FileReader();
+				reader.onload = () => resolve(reader.result);
+				reader.onerror = () => reject(reader.error);
+				reader.readAsDataURL(file);
+			});
+		}
+
+		function showNote(text) {
+			const note = document.getElementById("remoteNote");
+			if (!note) return;
+			note.textContent = text;
+			note.classList.add("show");
+			clearTimeout(noteTimer);
+			noteTimer = setTimeout(() => note.classList.remove("show"), 3600);
+		}
+
+		function deckStatusText() {
+			if (state.slideCount) return `${state.slideCount} exported slides loaded`;
+			return "No deck loaded";
+		}
+
+		function numberValue(value) {
+			const parsed = parseInt(value, 10);
+			return Number.isFinite(parsed) ? parsed : 0;
+		}
+
+		if (channel) {
+			channel.addEventListener("message", event => {
+				if (event.data?.type === "state") {
+					state = {
+						...defaultState(),
+						...event.data.state,
+						scores: { ...defaultState().scores, ...(event.data.state.scores || {}) }
+					};
+					saveState(false);
+					applyStateToFrames();
+					updateScores();
+					updateEmptyStates();
+					handleSlideCommand(state.slideCommand);
+				}
+				if (event.data?.type === "slide") {
+					handleSlideCommand(event.data.command);
+				}
+			});
+		}
+
+		window.addEventListener("storage", event => {
+			if (event.key !== LS_KEY || !event.newValue) return;
+			state = loadState();
+			applyStateToFrames();
+			updateScores();
+			updateEmptyStates();
+			handleSlideCommand(state.slideCommand);
+		});
+
+		window.addEventListener("message", event => {
+			if (event.origin !== window.location.origin) return;
+			if (event.data?.type === "slide") handleSlideCommand(event.data.command);
+		});
+
+		document.addEventListener("keydown", event => {
+			const isTyping = event.target.tagName === "INPUT" || event.target.isContentEditable;
+			if (isTyping) return;
+			if (event.key === "ArrowLeft") remoteSlide("previous");
+			if (event.key === "ArrowRight") remoteSlide("next");
+		});
+
+		render();
+		if (isDisplayMode) broadcastState();
+	</script>
+</body>
+
+</html>
