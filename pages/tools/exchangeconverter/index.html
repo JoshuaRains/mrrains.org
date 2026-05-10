@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Exchange Rates</title>
+  <style>
+    :root {
+      --bg: #f6f4ef;
+      --ink: #20252b;
+      --muted: #6a7077;
+      --line: #dad4c8;
+      --panel: #fffdf8;
+      --accent: #176b5f;
+      --bad: #a23c3c;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    main {
+      width: min(980px, calc(100% - 24px));
+      margin: 0 auto;
+      padding: 14px 0 24px;
+    }
+
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 5;
+      display: grid;
+      grid-template-columns: 150px minmax(0, 1fr) auto;
+      gap: 10px;
+      align-items: center;
+      padding: 10px 0;
+      background: rgba(246, 244, 239, 0.96);
+      border-bottom: 1px solid var(--line);
+    }
+
+    label {
+      color: var(--muted);
+      font-size: 0.76rem;
+      font-weight: 800;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+    }
+
+    input {
+      width: 100%;
+      height: 44px;
+      border: 1px solid #bcb4a6;
+      border-radius: 7px;
+      background: var(--panel);
+      color: var(--ink);
+      font: inherit;
+      font-size: 1.16rem;
+      font-weight: 750;
+      padding: 8px 11px;
+      outline: none;
+    }
+
+    input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(23, 107, 95, 0.14);
+    }
+
+    button {
+      height: 38px;
+      border: 0;
+      border-radius: 7px;
+      background: var(--ink);
+      color: #fff;
+      cursor: pointer;
+      font: inherit;
+      font-weight: 800;
+      padding: 0 12px;
+    }
+
+    .summary {
+      margin: 10px 0;
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+
+    .summary.error {
+      color: var(--bad);
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+      gap: 10px;
+    }
+
+    .card {
+      display: grid;
+      grid-template-columns: 190px minmax(0, 1fr);
+      gap: 12px;
+      align-items: center;
+      min-height: 132px;
+      padding: 10px;
+      border: 1px solid var(--line);
+      border-radius: 7px;
+      background: var(--panel);
+    }
+
+    .bill {
+      width: 190px;
+      height: 112px;
+      border-radius: 6px;
+      object-fit: contain;
+      background: #eee8dc;
+      border: 1px solid rgba(32, 37, 43, 0.16);
+    }
+
+    .country {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 10px;
+      font-weight: 850;
+    }
+
+    .code {
+      color: var(--muted);
+      font-size: 0.78rem;
+      font-weight: 800;
+    }
+
+    .amount {
+      margin-top: 4px;
+      color: var(--accent);
+      font-size: 1.38rem;
+      font-weight: 900;
+      line-height: 1.05;
+      overflow-wrap: anywhere;
+    }
+
+    .meta {
+      margin-top: 4px;
+      color: var(--muted);
+      font-size: 0.78rem;
+    }
+
+    .image-credit {
+      color: var(--muted);
+      font-size: 0.72rem;
+      text-decoration: none;
+    }
+
+    .image-credit:hover {
+      color: var(--accent);
+      text-decoration: underline;
+    }
+
+    .source {
+      margin: 12px 0 0;
+      color: var(--muted);
+      font-size: 0.78rem;
+    }
+
+    .source a {
+      color: var(--accent);
+      font-weight: 800;
+    }
+
+    @media (max-width: 620px) {
+      .topbar {
+        grid-template-columns: 1fr auto;
+      }
+
+      label {
+        grid-column: 1 / -1;
+      }
+
+      .grid {
+        grid-template-columns: 1fr;
+      }
+
+      .card {
+        grid-template-columns: 1fr;
+      }
+
+      .bill {
+        width: 100%;
+        height: 150px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <div class="topbar">
+      <label for="amount">USD Amount</label>
+      <input id="amount" type="number" min="0" step="0.01" value="1">
+      <button id="refresh" type="button">Refresh</button>
+    </div>
+
+    <p class="summary" id="summary">Loading exchange rates...</p>
+    <div class="grid" id="rateList"></div>
+    <p class="source">Rates by <a href="https://www.exchangerate-api.com" target="_blank" rel="noopener">Exchange Rate API</a>. Published rates are refreshed by the provider once per day.</p>
+  </main>
+
+  <script>
+    const API_URL = "https://open.er-api.com/v6/latest/USD";
+    const CACHE_KEY = "spanishWorldExchangeRatesUsd";
+    const CACHE_MAX_AGE = 1000 * 60 * 60 * 12;
+
+    const currencies = [
+      { country: "Argentina", code: "ARS", symbol: "$", name: "Argentine peso", imageFile: "10000 peso Moneda Nacional 1961 A.jpg" },
+      { country: "Bolivia", code: "BOB", symbol: "Bs", name: "Bolivian boliviano", imageFile: "Bolivia 100 Bolivianos banknote of 1911.jpg" },
+      { country: "Chile", code: "CLP", symbol: "$", name: "Chilean peso", imageFile: "Banco de Concepcion 100 pesos.jpg" },
+      { country: "Colombia", code: "COP", symbol: "$", name: "Colombian peso", imageFile: "Bundle Colombia.jpg" },
+      { country: "Costa Rica", code: "CRC", symbol: "₡", name: "Costa Rican colon", imageFile: "Billete 10000 colones anverso.jpg" },
+      { country: "Cuba", code: "CUP", symbol: "$", name: "Cuban peso", imageFile: "US-BEP-República de Cuba (certified proof) 100 silver pesos, 1936 (CUB-74b).jpg" },
+      { country: "Dominican Republic", code: "DOP", symbol: "RD$", name: "Dominican peso", imageFile: "Billete de 25 pesos de la Provincia Española de Santo Domingo.jpg" },
+      { country: "Ecuador", code: "USD", symbol: "$", name: "U.S. dollar", imageFile: "US20-front.jpg" },
+      { country: "El Salvador", code: "USD", symbol: "$", name: "U.S. dollar", imageFile: "US20-front.jpg" },
+      { country: "Equatorial Guinea", code: "XAF", symbol: "FCFA", name: "Central African CFA franc", imageFile: "Cinq mille francs CFA.jpg" },
+      { country: "Guatemala", code: "GTQ", symbol: "Q", name: "Guatemalan quetzal", imageFile: "Billete de 10 Quetzales.jpg" },
+      { country: "Honduras", code: "HNL", symbol: "L", name: "Honduran lempira", imageFile: "Lempiras 20 y 100.jpg" },
+      { country: "Mexico", code: "MXN", symbol: "$", name: "Mexican peso", imageFile: "El Banco de Londres y Mexico 500 Pesos.jpg" },
+      { country: "Nicaragua", code: "NIO", symbol: "C$", name: "Nicaraguan cordoba", imageFile: "500 Cordobas.jpg" },
+      { country: "Panama", code: "PAB", symbol: "B/.", name: "Panamanian balboa", imageFile: "Panama Banknote 1 Balboa 1941.jpg" },
+      { country: "Paraguay", code: "PYG", symbol: "₲", name: "Paraguayan guarani", imageFile: "100000 Guaraníes.jpg" },
+      { country: "Peru", code: "PEN", symbol: "S/", name: "Peruvian sol", imageFile: "100 Soles de Oro 1965 Casa de Moneda de Lima Anverso.jpg" },
+      { country: "Puerto Rico", code: "USD", symbol: "$", name: "U.S. dollar", imageFile: "US20-front.jpg" },
+      { country: "Spain", code: "EUR", symbol: "€", name: "Euro", imageFile: "50 Euro Banknote.png" },
+      { country: "Uruguay", code: "UYU", symbol: "$U", name: "Uruguayan peso", imageFile: "URU-S214b-Banco Italiano-100 Pesos (1887, face only).jpg" },
+      { country: "Venezuela", code: "VES", symbol: "Bs", name: "Venezuelan bolivar", imageFile: "Billete de 100 Bolìvares.jpg" }
+    ];
+
+    const amountEl = document.querySelector("#amount");
+    const summaryEl = document.querySelector("#summary");
+    const rateListEl = document.querySelector("#rateList");
+    const refreshEl = document.querySelector("#refresh");
+
+    let rates = {};
+    let updateInfo = null;
+
+    function formatNumber(value) {
+      return new Intl.NumberFormat("en-US", {
+        maximumFractionDigits: value >= 1000 ? 0 : 2
+      }).format(value);
+    }
+
+    function formatRate(value) {
+      return new Intl.NumberFormat("en-US", {
+        maximumFractionDigits: value >= 100 ? 0 : 4
+      }).format(value);
+    }
+
+    function wikiImageUrl(file) {
+      return `https://commons.wikimedia.org/wiki/Special:FilePath/${encodeURIComponent(file)}?width=360`;
+    }
+
+    function wikiFileUrl(file) {
+      return `https://commons.wikimedia.org/wiki/File:${encodeURIComponent(file).replace(/%20/g, "_")}`;
+    }
+
+    function renderList() {
+      const amount = Number(amountEl.value) || 0;
+
+      rateListEl.innerHTML = currencies.map((item) => {
+        const rate = rates[item.code];
+        const value = rate ? `${item.symbol}${formatNumber(amount * rate)} ${item.code}` : "Unavailable";
+        const unitRate = rate ? `1 USD = ${item.symbol}${formatRate(rate)}` : "No rate";
+
+        return `
+          <article class="card">
+            <img class="bill" src="${wikiImageUrl(item.imageFile)}" alt="${item.country} ${item.name} banknote" loading="lazy">
+            <div>
+              <div class="country">
+                <span>${item.country}</span>
+                <span class="code">${item.code}</span>
+              </div>
+              <div class="amount">${value}</div>
+              <div class="meta">${item.name} · ${unitRate}</div>
+              <a class="image-credit" href="${wikiFileUrl(item.imageFile)}" target="_blank" rel="noopener">Wikimedia image</a>
+            </div>
+          </article>
+        `;
+      }).join("");
+    }
+
+    function render() {
+      const amount = Number(amountEl.value) || 0;
+      const hasRates = Object.keys(rates).length > 0;
+      summaryEl.classList.toggle("error", !hasRates);
+      summaryEl.textContent = hasRates
+        ? `${formatNumber(amount)} USD in currencies used across the Spanish-speaking world. Updated ${updateInfo?.time_last_update_utc || "recently"}.`
+        : "Loading exchange rates...";
+      renderList();
+    }
+
+    function readCache() {
+      try {
+        const cached = JSON.parse(localStorage.getItem(CACHE_KEY));
+        if (!cached || Date.now() - cached.savedAt > CACHE_MAX_AGE) {
+          return null;
+        }
+        return cached.data;
+      } catch {
+        return null;
+      }
+    }
+
+    function writeCache(data) {
+      localStorage.setItem(CACHE_KEY, JSON.stringify({
+        savedAt: Date.now(),
+        data
+      }));
+    }
+
+    async function loadRates(forceRefresh = false) {
+      summaryEl.textContent = "Loading exchange rates...";
+
+      const cached = forceRefresh ? null : readCache();
+      if (cached) {
+        rates = cached.rates;
+        updateInfo = cached;
+        render();
+      }
+
+      try {
+        const response = await fetch(API_URL);
+        if (!response.ok) {
+          throw new Error(`Request failed: ${response.status}`);
+        }
+
+        const data = await response.json();
+        if (data.result !== "success" || !data.rates) {
+          throw new Error("The rate service returned an unexpected response.");
+        }
+
+        rates = data.rates;
+        updateInfo = data;
+        writeCache(data);
+        render();
+      } catch (error) {
+        if (!cached) {
+          summaryEl.textContent = "Rates could not be loaded. Check the connection and try again.";
+          summaryEl.classList.add("error");
+        }
+      }
+    }
+
+    amountEl.addEventListener("input", render);
+    refreshEl.addEventListener("click", () => loadRates(true));
+    renderList();
+    loadRates();
+  </script>
+</body>
+</html>

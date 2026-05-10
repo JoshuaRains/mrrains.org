@@ -21,7 +21,7 @@
 			--shadow: 4px 4px 0 rgba(0, 0, 0, .8);
 			--edge-pad-l: max(3px, env(safe-area-inset-left));
 			--edge-pad-r: max(3px, env(safe-area-inset-right));
-			--subtitle-h: 88px;
+			--subtitle-h: 68px;
 			--controls-clearance: 58px;
 
 			--bar-h: 36px;
@@ -227,30 +227,7 @@
 			transition: height .22s ease;
 		}
 
-		.file-slide-viewer {
-			position: relative;
-			aspect-ratio: 16 / 9;
-			height: min(100%, calc((100vw - var(--edge-pad-l) - var(--edge-pad-r)) * 9 / 16));
-			width: auto;
-			max-width: 100%;
-			border: 0;
-			border-radius: 0;
-			box-shadow: var(--shadow);
-			background: #fff;
-			color: #000;
-			overflow: hidden;
-			transition: height .22s ease;
-		}
-
-		.file-slide-viewer[hidden] {
-			display: none;
-		}
-
 		.slides-area.subtitles-live .slides-frame {
-			height: min(calc(100% - var(--subtitle-h) - var(--controls-clearance) - 4px), calc((100vw - var(--edge-pad-l) - var(--edge-pad-r)) * 9 / 16));
-		}
-
-		.slides-area.subtitles-live .file-slide-viewer {
 			height: min(calc(100% - var(--subtitle-h) - var(--controls-clearance) - 4px), calc((100vw - var(--edge-pad-l) - var(--edge-pad-r)) * 9 / 16));
 		}
 
@@ -258,59 +235,10 @@
 			justify-content: flex-start;
 		}
 
-		.slides-area.translator-mode .slides-frame,
-		.slides-area.translator-mode .file-slide-viewer {
+		.slides-area.translator-mode .slides-frame {
 			height: 0;
 			opacity: 0;
 			pointer-events: none;
-		}
-
-		.file-slide {
-			position: absolute;
-			inset: 0;
-			overflow: hidden;
-			background: #fff;
-		}
-
-		.file-slide canvas,
-		.file-slide img {
-			width: 100%;
-			height: 100%;
-			object-fit: contain;
-			display: block;
-		}
-
-		.file-slide-message {
-			position: absolute;
-			inset: 0;
-			display: grid;
-			place-items: center;
-			padding: 24px;
-			text-align: center;
-			font: 900 28px/1.2 ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
-			color: #111;
-		}
-
-		.file-slide-nav {
-			position: absolute;
-			bottom: 8px;
-			left: 8px;
-			display: flex;
-			align-items: center;
-			gap: 6px;
-			z-index: 4;
-		}
-
-		.file-slide-nav button {
-			width: 34px;
-			height: 34px;
-			display: grid;
-			place-items: center;
-			border: 2px solid #000;
-			background: #fff;
-			color: #000;
-			padding: 0;
-			cursor: pointer;
 		}
 
 		.subtitle-bar {
@@ -354,7 +282,7 @@
 			font-weight: 900;
 			line-height: 1.18;
 			color: #fff;
-			font-size: 56px;
+			font-size: 38px;
 		}
 
 		.slides-area.translator-mode .subtitle-text {
@@ -697,7 +625,7 @@
 			align-items: center;
 			justify-content: center;
 			padding: 4px;
-			z-index: 20000;
+			z-index: 60;
 			overflow: hidden;
 		}
 
@@ -944,20 +872,11 @@
 				height: min(100%, calc((100vw - var(--edge-pad-l) - var(--edge-pad-r)) * 9 / 16));
 			}
 
-			.file-slide-viewer {
-				height: min(100%, calc((100vw - var(--edge-pad-l) - var(--edge-pad-r)) * 9 / 16));
-			}
-
 			.slides-area.subtitles-live .slides-frame {
 				height: min(calc(100% - var(--subtitle-h) - var(--controls-clearance) - 4px), calc((100vw - var(--edge-pad-l) - var(--edge-pad-r)) * 9 / 16));
 			}
 
-			.slides-area.subtitles-live .file-slide-viewer {
-				height: min(calc(100% - var(--subtitle-h) - var(--controls-clearance) - 4px), calc((100vw - var(--edge-pad-l) - var(--edge-pad-r)) * 9 / 16));
-			}
-
-			.slides-area.translator-mode .slides-frame,
-			.slides-area.translator-mode .file-slide-viewer {
+			.slides-area.translator-mode .slides-frame {
 				height: 0;
 			}
 		}
@@ -983,17 +902,6 @@
 				sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-presentation allow-downloads"
 				src="">
 			</iframe>
-			<div class="file-slide-viewer" id="fileSlideViewer" hidden>
-				<div class="file-slide" id="fileSlide"></div>
-				<div class="file-slide-nav" id="fileSlideNav" hidden>
-					<button id="fileSlidePrev" type="button" aria-label="Previous slide">
-						<span class="material-symbols-outlined" aria-hidden="true">chevron_left</span>
-					</button>
-					<button id="fileSlideNext" type="button" aria-label="Next slide">
-						<span class="material-symbols-outlined" aria-hidden="true">chevron_right</span>
-					</button>
-				</div>
-			</div>
 			<div class="subtitle-bar" aria-live="polite">
 				<div class="subtitle-text" id="subtitleText"></div>
 				<div class="translator-stage" id="translatorStage">
@@ -1061,11 +969,6 @@
 			</div>
 
 			<div class="field">
-				<label for="slideFiles">PDF or slide images</label>
-				<input type="file" id="slideFiles" accept="application/pdf,image/*,.pdf,.png,.jpg,.jpeg,.webp,.gif" multiple />
-			</div>
-
-			<div class="field">
 				<label for="timerSoundSelect">Timer Sound</label>
 				<select class="sound-select" id="timerSoundSelect">
 					<option value="nfl">nfl.mp3</option>
@@ -1114,18 +1017,10 @@
 			</div>
 
 			<div class="field">
-				<label>Caption mic toggle key</label>
+				<label>Push-to-talk key</label>
 				<div class="keybind-row">
 					<button class="keybind-btn" id="pushToTalkKeyBtn" type="button">F13</button>
-					<div style="color:var(--muted); font-size:.9rem;">Press once to open CC mic, press again to close</div>
-				</div>
-				<div class="keybind-row">
-					<button class="keybind-btn" id="translatorKeyBtn" type="button">F14</button>
-					<div style="color:var(--muted); font-size:.9rem;">Open/close translator canvas</div>
-				</div>
-				<div class="keybind-row">
-					<button class="keybind-btn" id="chimeKeyBtn" type="button">F15</button>
-					<div style="color:var(--muted); font-size:.9rem;">Play chime sound</div>
+					<div style="color:var(--muted); font-size:.9rem;">Used for CC EN and CC ES only</div>
 				</div>
 			</div>
 
@@ -1141,9 +1036,8 @@
 	<audio id="clickerSound" preload="auto" src="./sounds/cave.mp3"></audio>
 	<!-- NEW: bell sound button audio (always cave) -->
 	<audio id="bellSound" preload="auto" src="./sounds/cave.mp3"></audio>
+
 	<script type="module">
-		const pdfjsLib = await import('https://cdn.jsdelivr.net/npm/pdfjs-dist@4.10.38/build/pdf.min.mjs');
-		pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdn.jsdelivr.net/npm/pdfjs-dist@4.10.38/build/pdf.worker.min.mjs';
 
 		function getZoom() {
 			return window.devicePixelRatio || 1;
@@ -1166,16 +1060,13 @@
 		let customTimerSoundDataUrl = ""; // data:audio/...;base64,...
 		let pushToTalkKeyCode = "F13";
 		let pushToTalkKeyLabel = "F13";
-		let translatorToggleKeyCode = "F14";
-		let translatorToggleKeyLabel = "F14";
-		let chimeKeyCode = "F15";
-		let chimeKeyLabel = "F15";
-		let capturingKeybind = "";
+		let capturingPushToTalkKey = false;
 
 		let running = false;
 		let paused = false;
 		let subtitleMode = ""; // caption-en | caption-es | translate-en-es | translate-es-en
 		let subtitleListening = false;
+		let pushToTalkHeld = false;
 		let translatorMode = false;
 		let subtitleRecognition = null;
 		let subtitleFinalText = "";
@@ -1207,10 +1098,6 @@
 			cave: "./sounds/cave.mp3",
 			amongus: "./sounds/amongus.mp3",
 		};
-
-		let fileDeck = null;
-		let fileSlideIndex = 0;
-		const fileDeckObjectUrls = [];
 
 		/* ---------- Elements ---------- */
 		const overlay = document.getElementById('overlay');
@@ -1259,19 +1146,11 @@
 
 		const slidesInput = document.getElementById('slidesUrl');
 		const slidesFrame = document.getElementById('slidesFrame');
-		const slideFilesInput = document.getElementById('slideFiles');
-		const fileSlideViewer = document.getElementById('fileSlideViewer');
-		const fileSlide = document.getElementById('fileSlide');
-		const fileSlideNav = document.getElementById('fileSlideNav');
-		const fileSlidePrev = document.getElementById('fileSlidePrev');
-		const fileSlideNext = document.getElementById('fileSlideNext');
 		const totalTimeDisplay = document.getElementById('totalTimeDisplay');
 
 		const timerSoundSelect = document.getElementById('timerSoundSelect');
 		const timerSoundFile = document.getElementById('timerSoundFile');
 		const pushToTalkKeyBtn = document.getElementById('pushToTalkKeyBtn');
-		const translatorKeyBtn = document.getElementById('translatorKeyBtn');
-		const chimeKeyBtn = document.getElementById('chimeKeyBtn');
 
 		function applyTimerSound() {
 			if (timerSoundChoice === "custom") {
@@ -1285,92 +1164,6 @@
 			const src = TIMER_SOUNDS[timerSoundChoice] || TIMER_SOUNDS.nfl;
 			audioEl.src = src;
 			audioEl.load();
-		}
-
-		function showFileSlideMessage(message) {
-			slidesFrame.hidden = true;
-			fileSlideViewer.hidden = false;
-			fileSlideNav.hidden = true;
-			fileSlide.innerHTML = `<div class="file-slide-message">${message}</div>`;
-		}
-
-		function clearFileDeck() {
-			fileDeckObjectUrls.splice(0).forEach(url => URL.revokeObjectURL(url));
-			fileDeck = null;
-			fileSlideIndex = 0;
-			fileSlide.innerHTML = "";
-			fileSlideViewer.hidden = true;
-			fileSlideNav.hidden = true;
-			slidesFrame.hidden = false;
-		}
-
-		function getPdfJs() {
-			return pdfjsLib;
-		}
-
-		async function loadSlideFiles(files) {
-			const fileList = [...files];
-			if (!fileList.length) return;
-			clearFileDeck();
-			showFileSlideMessage('Loading slides...');
-
-			try {
-				const slides = [];
-				for (const file of fileList) {
-					if (file.type === 'application/pdf' || /\.pdf$/i.test(file.name)) {
-						const pdfjsLib = getPdfJs();
-						if (!pdfjsLib) throw new Error('PDF renderer not loaded.');
-						const pdf = await pdfjsLib.getDocument({ data: await file.arrayBuffer() }).promise;
-						for (let pageNumber = 1; pageNumber <= pdf.numPages; pageNumber++) {
-							slides.push({ type: 'pdf', pdf, pageNumber });
-						}
-					} else if (file.type.startsWith('image/')) {
-						const url = URL.createObjectURL(file);
-						fileDeckObjectUrls.push(url);
-						slides.push({ type: 'image', url });
-					}
-				}
-
-				if (!slides.length) throw new Error('No supported PDF or image slides were found.');
-				fileDeck = { slides };
-				fileSlideIndex = 0;
-				slidesFrame.hidden = true;
-				fileSlideViewer.hidden = false;
-				await renderFileSlide();
-			} catch (err) {
-				console.warn('Slide file load failed:', err);
-				showFileSlideMessage('These files could not be loaded. Use PDF files or slide images like PNG, JPG, or WebP.');
-			}
-		}
-
-		async function renderFileSlide() {
-			if (!fileDeck) return;
-			const slide = fileDeck.slides[fileSlideIndex];
-			fileSlide.innerHTML = "";
-
-			if (slide.type === 'image') {
-				const img = document.createElement('img');
-				img.src = slide.url;
-				fileSlide.appendChild(img);
-			} else if (slide.type === 'pdf') {
-				const page = await slide.pdf.getPage(slide.pageNumber);
-				const viewport = page.getViewport({ scale: 2 });
-				const canvas = document.createElement('canvas');
-				canvas.width = viewport.width;
-				canvas.height = viewport.height;
-				await page.render({ canvasContext: canvas.getContext('2d'), viewport }).promise;
-				fileSlide.appendChild(canvas);
-			}
-
-			fileSlideNav.hidden = fileDeck.slides.length <= 1;
-			fileSlidePrev.disabled = fileSlideIndex <= 0;
-			fileSlideNext.disabled = fileSlideIndex >= fileDeck.slides.length - 1;
-		}
-
-		function moveFileSlide(delta) {
-			if (!fileDeck) return;
-			fileSlideIndex = Math.max(0, Math.min(fileDeck.slides.length - 1, fileSlideIndex + delta));
-			renderFileSlide();
 		}
 
 		function ensureDefaultPause1204() {
@@ -1388,10 +1181,6 @@
 				presetLunch,
 				pushToTalkKeyCode,
 				pushToTalkKeyLabel,
-				translatorToggleKeyCode,
-				translatorToggleKeyLabel,
-				chimeKeyCode,
-				chimeKeyLabel,
 				slidesURL,
 				timerSoundChoice,
 				customTimerSoundDataUrl
@@ -1415,10 +1204,6 @@
 						presetLunch = data.presetLunch === "A" ? "A" : "B";
 						pushToTalkKeyCode = typeof data.pushToTalkKeyCode === 'string' ? data.pushToTalkKeyCode : "F13";
 						pushToTalkKeyLabel = typeof data.pushToTalkKeyLabel === 'string' ? data.pushToTalkKeyLabel : pushToTalkKeyCode;
-						translatorToggleKeyCode = typeof data.translatorToggleKeyCode === 'string' ? data.translatorToggleKeyCode : "F14";
-						translatorToggleKeyLabel = typeof data.translatorToggleKeyLabel === 'string' ? data.translatorToggleKeyLabel : translatorToggleKeyCode;
-						chimeKeyCode = typeof data.chimeKeyCode === 'string' ? data.chimeKeyCode : "F15";
-						chimeKeyLabel = typeof data.chimeKeyLabel === 'string' ? data.chimeKeyLabel : chimeKeyCode;
 						slidesURL = typeof data.slidesURL === 'string' ? data.slidesURL : '';
 
 						timerSoundChoice = typeof data.timerSoundChoice === 'string' ? data.timerSoundChoice : "nfl";
@@ -1445,7 +1230,7 @@
 
 			timerSoundSelect.value = timerSoundChoice || "nfl";
 			applyTimerSound();
-			updateKeybindUI();
+			updatePushToTalkKeyUI();
 			updatePresetScheduleUI();
 
 			updateTotalTime();
@@ -1534,13 +1319,9 @@
 			return event.key || event.code || "Key";
 		}
 
-		function updateKeybindUI() {
-			pushToTalkKeyBtn.textContent = capturingKeybind === "caption" ? "Press a key..." : pushToTalkKeyLabel;
-			translatorKeyBtn.textContent = capturingKeybind === "translator" ? "Press a key..." : translatorToggleKeyLabel;
-			chimeKeyBtn.textContent = capturingKeybind === "chime" ? "Press a key..." : chimeKeyLabel;
-			pushToTalkKeyBtn.classList.toggle('listening', capturingKeybind === "caption");
-			translatorKeyBtn.classList.toggle('listening', capturingKeybind === "translator");
-			chimeKeyBtn.classList.toggle('listening', capturingKeybind === "chime");
+		function updatePushToTalkKeyUI() {
+			pushToTalkKeyBtn.textContent = capturingPushToTalkKey ? "Press a key..." : pushToTalkKeyLabel;
+			pushToTalkKeyBtn.classList.toggle('listening', capturingPushToTalkKey);
 		}
 
 		function getPresetAction(timeStr) {
@@ -1635,7 +1416,8 @@
 			reader.readAsDataURL(file);
 		});
 
-		function playChimeSound() {
+		// NEW: Bell button plays cave sound from ./sounds
+		bellBtn.addEventListener('click', () => {
 			if (!bellAudioEl) return;
 			try {
 				bellAudioEl.currentTime = 0;
@@ -1643,10 +1425,7 @@
 			} catch (err) {
 				console.warn('Bell sound play error:', err);
 			}
-		}
-
-		// NEW: Bell button plays cave sound from ./sounds
-		bellBtn.addEventListener('click', playChimeSound);
+		});
 
 		/* ---------- Live Subtitles ---------- */
 		const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -1829,23 +1608,6 @@
 			renderTranslatorView();
 		}
 
-		function toggleTranslatorMode() {
-			if (!isCaptionMode()) return;
-			if (translatorMode) saveCurrentTranslatorEntry();
-			translatorMode = !translatorMode;
-			slidesArea.classList.add('subtitles-live');
-			if (translatorMode) {
-				setTranslatorTool("draw");
-				if (translatorEntries.length) {
-					loadTranslatorEntry(translatorEntries.length - 1);
-				} else {
-					createTranslatorEntryAtEnd(currentSubtitleText);
-				}
-			}
-			updateSubtitleButtons();
-			fitSubtitleText();
-		}
-
 		function setSubtitleMode(mode) {
 			if (subtitleMode === mode) {
 				stopSubtitles();
@@ -1872,7 +1634,7 @@
 		}
 
 		function fitSubtitleText() {
-			const max = translatorMode ? 82 : 56;
+			const max = translatorMode ? 82 : 38;
 			const min = translatorMode ? 16 : 8;
 			subtitleText.style.fontSize = `${max}px`;
 			while (subtitleText.scrollWidth > subtitleText.clientWidth && parseFloat(subtitleText.style.fontSize) > min) {
@@ -2228,6 +1990,7 @@
 
 		function startSubtitles() {
 			if (!subtitleMode || subtitleListening) return;
+			if (isCaptionMode() && !pushToTalkHeld) return;
 			if (!SpeechRecognition) {
 				alert('Live subtitles need a browser with speech recognition support.');
 				return;
@@ -2305,7 +2068,22 @@
 		spanishSubBtn.addEventListener('click', () => setSubtitleMode("caption-es"));
 		translateEnEsBtn.addEventListener('click', () => setSubtitleMode("translate-en-es"));
 		translateEsEnBtn.addEventListener('click', () => setSubtitleMode("translate-es-en"));
-		translatorBtn.addEventListener('click', toggleTranslatorMode);
+		translatorBtn.addEventListener('click', () => {
+			if (!isCaptionMode()) return;
+			if (translatorMode) saveCurrentTranslatorEntry();
+			translatorMode = !translatorMode;
+			slidesArea.classList.add('subtitles-live');
+			if (translatorMode) {
+				setTranslatorTool("draw");
+				if (translatorEntries.length) {
+					loadTranslatorEntry(translatorEntries.length - 1);
+				} else {
+					createTranslatorEntryAtEnd(currentSubtitleText);
+				}
+			}
+			updateSubtitleButtons();
+			fitSubtitleText();
+		});
 
 		toolDrawBtn.addEventListener('click', () => setTranslatorTool("draw"));
 		toolMagicBtn.addEventListener('click', () => setTranslatorTool("magic"));
@@ -2538,18 +2316,8 @@
 		});
 
 		pushToTalkKeyBtn.addEventListener('click', () => {
-			capturingKeybind = "caption";
-			updateKeybindUI();
-		});
-
-		translatorKeyBtn.addEventListener('click', () => {
-			capturingKeybind = "translator";
-			updateKeybindUI();
-		});
-
-		chimeKeyBtn.addEventListener('click', () => {
-			capturingKeybind = "chime";
-			updateKeybindUI();
+			capturingPushToTalkKey = true;
+			updatePushToTalkKeyUI();
 		});
 
 		startNowBtn.addEventListener('click', () => {
@@ -2571,64 +2339,25 @@
 
 		slidesInput.addEventListener('change', e => {
 			slidesURL = e.target.value;
-			clearFileDeck();
 			slidesFrame.src = slidesURL;
 			saveConfig();
 		});
 
-		slideFilesInput.addEventListener('change', e => {
-			const files = e.target.files;
-			if (!files?.length) return;
-			slidesURL = "";
-			slidesInput.value = "";
-			slidesFrame.src = "";
-			clearFileDeck();
-			loadSlideFiles(files);
-			saveConfig();
-		});
-
-		fileSlidePrev.addEventListener('click', () => moveFileSlide(-1));
-		fileSlideNext.addEventListener('click', () => moveFileSlide(1));
-
 		document.addEventListener('keydown', e => {
-			if (capturingKeybind) {
+			if (capturingPushToTalkKey) {
 				e.preventDefault();
-				const code = e.code || e.key;
-				const label = formatKeyLabel(e);
-				if (capturingKeybind === "caption") {
-					pushToTalkKeyCode = code;
-					pushToTalkKeyLabel = label;
-				} else if (capturingKeybind === "translator") {
-					translatorToggleKeyCode = code;
-					translatorToggleKeyLabel = label;
-				} else if (capturingKeybind === "chime") {
-					chimeKeyCode = code;
-					chimeKeyLabel = label;
-				}
-				capturingKeybind = "";
-				updateKeybindUI();
+				pushToTalkKeyCode = e.code || e.key;
+				pushToTalkKeyLabel = formatKeyLabel(e);
+				capturingPushToTalkKey = false;
+				updatePushToTalkKeyUI();
 				saveConfig();
 				return;
 			}
 
 			if (e.code === pushToTalkKeyCode) {
 				e.preventDefault();
-				if (!e.repeat && isCaptionMode()) {
-					if (subtitleListening) stopSubtitles();
-					else startSubtitles();
-				}
-				return;
-			}
-
-			if (e.code === translatorToggleKeyCode) {
-				e.preventDefault();
-				if (!e.repeat) toggleTranslatorMode();
-				return;
-			}
-
-			if (e.code === chimeKeyCode) {
-				e.preventDefault();
-				if (!e.repeat) playChimeSound();
+				pushToTalkHeld = true;
+				if (!e.repeat && isCaptionMode()) startSubtitles();
 				return;
 			}
 
@@ -2657,11 +2386,6 @@
 
 			// ➡ ArrowRight: play clicker sound
 			if (e.key === 'ArrowRight' && !isTyping) {
-				if (fileDeck) {
-					e.preventDefault();
-					moveFileSlide(1);
-					return;
-				}
 				if (clickerAudioEl) {
 					try {
 						clickerAudioEl.currentTime = 0;
@@ -2671,16 +2395,14 @@
 					}
 				}
 			}
-
-			if (e.key === 'ArrowLeft' && !isTyping && fileDeck) {
-				e.preventDefault();
-				moveFileSlide(-1);
-			}
 		});
 
 		document.addEventListener('keyup', e => {
 			if (e.code !== pushToTalkKeyCode) return;
 			e.preventDefault();
+			pushToTalkHeld = false;
+			if (isLiveTranslateMode()) return;
+			stopSubtitles();
 		});
 
 		/* ---------- Init ---------- */
