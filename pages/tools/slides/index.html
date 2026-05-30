@@ -27,6 +27,9 @@
 			--bar-h: 36px;
 			--topbar-pad-x: 4px;
 			--topbar-pad-top: 18px;
+			--sidebar-clearance: 58px;
+			--timer-panel-w: 470px;
+			--slides-fit-w: calc(100vw - var(--edge-pad-l) - var(--edge-pad-r));
 		}
 
 		* {
@@ -211,13 +214,22 @@
 			align-items: center;
 			justify-content: center;
 			gap: 4px;
-			padding: 2px var(--edge-pad-r) 3px var(--edge-pad-l);
+			padding: 2px var(--edge-pad-r) 3px max(var(--edge-pad-l), var(--sidebar-clearance));
 			overflow: hidden;
+			transition: padding-left .22s ease;
+		}
+
+		.app.timer-panel-open {
+			--slides-fit-w: calc(100vw - var(--timer-panel-w) - var(--edge-pad-l) - var(--edge-pad-r));
+		}
+
+		.app.timer-panel-open .slides-area {
+			padding-left: calc(var(--timer-panel-w) + max(var(--edge-pad-l), var(--sidebar-clearance)));
 		}
 
 		.slides-frame {
 			aspect-ratio: 16 / 9;
-			height: min(100%, calc((100vw - var(--edge-pad-l) - var(--edge-pad-r)) * 9 / 16));
+			height: min(100%, calc(var(--slides-fit-w) * 9 / 16));
 			width: auto;
 			max-width: 100%;
 			border: 0;
@@ -230,7 +242,7 @@
 		.file-slide-viewer {
 			position: relative;
 			aspect-ratio: 16 / 9;
-			height: min(100%, calc((100vw - var(--edge-pad-l) - var(--edge-pad-r)) * 9 / 16));
+			height: min(100%, calc(var(--slides-fit-w) * 9 / 16));
 			width: auto;
 			max-width: 100%;
 			border: 0;
@@ -247,11 +259,11 @@
 		}
 
 		.slides-area.subtitles-live .slides-frame {
-			height: min(calc(100% - var(--subtitle-h) - var(--controls-clearance) - 4px), calc((100vw - var(--edge-pad-l) - var(--edge-pad-r)) * 9 / 16));
+			height: min(calc(100% - var(--subtitle-h) - var(--controls-clearance) - 4px), calc(var(--slides-fit-w) * 9 / 16));
 		}
 
 		.slides-area.subtitles-live .file-slide-viewer {
-			height: min(calc(100% - var(--subtitle-h) - var(--controls-clearance) - 4px), calc((100vw - var(--edge-pad-l) - var(--edge-pad-r)) * 9 / 16));
+			height: min(calc(100% - var(--subtitle-h) - var(--controls-clearance) - 4px), calc(var(--slides-fit-w) * 9 / 16));
 		}
 
 		.slides-area.translator-mode {
@@ -314,7 +326,7 @@
 		}
 
 		.subtitle-bar {
-			width: 100%;
+			width: calc(100% - var(--sidebar-clearance));
 			height: 0;
 			opacity: 0;
 			overflow: hidden;
@@ -926,6 +938,262 @@
 			background: #e7e7e7;
 		}
 
+		.page-tool-stack {
+			position: fixed;
+			left: 4px;
+			bottom: 4px;
+			display: grid;
+			gap: 6px;
+			z-index: 9999;
+		}
+
+		.page-tool-toggle {
+			width: 40px;
+			height: 40px;
+			display: grid;
+			place-items: center;
+			background: transparent;
+			color: #fff;
+			border: 0;
+			border-radius: 0;
+			padding: 0;
+			cursor: pointer;
+		}
+
+		.page-tool-toggle:hover {
+			color: #e7e7e7;
+		}
+
+		.page-tool-toggle:disabled {
+			color: rgba(255, 255, 255, .35);
+			cursor: not-allowed;
+		}
+
+		.page-tool-toggle.active {
+			color: #ffeb3b;
+		}
+
+		.page-tool-toggle.translator-btn,
+		.page-tool-toggle.translator-btn:disabled,
+		.page-tool-toggle.translator-btn.active {
+			background: transparent;
+			border: 0;
+			opacity: 1;
+		}
+
+		.page-tool-toggle .material-symbols-outlined {
+			color: currentColor;
+			font-size: 40px;
+		}
+
+		.slide-timer-panel {
+			position: fixed;
+			left: 5px;
+			top: 50%;
+			transform: translateY(-50%);
+			width: calc(var(--timer-panel-w) + var(--sidebar-clearance) - 10px);
+			display: none;
+			justify-items: center;
+			align-items: center;
+			gap: 16px;
+			padding: 24px 5px;
+			background: #2c3141;
+			color: #fff;
+			border-radius: 18px;
+			box-shadow: 0 18px 48px rgba(0, 0, 0, .38);
+			z-index: 9998;
+		}
+
+		.app.timer-panel-open~.slide-timer-panel {
+			display: grid;
+		}
+
+		.slide-timer-ring {
+			position: relative;
+			width: calc(100% - 10px);
+			aspect-ratio: 1;
+			display: grid;
+			place-items: center;
+		}
+
+		.slide-timer-ring svg {
+			position: absolute;
+			inset: 0;
+			width: 100%;
+			height: 100%;
+			transform: rotate(-90deg);
+		}
+
+		.slide-timer-ring circle {
+			fill: none;
+			stroke-width: 10;
+		}
+
+		.slide-timer-track {
+			stroke: rgba(255, 255, 255, .16);
+		}
+
+		.slide-timer-progress {
+			stroke: #3b82f6;
+			stroke-linecap: round;
+			transition: stroke-dashoffset .2s linear;
+		}
+
+		.slide-timer-time {
+			width: calc(100% - 10px);
+			background: transparent;
+			border: 0;
+			border-bottom: 2px solid rgba(255, 255, 255, .18);
+			padding: 0 0 12px;
+			text-align: center;
+			font: inherit;
+			font-size: 58px;
+			font-weight: 800;
+			line-height: 1;
+			color: #fff;
+			outline: none;
+		}
+
+		.slide-timer-time:focus {
+			border-bottom-color: #3b82f6;
+		}
+
+		.slide-timer-minutes {
+			display: none;
+		}
+
+		.slide-timer-start {
+			width: 160px;
+			height: 42px;
+			border: 0;
+			border-radius: 22px;
+			background: #3b82f6;
+			color: #fff;
+			font-weight: 900;
+			font-size: 16px;
+			cursor: pointer;
+			justify-self: center;
+		}
+
+		.slide-timer-start:hover {
+			background: #2563eb;
+		}
+
+		.slide-timer-actions {
+			display: grid;
+			grid-template-columns: repeat(3, 1fr);
+			gap: 10px;
+			width: calc(100% - 10px);
+		}
+
+		.slide-timer-adjust {
+			width: 100%;
+			min-width: 0;
+			height: 38px;
+			border: 0;
+			border-radius: 20px;
+			background: #3b4054;
+			color: #fff;
+			font-weight: 800;
+			font-size: 14px;
+			cursor: pointer;
+		}
+
+		.slide-timer-adjust:hover {
+			background: #4a5068;
+		}
+
+		.desk-overlay {
+			position: fixed;
+			inset: 0;
+			display: block;
+			visibility: hidden;
+			pointer-events: none;
+			opacity: 0;
+			background-color: var(--panel);
+			z-index: 22000;
+			overflow: hidden;
+		}
+
+		.desk-overlay.show {
+			visibility: visible;
+			pointer-events: auto;
+			opacity: 1;
+		}
+
+		.desk-wrap {
+			width: 100vw;
+			height: 100svh;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+		}
+
+		.desk-svg {
+			width: 100vw;
+			height: 100svh;
+			border: 0;
+			display: block;
+		}
+
+		.desk-svg svg {
+			width: 100%;
+			height: 100%;
+			display: block;
+		}
+
+		.desk-file-wrap {
+			position: fixed;
+			top: 10px;
+			left: 10px;
+			z-index: 22002;
+			background: rgba(255, 255, 255, .72);
+			backdrop-filter: blur(6px);
+			border: 1px solid rgba(0, 0, 0, .10);
+			border-radius: 8px;
+			padding: 6px 8px;
+			box-shadow: 0 10px 30px rgba(0, 0, 0, .10);
+		}
+
+		.desk-file {
+			font: 12px/1.2 system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+			color: #111827;
+		}
+
+		.desk-action {
+			position: fixed;
+			width: 48px;
+			height: 48px;
+			display: grid;
+			place-items: center;
+			background: #fff;
+			color: #000;
+			border: 2px solid #000;
+			border-radius: 0;
+			padding: 0;
+			cursor: pointer;
+			z-index: 22002;
+		}
+
+		.desk-action:hover {
+			background: #e7e7e7;
+		}
+
+		.desk-action .material-symbols-outlined {
+			color: currentColor;
+			font-size: 30px;
+		}
+
+		.desk-close {
+			left: 12px;
+			bottom: 12px;
+		}
+
+		.desk-spin {
+			left: 68px;
+			bottom: 12px;
+		}
+
 		@media (max-width: 640px) {
 			.progress-wrap {
 				height: 118px;
@@ -941,19 +1209,19 @@
 			}
 
 			.slides-frame {
-				height: min(100%, calc((100vw - var(--edge-pad-l) - var(--edge-pad-r)) * 9 / 16));
+				height: min(100%, calc(var(--slides-fit-w) * 9 / 16));
 			}
 
 			.file-slide-viewer {
-				height: min(100%, calc((100vw - var(--edge-pad-l) - var(--edge-pad-r)) * 9 / 16));
+				height: min(100%, calc(var(--slides-fit-w) * 9 / 16));
 			}
 
 			.slides-area.subtitles-live .slides-frame {
-				height: min(calc(100% - var(--subtitle-h) - var(--controls-clearance) - 4px), calc((100vw - var(--edge-pad-l) - var(--edge-pad-r)) * 9 / 16));
+				height: min(calc(100% - var(--subtitle-h) - var(--controls-clearance) - 4px), calc(var(--slides-fit-w) * 9 / 16));
 			}
 
 			.slides-area.subtitles-live .file-slide-viewer {
-				height: min(calc(100% - var(--subtitle-h) - var(--controls-clearance) - 4px), calc((100vw - var(--edge-pad-l) - var(--edge-pad-r)) * 9 / 16));
+				height: min(calc(100% - var(--subtitle-h) - var(--controls-clearance) - 4px), calc(var(--slides-fit-w) * 9 / 16));
 			}
 
 			.slides-area.translator-mode .slides-frame,
@@ -1024,11 +1292,6 @@
 
 		<!-- Controls -->
 		<div class="controls">
-			<!-- NEW: Bell button (far left) -->
-			<button class="btn-bell" id="bellBtn" title="Play bell" aria-label="Play bell">
-				<span class="material-symbols-outlined" aria-hidden="true">notifications</span>
-			</button>
-
 			<button class="btn" id="restartBtn">Restart</button>
 
 			<div class="btn-group">
@@ -1044,11 +1307,45 @@
 			<button class="btn subtitle-btn" id="spanishSubBtn" title="Spanish captions">CC ES</button>
 			<button class="btn subtitle-btn" id="translateEnEsBtn" title="Translate English to Spanish">EN→ES</button>
 			<button class="btn subtitle-btn" id="translateEsEnBtn" title="Translate Spanish to English">ES→EN</button>
-			<button class="btn translator-btn" id="translatorBtn" title="Open translator canvas" aria-label="Open translator canvas" disabled>
-				<span class="material-symbols-outlined" aria-hidden="true">translate</span>
-			</button>
-
 			<input class="vol" id="vol" type="range" min="0" max="1" step="0.01" value="0.6" title="Volume" />
+		</div>
+	</div>
+
+	<div class="page-tool-stack" aria-label="Page tools">
+		<button class="page-tool-toggle" id="slideTimerToggle" type="button" title="Slide timer" aria-label="Slide timer">
+			<span class="material-symbols-outlined" aria-hidden="true">timer</span>
+		</button>
+		<button class="page-tool-toggle translator-btn" id="translatorBtn" type="button" title="Open whiteboard" aria-label="Open whiteboard" disabled>
+			<span class="material-symbols-outlined" aria-hidden="true">draw</span>
+		</button>
+		<button class="page-tool-toggle" id="bellBtn" type="button" title="Play bell" aria-label="Play bell">
+			<span class="material-symbols-outlined" aria-hidden="true">notifications</span>
+		</button>
+		<button class="page-tool-toggle" id="deskPageToggle" type="button" title="Random desk selector" aria-label="Random desk selector">
+			<span class="material-symbols-outlined" aria-hidden="true">casino</span>
+		</button>
+		<button class="page-tool-toggle" id="fullscreenToggle" type="button" title="Enter fullscreen" aria-label="Enter fullscreen">
+			<span class="material-symbols-outlined" id="fullscreenToggleIcon" aria-hidden="true">fullscreen</span>
+		</button>
+	</div>
+
+	<div class="slide-timer-panel" id="slideTimerPanel" aria-live="polite">
+		<div class="slide-timer-ring" aria-label="Slide timer countdown">
+			<svg viewBox="0 0 120 120" aria-hidden="true">
+				<circle class="slide-timer-track" cx="60" cy="60" r="52"></circle>
+				<circle class="slide-timer-progress" id="slideTimerProgress" cx="60" cy="60" r="52"></circle>
+			</svg>
+		</div>
+		<input class="slide-timer-time" id="slideTimerTime" type="text" value="5:00" inputmode="numeric" aria-label="Timer duration" />
+		<div class="slide-timer-minutes" id="slideTimerMinutes" hidden>5 min left</div>
+		<button class="slide-timer-start" id="slideTimerStartStop" type="button">Start</button>
+		<div class="slide-timer-actions">
+			<button class="slide-timer-adjust" type="button" data-timer-delta="-30">-0:30</button>
+			<button class="slide-timer-adjust" type="button" data-timer-delta="30">+0:30</button>
+			<button class="slide-timer-adjust" type="button" data-timer-delta="60">+1:00</button>
+			<button class="slide-timer-adjust" type="button" data-timer-delta="-60">-1:00</button>
+			<button class="slide-timer-adjust" type="button" data-timer-delta="300">+5:00</button>
+			<button class="slide-timer-adjust" type="button" data-timer-delta="-300">-5:00</button>
 		</div>
 	</div>
 
@@ -1127,6 +1424,10 @@
 					<button class="keybind-btn" id="chimeKeyBtn" type="button">F15</button>
 					<div style="color:var(--muted); font-size:.9rem;">Play chime sound</div>
 				</div>
+				<div class="keybind-row">
+					<button class="keybind-btn" id="deskKeyBtn" type="button">F16</button>
+					<div style="color:var(--muted); font-size:.9rem;">Open random desk selector</div>
+				</div>
 			</div>
 
 			<div class="cfg-actions">
@@ -1141,6 +1442,22 @@
 	<audio id="clickerSound" preload="auto" src="./sounds/cave.mp3"></audio>
 	<!-- NEW: bell sound button audio (always cave) -->
 	<audio id="bellSound" preload="auto" src="./sounds/cave.mp3"></audio>
+
+	<div class="desk-overlay" id="deskOverlay" aria-modal="true" role="dialog" tabindex="-1">
+		<div class="desk-file-wrap" title="Choose a different SVG seating chart">
+			<input class="desk-file" id="deskFilePick" type="file" accept=".svg,image/svg+xml" />
+		</div>
+		<button class="desk-action desk-close" id="deskCloseBtn" type="button" title="Close" aria-label="Close random desk selector">
+			<span class="material-symbols-outlined" aria-hidden="true">close</span>
+		</button>
+		<button class="desk-action desk-spin" id="deskSpinBtn" type="button" title="Pick desk" aria-label="Pick random desk">
+			<span class="material-symbols-outlined" aria-hidden="true">casino</span>
+		</button>
+		<div class="desk-wrap" id="deskWrap">
+			<div class="desk-svg" id="deskSvgMount"></div>
+		</div>
+	</div>
+
 	<script type="module">
 		const pdfjsLib = await import('https://cdn.jsdelivr.net/npm/pdfjs-dist@4.10.38/build/pdf.min.mjs');
 		pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdn.jsdelivr.net/npm/pdfjs-dist@4.10.38/build/pdf.worker.min.mjs';
@@ -1170,6 +1487,8 @@
 		let translatorToggleKeyLabel = "F14";
 		let chimeKeyCode = "F15";
 		let chimeKeyLabel = "F15";
+		let deskPickerKeyCode = "F16";
+		let deskPickerKeyLabel = "F16";
 		let capturingKeybind = "";
 
 		let running = false;
@@ -1177,6 +1496,12 @@
 		let subtitleMode = ""; // caption-en | caption-es | translate-en-es | translate-es-en
 		let subtitleListening = false;
 		let translatorMode = false;
+		let slideTimerOpen = false;
+		let slideTimerRunning = false;
+		let slideTimerTotalSeconds = 300;
+		let slideTimerRemainingSeconds = 300;
+		let slideTimerLastTs = 0;
+		let slideTimerRafId = null;
 		let subtitleRecognition = null;
 		let subtitleFinalText = "";
 		let liveTranslationRequestId = 0;
@@ -1246,6 +1571,22 @@
 		const toolDrawBtn = document.getElementById('toolDraw');
 		const toolMagicBtn = document.getElementById('toolMagic');
 		const toolEraseBtn = document.getElementById('toolErase');
+		const slideTimerToggle = document.getElementById('slideTimerToggle');
+		const slideTimerPanel = document.getElementById('slideTimerPanel');
+		const slideTimerProgress = document.getElementById('slideTimerProgress');
+		const slideTimerTime = document.getElementById('slideTimerTime');
+		const slideTimerMinutes = document.getElementById('slideTimerMinutes');
+		const slideTimerStartStop = document.getElementById('slideTimerStartStop');
+		const slideTimerAdjustBtns = document.querySelectorAll('[data-timer-delta]');
+		const deskPageToggle = document.getElementById('deskPageToggle');
+		const fullscreenToggle = document.getElementById('fullscreenToggle');
+		const fullscreenToggleIcon = document.getElementById('fullscreenToggleIcon');
+		const deskOverlay = document.getElementById('deskOverlay');
+		const deskWrap = document.getElementById('deskWrap');
+		const deskSvgMount = document.getElementById('deskSvgMount');
+		const deskFilePick = document.getElementById('deskFilePick');
+		const deskCloseBtn = document.getElementById('deskCloseBtn');
+		const deskSpinBtn = document.getElementById('deskSpinBtn');
 
 		const bellBtn = document.getElementById('bellBtn');      // NEW
 		const bellAudioEl = document.getElementById('bellSound'); // NEW
@@ -1272,6 +1613,7 @@
 		const pushToTalkKeyBtn = document.getElementById('pushToTalkKeyBtn');
 		const translatorKeyBtn = document.getElementById('translatorKeyBtn');
 		const chimeKeyBtn = document.getElementById('chimeKeyBtn');
+		const deskKeyBtn = document.getElementById('deskKeyBtn');
 
 		function applyTimerSound() {
 			if (timerSoundChoice === "custom") {
@@ -1392,6 +1734,8 @@
 				translatorToggleKeyLabel,
 				chimeKeyCode,
 				chimeKeyLabel,
+				deskPickerKeyCode,
+				deskPickerKeyLabel,
 				slidesURL,
 				timerSoundChoice,
 				customTimerSoundDataUrl
@@ -1419,6 +1763,8 @@
 						translatorToggleKeyLabel = typeof data.translatorToggleKeyLabel === 'string' ? data.translatorToggleKeyLabel : translatorToggleKeyCode;
 						chimeKeyCode = typeof data.chimeKeyCode === 'string' ? data.chimeKeyCode : "F15";
 						chimeKeyLabel = typeof data.chimeKeyLabel === 'string' ? data.chimeKeyLabel : chimeKeyCode;
+						deskPickerKeyCode = typeof data.deskPickerKeyCode === 'string' ? data.deskPickerKeyCode : "F16";
+						deskPickerKeyLabel = typeof data.deskPickerKeyLabel === 'string' ? data.deskPickerKeyLabel : deskPickerKeyCode;
 						slidesURL = typeof data.slidesURL === 'string' ? data.slidesURL : '';
 
 						timerSoundChoice = typeof data.timerSoundChoice === 'string' ? data.timerSoundChoice : "nfl";
@@ -1538,9 +1884,11 @@
 			pushToTalkKeyBtn.textContent = capturingKeybind === "caption" ? "Press a key..." : pushToTalkKeyLabel;
 			translatorKeyBtn.textContent = capturingKeybind === "translator" ? "Press a key..." : translatorToggleKeyLabel;
 			chimeKeyBtn.textContent = capturingKeybind === "chime" ? "Press a key..." : chimeKeyLabel;
+			deskKeyBtn.textContent = capturingKeybind === "desk" ? "Press a key..." : deskPickerKeyLabel;
 			pushToTalkKeyBtn.classList.toggle('listening', capturingKeybind === "caption");
 			translatorKeyBtn.classList.toggle('listening', capturingKeybind === "translator");
 			chimeKeyBtn.classList.toggle('listening', capturingKeybind === "chime");
+			deskKeyBtn.classList.toggle('listening', capturingKeybind === "desk");
 		}
 
 		function getPresetAction(timeStr) {
@@ -1647,6 +1995,536 @@
 
 		// NEW: Bell button plays cave sound from ./sounds
 		bellBtn.addEventListener('click', playChimeSound);
+
+		function updateFullscreenButton() {
+			const isFullscreen = Boolean(document.fullscreenElement);
+			fullscreenToggleIcon.textContent = isFullscreen ? "fullscreen_exit" : "fullscreen";
+			fullscreenToggle.title = isFullscreen ? "Exit fullscreen" : "Enter fullscreen";
+			fullscreenToggle.setAttribute('aria-label', fullscreenToggle.title);
+		}
+
+		async function toggleFullscreen() {
+			try {
+				if (document.fullscreenElement) {
+					await document.exitFullscreen();
+				} else {
+					await document.documentElement.requestFullscreen();
+				}
+			} catch (err) {
+				console.warn('Fullscreen toggle error:', err);
+			}
+		}
+
+		fullscreenToggle.addEventListener('click', toggleFullscreen);
+		document.addEventListener('fullscreenchange', updateFullscreenButton);
+		updateFullscreenButton();
+
+		/* ---------- Slide Timer ---------- */
+		const slideTimerRadius = 52;
+		const slideTimerCircumference = 2 * Math.PI * slideTimerRadius;
+		slideTimerProgress.style.strokeDasharray = `${slideTimerCircumference}`;
+
+		function formatTimerSeconds(seconds) {
+			const safeSeconds = Math.max(0, Math.ceil(seconds));
+			const mins = Math.floor(safeSeconds / 60);
+			const secs = safeSeconds % 60;
+			return `${mins}:${String(secs).padStart(2, "0")}`;
+		}
+
+		function parseTimerInput(value) {
+			const raw = String(value || "").trim();
+			if (!raw) return null;
+			if (raw.includes(":")) {
+				const [minsRaw, secsRaw = "0"] = raw.split(":");
+				const mins = Number(minsRaw);
+				const secs = Number(secsRaw);
+				if (!Number.isFinite(mins) || !Number.isFinite(secs)) return null;
+				return Math.max(0, Math.round(mins * 60 + secs));
+			}
+			const mins = Number(raw);
+			if (!Number.isFinite(mins)) return null;
+			return Math.max(0, Math.round(mins * 60));
+		}
+
+		function commitSlideTimerInput() {
+			const parsedSeconds = parseTimerInput(slideTimerTime.value);
+			if (parsedSeconds === null) {
+				updateSlideTimerUI();
+				return;
+			}
+			stopSlideTimer();
+			slideTimerRemainingSeconds = parsedSeconds;
+			slideTimerTotalSeconds = Math.max(1, parsedSeconds);
+			updateSlideTimerUI();
+		}
+
+		function previewSlideTimerInput() {
+			stopSlideTimer();
+			const parsedSeconds = parseTimerInput(slideTimerTime.value);
+			if (parsedSeconds === null) {
+				updateSlideTimerUI();
+				return;
+			}
+			slideTimerRemainingSeconds = parsedSeconds;
+			slideTimerTotalSeconds = Math.max(1, parsedSeconds);
+			updateSlideTimerUI();
+		}
+
+		function updateSlideTimerUI() {
+			const remaining = Math.max(0, slideTimerRemainingSeconds);
+			const total = Math.max(1, slideTimerTotalSeconds);
+			const pct = Math.max(0, Math.min(1, remaining / total));
+			slideTimerProgress.style.strokeDashoffset = `${slideTimerCircumference * (1 - pct)}`;
+			if (document.activeElement !== slideTimerTime) {
+				slideTimerTime.value = formatTimerSeconds(remaining);
+			}
+			const minuteText = Math.ceil(remaining / 60);
+			slideTimerMinutes.textContent = `${minuteText} min left`;
+			slideTimerStartStop.textContent = slideTimerRunning ? "Stop" : "Start";
+			slideTimerToggle.classList.toggle('active', slideTimerOpen);
+		}
+
+		function stopSlideTimer() {
+			slideTimerRunning = false;
+			cancelAnimationFrame(slideTimerRafId);
+			slideTimerRafId = null;
+		}
+
+		function tickSlideTimer(ts) {
+			if (!slideTimerRunning) return;
+			if (!slideTimerLastTs) slideTimerLastTs = ts;
+			const elapsed = (ts - slideTimerLastTs) / 1000;
+			slideTimerLastTs = ts;
+			slideTimerRemainingSeconds = Math.max(0, slideTimerRemainingSeconds - elapsed);
+			updateSlideTimerUI();
+			if (slideTimerRemainingSeconds <= 0) {
+				stopSlideTimer();
+				return;
+			}
+			slideTimerRafId = requestAnimationFrame(tickSlideTimer);
+		}
+
+		function startSlideTimer() {
+			if (slideTimerRemainingSeconds <= 0) {
+				slideTimerRemainingSeconds = 300;
+				slideTimerTotalSeconds = 300;
+			}
+			slideTimerRunning = true;
+			slideTimerLastTs = 0;
+			cancelAnimationFrame(slideTimerRafId);
+			slideTimerRafId = requestAnimationFrame(tickSlideTimer);
+		}
+
+		function setSlideTimerOpen(open) {
+			if (translatorMode && open) return;
+			slideTimerOpen = open;
+			document.querySelector('.app').classList.toggle('timer-panel-open', slideTimerOpen);
+			if (!slideTimerOpen) stopSlideTimer();
+			updateSlideTimerUI();
+		}
+
+		function adjustSlideTimer(deltaSeconds) {
+			const nextRemaining = Math.max(0, slideTimerRemainingSeconds + deltaSeconds);
+			const totalAdjustment = deltaSeconds > 0 ? deltaSeconds : 0;
+			slideTimerRemainingSeconds = nextRemaining;
+			slideTimerTotalSeconds = Math.max(1, slideTimerTotalSeconds + totalAdjustment);
+			if (slideTimerRemainingSeconds > slideTimerTotalSeconds) slideTimerTotalSeconds = slideTimerRemainingSeconds;
+			updateSlideTimerUI();
+		}
+
+		function updateSlideTimerAvailability() {
+			const enabled = !translatorMode;
+			slideTimerToggle.disabled = !enabled;
+			if (!enabled) setSlideTimerOpen(false);
+		}
+
+		slideTimerToggle.addEventListener('click', () => {
+			if (slideTimerToggle.disabled) return;
+			setSlideTimerOpen(!slideTimerOpen);
+		});
+
+		slideTimerStartStop.addEventListener('click', () => {
+			if (slideTimerRunning) stopSlideTimer();
+			else startSlideTimer();
+			updateSlideTimerUI();
+		});
+
+		slideTimerTime.addEventListener('focus', () => {
+			stopSlideTimer();
+			slideTimerTime.select();
+			updateSlideTimerUI();
+		});
+		slideTimerTime.addEventListener('input', previewSlideTimerInput);
+		slideTimerTime.addEventListener('blur', commitSlideTimerInput);
+		slideTimerTime.addEventListener('keydown', event => {
+			if (event.key === "Enter") {
+				event.preventDefault();
+				slideTimerTime.blur();
+			}
+		});
+
+		slideTimerAdjustBtns.forEach(btn => {
+			btn.addEventListener('click', () => adjustSlideTimer(Number(btn.dataset.timerDelta) || 0));
+		});
+
+		updateSlideTimerUI();
+
+		/* ---------- Random Desk Picker ---------- */
+		const DESK_SPIN_DURATION_MS = 1000;
+		const DESK_RECENT_EXCLUDE_COUNT = 2;
+		const DESK_DEFAULT_SVG = "./Room Arrangement 3-26-26.svg";
+		const svgNS = "http://www.w3.org/2000/svg";
+		let deskStartSpin = () => { };
+
+		function grabDeskFocus() {
+			try { window.focus(); } catch { }
+			try { deskOverlay.focus?.({ preventScroll: true }); } catch { }
+			try { deskSvgMount.focus?.({ preventScroll: true }); } catch { }
+		}
+
+		function openDeskPicker() {
+			deskOverlay.classList.add('show');
+			grabDeskFocus();
+		}
+
+		function closeDeskPicker() {
+			deskOverlay.classList.remove('show');
+		}
+
+		function toggleDeskPickerOrRoll() {
+			if (deskOverlay.classList.contains('show')) deskStartSpin();
+			else openDeskPicker();
+		}
+
+		function injectDeskSvgStyle(svg) {
+			const oldStyle = svg.querySelector('#slidesDeskPickerStyle');
+			if (oldStyle) oldStyle.remove();
+			const style = document.createElementNS(svgNS, "style");
+			style.id = "slidesDeskPickerStyle";
+			style.textContent = `
+				svg { width: 100%; height: 100%; display:block; }
+
+				.desk-shape{
+					transition: fill 90ms linear, filter 90ms linear, stroke 90ms linear, opacity 90ms linear;
+					cursor: pointer;
+				}
+
+				.desk-excluded{
+					fill: #d1d5db !important;
+					stroke: rgba(17,24,39,.18) !important;
+					stroke-width: 2px !important;
+					filter: none !important;
+					opacity: .65 !important;
+				}
+
+				.desk-active{
+					fill:#3b82f6 !important;
+					stroke: rgba(59,130,246,.60) !important;
+					stroke-width: 6px !important;
+					filter: drop-shadow(0 10px 16px rgba(59,130,246,.35)) !important;
+					opacity: 1 !important;
+				}
+
+				.desk-final{
+					fill:#22c55e !important;
+					stroke: rgba(34,197,94,.60) !important;
+					stroke-width: 7px !important;
+					filter: drop-shadow(0 12px 18px rgba(34,197,94,.35)) !important;
+					opacity: 1 !important;
+				}
+			`;
+			svg.insertBefore(style, svg.firstChild);
+		}
+
+		function getBBoxSafe(el) {
+			try { return el.getBBox(); } catch { return null; }
+		}
+
+		function isDeskFill(el) {
+			const attrFill = String(el.getAttribute("fill") || "").trim().toUpperCase();
+			if (attrFill === "#F5DE5B") return true;
+
+			try {
+				const fill = window.getComputedStyle(el).fill;
+				const match = fill.match(/^rgb\((\d+),\s*(\d+),\s*(\d+)\)$/i);
+				if (!match) return false;
+				const r = Number(match[1]).toString(16).padStart(2, "0");
+				const g = Number(match[2]).toString(16).padStart(2, "0");
+				const b = Number(match[3]).toString(16).padStart(2, "0");
+				return `#${r}${g}${b}`.toUpperCase() === "#F5DE5B";
+			} catch {
+				return false;
+			}
+		}
+
+		function computeDeskSpinOrder(desks, svg) {
+			let frontPoint = null;
+			const texts = Array.from(svg.querySelectorAll("text"));
+			const frontText = texts.find(t => (t.textContent || "").trim().toLowerCase() === "front");
+			if (frontText) {
+				const bb = getBBoxSafe(frontText);
+				if (bb) frontPoint = { x: bb.x + bb.width / 2, y: bb.y + bb.height / 2 };
+			}
+
+			const center = desks.reduce((acc, desk) => ({ x: acc.x + desk.cx, y: acc.y + desk.cy }), { x: 0, y: 0 });
+			center.x /= Math.max(1, desks.length);
+			center.y /= Math.max(1, desks.length);
+
+			const refVec = frontPoint ? { x: frontPoint.x - center.x, y: frontPoint.y - center.y } : { x: 0, y: 1 };
+			const refAng = Math.atan2(refVec.y, refVec.x);
+
+			function angleClockwiseFromRef(desk) {
+				const vx = desk.cx - center.x;
+				const vy = desk.cy - center.y;
+				const ang = Math.atan2(vy, vx);
+				let rel = refAng - ang;
+				while (rel < 0) rel += Math.PI * 2;
+				while (rel >= Math.PI * 2) rel -= Math.PI * 2;
+				return rel;
+			}
+
+			desks.sort((a, b) => {
+				const aa = angleClockwiseFromRef(a);
+				const bb = angleClockwiseFromRef(b);
+				if (aa !== bb) return aa - bb;
+				const ra = (a.cx - center.x) ** 2 + (a.cy - center.y) ** 2;
+				const rb = (b.cx - center.x) ** 2 + (b.cy - center.y) ** 2;
+				return ra - rb;
+			});
+
+			return desks;
+		}
+
+		function randInt(min, maxInclusive) {
+			return Math.floor(Math.random() * (maxInclusive - min + 1)) + min;
+		}
+
+		function buildDeskDelaySchedule(totalSteps, totalMs) {
+			const p = 3.0;
+			const base = 0.35;
+			const extra = 3.2;
+			let weights = new Array(totalSteps).fill(1);
+			let sum = 0;
+
+			for (let i = 0; i < totalSteps; i++) {
+				const t = totalSteps <= 1 ? 1 : i / (totalSteps - 1);
+				const weight = base + Math.pow(t, p) * extra;
+				weights[i] = weight;
+				sum += weight;
+			}
+
+			let delays = weights.map(weight => (weight / sum) * totalMs);
+			let floored = delays.map(delay => Math.floor(delay));
+			let used = floored.reduce((a, b) => a + b, 0);
+			let remainder = totalMs - used;
+			let frac = delays.map((delay, i) => ({ i, f: delay - Math.floor(delay) }));
+			frac.sort((a, b) => b.f - a.f);
+
+			for (let k = 0; k < remainder; k++) {
+				floored[frac[k % frac.length].i] += 1;
+			}
+
+			for (let i = 0; i < floored.length; i++) {
+				if (floored[i] < 8) floored[i] = 8;
+			}
+
+			let sum2 = floored.reduce((a, b) => a + b, 0);
+			if (sum2 !== totalMs) {
+				let scaled = floored.map(delay => (delay / sum2) * totalMs);
+				let f2 = scaled.map(delay => Math.floor(delay));
+				let used2 = f2.reduce((a, b) => a + b, 0);
+				let rem2 = totalMs - used2;
+				let frac2 = scaled.map((delay, i) => ({ i, f: delay - Math.floor(delay) })).sort((a, b) => b.f - a.f);
+				for (let k = 0; k < rem2; k++) {
+					f2[frac2[k % frac2.length].i] += 1;
+				}
+				floored = f2;
+			}
+
+			return floored;
+		}
+
+		function bootDeskSvg(svg) {
+			deskStartSpin = () => { };
+			if (!svg) {
+				console.warn("No <svg> root found in the loaded desk chart.");
+				return;
+			}
+
+			svg.setAttribute("tabindex", "0");
+			try { svg.focus({ preventScroll: true }); } catch { }
+			injectDeskSvgStyle(svg);
+
+			const shapeSelector = "path, polygon, rect, circle, ellipse, line, polyline";
+			let candidates = Array.from(svg.querySelectorAll(shapeSelector)).filter(isDeskFill);
+
+			const seen = new Set();
+			const deskEls = candidates.filter(el => seen.has(el) ? false : (seen.add(el), true));
+			let allDesks = [];
+
+			for (const el of deskEls) {
+				const bb = getBBoxSafe(el);
+				if (!bb || bb.width <= 0 || bb.height <= 0) continue;
+				el.classList.add("desk-shape");
+				allDesks.push({ el, bb, cx: bb.x + bb.width / 2, cy: bb.y + bb.height / 2 });
+			}
+
+			if (allDesks.length === 0) {
+				console.warn('No desks detected in SVG. Desk shapes must use fill="#F5DE5B".');
+				return;
+			}
+
+			allDesks = computeDeskSpinOrder(allDesks, svg);
+			const excluded = new Set();
+			let recent = [];
+			let spinning = false;
+			let currentIndexInActive = -1;
+
+			function isRecent(desk) { return recent.includes(desk); }
+			function getActiveDesks() { return allDesks.filter(desk => !excluded.has(desk) && !isRecent(desk)); }
+
+			function clearHighlightClasses() {
+				for (const desk of allDesks) {
+					desk.el.classList.remove("desk-active");
+					desk.el.classList.remove("desk-final");
+				}
+			}
+
+			function refreshExcludedClass(desk) {
+				if (excluded.has(desk)) desk.el.classList.add("desk-excluded");
+				else desk.el.classList.remove("desk-excluded");
+			}
+
+			for (const desk of allDesks) {
+				desk.el.addEventListener("click", event => {
+					event.stopPropagation();
+					if (spinning) return;
+					if (excluded.has(desk)) excluded.delete(desk);
+					else excluded.add(desk);
+					refreshExcludedClass(desk);
+					desk.el.classList.remove("desk-active");
+					desk.el.classList.remove("desk-final");
+					grabDeskFocus();
+				});
+				refreshExcludedClass(desk);
+			}
+
+			function setActiveDesk(activeList, idx) {
+				for (const desk of allDesks) desk.el.classList.remove("desk-active");
+				const desk = activeList[idx];
+				if (desk) desk.el.classList.add("desk-active");
+			}
+
+			function setFinalDesk(activeList, idx) {
+				clearHighlightClasses();
+				const desk = activeList[idx];
+				if (desk) desk.el.classList.add("desk-final");
+			}
+
+			function pushRecent(desk) {
+				if (DESK_RECENT_EXCLUDE_COUNT <= 0) return;
+				recent = recent.filter(item => item !== desk);
+				recent.unshift(desk);
+				if (recent.length > DESK_RECENT_EXCLUDE_COUNT) recent.length = DESK_RECENT_EXCLUDE_COUNT;
+			}
+
+			deskStartSpin = () => {
+				if (spinning) return;
+				const active = getActiveDesks();
+				const n = active.length;
+
+				if (n === 0) {
+					console.warn("No selectable desks (all excluded or blocked by recent picks).");
+					return;
+				}
+
+				spinning = true;
+				clearHighlightClasses();
+
+				const target = randInt(0, n - 1);
+				const hopsPerDesk = 0.8;
+				let totalSteps = Math.max(n + 6, Math.round(n * hopsPerDesk) + 12);
+				const startIdx = currentIndexInActive < 0 || currentIndexInActive >= n ? randInt(0, n - 1) : currentIndexInActive;
+				let endIdx = (startIdx + totalSteps) % n;
+				let adjust = (target - endIdx + n) % n;
+				totalSteps += adjust;
+
+				const delays = buildDeskDelaySchedule(totalSteps, DESK_SPIN_DURATION_MS);
+				let step = 0;
+				let idx = startIdx;
+				setActiveDesk(active, idx);
+
+				function tickDesk() {
+					idx = (idx + 1) % n;
+					currentIndexInActive = idx;
+					setActiveDesk(active, idx);
+
+					if (step >= totalSteps - 1) {
+						setFinalDesk(active, idx);
+						spinning = false;
+						const chosen = active[idx];
+						if (chosen) pushRecent(chosen);
+						return;
+					}
+
+					const delay = delays[step] || 16;
+					step++;
+					setTimeout(tickDesk, delay);
+				}
+
+				setTimeout(tickDesk, 10);
+			};
+
+			svg.addEventListener("pointerdown", grabDeskFocus);
+			grabDeskFocus();
+		}
+
+		function loadDeskSvgText(svgText) {
+			const svgDoc = new DOMParser().parseFromString(svgText, "image/svg+xml");
+			const parserError = svgDoc.querySelector("parsererror");
+			if (parserError) {
+				console.warn("Could not parse desk SVG.", parserError.textContent);
+				return;
+			}
+			const svg = svgDoc.querySelector("svg");
+			if (!svg) {
+				console.warn("No <svg> root found in the loaded desk chart.");
+				return;
+			}
+			const importedSvg = document.importNode(svg, true);
+			deskSvgMount.replaceChildren(importedSvg);
+			bootDeskSvg(importedSvg);
+		}
+
+		async function loadDefaultDeskSvg() {
+			try {
+				const response = await fetch(DESK_DEFAULT_SVG);
+				if (!response.ok) throw new Error(`HTTP ${response.status}`);
+				loadDeskSvgText(await response.text());
+			} catch (err) {
+				console.warn("Could not load default desk SVG.", err);
+			}
+		}
+
+		deskFilePick.addEventListener("change", () => {
+			const file = deskFilePick.files && deskFilePick.files[0];
+			if (!file) {
+				loadDefaultDeskSvg();
+				return;
+			}
+
+			file.text()
+				.then(loadDeskSvgText)
+				.then(grabDeskFocus)
+				.catch(err => console.warn("Could not load selected desk SVG.", err));
+		});
+
+		deskWrap.addEventListener("pointerdown", grabDeskFocus);
+		deskFilePick.addEventListener("pointerdown", event => event.stopPropagation());
+		deskCloseBtn.addEventListener('click', closeDeskPicker);
+		deskSpinBtn.addEventListener('click', () => deskStartSpin());
+		deskPageToggle.addEventListener('click', toggleDeskPickerOrRoll);
+		loadDefaultDeskSvg();
 
 		/* ---------- Live Subtitles ---------- */
 		const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -1826,6 +2704,7 @@
 			translatorBtn.disabled = !isCaptionMode();
 			translatorBtn.classList.toggle('active', translatorMode);
 			slidesArea.classList.toggle('translator-mode', translatorMode);
+			updateSlideTimerAvailability();
 			renderTranslatorView();
 		}
 
@@ -2451,6 +3330,20 @@
 			pauseBtn.classList.add('timing');
 		}
 
+		function putTimerInPausedMode() {
+			if (running) {
+				pauseTimer();
+				return;
+			}
+			paused = true;
+			cancelAnimationFrame(rafId);
+			toggleBtn.textContent = "Start";
+			toggleBtn.style.background = "#ffffff";
+			toggleBtn.style.color = "#2f2f2f";
+			pauseBtn.textContent = "Resume";
+			pauseBtn.classList.add('timing');
+		}
+
 		function resetTimer() {
 			running = false;
 			paused = false;
@@ -2499,7 +3392,10 @@
 
 		// Config UI
 		overlay.addEventListener('click', e => {
-			if (e.target === overlay) overlay.classList.remove('show');
+			if (e.target === overlay) {
+				overlay.classList.remove('show');
+				putTimerInPausedMode();
+			}
 		});
 
 		document.querySelector('.topbar').addEventListener('dblclick', () => {
@@ -2549,6 +3445,11 @@
 
 		chimeKeyBtn.addEventListener('click', () => {
 			capturingKeybind = "chime";
+			updateKeybindUI();
+		});
+
+		deskKeyBtn.addEventListener('click', () => {
+			capturingKeybind = "desk";
 			updateKeybindUI();
 		});
 
@@ -2604,11 +3505,27 @@
 				} else if (capturingKeybind === "chime") {
 					chimeKeyCode = code;
 					chimeKeyLabel = label;
+				} else if (capturingKeybind === "desk") {
+					deskPickerKeyCode = code;
+					deskPickerKeyLabel = label;
 				}
 				capturingKeybind = "";
 				updateKeybindUI();
 				saveConfig();
 				return;
+			}
+
+			if (deskOverlay.classList.contains('show')) {
+				if (e.key === 'Escape') {
+					e.preventDefault();
+					closeDeskPicker();
+					return;
+				}
+				if (e.code === "Space" || e.key === " ") {
+					e.preventDefault();
+					if (!e.repeat) deskStartSpin();
+					return;
+				}
 			}
 
 			if (e.code === pushToTalkKeyCode) {
@@ -2629,6 +3546,12 @@
 			if (e.code === chimeKeyCode) {
 				e.preventDefault();
 				if (!e.repeat) playChimeSound();
+				return;
+			}
+
+			if (e.code === deskPickerKeyCode) {
+				e.preventDefault();
+				if (!e.repeat) toggleDeskPickerOrRoll();
 				return;
 			}
 

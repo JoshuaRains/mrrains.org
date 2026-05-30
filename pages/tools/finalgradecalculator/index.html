@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Final Grade Calculator</title>
+	<style>
+		:root {
+			--bg: #f2f6f4;
+			--panel: #ffffff;
+			--text: #18231c;
+			--muted: #5f6f65;
+			--line: #d9e3dd;
+			--green: #517860;
+			--green-dark: #365843;
+			--focus: rgba(81, 120, 96, 0.18);
+		}
+
+		* {
+			box-sizing: border-box;
+		}
+
+		body {
+			margin: 0;
+			min-height: 100vh;
+			background: var(--bg);
+			color: var(--text);
+			font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+			padding: 24px;
+		}
+
+		.container {
+			max-width: 920px;
+			margin: 0 auto;
+			background: var(--panel);
+			border: 1px solid var(--line);
+			border-radius: 8px;
+			box-shadow: 0 12px 32px rgba(24, 35, 28, 0.12);
+			overflow: hidden;
+		}
+
+		header {
+			background: linear-gradient(180deg, var(--green), var(--green-dark));
+			color: #fff;
+			padding: 22px 24px;
+		}
+
+		h1 {
+			font-size: clamp(1.6rem, 3vw, 2.25rem);
+			line-height: 1.1;
+			margin: 0;
+		}
+
+		.controls {
+			display: grid;
+			grid-template-columns: repeat(3, minmax(0, 1fr));
+			gap: 14px;
+			padding: 20px 24px;
+			border-bottom: 1px solid var(--line);
+		}
+
+		label {
+			display: block;
+			font-size: 0.88rem;
+			font-weight: 700;
+			color: var(--muted);
+			margin-bottom: 6px;
+		}
+
+		input {
+			width: 100%;
+			border: 1px solid #b9c7bf;
+			border-radius: 8px;
+			color: var(--text);
+			background: #fff;
+			padding: 10px 12px;
+			font: inherit;
+			font-variant-numeric: tabular-nums;
+			outline: none;
+		}
+
+		input:focus {
+			border-color: var(--green);
+			box-shadow: 0 0 0 3px var(--focus);
+		}
+
+		.summary {
+			display: grid;
+			grid-template-columns: repeat(3, minmax(0, 1fr));
+			gap: 1px;
+			background: var(--line);
+			border-bottom: 1px solid var(--line);
+		}
+
+		.summary-item {
+			background: #fbfdfc;
+			padding: 14px 18px;
+		}
+
+		.summary-item span {
+			display: block;
+			color: var(--muted);
+			font-size: 0.82rem;
+			font-weight: 700;
+			margin-bottom: 4px;
+		}
+
+		.summary-item strong {
+			display: block;
+			font-size: 1.35rem;
+			font-variant-numeric: tabular-nums;
+		}
+
+		.table-wrap {
+			max-height: 62vh;
+			overflow: auto;
+		}
+
+		table {
+			width: 100%;
+			border-collapse: collapse;
+			font-variant-numeric: tabular-nums;
+		}
+
+		th,
+		td {
+			border-bottom: 1px solid var(--line);
+			padding: 10px 12px;
+			text-align: center;
+			white-space: nowrap;
+		}
+
+		th {
+			position: sticky;
+			top: 0;
+			z-index: 1;
+			background: #e9f0ec;
+			color: #203527;
+			font-size: 0.86rem;
+		}
+
+		tbody tr:hover {
+			filter: brightness(0.98);
+		}
+
+		.grade-a {
+			background: #dff6df;
+		}
+
+		.grade-b {
+			background: #e3f1ff;
+		}
+
+		.grade-c {
+			background: #fff7cf;
+		}
+
+		.grade-d {
+			background: #ffe5c7;
+		}
+
+		.grade-f {
+			background: #ffd9d9;
+		}
+
+		.note {
+			margin: 0;
+			padding: 14px 24px 18px;
+			color: var(--muted);
+			font-size: 0.9rem;
+		}
+
+		@media (max-width: 760px) {
+			body {
+				padding: 12px;
+			}
+
+			.controls,
+			.summary {
+				grid-template-columns: 1fr;
+			}
+
+			th,
+			td {
+				padding: 9px 8px;
+				font-size: 0.9rem;
+			}
+		}
+	</style>
+</head>
+<body>
+	<div class="container">
+		<header>
+			<h1>Final Grade Calculator</h1>
+		</header>
+
+		<div class="controls">
+			<div>
+				<label for="semesterGrade">Current Semester Grade</label>
+				<input id="semesterGrade" type="number" value="85" min="0" max="100" step="0.1">
+			</div>
+
+			<div>
+				<label for="finalWeight">Final Exam Weight (%)</label>
+				<input id="finalWeight" type="number" value="15" min="0" max="100" step="0.1">
+			</div>
+
+			<div>
+				<label for="questionCount">Number of Questions</label>
+				<input id="questionCount" type="number" value="100" min="1" step="1">
+			</div>
+		</div>
+
+		<div class="summary" aria-live="polite">
+			<div class="summary-item">
+				<span>Semester Weight</span>
+				<strong id="semesterWeightLabel">85%</strong>
+			</div>
+			<div class="summary-item">
+				<span>Final Exam Weight</span>
+				<strong id="finalWeightLabel">15%</strong>
+			</div>
+			<div class="summary-item">
+				<span>Questions</span>
+				<strong id="questionCountLabel">100</strong>
+			</div>
+		</div>
+
+		<div class="table-wrap">
+			<table>
+				<thead>
+					<tr>
+						<th>Final Exam Score</th>
+						<th>Questions Correct</th>
+						<th>Overall Course Grade</th>
+						<th>Letter Grade</th>
+					</tr>
+				</thead>
+				<tbody id="gradeTable"></tbody>
+			</table>
+		</div>
+
+		<p class="note" id="formulaNote"></p>
+	</div>
+
+	<script>
+		const semesterInput = document.getElementById("semesterGrade");
+		const weightInput = document.getElementById("finalWeight");
+		const questionInput = document.getElementById("questionCount");
+		const gradeTable = document.getElementById("gradeTable");
+		const semesterWeightLabel = document.getElementById("semesterWeightLabel");
+		const finalWeightLabel = document.getElementById("finalWeightLabel");
+		const questionCountLabel = document.getElementById("questionCountLabel");
+		const formulaNote = document.getElementById("formulaNote");
+
+		function clamp(value, min, max) {
+			return Math.min(Math.max(value, min), max);
+		}
+
+		function getLetterGrade(score) {
+			if (score >= 90) return "A";
+			if (score >= 80) return "B";
+			if (score >= 70) return "C";
+			if (score >= 60) return "D";
+			return "F";
+		}
+
+		function getGradeClass(score) {
+			if (score >= 90) return "grade-a";
+			if (score >= 80) return "grade-b";
+			if (score >= 70) return "grade-c";
+			if (score >= 60) return "grade-d";
+			return "grade-f";
+		}
+
+		function formatPercent(value) {
+			return `${Number(value.toFixed(1))}%`;
+		}
+
+		function updateTable() {
+			const semesterGrade = clamp(Number(semesterInput.value) || 0, 0, 100);
+			const finalWeightPercent = clamp(Number(weightInput.value) || 0, 0, 100);
+			const questionCount = Math.max(Math.round(Number(questionInput.value) || 1), 1);
+			const finalWeight = finalWeightPercent / 100;
+			const semesterWeight = 1 - finalWeight;
+			const rows = [];
+
+			semesterWeightLabel.textContent = formatPercent(semesterWeight * 100);
+			finalWeightLabel.textContent = formatPercent(finalWeightPercent);
+			questionCountLabel.textContent = questionCount;
+			formulaNote.textContent = `Formula: Overall Grade = Semester Grade x ${formatPercent(semesterWeight * 100)} + Final Exam Grade x ${formatPercent(finalWeightPercent)}`;
+
+			for (let finalScore = 0; finalScore <= 100; finalScore++) {
+				const overallGrade = semesterGrade * semesterWeight + finalScore * finalWeight;
+				const questionsCorrect = Math.round((finalScore / 100) * questionCount);
+
+				rows.push(`
+					<tr class="${getGradeClass(overallGrade)}">
+						<td>${finalScore}%</td>
+						<td>${questionsCorrect} / ${questionCount}</td>
+						<td>${overallGrade.toFixed(2)}%</td>
+						<td>${getLetterGrade(overallGrade)}</td>
+					</tr>
+				`);
+			}
+
+			gradeTable.innerHTML = rows.join("");
+		}
+
+		semesterInput.addEventListener("input", updateTable);
+		weightInput.addEventListener("input", updateTable);
+		questionInput.addEventListener("input", updateTable);
+
+		updateTable();
+	</script>
+</body>
+</html>
