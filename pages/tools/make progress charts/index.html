@@ -1,0 +1,1041 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Progress Table Generator</title>
+
+  <style>
+    :root{
+      --bg:#eef4f0;
+      --panel:#ffffff;
+      --text:#1f2933;
+      --border:#cfd8d3;
+      --row-border:#000000;
+      --selected:#edf5f0;
+      --resize:#8a8a8a;
+    }
+
+    *{
+      box-sizing:border-box;
+    }
+
+    html, body{
+      height:100%;
+      margin:0;
+      font-family:Arial, Helvetica, sans-serif;
+      background:var(--bg);
+      color:var(--text);
+      overflow:hidden;
+    }
+
+    .app{
+      display:grid;
+      grid-template-columns:230px 1fr;
+      height:100vh;
+    }
+
+    .sidebar{
+      background:var(--panel);
+      border-right:1px solid var(--border);
+      padding:12px;
+      overflow:auto;
+    }
+
+    .section{
+      margin-bottom:14px;
+      padding-bottom:12px;
+      border-bottom:1px solid #e5ece7;
+    }
+
+    .section:last-child{
+      border-bottom:none;
+    }
+
+    label{
+      display:block;
+      font-size:0.78rem;
+      font-weight:bold;
+      margin:8px 0 4px;
+      color:#3c4943;
+    }
+
+    input[type="number"],
+    input[type="text"]{
+      width:100%;
+      padding:7px 8px;
+      border:1px solid #b8c6bf;
+      border-radius:7px;
+      font-size:0.9rem;
+      font-family:inherit;
+      background:white;
+    }
+
+    .two-col{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:8px;
+    }
+
+    .btn-row{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      margin-top:8px;
+    }
+
+    button{
+      border:none;
+      padding:8px 10px;
+      font-size:0.88rem;
+      font-weight:bold;
+      cursor:pointer;
+      background:transparent;
+      color:#777;
+    }
+
+    button:hover{
+      background:transparent;
+      color:#444;
+    }
+
+    .download-btn{
+      width:100%;
+      background:#d9e7de;
+      color:#222;
+      border-radius:8px;
+    }
+
+    .download-btn:hover{
+      background:#cbded3;
+      color:#222;
+    }
+
+    .preview-area{
+      position:relative;
+      overflow:auto;
+      padding:18px 28px 28px 46px;
+      min-width:0;
+    }
+
+    .preview-shell{
+      display:inline-grid;
+      grid-template-columns:30px auto;
+      grid-template-rows:24px auto;
+      align-items:start;
+      gap:0;
+      min-width:max-content;
+    }
+
+    .code-toggle-wrap{
+      grid-column:2;
+      grid-row:1;
+      position:relative;
+      height:24px;
+      pointer-events:none;
+    }
+
+    .code-toggle{
+      position:absolute;
+      top:1px;
+      pointer-events:auto;
+      width:16px;
+      height:16px;
+      margin:0;
+      cursor:pointer;
+    }
+
+    .minus-column{
+      grid-column:1;
+      grid-row:2;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      width:30px;
+      background:transparent;
+    }
+
+    #minusButtons{
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      width:100%;
+      background:transparent;
+    }
+
+    .sheet-wrap{
+      grid-column:2;
+      grid-row:2;
+      position:relative;
+    }
+
+    .sheet{
+      background:white;
+      box-shadow:0 6px 20px rgba(0,0,0,0.08);
+      user-select:none;
+      position:relative;
+    }
+
+    .table-row{
+      display:grid;
+      border-left:1px solid var(--row-border);
+      border-right:1px solid var(--row-border);
+      border-top:1px solid var(--row-border);
+      background:white;
+      cursor:pointer;
+    }
+
+    .table-row:last-child{
+      border-bottom:1px solid var(--row-border);
+    }
+
+    .table-row.selected{
+      background:var(--selected);
+    }
+
+    .cell{
+      border-right:1px solid var(--row-border);
+      display:flex;
+      align-items:center;
+      min-width:0;
+      overflow:hidden;
+    }
+
+    .cell:last-child{
+      border-right:none;
+    }
+
+    .sheet input.preview-input{
+      width:100%;
+      border:none;
+      background:transparent;
+      outline:none;
+      font:inherit;
+      font-size:inherit;
+      color:inherit;
+      padding:0 8px;
+      height:100%;
+    }
+
+    .score-cell{
+      padding:0 8px;
+      gap:6px;
+      white-space:nowrap;
+      font:inherit;
+    }
+
+    .score-blank{
+      flex:0 0 auto;
+    }
+
+    .sheet input.points-input{
+      width:90px;
+      border:none;
+      background:transparent;
+      outline:none;
+      font:inherit;
+      font-size:inherit;
+      color:inherit;
+      padding:0;
+      text-align:left;
+      -moz-appearance:textfield;
+    }
+
+    .sheet input.points-input::-webkit-outer-spin-button,
+    .sheet input.points-input::-webkit-inner-spin-button{
+      -webkit-appearance:none;
+      margin:0;
+    }
+
+    .tracker-cell{
+      padding:5px 8px;
+    }
+
+    .tracker-box{
+      width:100%;
+      height:70%;
+      min-height:18px;
+      border:1px solid #000;
+      display:grid;
+      overflow:hidden;
+      background:white;
+    }
+
+    .tracker-part{
+      border-right:1px solid #000;
+    }
+
+    .tracker-part:last-child{
+      border-right:none;
+    }
+
+    .resize-layer{
+      position:absolute;
+      left:0;
+      top:0;
+      height:100%;
+      width:100%;
+      pointer-events:none;
+      z-index:10;
+    }
+
+    .resize-handle{
+      position:absolute;
+      top:0;
+      width:14px;
+      height:100%;
+      transform:translateX(-7px);
+      cursor:col-resize;
+      pointer-events:auto;
+      background:transparent;
+    }
+
+    .resize-handle::after{
+      content:"";
+      position:absolute;
+      left:6px;
+      top:0;
+      width:2px;
+      height:100%;
+      background:transparent;
+    }
+
+    .resize-handle:hover::after,
+    .resize-handle.active::after{
+      background:var(--resize);
+    }
+
+    body.resizing{
+      cursor:col-resize;
+      user-select:none;
+    }
+
+    .minus-btn,
+    .plus-btn{
+      width:24px;
+      height:24px;
+      padding:0;
+      border-radius:0;
+      background:transparent;
+      color:#888;
+      font-size:35px;
+      line-height:24px;
+      font-weight:normal;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      margin-right:6px;
+      box-shadow:none;
+      position:static;
+    }
+
+    .minus-btn:hover,
+    .plus-btn:hover{
+      background:transparent;
+      color:#555;
+    }
+
+    .plus-btn{
+      margin-top:6px;
+    }
+
+    @media (max-width:900px){
+      html, body{
+        overflow:auto;
+      }
+
+      .app{
+        grid-template-columns:1fr;
+        height:auto;
+        min-height:100vh;
+      }
+
+      .sidebar{
+        border-right:none;
+        border-bottom:1px solid var(--border);
+      }
+
+      .preview-area{
+        min-height:60vh;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="app">
+    <aside class="sidebar">
+      <div class="section">
+        <label for="exportWidth">Width</label>
+        <input id="exportWidth" type="number" value="1400" min="800" max="3000" />
+
+        <div class="two-col">
+          <div>
+            <label for="rowHeight">Row</label>
+            <input id="rowHeight" type="number" value="30" min="28" max="120" />
+          </div>
+
+          <div>
+            <label for="fontSize">Font</label>
+            <input id="fontSize" type="number" value="18" min="12" max="120" />
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <button id="loadExampleBtn">Example</button>
+        <button id="clearBtn">Clear</button>
+      </div>
+
+      <div class="section">
+        <label for="filename">File</label>
+        <input id="filename" type="text" value="progress-table.png" />
+
+        <div class="btn-row">
+          <button class="download-btn" id="downloadBtn">Download PNG</button>
+        </div>
+      </div>
+    </aside>
+
+    <main class="preview-area" id="previewArea">
+      <div class="preview-shell">
+        <div class="code-toggle-wrap" id="codeToggleWrap">
+          <input id="showCodeColumn" class="code-toggle" type="checkbox" checked />
+        </div>
+
+        <div class="minus-column" id="minusColumn">
+          <div id="minusButtons"></div>
+          <button class="plus-btn" id="addRowBtn">+</button>
+        </div>
+
+        <div class="sheet-wrap">
+          <div class="sheet" id="sheet"></div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    const EXPORT_SCALE = 3;
+
+    const defaultRows = [
+      { code: "C1",  label: "subject pronouns",          points: 6 },
+      { code: "C2",  label: "definite articles",         points: 2 },
+      { code: "C3",  label: "indefinite articles",       points: 2 },
+      { code: "C4",  label: "noun gender and number",    points: 8 },
+      { code: "C5",  label: "adjectives",                points: 10 },
+      { code: "C6",  label: "possessive adjectives",     points: 3 },
+      { code: "C7",  label: "question words",            points: 3 },
+      { code: "C8",  label: "present tense verbs",       points: 6 },
+      { code: "C9",  label: "present tense of ir",       points: 2 },
+      { code: "C10", label: "present tense of tener",    points: 2 },
+      { code: "C11", label: "stem-changing verbs",       points: 5 },
+      { code: "C12", label: "reflexive verbs present",   points: 8 },
+      { code: "C13", label: "present progressive",       points: 5 },
+      { code: "C14", label: "preterite",                 points: 8 },
+      { code: "C15", label: "conjunctions",              points: 3 }
+    ];
+
+    const state = {
+      rows: structuredClone(defaultRows),
+      selectedRow: 0,
+      columnWidths: {
+        code: null,
+        label: 330,
+        score: null
+      },
+      resizing: null
+    };
+
+    const el = {
+      previewArea: document.getElementById("previewArea"),
+      sheet: document.getElementById("sheet"),
+      minusColumn: document.getElementById("minusColumn"),
+      minusButtons: document.getElementById("minusButtons"),
+      codeToggleWrap: document.getElementById("codeToggleWrap"),
+      showCodeColumn: document.getElementById("showCodeColumn"),
+      exportWidth: document.getElementById("exportWidth"),
+      rowHeight: document.getElementById("rowHeight"),
+      fontSize: document.getElementById("fontSize"),
+      filename: document.getElementById("filename")
+    };
+
+    function getSettings() {
+      const showCodeColumn = el.showCodeColumn.checked;
+      const fontSize = clampNumber(el.fontSize.value, 12, 120, 18);
+
+      const autoCodeWidth = getAutoCodeWidth(fontSize);
+      const autoScoreWidth = getAutoScoreWidth(fontSize);
+
+      const codeWidth = showCodeColumn
+        ? Math.max(state.columnWidths.code ?? autoCodeWidth, autoCodeWidth)
+        : 0;
+
+      const visibleCodeWidth = Math.max(state.columnWidths.code ?? autoCodeWidth, autoCodeWidth);
+      const scoreWidth = Math.max(state.columnWidths.score ?? autoScoreWidth, autoScoreWidth);
+      const labelWidth = Math.max(state.columnWidths.label, 100);
+
+      return {
+        exportWidth: clampNumber(el.exportWidth.value, 800, 3000, 1400),
+        rowHeight: clampNumber(el.rowHeight.value, 28, 120, 42),
+        fontSize,
+        codeWidth,
+        visibleCodeWidth,
+        scoreWidth,
+        labelWidth,
+        showCodeColumn
+      };
+    }
+
+    function getAutoCodeWidth(fontSize) {
+      const ctx = getMeasureContext(fontSize);
+      let longest = "C1";
+
+      state.rows.forEach(row => {
+        const code = row.code || "";
+        if (ctx.measureText(code).width > ctx.measureText(longest).width) {
+          longest = code;
+        }
+      });
+
+      return Math.ceil(ctx.measureText(longest).width) + 18;
+    }
+
+    function getAutoScoreWidth(fontSize) {
+      const ctx = getMeasureContext(fontSize);
+      let largest = 1;
+
+      state.rows.forEach(row => {
+        largest = Math.max(largest, Number(row.points) || 1);
+      });
+
+      return Math.ceil(ctx.measureText(`____ / ${largest}`).width) + 30;
+    }
+
+    function getMeasureContext(fontSize) {
+      const canvas = document.createElement("canvas");
+      const ctx = canvas.getContext("2d");
+      ctx.font = `${fontSize}px Arial`;
+      return ctx;
+    }
+
+    function clampNumber(value, min, max, fallback) {
+      let n = Number(value);
+
+      if (Number.isNaN(n)) {
+        n = fallback;
+      }
+
+      n = Math.round(n);
+
+      if (n < min) {
+        n = min;
+      }
+
+      if (n > max) {
+        n = max;
+      }
+
+      return n;
+    }
+
+    function renderPreview() {
+      const settings = getSettings();
+
+      const actualWidth = settings.showCodeColumn
+        ? settings.exportWidth
+        : settings.exportWidth - settings.visibleCodeWidth;
+
+      const trackerWidth = Math.max(
+        220,
+        actualWidth - settings.codeWidth - settings.labelWidth - settings.scoreWidth
+      );
+
+      el.sheet.innerHTML = "";
+      el.minusButtons.innerHTML = "";
+
+      el.sheet.style.width = `${actualWidth}px`;
+      el.codeToggleWrap.style.width = `${actualWidth}px`;
+
+      const checkboxLeft = settings.showCodeColumn
+        ? settings.codeWidth / 2 - 8
+        : 0;
+
+      el.showCodeColumn.style.left = `${checkboxLeft}px`;
+
+      state.rows.forEach((row, index) => {
+        const minusBtn = document.createElement("button");
+        minusBtn.className = "minus-btn";
+        minusBtn.textContent = "-";
+        minusBtn.style.height = `${settings.rowHeight}px`;
+        minusBtn.addEventListener("click", () => removeRow(index));
+        el.minusButtons.appendChild(minusBtn);
+
+        const rowEl = document.createElement("div");
+
+        rowEl.className = "table-row" + (index === state.selectedRow ? " selected" : "");
+        rowEl.style.height = `${settings.rowHeight}px`;
+        rowEl.style.fontSize = `${settings.fontSize}px`;
+
+        if (settings.showCodeColumn) {
+          rowEl.style.gridTemplateColumns =
+            `${settings.codeWidth}px ${settings.labelWidth}px ${settings.scoreWidth}px ${trackerWidth}px`;
+        } else {
+          rowEl.style.gridTemplateColumns =
+            `${settings.labelWidth}px ${settings.scoreWidth}px ${trackerWidth}px`;
+        }
+
+        rowEl.addEventListener("click", () => {
+          state.selectedRow = index;
+          renderPreview();
+        });
+
+        if (settings.showCodeColumn) {
+          const codeCell = document.createElement("div");
+          codeCell.className = "cell";
+
+          const codeInput = document.createElement("input");
+          codeInput.type = "text";
+          codeInput.className = "preview-input";
+          codeInput.value = row.code;
+          codeInput.addEventListener("click", event => event.stopPropagation());
+          codeInput.addEventListener("input", () => {
+            row.code = codeInput.value;
+            renderResizeHandles(settings, trackerWidth, actualWidth);
+          });
+
+          codeCell.appendChild(codeInput);
+          rowEl.appendChild(codeCell);
+        }
+
+        const labelCell = document.createElement("div");
+        labelCell.className = "cell";
+
+        const labelInput = document.createElement("input");
+        labelInput.type = "text";
+        labelInput.className = "preview-input";
+        labelInput.value = row.label;
+        labelInput.addEventListener("click", event => event.stopPropagation());
+        labelInput.addEventListener("input", () => {
+          row.label = labelInput.value;
+        });
+
+        labelCell.appendChild(labelInput);
+
+        const scoreCell = document.createElement("div");
+        scoreCell.className = "cell score-cell";
+
+        const blankSpan = document.createElement("span");
+        blankSpan.className = "score-blank";
+        blankSpan.textContent = "____ /";
+
+        const pointsInput = document.createElement("input");
+        pointsInput.type = "number";
+        pointsInput.min = "1";
+        pointsInput.max = "99";
+        pointsInput.className = "points-input";
+        pointsInput.value = row.pointsDraft ?? row.points;
+
+        pointsInput.addEventListener("click", event => event.stopPropagation());
+
+        pointsInput.addEventListener("input", () => {
+          row.pointsDraft = pointsInput.value;
+        });
+
+        pointsInput.addEventListener("keydown", event => {
+          if (event.key === "Enter") {
+            commitPointsChange(row, pointsInput);
+          }
+        });
+
+        pointsInput.addEventListener("blur", () => {
+          commitPointsChange(row, pointsInput);
+        });
+
+        scoreCell.append(blankSpan, pointsInput);
+
+        const trackerCell = document.createElement("div");
+        trackerCell.className = "cell tracker-cell";
+
+        const trackerBox = document.createElement("div");
+        trackerBox.className = "tracker-box";
+        trackerBox.style.gridTemplateColumns = `repeat(${row.points}, 1fr)`;
+
+        for (let i = 0; i < row.points; i++) {
+          const part = document.createElement("div");
+          part.className = "tracker-part";
+          trackerBox.appendChild(part);
+        }
+
+        trackerCell.appendChild(trackerBox);
+
+        rowEl.append(labelCell, scoreCell, trackerCell);
+        el.sheet.appendChild(rowEl);
+      });
+
+      renderResizeHandles(settings, trackerWidth, actualWidth);
+    }
+
+    function renderResizeHandles(settings, trackerWidth, actualWidth) {
+      const oldLayer = el.sheet.querySelector(".resize-layer");
+      if (oldLayer) oldLayer.remove();
+
+      const layer = document.createElement("div");
+      layer.className = "resize-layer";
+
+      const boundaries = [];
+
+      if (settings.showCodeColumn) {
+        boundaries.push({
+          x: settings.codeWidth,
+          type: "code-label"
+        });
+      }
+
+      boundaries.push({
+        x: settings.codeWidth + settings.labelWidth,
+        type: "label-score"
+      });
+
+      boundaries.push({
+        x: settings.codeWidth + settings.labelWidth + settings.scoreWidth,
+        type: "score-tracker"
+      });
+
+      boundaries.push({
+        x: actualWidth,
+        type: "table-right"
+      });
+
+      boundaries.forEach(boundary => {
+        const handle = document.createElement("div");
+        handle.className = "resize-handle";
+        handle.style.left = `${boundary.x}px`;
+        handle.dataset.type = boundary.type;
+
+        handle.addEventListener("mousedown", event => {
+          startColumnResize(event, boundary.type);
+        });
+
+        layer.appendChild(handle);
+      });
+
+      el.sheet.appendChild(layer);
+    }
+
+    function startColumnResize(event, type) {
+      event.preventDefault();
+      event.stopPropagation();
+
+      const settings = getSettings();
+
+      const actualWidth = settings.showCodeColumn
+        ? settings.exportWidth
+        : settings.exportWidth - settings.visibleCodeWidth;
+
+      state.resizing = {
+        type,
+        startX: event.clientX,
+        startCode: settings.visibleCodeWidth,
+        startLabel: settings.labelWidth,
+        startScore: settings.scoreWidth,
+        startExport: settings.exportWidth,
+        startActualWidth: actualWidth,
+        showCodeColumn: settings.showCodeColumn,
+        visibleCodeWidth: settings.visibleCodeWidth
+      };
+
+      document.body.classList.add("resizing");
+      event.currentTarget.classList.add("active");
+
+      window.addEventListener("mousemove", handleColumnResize);
+      window.addEventListener("mouseup", stopColumnResize);
+    }
+
+    function handleColumnResize(event) {
+      if (!state.resizing) return;
+
+      const dx = event.clientX - state.resizing.startX;
+
+      const currentSettings = getSettings();
+      const minCode = getAutoCodeWidth(currentSettings.fontSize);
+      const minScore = getAutoScoreWidth(currentSettings.fontSize);
+      const minLabel = 100;
+      const minTracker = 120;
+
+      const showCodeColumn = state.resizing.showCodeColumn;
+      const exportWidth = state.resizing.startExport;
+
+      if (state.resizing.type === "code-label") {
+        const newCode = Math.max(minCode, state.resizing.startCode + dx);
+        const newLabel = Math.max(minLabel, state.resizing.startLabel - dx);
+
+        state.columnWidths.code = Math.round(newCode);
+        state.columnWidths.label = Math.round(newLabel);
+      }
+
+      if (state.resizing.type === "label-score") {
+        const newLabel = Math.max(minLabel, state.resizing.startLabel + dx);
+        const newScore = Math.max(minScore, state.resizing.startScore - dx);
+
+        state.columnWidths.label = Math.round(newLabel);
+        state.columnWidths.score = Math.round(newScore);
+      }
+
+      if (state.resizing.type === "score-tracker") {
+        const codeWidth = showCodeColumn ? (state.columnWidths.code ?? state.resizing.startCode) : 0;
+        const labelWidth = state.columnWidths.label ?? state.resizing.startLabel;
+
+        const maxScore = exportWidth - codeWidth - labelWidth - minTracker;
+        const newScore = Math.max(minScore, Math.min(maxScore, state.resizing.startScore + dx));
+
+        state.columnWidths.score = Math.round(newScore);
+      }
+
+      if (state.resizing.type === "table-right") {
+        const codeWidth = showCodeColumn ? (state.columnWidths.code ?? state.resizing.startCode) : 0;
+        const labelWidth = state.columnWidths.label ?? state.resizing.startLabel;
+        const scoreWidth = state.columnWidths.score ?? state.resizing.startScore;
+
+        const minimumActualWidth = codeWidth + labelWidth + scoreWidth + minTracker;
+        const newActualWidth = Math.max(
+          minimumActualWidth,
+          state.resizing.startActualWidth + dx
+        );
+
+        const newExportWidth = showCodeColumn
+          ? newActualWidth
+          : newActualWidth + state.resizing.visibleCodeWidth;
+
+        el.exportWidth.value = Math.round(newExportWidth);
+      }
+
+      renderPreview();
+    }
+
+    function stopColumnResize() {
+      state.resizing = null;
+      document.body.classList.remove("resizing");
+
+      window.removeEventListener("mousemove", handleColumnResize);
+      window.removeEventListener("mouseup", stopColumnResize);
+
+      renderPreview();
+    }
+
+    function commitPointsChange(row, input) {
+      const newValue = clampNumber(input.value, 1, 99, 1);
+
+      row.points = newValue;
+      delete row.pointsDraft;
+
+      renderPreview();
+    }
+
+    function addRow() {
+      const insertAt = Math.min(state.selectedRow + 1, state.rows.length);
+
+      state.rows.splice(insertAt, 0, {
+        code: `C${state.rows.length + 1}`,
+        label: "new category",
+        points: 1
+      });
+
+      state.selectedRow = insertAt;
+
+      normalizeCodes();
+      renderPreview();
+    }
+
+    function removeRow(index) {
+      if (!state.rows.length) {
+        return;
+      }
+
+      state.rows.splice(index, 1);
+
+      if (state.rows.length === 0) {
+        state.rows.push({
+          code: "C1",
+          label: "new category",
+          points: 1
+        });
+      }
+
+      if (state.selectedRow >= state.rows.length) {
+        state.selectedRow = state.rows.length - 1;
+      }
+
+      normalizeCodes();
+      renderPreview();
+    }
+
+    function clearAll() {
+      state.rows = [
+        {
+          code: "C1",
+          label: "new category",
+          points: 1
+        }
+      ];
+
+      state.selectedRow = 0;
+      renderPreview();
+    }
+
+    function loadExample() {
+      state.rows = structuredClone(defaultRows);
+      state.selectedRow = 0;
+      renderPreview();
+    }
+
+    function normalizeCodes() {
+      state.rows.forEach((row, index) => {
+        if (!row.code || /^C\d+$/i.test(row.code.trim())) {
+          row.code = `C${index + 1}`;
+        }
+      });
+    }
+
+    function downloadPNG() {
+      if (document.activeElement) {
+        document.activeElement.blur();
+      }
+
+      const settings = getSettings();
+
+      const logicalWidth = settings.showCodeColumn
+        ? settings.exportWidth
+        : settings.exportWidth - settings.visibleCodeWidth;
+
+      const logicalHeight = state.rows.length * settings.rowHeight;
+
+      const canvas = document.createElement("canvas");
+      canvas.width = logicalWidth * EXPORT_SCALE;
+      canvas.height = logicalHeight * EXPORT_SCALE;
+
+      const ctx = canvas.getContext("2d");
+      ctx.scale(EXPORT_SCALE, EXPORT_SCALE);
+
+      const codeX = 0;
+      const labelX = settings.showCodeColumn ? settings.codeWidth : 0;
+      const scoreX = labelX + settings.labelWidth;
+      const trackerX = scoreX + settings.scoreWidth;
+      const trackerWidth = logicalWidth - trackerX;
+
+      ctx.fillStyle = "#ffffff";
+      ctx.fillRect(0, 0, logicalWidth, logicalHeight);
+
+      ctx.strokeStyle = "#000000";
+      ctx.fillStyle = "#000000";
+      ctx.lineWidth = 1;
+      ctx.font = `${settings.fontSize}px Arial`;
+      ctx.textBaseline = "middle";
+
+      state.rows.forEach((row, index) => {
+        const y = index * settings.rowHeight;
+
+        ctx.strokeRect(0, y, logicalWidth, settings.rowHeight);
+
+        if (settings.showCodeColumn) {
+          drawLine(ctx, settings.codeWidth, y, settings.codeWidth, y + settings.rowHeight);
+        }
+
+        drawLine(ctx, scoreX, y, scoreX, y + settings.rowHeight);
+        drawLine(ctx, trackerX, y, trackerX, y + settings.rowHeight);
+
+        if (settings.showCodeColumn) {
+          drawClippedText(
+            ctx,
+            row.code,
+            codeX + 6,
+            y,
+            settings.codeWidth - 12,
+            settings.rowHeight
+          );
+        }
+
+        drawClippedText(
+          ctx,
+          row.label,
+          labelX + 6,
+          y,
+          settings.labelWidth - 12,
+          settings.rowHeight
+        );
+
+        drawClippedText(
+          ctx,
+          `____ / ${row.points}`,
+          scoreX + 6,
+          y,
+          settings.scoreWidth - 12,
+          settings.rowHeight
+        );
+
+        const padX = 8;
+        const padY = 5;
+
+        const boxX = trackerX + padX;
+        const boxY = y + padY;
+        const boxW = trackerWidth - padX * 2;
+        const boxH = settings.rowHeight - padY * 2;
+
+        ctx.strokeRect(boxX, boxY, boxW, boxH);
+
+        const count = Math.max(1, row.points);
+        const eachW = boxW / count;
+
+        for (let i = 1; i < count; i++) {
+          const x = boxX + eachW * i;
+          drawLine(ctx, x, boxY, x, boxY + boxH);
+        }
+      });
+
+      let filename = el.filename.value.trim() || "progress-table.png";
+
+      if (!filename.toLowerCase().endsWith(".png")) {
+        filename += ".png";
+      }
+
+      const link = document.createElement("a");
+      link.download = filename;
+      link.href = canvas.toDataURL("image/png");
+      link.click();
+    }
+
+    function drawLine(ctx, x1, y1, x2, y2) {
+      ctx.beginPath();
+      ctx.moveTo(x1, y1);
+      ctx.lineTo(x2, y2);
+      ctx.stroke();
+    }
+
+    function drawClippedText(ctx, text, x, y, width, height) {
+      ctx.save();
+      ctx.beginPath();
+      ctx.rect(x, y, width, height);
+      ctx.clip();
+      ctx.fillText(text, x, y + height / 2);
+      ctx.restore();
+    }
+
+    document.getElementById("addRowBtn").addEventListener("click", addRow);
+    document.getElementById("loadExampleBtn").addEventListener("click", loadExample);
+    document.getElementById("clearBtn").addEventListener("click", clearAll);
+    document.getElementById("downloadBtn").addEventListener("click", downloadPNG);
+
+    el.showCodeColumn.addEventListener("change", renderPreview);
+
+    [
+      el.exportWidth,
+      el.rowHeight,
+      el.fontSize
+    ].forEach(input => {
+      input.addEventListener("input", renderPreview);
+    });
+
+    renderPreview();
+  </script>
+</body>
+</html>

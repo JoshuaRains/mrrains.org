@@ -59,6 +59,8 @@
 
 		/* Layout: top progress, middle slides, floating controls */
 		.app {
+			--slides-pad-left: max(var(--edge-pad-l), var(--sidebar-clearance));
+			--controls-left: calc(var(--slides-pad-left) + ((100vw - var(--slides-pad-left) - var(--edge-pad-r)) / 2));
 			height: 100svh;
 			display: grid;
 			grid-template-rows: auto 1fr;
@@ -214,17 +216,18 @@
 			align-items: center;
 			justify-content: center;
 			gap: 4px;
-			padding: 2px var(--edge-pad-r) 3px max(var(--edge-pad-l), var(--sidebar-clearance));
+			padding: 2px var(--edge-pad-r) 3px var(--slides-pad-left);
 			overflow: hidden;
 			transition: padding-left .22s ease;
 		}
 
-		.app.timer-panel-open {
+		.app.side-panel-open {
+			--slides-pad-left: calc(var(--timer-panel-w) + max(var(--edge-pad-l), var(--sidebar-clearance)));
 			--slides-fit-w: calc(100vw - var(--timer-panel-w) - var(--edge-pad-l) - var(--edge-pad-r));
 		}
 
-		.app.timer-panel-open .slides-area {
-			padding-left: calc(var(--timer-panel-w) + max(var(--edge-pad-l), var(--sidebar-clearance)));
+		.app.side-panel-open .slides-area {
+			padding-left: var(--slides-pad-left);
 		}
 
 		.slides-frame {
@@ -574,45 +577,79 @@
 		/* Controls */
 		.controls {
 			position: fixed;
-			bottom: 4px;
-			left: 50%;
-			transform: translateX(-50%) scale(calc(1 / var(--zoom)));
+			bottom: 0;
+			left: var(--controls-left);
+			transform: translateX(-50%);
 			transform-origin: center;
 
 			display: flex;
 			align-items: center;
 			/* ⬅ make all children vertically centered */
-			gap: 6px;
+			gap: 8px;
+			padding: 10px 12px 8px;
+			background: #F8FAFD;
+			border-radius: 18px 18px 0 0;
+			box-shadow: 0 -10px 28px rgba(15, 23, 42, .18);
 			font-size: 14px;
 			pointer-events: none;
 			z-index: 9999;
 			flex-wrap: nowrap;
+			transition: left .22s ease;
 			/* ⬅ never wrap onto multiple lines */
 		}
 
-		.btn,
-		.btn,
-		.btn-accent {
+		.btn {
 			pointer-events: auto;
 			background: #ffffff;
-			color: #000;
-			border: 2px solid #000;
-			border-radius: 0;
-			padding: 8px 9px;
+			color: #172033;
+			border: 0;
+			border-radius: 12px;
+			min-width: 42px;
+			height: 38px;
+			display: inline-flex;
+			align-items: center;
+			justify-content: center;
+			gap: 5px;
+			padding: 0 10px;
 			font-weight: 800;
-			font-size: 14px;
+			font-size: 13px;
 			line-height: 1;
 			cursor: pointer;
-			transition: none;
+			transition: background .15s ease, color .15s ease;
 
 			/* 👇 NEW: never wrap the button text */
 			white-space: nowrap;
 		}
 
-		.btn:hover,
+		.btn:hover {
+			background: #e9eef6;
+			color: #111827;
+		}
+
+		.btn .material-symbols-outlined {
+			font-size: 23px;
+			line-height: 1;
+			font-variation-settings: "FILL" 1, "wght" 500, "GRAD" 0, "opsz" 24;
+		}
+
+		.btn-accent {
+			background: #172033;
+			color: #fff;
+			min-width: 82px;
+		}
+
 		.btn-accent:hover {
-			background: #e7e7e7;
-			color: #000;
+			background: #263247;
+			color: #fff;
+		}
+
+		.btn-accent.stop-active {
+			background: #e54d2e;
+			color: #fff;
+		}
+
+		.control-text {
+			display: inline-block;
 		}
 
 		/* NEW: Bell button */
@@ -640,8 +677,8 @@
 			display: inline-flex;
 			align-items: center;
 			background: #ffffff;
-			border-radius: 0;
-			border: 2px solid #000;
+			border-radius: 12px;
+			border: 0;
 			padding: 2px;
 			gap: 2px;
 			pointer-events: auto;
@@ -651,38 +688,39 @@
 		}
 
 		.btn-group .btn {
-			border-radius: 0;
+			border-radius: 10px;
 			border: 0;
 			background: transparent;
-			padding: 6px 10px;
+			height: 34px;
+			padding: 0 9px;
 
 			/* 👇 NEW: don’t let individual buttons collapse */
 			flex: 0 0 auto;
 		}
 
 		.btn-group .btn:hover {
-			background: #f0f0f0;
+			background: #e9eef6;
 		}
 
 		/* Pause Button */
 		#pauseBtn {
-			min-width: 80px;
+			min-width: 86px;
 		}
 
 		#pauseBtn.timing {
-			background: var(--green);
-			color: #fff;
+			background: #e8f7ed;
+			color: #177737;
 		}
 
 		.vol {
 			pointer-events: auto;
 			appearance: none;
-			height: 20px;
+			height: 8px;
 			/* ⬅ a bit taller so it matches button height visually */
-			width: 160px;
-			border-radius: 0;
-			background: #111;
-			border: 2px solid #000;
+			width: 138px;
+			border-radius: 999px;
+			background: #d7deea;
+			border: 0;
 			outline: none;
 			flex: 0 0 auto;
 			/* ⬅ don’t let flexbox squish it */
@@ -694,10 +732,27 @@
 			appearance: none;
 			width: 18px;
 			height: 18px;
-			border-radius: 0;
-			background: white;
-			border: 2px solid #000;
+			border-radius: 999px;
+			background: #172033;
+			border: 2px solid #F8FAFD;
 			cursor: pointer;
+		}
+
+		.volume-control {
+			pointer-events: auto;
+			display: inline-flex;
+			align-items: center;
+			gap: 8px;
+			height: 38px;
+			padding: 0 10px;
+			border-radius: 12px;
+			background: #fff;
+			color: #172033;
+		}
+
+		.volume-control .material-symbols-outlined {
+			font-size: 23px;
+			font-variation-settings: "FILL" 1, "wght" 500, "GRAD" 0, "opsz" 24;
 		}
 
 		/* Config Overlay */
@@ -988,18 +1043,18 @@
 
 		.slide-timer-panel {
 			position: fixed;
-			left: 5px;
+			left: calc(var(--sidebar-clearance) + 10px);
 			top: 50%;
 			transform: translateY(-50%);
-			width: calc(var(--timer-panel-w) + var(--sidebar-clearance) - 10px);
+			width: calc(var(--timer-panel-w) - 15px);
 			display: none;
 			justify-items: center;
 			align-items: center;
-			gap: 16px;
-			padding: 24px 5px;
+			gap: 14px;
+			padding: 22px 5px;
 			background: #2c3141;
 			color: #fff;
-			border-radius: 18px;
+			border-radius: 24px;
 			box-shadow: 0 18px 48px rgba(0, 0, 0, .38);
 			z-index: 9998;
 		}
@@ -1008,9 +1063,94 @@
 			display: grid;
 		}
 
+		.vocab-panel {
+			position: fixed;
+			left: calc(var(--sidebar-clearance) + 10px);
+			top: 50%;
+			transform: translateY(-50%);
+			width: calc(var(--timer-panel-w) - 15px);
+			height: min(760px, calc(100svh - 28px));
+			display: none;
+			grid-template-rows: 1fr auto;
+			gap: 10px;
+			padding: 14px 10px 12px;
+			background: #2c3141;
+			color: #172033;
+			border-radius: 24px;
+			box-shadow: 0 18px 48px rgba(0, 0, 0, .38);
+			z-index: 9998;
+		}
+
+		.app.vocab-panel-open~.vocab-panel {
+			display: grid;
+		}
+
+		.vocab-table-wrap {
+			min-height: 0;
+			overflow: hidden;
+			border-radius: 16px;
+			background: #e9edf3;
+		}
+
+		.vocab-table {
+			width: 100%;
+			height: 100%;
+			border-collapse: collapse;
+			table-layout: fixed;
+			background: #e9edf3;
+			font-size: var(--vocab-font-size, 36px);
+			font-weight: 800;
+			color: #172033;
+		}
+
+		.vocab-table td {
+			width: 50%;
+			border: 2px solid #cfd6e2;
+			padding: .32em .42em;
+			vertical-align: middle;
+			outline: none;
+			overflow-wrap: anywhere;
+		}
+
+		.vocab-table td:first-child {
+			background: #d7dde7;
+		}
+
+		.vocab-table td:focus {
+			box-shadow: inset 0 0 0 3px rgba(59, 130, 246, .45);
+		}
+
+		.vocab-actions {
+			display: flex;
+			justify-content: center;
+			gap: 12px;
+		}
+
+		.vocab-action {
+			width: 54px;
+			height: 54px;
+			display: grid;
+			place-items: center;
+			border: 0;
+			border-radius: 16px;
+			background: #fff;
+			color: #172033;
+			padding: 0;
+			cursor: pointer;
+		}
+
+		.vocab-action:hover {
+			background: #eeeeee;
+		}
+
+		.vocab-action .material-symbols-outlined {
+			font-size: 34px;
+			font-variation-settings: "FILL" 1, "wght" 600, "GRAD" 0, "opsz" 36;
+		}
+
 		.slide-timer-ring {
 			position: relative;
-			width: calc(100% - 10px);
+			width: min(340px, calc(100% - 10px));
 			aspect-ratio: 1;
 			display: grid;
 			place-items: center;
@@ -1026,81 +1166,148 @@
 
 		.slide-timer-ring circle {
 			fill: none;
-			stroke-width: 10;
+			stroke-width: 12;
 		}
 
 		.slide-timer-track {
-			stroke: rgba(255, 255, 255, .16);
+			stroke: #8f9092;
 		}
 
 		.slide-timer-progress {
-			stroke: #3b82f6;
+			stroke: #24d2d2;
 			stroke-linecap: round;
 			transition: stroke-dashoffset .2s linear;
 		}
 
-		.slide-timer-time {
-			width: calc(100% - 10px);
+		input.slide-timer-time {
+			width: min(340px, calc(100% - 60px));
 			background: transparent;
 			border: 0;
-			border-bottom: 2px solid rgba(255, 255, 255, .18);
+			border-bottom: 2px solid rgba(255, 255, 255, .85);
 			padding: 0 0 12px;
 			text-align: center;
 			font: inherit;
-			font-size: 58px;
-			font-weight: 800;
+			font-size: 104px;
+			font-weight: 300;
 			line-height: 1;
 			color: #fff;
 			outline: none;
 		}
 
-		.slide-timer-time:focus {
+		input.slide-timer-time:focus {
 			border-bottom-color: #3b82f6;
+			box-shadow: none;
 		}
 
 		.slide-timer-minutes {
 			display: none;
 		}
 
+		.slide-timer-footer {
+			position: relative;
+			width: min(360px, calc(100% - 60px));
+			min-height: 72px;
+			display: grid;
+			place-items: center;
+		}
+
 		.slide-timer-start {
-			width: 160px;
-			height: 42px;
+			width: 64px;
+			height: 64px;
 			border: 0;
-			border-radius: 22px;
-			background: #3b82f6;
-			color: #fff;
-			font-weight: 900;
-			font-size: 16px;
+			border-radius: 18px;
+			background: #fff;
+			color: #2c3141;
 			cursor: pointer;
 			justify-self: center;
+			display: grid;
+			place-items: center;
+			padding: 0;
 		}
 
 		.slide-timer-start:hover {
-			background: #2563eb;
+			background: #eeeeee;
+		}
+
+		.slide-timer-start .material-symbols-outlined {
+			font-size: 42px;
+			font-variation-settings: "FILL" 1, "wght" 600, "GRAD" 0, "opsz" 48;
+		}
+
+		.slide-timer-chime {
+			position: absolute;
+			left: 0;
+			bottom: 0;
+			width: 64px;
+			height: 64px;
+			display: grid;
+			place-items: center;
+			border: 0;
+			background: transparent;
+			color: #fff;
+			padding: 0;
+			cursor: pointer;
+		}
+
+		.slide-timer-chime:hover,
+		.slide-timer-clear:hover {
+			color: #eeeeee;
+		}
+
+		.slide-timer-chime .material-symbols-outlined {
+			color: #fff;
+			font-size: 58px;
+			font-variation-settings: "FILL" 1, "wght" 500, "GRAD" 0, "opsz" 48;
+		}
+
+		.slide-timer-clear {
+			position: absolute;
+			right: 0;
+			bottom: 0;
+			width: 64px;
+			height: 64px;
+			display: grid;
+			place-items: center;
+			border: 0;
+			background: transparent;
+			color: #fff;
+			padding: 0;
+			cursor: pointer;
+		}
+
+		.slide-timer-clear .material-symbols-outlined {
+			color: #fff;
+			font-size: 58px;
+			font-variation-settings: "FILL" 1, "wght" 500, "GRAD" 0, "opsz" 48;
 		}
 
 		.slide-timer-actions {
 			display: grid;
 			grid-template-columns: repeat(3, 1fr);
-			gap: 10px;
-			width: calc(100% - 10px);
+			gap: 14px;
+			width: min(320px, calc(100% - 60px));
 		}
 
 		.slide-timer-adjust {
 			width: 100%;
 			min-width: 0;
-			height: 38px;
+			height: 54px;
 			border: 0;
-			border-radius: 20px;
-			background: #3b4054;
-			color: #fff;
-			font-weight: 800;
-			font-size: 14px;
+			border-radius: 18px;
+			background: #fff;
+			color: #1f7e2e;
+			font-weight: 500;
+			font-size: 28px;
+			line-height: 1;
 			cursor: pointer;
 		}
 
 		.slide-timer-adjust:hover {
-			background: #4a5068;
+			background: #eeeeee;
+		}
+
+		.slide-timer-adjust[data-timer-delta^="-"] {
+			color: #8a2424;
 		}
 
 		.desk-overlay {
@@ -1292,28 +1499,61 @@
 
 		<!-- Controls -->
 		<div class="controls">
-			<button class="btn" id="restartBtn">Restart</button>
+			<button class="btn" id="restartBtn" title="Restart" aria-label="Restart">
+				<span class="material-symbols-outlined" aria-hidden="true">restart_alt</span>
+				<span class="control-text">Restart</span>
+			</button>
 
 			<div class="btn-group">
-				<button class="btn" id="backBtn">-1m</button>
-				<button class="btn" id="fwdBtn">+1m</button>
+				<button class="btn" id="backBtn" title="Back 1 minute" aria-label="Back 1 minute">
+					<span class="material-symbols-outlined" aria-hidden="true">replay</span>
+					<span class="control-text">1m</span>
+				</button>
+				<button class="btn" id="fwdBtn" title="Forward 1 minute" aria-label="Forward 1 minute">
+					<span class="material-symbols-outlined" aria-hidden="true">forward_media</span>
+					<span class="control-text">1m</span>
+				</button>
 			</div>
 
-			<button class="btn" id="pauseBtn">Pause</button>
+			<button class="btn" id="pauseBtn" title="Pause" aria-label="Pause">
+				<span class="material-symbols-outlined" id="pauseBtnIcon" aria-hidden="true">pause</span>
+				<span class="control-text" id="pauseBtnLabel">Pause</span>
+			</button>
 
-			<button class="btn btn-accent" id="toggleBtn">Start</button>
+			<button class="btn btn-accent" id="toggleBtn" title="Start" aria-label="Start">
+				<span class="material-symbols-outlined" id="toggleBtnIcon" aria-hidden="true">play_arrow</span>
+				<span class="control-text" id="toggleBtnLabel">Start</span>
+			</button>
 
-			<button class="btn subtitle-btn" id="englishSubBtn" title="English captions">CC EN</button>
-			<button class="btn subtitle-btn" id="spanishSubBtn" title="Spanish captions">CC ES</button>
-			<button class="btn subtitle-btn" id="translateEnEsBtn" title="Translate English to Spanish">EN→ES</button>
-			<button class="btn subtitle-btn" id="translateEsEnBtn" title="Translate Spanish to English">ES→EN</button>
-			<input class="vol" id="vol" type="range" min="0" max="1" step="0.01" value="0.6" title="Volume" />
+			<button class="btn subtitle-btn" id="englishSubBtn" title="English captions" aria-label="English captions">
+				<span class="material-symbols-outlined" aria-hidden="true">closed_caption</span>
+				<span class="control-text">EN</span>
+			</button>
+			<button class="btn subtitle-btn" id="spanishSubBtn" title="Spanish captions" aria-label="Spanish captions">
+				<span class="material-symbols-outlined" aria-hidden="true">subtitles</span>
+				<span class="control-text">ES</span>
+			</button>
+			<button class="btn subtitle-btn" id="translateEnEsBtn" title="Translate English to Spanish" aria-label="Translate English to Spanish">
+				<span class="material-symbols-outlined" aria-hidden="true">translate</span>
+				<span class="control-text">EN→ES</span>
+			</button>
+			<button class="btn subtitle-btn" id="translateEsEnBtn" title="Translate Spanish to English" aria-label="Translate Spanish to English">
+				<span class="material-symbols-outlined" aria-hidden="true">translate</span>
+				<span class="control-text">ES→EN</span>
+			</button>
+			<label class="volume-control" title="Volume" aria-label="Volume">
+				<span class="material-symbols-outlined" aria-hidden="true">volume_up</span>
+				<input class="vol" id="vol" type="range" min="0" max="1" step="0.01" value="0.6" title="Volume" />
+			</label>
 		</div>
 	</div>
 
 	<div class="page-tool-stack" aria-label="Page tools">
 		<button class="page-tool-toggle" id="slideTimerToggle" type="button" title="Slide timer" aria-label="Slide timer">
 			<span class="material-symbols-outlined" aria-hidden="true">timer</span>
+		</button>
+		<button class="page-tool-toggle" id="vocabToggle" type="button" title="Vocabulary list" aria-label="Vocabulary list">
+			<span class="material-symbols-outlined" aria-hidden="true">format_list_bulleted</span>
 		</button>
 		<button class="page-tool-toggle translator-btn" id="translatorBtn" type="button" title="Open whiteboard" aria-label="Open whiteboard" disabled>
 			<span class="material-symbols-outlined" aria-hidden="true">draw</span>
@@ -1338,14 +1578,40 @@
 		</div>
 		<input class="slide-timer-time" id="slideTimerTime" type="text" value="5:00" inputmode="numeric" aria-label="Timer duration" />
 		<div class="slide-timer-minutes" id="slideTimerMinutes" hidden>5 min left</div>
-		<button class="slide-timer-start" id="slideTimerStartStop" type="button">Start</button>
 		<div class="slide-timer-actions">
-			<button class="slide-timer-adjust" type="button" data-timer-delta="-30">-0:30</button>
 			<button class="slide-timer-adjust" type="button" data-timer-delta="30">+0:30</button>
 			<button class="slide-timer-adjust" type="button" data-timer-delta="60">+1:00</button>
-			<button class="slide-timer-adjust" type="button" data-timer-delta="-60">-1:00</button>
 			<button class="slide-timer-adjust" type="button" data-timer-delta="300">+5:00</button>
+			<button class="slide-timer-adjust" type="button" data-timer-delta="-30">-0:30</button>
+			<button class="slide-timer-adjust" type="button" data-timer-delta="-60">-1:00</button>
 			<button class="slide-timer-adjust" type="button" data-timer-delta="-300">-5:00</button>
+		</div>
+		<div class="slide-timer-footer">
+			<button class="slide-timer-chime" id="slideTimerChimeToggle" type="button" title="Timer chime off" aria-label="Timer chime off">
+				<span class="material-symbols-outlined" id="slideTimerChimeIcon" aria-hidden="true">notifications_off</span>
+			</button>
+			<button class="slide-timer-start" id="slideTimerStartStop" type="button" title="Start timer" aria-label="Start timer">
+				<span class="material-symbols-outlined" id="slideTimerStartStopIcon" aria-hidden="true">play_arrow</span>
+			</button>
+			<button class="slide-timer-clear" id="slideTimerClear" type="button" title="Clear timer" aria-label="Clear timer">
+				<span class="material-symbols-outlined" aria-hidden="true">delete_history</span>
+			</button>
+		</div>
+	</div>
+
+	<div class="vocab-panel" id="vocabPanel" aria-label="Vocabulary list">
+		<div class="vocab-table-wrap">
+			<table class="vocab-table" id="vocabTable">
+				<tbody id="vocabTableBody"></tbody>
+			</table>
+		</div>
+		<div class="vocab-actions">
+			<button class="vocab-action" id="vocabAddRow" type="button" title="Add vocabulary row" aria-label="Add vocabulary row">
+				<span class="material-symbols-outlined" aria-hidden="true">add</span>
+			</button>
+			<button class="vocab-action" id="vocabRemoveRow" type="button" title="Remove last row" aria-label="Remove last row">
+				<span class="material-symbols-outlined" aria-hidden="true">remove</span>
+			</button>
 		</div>
 	</div>
 
@@ -1502,6 +1768,13 @@
 		let slideTimerRemainingSeconds = 300;
 		let slideTimerLastTs = 0;
 		let slideTimerRafId = null;
+		let slideTimerChimeEnabled = false;
+		let vocabOpen = false;
+		let vocabRows = [
+			{ term: "", definition: "" },
+			{ term: "", definition: "" },
+			{ term: "", definition: "" },
+		];
 		let subtitleRecognition = null;
 		let subtitleFinalText = "";
 		let liveTranslationRequestId = 0;
@@ -1549,10 +1822,14 @@
 		const lunchChoiceEl = document.getElementById('lunchChoice');
 		const lunchRadioEls = document.querySelectorAll('input[name="presetLunch"]');
 		const toggleBtn = document.getElementById('toggleBtn');
+		const toggleBtnIcon = document.getElementById('toggleBtnIcon');
+		const toggleBtnLabel = document.getElementById('toggleBtnLabel');
 		const restartBtn = document.getElementById('restartBtn');
 		const backBtn = document.getElementById('backBtn');
 		const fwdBtn = document.getElementById('fwdBtn');
 		const pauseBtn = document.getElementById('pauseBtn');
+		const pauseBtnIcon = document.getElementById('pauseBtnIcon');
+		const pauseBtnLabel = document.getElementById('pauseBtnLabel');
 		const englishSubBtn = document.getElementById('englishSubBtn');
 		const spanishSubBtn = document.getElementById('spanishSubBtn');
 		const translateEnEsBtn = document.getElementById('translateEnEsBtn');
@@ -1577,7 +1854,17 @@
 		const slideTimerTime = document.getElementById('slideTimerTime');
 		const slideTimerMinutes = document.getElementById('slideTimerMinutes');
 		const slideTimerStartStop = document.getElementById('slideTimerStartStop');
+		const slideTimerStartStopIcon = document.getElementById('slideTimerStartStopIcon');
+		const slideTimerChimeToggle = document.getElementById('slideTimerChimeToggle');
+		const slideTimerChimeIcon = document.getElementById('slideTimerChimeIcon');
+		const slideTimerClear = document.getElementById('slideTimerClear');
 		const slideTimerAdjustBtns = document.querySelectorAll('[data-timer-delta]');
+		const vocabToggle = document.getElementById('vocabToggle');
+		const vocabPanel = document.getElementById('vocabPanel');
+		const vocabTable = document.getElementById('vocabTable');
+		const vocabTableBody = document.getElementById('vocabTableBody');
+		const vocabAddRow = document.getElementById('vocabAddRow');
+		const vocabRemoveRow = document.getElementById('vocabRemoveRow');
 		const deskPageToggle = document.getElementById('deskPageToggle');
 		const fullscreenToggle = document.getElementById('fullscreenToggle');
 		const fullscreenToggleIcon = document.getElementById('fullscreenToggleIcon');
@@ -1715,11 +2002,6 @@
 			renderFileSlide();
 		}
 
-		function ensureDefaultPause1204() {
-			if (!Array.isArray(schedule)) schedule = [];
-			return false;
-		}
-
 		/* ---------- Persistence ---------- */
 		const LS_KEY = 'classTimelineConfig.v2';
 		function saveConfig() {
@@ -1738,7 +2020,8 @@
 				deskPickerKeyLabel,
 				slidesURL,
 				timerSoundChoice,
-				customTimerSoundDataUrl
+				customTimerSoundDataUrl,
+				vocabRows
 			};
 			localStorage.setItem(LS_KEY, JSON.stringify(payload));
 			updateTotalTime();
@@ -1769,11 +2052,23 @@
 
 						timerSoundChoice = typeof data.timerSoundChoice === 'string' ? data.timerSoundChoice : "nfl";
 						customTimerSoundDataUrl = typeof data.customTimerSoundDataUrl === 'string' ? data.customTimerSoundDataUrl : "";
+						if (Array.isArray(data.vocabRows)) {
+							vocabRows = data.vocabRows
+								.filter(row => row && typeof row === 'object')
+								.map(row => ({
+									term: String(row.term ?? ""),
+									definition: String(row.definition ?? ""),
+								}));
+						}
 
 						sections = sections.filter(s => s && (s.name ?? '') !== '');
 					}
 				}
 			} catch { }
+
+			if (!vocabRows.length) {
+				vocabRows = [{ term: "", definition: "" }];
+			}
 
 			if (!sections.length) {
 				sections = [
@@ -1793,6 +2088,7 @@
 			applyTimerSound();
 			updateKeybindUI();
 			updatePresetScheduleUI();
+			renderVocabTable();
 
 			updateTotalTime();
 		}
@@ -2054,7 +2350,7 @@
 			}
 			stopSlideTimer();
 			slideTimerRemainingSeconds = parsedSeconds;
-			slideTimerTotalSeconds = Math.max(1, parsedSeconds);
+			slideTimerTotalSeconds = parsedSeconds;
 			updateSlideTimerUI();
 		}
 
@@ -2066,28 +2362,105 @@
 				return;
 			}
 			slideTimerRemainingSeconds = parsedSeconds;
-			slideTimerTotalSeconds = Math.max(1, parsedSeconds);
+			slideTimerTotalSeconds = parsedSeconds;
 			updateSlideTimerUI();
+		}
+
+		function getSlideTimerElapsedSeconds() {
+			return Math.max(0, slideTimerTotalSeconds - slideTimerRemainingSeconds);
 		}
 
 		function updateSlideTimerUI() {
 			const remaining = Math.max(0, slideTimerRemainingSeconds);
-			const total = Math.max(1, slideTimerTotalSeconds);
-			const pct = Math.max(0, Math.min(1, remaining / total));
+			const total = Math.max(0, slideTimerTotalSeconds);
+			const pct = total > 0 ? Math.max(0, Math.min(1, remaining / total)) : 0;
 			slideTimerProgress.style.strokeDashoffset = `${slideTimerCircumference * (1 - pct)}`;
 			if (document.activeElement !== slideTimerTime) {
 				slideTimerTime.value = formatTimerSeconds(remaining);
 			}
 			const minuteText = Math.ceil(remaining / 60);
 			slideTimerMinutes.textContent = `${minuteText} min left`;
-			slideTimerStartStop.textContent = slideTimerRunning ? "Stop" : "Start";
+			const timerAction = slideTimerRunning ? "Stop timer" : "Start timer";
+			slideTimerStartStop.title = timerAction;
+			slideTimerStartStop.setAttribute('aria-label', timerAction);
+			slideTimerStartStopIcon.textContent = slideTimerRunning ? "stop" : "play_arrow";
+			const chimeAction = slideTimerChimeEnabled ? "Timer chime on" : "Timer chime off";
+			slideTimerChimeToggle.title = chimeAction;
+			slideTimerChimeToggle.setAttribute('aria-label', chimeAction);
+			slideTimerChimeIcon.textContent = slideTimerChimeEnabled ? "notifications" : "notifications_off";
 			slideTimerToggle.classList.toggle('active', slideTimerOpen);
+		}
+
+		function resizeVocabText() {
+			const rowCount = Math.max(1, vocabRows.length);
+			const panelHeight = vocabPanel.getBoundingClientRect().height || window.innerHeight;
+			const availableRowHeight = Math.max(18, (panelHeight - 112) / rowCount);
+			const nextSize = Math.max(16, Math.min(42, Math.floor(availableRowHeight * .56)));
+			vocabTable.style.setProperty('--vocab-font-size', `${nextSize}px`);
+		}
+
+		function saveVocabRows() {
+			saveConfig();
+			resizeVocabText();
+		}
+
+		function renderVocabTable() {
+			vocabTableBody.innerHTML = "";
+			vocabRows.forEach((row, rowIndex) => {
+				const tr = document.createElement('tr');
+				["term", "definition"].forEach(key => {
+					const td = document.createElement('td');
+					td.contentEditable = "true";
+					td.spellcheck = true;
+					td.textContent = row[key] || "";
+					td.setAttribute('aria-label', key === "term" ? "Vocabulary term" : "Vocabulary definition");
+					td.addEventListener('input', () => {
+						vocabRows[rowIndex][key] = td.textContent.trim();
+						saveVocabRows();
+					});
+					td.addEventListener('keydown', event => {
+						if (event.key === "Enter") {
+							event.preventDefault();
+							if (rowIndex === vocabRows.length - 1) addVocabRow();
+						}
+					});
+					tr.appendChild(td);
+				});
+				vocabTableBody.appendChild(tr);
+			});
+			resizeVocabText();
+		}
+
+		function addVocabRow() {
+			vocabRows.push({ term: "", definition: "" });
+			renderVocabTable();
+			saveVocabRows();
+		}
+
+		function removeVocabRow() {
+			if (vocabRows.length > 1) {
+				vocabRows.pop();
+			} else {
+				vocabRows[0] = { term: "", definition: "" };
+			}
+			renderVocabTable();
+			saveVocabRows();
 		}
 
 		function stopSlideTimer() {
 			slideTimerRunning = false;
 			cancelAnimationFrame(slideTimerRafId);
 			slideTimerRafId = null;
+		}
+
+		function playSlideTimerChime() {
+			if (!slideTimerChimeEnabled) return;
+			try {
+				audioEl.currentTime = 0;
+				audioEl.play().catch(() => { });
+			} catch (err) {
+				console.warn('Slide timer chime error:', err);
+			}
 		}
 
 		function tickSlideTimer(ts) {
@@ -2099,6 +2472,7 @@
 			updateSlideTimerUI();
 			if (slideTimerRemainingSeconds <= 0) {
 				stopSlideTimer();
+				playSlideTimerChime();
 				return;
 			}
 			slideTimerRafId = requestAnimationFrame(tickSlideTimer);
@@ -2106,8 +2480,8 @@
 
 		function startSlideTimer() {
 			if (slideTimerRemainingSeconds <= 0) {
-				slideTimerRemainingSeconds = 300;
-				slideTimerTotalSeconds = 300;
+				updateSlideTimerUI();
+				return;
 			}
 			slideTimerRunning = true;
 			slideTimerLastTs = 0;
@@ -2118,24 +2492,53 @@
 		function setSlideTimerOpen(open) {
 			if (translatorMode && open) return;
 			slideTimerOpen = open;
+			if (open) vocabOpen = false;
+			document.querySelector('.app').classList.toggle('side-panel-open', slideTimerOpen || vocabOpen);
 			document.querySelector('.app').classList.toggle('timer-panel-open', slideTimerOpen);
+			document.querySelector('.app').classList.toggle('vocab-panel-open', vocabOpen);
+			vocabToggle.classList.toggle('active', vocabOpen);
 			if (!slideTimerOpen) stopSlideTimer();
 			updateSlideTimerUI();
+			resizeVocabText();
+		}
+
+		function setVocabOpen(open) {
+			if (translatorMode && open) return;
+			vocabOpen = open;
+			if (open) {
+				slideTimerOpen = false;
+				stopSlideTimer();
+			}
+			const app = document.querySelector('.app');
+			app.classList.toggle('vocab-panel-open', vocabOpen);
+			app.classList.toggle('timer-panel-open', slideTimerOpen);
+			app.classList.toggle('side-panel-open', slideTimerOpen || vocabOpen);
+			vocabToggle.classList.toggle('active', vocabOpen);
+			updateSlideTimerUI();
+			resizeVocabText();
 		}
 
 		function adjustSlideTimer(deltaSeconds) {
-			const nextRemaining = Math.max(0, slideTimerRemainingSeconds + deltaSeconds);
-			const totalAdjustment = deltaSeconds > 0 ? deltaSeconds : 0;
-			slideTimerRemainingSeconds = nextRemaining;
-			slideTimerTotalSeconds = Math.max(1, slideTimerTotalSeconds + totalAdjustment);
-			if (slideTimerRemainingSeconds > slideTimerTotalSeconds) slideTimerTotalSeconds = slideTimerRemainingSeconds;
+			const elapsed = getSlideTimerElapsedSeconds();
+			slideTimerTotalSeconds = Math.max(0, slideTimerTotalSeconds + deltaSeconds);
+			slideTimerRemainingSeconds = Math.max(0, slideTimerTotalSeconds - elapsed);
+			if (slideTimerRemainingSeconds <= 0) stopSlideTimer();
+			updateSlideTimerUI();
+		}
+
+		function clearSlideTimer() {
+			stopSlideTimer();
+			slideTimerTotalSeconds = 0;
+			slideTimerRemainingSeconds = 0;
 			updateSlideTimerUI();
 		}
 
 		function updateSlideTimerAvailability() {
 			const enabled = !translatorMode;
 			slideTimerToggle.disabled = !enabled;
+			vocabToggle.disabled = !enabled;
 			if (!enabled) setSlideTimerOpen(false);
+			if (!enabled) setVocabOpen(false);
 		}
 
 		slideTimerToggle.addEventListener('click', () => {
@@ -2143,11 +2546,23 @@
 			setSlideTimerOpen(!slideTimerOpen);
 		});
 
+		vocabToggle.addEventListener('click', () => {
+			if (vocabToggle.disabled) return;
+			setVocabOpen(!vocabOpen);
+		});
+
 		slideTimerStartStop.addEventListener('click', () => {
 			if (slideTimerRunning) stopSlideTimer();
 			else startSlideTimer();
 			updateSlideTimerUI();
 		});
+
+		slideTimerChimeToggle.addEventListener('click', () => {
+			slideTimerChimeEnabled = !slideTimerChimeEnabled;
+			updateSlideTimerUI();
+		});
+
+		slideTimerClear.addEventListener('click', clearSlideTimer);
 
 		slideTimerTime.addEventListener('focus', () => {
 			stopSlideTimer();
@@ -2166,6 +2581,10 @@
 		slideTimerAdjustBtns.forEach(btn => {
 			btn.addEventListener('click', () => adjustSlideTimer(Number(btn.dataset.timerDelta) || 0));
 		});
+
+		vocabAddRow.addEventListener('click', addVocabRow);
+		vocabRemoveRow.addEventListener('click', removeVocabRow);
+		window.addEventListener('resize', resizeVocabText);
 
 		updateSlideTimerUI();
 
@@ -3300,6 +3719,23 @@
 			});
 		}
 
+		function setBottomBarTimerState(state) {
+			const isRunning = state === "running";
+			const isPaused = state === "paused";
+			const toggleLabel = isRunning ? "Stop" : "Start";
+			const pauseLabel = isPaused ? "Resume" : "Pause";
+			toggleBtnLabel.textContent = toggleLabel;
+			toggleBtnIcon.textContent = isRunning ? "stop" : "play_arrow";
+			toggleBtn.title = toggleLabel;
+			toggleBtn.setAttribute('aria-label', toggleLabel);
+			toggleBtn.classList.toggle('stop-active', isRunning);
+			pauseBtnLabel.textContent = pauseLabel;
+			pauseBtnIcon.textContent = isPaused ? "play_arrow" : "pause";
+			pauseBtn.title = pauseLabel;
+			pauseBtn.setAttribute('aria-label', pauseLabel);
+			pauseBtn.classList.toggle('timing', isPaused);
+		}
+
 		function startTimer() {
 			if (running) return;
 			if (elapsedMs >= totalMs) {
@@ -3310,11 +3746,7 @@
 			running = true;
 			paused = false;
 			startTs = Date.now() - elapsedMs;
-			toggleBtn.textContent = "Stop";
-			toggleBtn.style.background = "#e54d2e";
-			toggleBtn.style.color = "#fff";
-			pauseBtn.textContent = "Pause";
-			pauseBtn.classList.remove('timing');
+			setBottomBarTimerState("running");
 			overlay.classList.remove('show');
 			tick();
 		}
@@ -3323,11 +3755,7 @@
 			running = false;
 			paused = true;
 			cancelAnimationFrame(rafId);
-			toggleBtn.textContent = "Start";
-			toggleBtn.style.background = "#ffffff";
-			toggleBtn.style.color = "#2f2f2f";
-			pauseBtn.textContent = "Resume";
-			pauseBtn.classList.add('timing');
+			setBottomBarTimerState("paused");
 		}
 
 		function putTimerInPausedMode() {
@@ -3337,11 +3765,7 @@
 			}
 			paused = true;
 			cancelAnimationFrame(rafId);
-			toggleBtn.textContent = "Start";
-			toggleBtn.style.background = "#ffffff";
-			toggleBtn.style.color = "#2f2f2f";
-			pauseBtn.textContent = "Resume";
-			pauseBtn.classList.add('timing');
+			setBottomBarTimerState("paused");
 		}
 
 		function resetTimer() {
@@ -3351,11 +3775,7 @@
 			elapsedMs = 0;
 			lastChimedIndex = -1;
 			updateCompletionUI();
-			toggleBtn.textContent = "Start";
-			toggleBtn.style.background = "#ffffff";
-			toggleBtn.style.color = "#2f2f2f";
-			pauseBtn.textContent = "Pause";
-			pauseBtn.classList.remove('timing');
+			setBottomBarTimerState("idle");
 		}
 
 		function adjustTime(deltaMs) {
@@ -3412,7 +3832,7 @@
 		});
 
 		addSchedRowBtn.addEventListener('click', () => {
-			schedule.push({ time: "08:00", action: "start" });
+			schedule.push({ time: "", action: "start" });
 			schedule.sort((a, b) => String(a.time).localeCompare(String(b.time)));
 			saveConfig();
 			buildScheduleRows();

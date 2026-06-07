@@ -112,6 +112,7 @@
       border-bottom-left-radius: 10px;
       border-bottom-right-radius: 10px;
       overflow: hidden;
+      transition: height 0.25s ease;
       box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
       min-width: 400px;
       z-index: 1;
@@ -125,39 +126,61 @@
 
     .games-slider {
       display: flex;
+      align-items: flex-start;
     }
 
     .games-slide {
-      min-width: 100%;
+      flex: 0 0 100%;
       display: flex;
       flex-wrap: wrap;
       gap: 20px;
       justify-content: center;
+      align-content: flex-start;
       padding: 20px;
     }
 
     .game-item {
       background-color: #abd1b500;
-      width: 150px;
-      height: 150px;
+      width: 132px;
+      min-height: 132px;
       border-radius: 10px;
-      border-color: #5c8a6d00;
+      border: 0;
       text-align: center;
-      padding: 25px;
+      padding: 14px 10px;
       transition: transform 0.3s ease, filter 0.3s ease;
       cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
     }
 
     .game-item img {
-      width: 100%;
-      height: auto;
+      width: 72px;
+      height: 72px;
+      object-fit: contain;
       border-radius: 10px;
+    }
+
+    .game-item .carousel-icon {
+      color: #79b791;
+      display: grid;
+      font-size: 58px;
+      height: 72px;
+      line-height: 1;
+      place-items: center;
+      width: 72px;
+      font-variation-settings:
+        'FILL' 0,
+        'wght' 400,
+        'GRAD' 0,
+        'opsz' 48;
     }
 
     .game-item p {
       font-weight: bold;
-      margin-top: 10px;
-      color: #000;
+      margin-top: 8px;
+      color: #303732;
     }
 
     .game-item:hover {
@@ -174,7 +197,7 @@
       background-size: 1000px 500px;
       border-radius: 10px;
       width: calc(100% - 10px);
-      height: 300px;
+      min-height: 300px;
       margin: 5px auto;
       box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.8);
     }
@@ -640,7 +663,7 @@
               <div class="pin"></div>
               <h3 style="margin: 0 0 6px; font-size: 16px; color: #333;">Welcome!:</h3>
               <p style="margin: 0; font-size: 14px; color: #555;">
-                Welcome to Spanish 2!<br>
+                Welcome to Spanish!<br>
               </p>
             </div>
 
@@ -669,53 +692,53 @@
         <!-- Diversos Slide -->
         <div class="games-slide" data-title="Review">
 
-          <button class="game-item" onclick="location.href='./pages/tools/weekgame'"><img
-              src="assets/vector_icons/days.svg">
+          <button class="game-item" onclick="location.href='./pages/tools/weekgame'">
+            <span class="material-symbols-outlined carousel-icon" aria-hidden="true">calendar_month</span>
             <p>hoy es...</p>
           </button>
-          <button class="game-item" onclick="location.href='./pages/maps/countriesweather/index.html'"><img
-              src="assets/vector_icons/MapWeather.svg" alt="30-100">
+          <button class="game-item" onclick="location.href='./pages/maps/countriesweather/index.html'">
+            <span class="material-symbols-outlined carousel-icon" aria-hidden="true">partly_cloudy_day</span>
             <p>Countries Weather</p>
           </button>
 
-          <button class="game-item" onclick="location.href='./pages/tools/colorgame'"><img
-              src="assets/vector_icons/colors2.svg" alt="Grade Calculator">
+          <button class="game-item" onclick="location.href='./pages/tools/colorgame'">
+            <span class="material-symbols-outlined carousel-icon" aria-hidden="true">palette</span>
             <p>el color es...</p>
           </button>
-          <button class="game-item" onclick="location.href='./pages/tools/numbergame'"><img
-              src="assets/vector_icons/GradeCalc.svg" alt="Number game">
+          <button class="game-item" onclick="location.href='./pages/tools/numbergame'">
+            <span class="material-symbols-outlined carousel-icon" aria-hidden="true">pin</span>
             <p>Number Game</p>
           </button>
-          <button class="game-item" onclick="location.href='./pages/tools/clockgame'"><img
-              src="assets/vector_icons/clockgame.svg" alt="time game">
+          <button class="game-item" onclick="location.href='./pages/tools/clockgame'">
+            <span class="material-symbols-outlined carousel-icon" aria-hidden="true">schedule</span>
             <p>Time Game</p>
           </button>
-          <button class="game-item" onclick="location.href='./pages/tools/flaggame'"><img
-              src="assets/vector_icons/flaggame.svg" alt="flags">
+          <button class="game-item" onclick="location.href='./pages/tools/flaggame'">
+            <span class="material-symbols-outlined carousel-icon" aria-hidden="true">flag</span>
             <p>Flag Game</p>
           </button>
-          <button class="game-item" onclick="location.href='./pages/tools/pronounce'"><img
-              src="assets/vector_icons/pronounce.svg" alt="flags">
+          <button class="game-item" onclick="location.href='./pages/tools/pronounce'">
+            <span class="material-symbols-outlined carousel-icon" aria-hidden="true">record_voice_over</span>
             <p>Pronounce</p>
           </button>
-          <button class="game-item" onclick="location.href='./pages/tools/serestarpractice'"><img
-              src="assets/vector_icons/serorestar.svg" alt="flags">
+          <button class="game-item" onclick="location.href='./pages/tools/serestarpractice'">
+            <span class="material-symbols-outlined carousel-icon" aria-hidden="true">compare_arrows</span>
             <p>ser estar</p>
           </button>
-          <button class="game-item" onclick="location.href='./pages/tools/serestarvisual/index.html?set=set1'"><img
-              src="assets/vector_icons/serorestarlogic.svg" alt="flags">
+          <button class="game-item" onclick="location.href='./pages/tools/serestarvisual/index.html?set=set1'">
+            <span class="material-symbols-outlined carousel-icon" aria-hidden="true">schema</span>
             <p>ser estar visual</p>
           </button>
-          <button class="game-item" onclick="location.href='./pages/tools/pronounpractice/basic.html'"><img
-              src="assets/vector_icons/pronouns.svg" alt="flags">
+          <button class="game-item" onclick="location.href='./pages/tools/pronounpractice/basic.html'">
+            <span class="material-symbols-outlined carousel-icon" aria-hidden="true">groups</span>
             <p>pronouns</p>
           </button>
-          <button class="game-item" onclick="location.href='./pages/tools/pronounpractice/complex.html'"><img
-              src="assets/vector_icons/conjugate pronouns.svg" alt="flags">
+          <button class="game-item" onclick="location.href='./pages/tools/pronounpractice/complex.html'">
+            <span class="material-symbols-outlined carousel-icon" aria-hidden="true">hub</span>
             <p>pronouns for conjugation</p>
           </button>
-          <button class="game-item" onclick="location.href='./pages/tools/presentprogressive/index.html?set=set'"><img
-              src="assets/vector_icons/progressive.svg" alt="flags">
+          <button class="game-item" onclick="location.href='./pages/tools/presentprogressive/index.html?set=set'">
+            <span class="material-symbols-outlined carousel-icon" aria-hidden="true">directions_walk</span>
             <p>present progressive</p>
           </button>
 
@@ -727,40 +750,45 @@
         </div>
 
         <div class="games-slide" data-title="Tools">
-          <button class="game-item" onclick="window.open('https://corpus.rae.es/frec/1000_formas.TXT','_blank')"><img
-              src="assets/vector_icons/TopVocab.svg" alt="Vocab Común">
+          <button class="game-item" onclick="window.open('https://corpus.rae.es/frec/1000_formas.TXT','_blank')">
+            <span class="material-symbols-outlined carousel-icon" aria-hidden="true">format_list_bulleted</span>
             <p>Most Common Words</p>
           </button>
-          <button class="game-item" onclick="location.href='./pages/tools/gradecalculator/index.html'"><img
-              src="assets/vector_icons/GradeCalc.svg" alt="Grade Calculator">
+          <button class="game-item" onclick="location.href='./pages/tools/gradecalculator/index.html'">
+            <span class="material-symbols-outlined carousel-icon" aria-hidden="true">calculate</span>
             <p>Grade Calculator</p>
           </button>
-          <button class="game-item" onclick="location.href='./pages/tools/finalgradecalculator/index.html'"><img
-              src="assets/vector_icons/GradeCalc.svg" alt="Final Grade Calculator">
+          <button class="game-item" onclick="location.href='./pages/tools/finalgradecalculator/index.html'">
+            <span class="material-symbols-outlined carousel-icon" aria-hidden="true">functions</span>
             <p>Final Grade Calculator</p>
           </button>
-          <button class="game-item" onclick="location.href='./pages/tools/exchangeconverter/index.html'"><img
-              src="assets/vector_icons/translate.svg" alt="Exchange Rates">
+          <button class="game-item" onclick="location.href='./pages/tools/exchangeconverter/index.html'">
+            <span class="material-symbols-outlined carousel-icon" aria-hidden="true">currency_exchange</span>
             <p>Exchange Rates</p>
           </button>
-          <button class="game-item" onclick="location.href='./pages/tools/colorDemo'"><img
-              src="assets/vector_icons/colors.svg" alt="color demo">
+          <button class="game-item" onclick="location.href='./pages/tools/colorDemo'">
+            <span class="material-symbols-outlined carousel-icon" aria-hidden="true">palette</span>
             <p>Color Wheel</p>
           </button>
           
-          <button class="game-item" onclick="location.href='./pages/tools/slides/index.html'"><img
-              src="assets/vector_icons/BathroomTimer.svg" alt="slides timer">
+          <button class="game-item" onclick="location.href='./pages/tools/slides/index.html'">
+            <span class="material-symbols-outlined carousel-icon" aria-hidden="true">slideshow</span>
             <p>Class Slides</p>
           </button>
 
-          <button class="game-item" onclick="location.href='./pages/tools/reviewgame/index.html'"><img
-              src="assets/vector_icons/vote.svg" alt="review game slides">
+          <button class="game-item" onclick="location.href='./pages/tools/reviewgame/index.html'">
+            <span class="material-symbols-outlined carousel-icon" aria-hidden="true">how_to_vote</span>
             <p>Review Game Slides</p>
           </button>
 
-          <button class="game-item" onclick="location.href='./pages/tools/randomDesk'"><img
-              src="assets/vector_icons/desk.svg" alt="slides timer">
+          <button class="game-item" onclick="location.href='./pages/tools/randomDesk'">
+            <span class="material-symbols-outlined carousel-icon" aria-hidden="true">chair</span>
             <p>Random Desk Selector</p>
+          </button>
+
+          <button class="game-item" onclick="location.href='./pages/tools/make progress charts/index.html'">
+            <span class="material-symbols-outlined carousel-icon" aria-hidden="true">monitoring</span>
+            <p>Progress Charts</p>
           </button>
 
           <!-- <button class="game-item" onclick="location.href='./pages/maps/mapgame/index.html'"><img src="assets/vector_icons/MapGame.svg" alt="0-30"><p>Map Game</p></button> -->
@@ -769,24 +797,24 @@
 
           <!-- <button class="game-item" onclick="location.href='./pages/maps/countries/index.html'"><img src="assets/vector_icons/Countries.svg" alt="30-100"><p>Countries Info</p></button> -->
           <button class="game-item"
-            onclick="window.open('https://www.oldmapsonline.org/en/history/regions/981#position=3.18/-5.53/-35.51&year=1545','_blank')"><img
-              src="assets/vector_icons/Timeline map.svg" alt="Vocab Común">
+            onclick="window.open('https://www.oldmapsonline.org/en/history/regions/981#position=3.18/-5.53/-35.51&year=1545','_blank')">
+            <span class="material-symbols-outlined carousel-icon" aria-hidden="true">map</span>
             <p>Historical Map</p>
           </button>
-          <button class="game-item" onclick="location.href='./pages/tools/countriesRandom/index.html'"><img
-              src="assets/vector_icons/Countries.svg" alt="Random Country">
+          <button class="game-item" onclick="location.href='./pages/tools/countriesRandom/index.html'">
+            <span class="material-symbols-outlined carousel-icon" aria-hidden="true">public</span>
             <p>Random Country</p>
           </button>
-          <button class="game-item" onclick="location.href='./pages/tools/bingo/generator.html'"><img
-              src="assets/vector_icons/bingo.svg" alt="flags">
+          <button class="game-item" onclick="location.href='./pages/tools/bingo/generator.html'">
+            <span class="material-symbols-outlined carousel-icon" aria-hidden="true">grid_view</span>
             <p>bingo sheets</p>
           </button>
 
         </div>
 
         <div class="games-slide" data-title="Games">
-          <button class="game-item" onclick="location.href='./pages/games/castles2/student.html'"><img
-              src="assets/vector_icons/TilesGame.svg" alt="Tiles Game">
+          <button class="game-item" onclick="location.href='./pages/games/castles2/student.html'">
+            <span class="material-symbols-outlined carousel-icon" aria-hidden="true">castle</span>
             <p>Castles</p>
           </button>
 
@@ -1652,6 +1680,7 @@
       <script>
         document.addEventListener("DOMContentLoaded", () => {
           const slider = document.getElementById('slider');
+          const gamesContainer = document.querySelector('.games-container');
           const slides = Array.from(slider.children);
           const prevBtn = document.getElementById('prevBtn');
           const nextBtn = document.getElementById('nextBtn');
@@ -1668,9 +1697,15 @@
           const allSlides = Array.from(slider.children);
           slider.style.transform = `translateX(-${currentIndex * 100}%)`;
           title.textContent = allSlides[currentIndex].dataset.title;
+          sizeAnnouncementBoxes();
+          requestAnimationFrame(updateCarouselHeight);
 
           prevBtn.addEventListener('click', () => moveSlide(-1));
           nextBtn.addEventListener('click', () => moveSlide(1));
+          window.addEventListener('resize', () => {
+            sizeAnnouncementBoxes();
+            updateCarouselHeight();
+          });
 
           function moveSlide(dir) {
             if (isTransitioning) return;
@@ -1678,6 +1713,7 @@
             currentIndex += dir;
             slider.style.transition = 'transform 0.5s ease';
             slider.style.transform = `translateX(-${currentIndex * 100}%)`;
+            updateCarouselHeight();
           }
 
           slider.addEventListener('transitionend', () => {
@@ -1690,8 +1726,24 @@
             }
             slider.style.transform = `translateX(-${currentIndex * 100}%)`;
             title.textContent = allSlides[currentIndex].dataset.title;
+            updateCarouselHeight();
             isTransitioning = false;
           });
+
+          function updateCarouselHeight() {
+            const activeSlide = allSlides[currentIndex];
+            if (!activeSlide) return;
+            gamesContainer.style.height = `${activeSlide.scrollHeight}px`;
+          }
+
+          function sizeAnnouncementBoxes() {
+            document.querySelectorAll('.announcement-box').forEach(box => {
+              const slipBottom = Array.from(box.querySelectorAll('.slip')).reduce((bottom, slip) => {
+                return Math.max(bottom, slip.offsetTop + slip.offsetHeight);
+              }, 0);
+              box.style.minHeight = `${Math.max(300, slipBottom + 30)}px`;
+            });
+          }
         });
         /*
             document.addEventListener("DOMContentLoaded", () => {
