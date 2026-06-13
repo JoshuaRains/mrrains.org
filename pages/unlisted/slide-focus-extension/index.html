@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Slide Focus Extension</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f7f5ef;
+      --ink: #1f2933;
+      --muted: #596675;
+      --panel: #ffffff;
+      --edge: #d7d1c5;
+      --accent: #1c6b7a;
+      --accent-dark: #124b56;
+      --soft: #e6f3f5;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.45;
+    }
+
+    main {
+      width: min(860px, calc(100vw - 32px));
+      margin: 0 auto;
+      padding: 44px 0;
+    }
+
+    h1 {
+      margin: 0 0 10px;
+      font-size: clamp(2rem, 5vw, 3.35rem);
+      line-height: 1.02;
+      letter-spacing: 0;
+    }
+
+    .lead {
+      max-width: 680px;
+      margin: 0 0 26px;
+      color: var(--muted);
+      font-size: 1.08rem;
+    }
+
+    .download {
+      display: inline-flex;
+      align-items: center;
+      min-height: 48px;
+      padding: 0 18px;
+      border-radius: 6px;
+      background: var(--accent);
+      color: #fff;
+      font-weight: 700;
+      text-decoration: none;
+    }
+
+    .download:focus,
+    .download:hover {
+      background: var(--accent-dark);
+    }
+
+    section {
+      margin-top: 28px;
+      padding-top: 24px;
+      border-top: 1px solid var(--edge);
+    }
+
+    h2 {
+      margin: 0 0 12px;
+      font-size: 1.25rem;
+      letter-spacing: 0;
+    }
+
+    ol,
+    ul {
+      margin: 0;
+      padding-left: 1.25rem;
+    }
+
+    li + li {
+      margin-top: 10px;
+    }
+
+    code {
+      padding: 2px 5px;
+      border-radius: 4px;
+      background: var(--soft);
+      color: #143942;
+      font-family: Consolas, "Courier New", monospace;
+      font-size: .95em;
+    }
+
+    .note {
+      margin-top: 18px;
+      padding: 14px 16px;
+      border: 1px solid var(--edge);
+      border-radius: 8px;
+      background: var(--panel);
+      color: var(--muted);
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Slide Focus Extension</h1>
+    <p class="lead">A private Chrome extension that jumps back to the most recently opened Mr. Rains slide tool tab.</p>
+
+    <a class="download" href="mr-rains-slide-focus.zip" download>Download extension ZIP</a>
+
+    <section>
+      <h2>Install</h2>
+      <ol>
+        <li>Download and unzip the file.</li>
+        <li>Open <code>chrome://extensions</code>.</li>
+        <li>Turn on <code>Developer mode</code>.</li>
+        <li>Click <code>Load unpacked</code> and choose the unzipped <code>extension</code> folder.</li>
+      </ol>
+    </section>
+
+    <section>
+      <h2>Shortcut</h2>
+      <ul>
+        <li>Default shortcut: <code>Ctrl+Shift+7</code>.</li>
+        <li>To change it, open <code>chrome://extensions/shortcuts</code>.</li>
+        <li>Set the shortcut scope to <code>Global</code> if Chrome offers that option.</li>
+      </ul>
+      <p class="note">The shortcut can focus the slide tab from another Chrome window or monitor. It can also work while Chrome is in the background if the shortcut is set to Global. It cannot launch Chrome if Chrome is fully closed.</p>
+    </section>
+  </main>
+</body>
+</html>

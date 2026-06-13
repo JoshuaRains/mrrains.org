@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Map Games</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,500,0,0&icon_names=map,public,travel_explore" />
+  <style>
+    :root {
+      --bg: #b9d7ff;
+      --ink: #111;
+      --panel: #fff;
+      --line: #111;
+      --hover: #f1f3f5;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      min-height: 100vh;
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      color: var(--ink);
+      background: var(--bg);
+    }
+
+    main {
+      width: min(860px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 42px 0;
+    }
+
+    h1 {
+      margin: 0 0 24px;
+      font-size: clamp(34px, 6vw, 64px);
+      line-height: 1;
+      letter-spacing: 0;
+    }
+
+    .game-list {
+      display: grid;
+      gap: 14px;
+    }
+
+    .game-link {
+      display: grid;
+      grid-template-columns: 48px 1fr;
+      align-items: center;
+      gap: 14px;
+      min-height: 82px;
+      padding: 16px 18px;
+      border: 2px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+      color: var(--ink);
+      text-decoration: none;
+      font-size: clamp(20px, 3vw, 30px);
+      font-weight: 700;
+    }
+
+    .game-link:hover {
+      background: var(--hover);
+    }
+
+    .game-link:focus-visible {
+      outline: 4px solid var(--ink);
+      outline-offset: 4px;
+    }
+
+    .material-symbols-outlined {
+      font-size: 40px;
+      line-height: 1;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Map Games</h1>
+
+    <nav class="game-list" aria-label="Map games">
+      <a class="game-link" href="./regions%20of%20mexico/index.html">
+        <span class="material-symbols-outlined" aria-hidden="true">travel_explore</span>
+        <span>Mexico States</span>
+      </a>
+
+      <a class="game-link" href="./departments%20of%20colombia/index.html">
+        <span class="material-symbols-outlined" aria-hidden="true">map</span>
+        <span>Colombia Departments</span>
+      </a>
+
+      <a class="game-link" href="./spanish%20speaking%20countries/index.html">
+        <span class="material-symbols-outlined" aria-hidden="true">public</span>
+        <span>Spanish Countries</span>
+      </a>
+    </nav>
+  </main>
+</body>
+</html>

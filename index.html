@@ -12,7 +12,8 @@
     href="https://fonts.googleapis.com/css2?family=Chewy&family=Doto:wght@100..900&family=Edu+AU+VIC+WA+NT+Guides:wght@400..700&family=Silkscreen:wght@400;700&family=Noto+Serif&display=swap"
     rel="stylesheet">
   <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons" />
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" />
+  <link rel="stylesheet"
+    href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&icon_names=assignment_add,calculate,calendar_month,castle,chair,compare_arrows,currency_exchange,directions_walk,flag,format_list_bulleted,functions,grid_view,groups,how_to_vote,hub,map,monitoring,owl,palette,partly_cloudy_day,pin,public,record_voice_over,schedule,schema,slideshow" />
   <style>
     * {
       box-sizing: border-box;
@@ -230,7 +231,10 @@
 
     /* Activities Section */
     .activities {
-      margin-top: 20px;
+      margin: 20px auto 0;
+      max-width: 1200px;
+      min-width: 400px;
+      width: 100%;
     }
 
     /* Tabs */
@@ -352,6 +356,16 @@
     .activity-icon.smart_display {
       background: linear-gradient(to right, #FF512F, #DD2476);
       /* Warm sunset gradient for "display" */
+    }
+
+    .activity-icon.sentence_frames {
+      background: linear-gradient(to right, #8EDC4D, #2FA866);
+      /* Duolingo-style green for sentence frame activities */
+    }
+
+    .activity-icon.listening {
+      background: linear-gradient(to right, #6A8DFF, #8E44AD);
+      /* Blue-purple gradient for listening activities */
     }
 
     .activity-icon.dictionary {
@@ -791,6 +805,11 @@
             <p>Progress Charts</p>
           </button>
 
+          <button class="game-item" onclick="location.href='./pages/maps/mapgames/index.html'">
+            <span class="material-symbols-outlined carousel-icon" aria-hidden="true">map</span>
+            <p>Map Games</p>
+          </button>
+
           <!-- <button class="game-item" onclick="location.href='./pages/maps/mapgame/index.html'"><img src="assets/vector_icons/MapGame.svg" alt="0-30"><p>Map Game</p></button> -->
           <!-- <button class="game-item" onclick="location.href='pages/Countries'"><img src="assets/Countries.png" alt="30-100"><p>Countries Culture</p></button> -->
           
@@ -828,8 +847,7 @@
     <div class="activities">
       <!-- Tab Headers -->
       <div class="activities-tabs">
-        <button class="activities-tab active" data-tab="spanish2">Spanish II</button>
-        <button class="activities-tab " data-tab="spanish1">Spanish I</button>
+        <button class="activities-tab active" data-tab="spanish1">Spanish I</button>
         
         <!--<button class="activities-tab" data-tab="library">Biblioteca</button> -->
         <button class="activities-tab" data-tab="vocab">Vocabulario</button>
@@ -838,11 +856,73 @@
       <!-- Tab Contents -->
       <div class="activities-contents">
         
-        <!-- Spanish II pane -->
-        <div id="spanish2" class="activities-content active">
+        <!-- Spanish I pane -->
+        <div id="spanish1" class="activities-content active">
           <br>
-          <br>
+
+          <p class="activity-topic"><b>Week 1</b> <br>8/3/26 - 8/7/26</p>
+
           
+
+          <button class="activity-button" onclick="window.open('./pages/games/vocabularyReview/index.html?set=parts-of-speech', '_blank')">
+            <div class="activity-item">
+              <div class="activity-icon model_training">
+                <span class="material-icons">model_training</span>
+              </div>
+              <div class="activity-text">Quiz Practice: &nbsp; <i> What are the Parts of Speech</i></div>
+            </div>
+          </button>
+
+          <p class="activity-topic"><b>Week 2</b> <br>8/10/26 - 8/14/26</p>
+
+          <button class="activity-button" onclick="window.open('./pages/games/vocabularyReview/index.html?set=class-commands', '_blank')">
+            <div class="activity-item">
+              <div class="activity-icon model_training">
+                <span class="material-icons">model_training</span>
+              </div>
+              <div class="activity-text">Quiz Practice: &nbsp; <i>Classroom Commands</i></div>
+            </div>
+          </button>
+
+          <button class="activity-button" onclick="window.open('./pages/games/vocabularyReview/index.html?set=greetings-goodbyes', '_blank')">
+            <div class="activity-item">
+              <div class="activity-icon model_training">
+                <span class="material-icons">model_training</span>
+              </div>
+              <div class="activity-text">Quiz Practice: &nbsp; <i>Greetings and Goodbyes</i></div>
+            </div>
+          </button>
+
+          <button class="activity-button" type="button">
+            <div class="activity-item">
+              <div class="activity-icon listening">
+                <span class="material-icons">hearing</span>
+              </div>
+              <div class="activity-text">Listening Practice: Spelling</div>
+            </div>
+          </button>
+
+          <p class="activity-topic"><b>Week </b> <br>8/17/26 - 8/21/26</p>
+          
+          <button class="activity-button" onclick="window.open('./pages/shorts/index.html?set=doomscrolling1', '_blank')">
+            <div class="activity-item">
+              <div class="activity-icon smart_display">
+                <span class="material-icons">smart_display</span>
+              </div>
+              <div class="activity-text">YouTube Reel Activity</div>
+            </div>
+          </button>
+
+          <button class="activity-button" onclick="location.href='./lesson/home'">
+            <div class="activity-item">
+              <div class="activity-icon sentence_frames">
+                <span class="material-symbols-outlined">owl</span>
+              </div>
+              <div class="activity-text">Sentence Frames Activity</div>
+            </div>
+          </button>
+
+          <div hidden>
 
           <div style="display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%;">
             <p class="activity-topic" style="margin: 0;">Welcome to Spanish II </p>
@@ -1045,9 +1125,10 @@
 
 
           
+          </div>
         </div>
-<!-- Spanish I pane (default) -->
-        <div id="spanish1" class="activities-content ">
+        <!-- Archived Spanish I pane -->
+        <div id="spanish1-archive" class="activities-content">
           <br>
           <br>
           <br>

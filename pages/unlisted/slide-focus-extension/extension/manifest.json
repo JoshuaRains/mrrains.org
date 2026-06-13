@@ -1,0 +1,22 @@
+{
+  "manifest_version": 3,
+  "name": "Mr. Rains Slide Focus",
+  "version": "1.0.0",
+  "description": "Jump back to the Mr. Rains slide tool from a keyboard shortcut.",
+  "permissions": [
+    "tabs",
+    "storage"
+  ],
+  "background": {
+    "service_worker": "service-worker.js"
+  },
+  "commands": {
+    "focus-slides": {
+      "suggested_key": {
+        "default": "Ctrl+Shift+7"
+      },
+      "description": "Focus the most recently opened Mr. Rains slide tab",
+      "global": true
+    }
+  }
+}

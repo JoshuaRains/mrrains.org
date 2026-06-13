@@ -1,0 +1,68 @@
+{
+  "title": "Parts of Speech Practice",
+  "promptTemplate": "What part of speech is this word? {term}",
+  "answerMode": "multipleChoice",
+  "choices": ["noun", "adjective", "pronoun", "adverb", "verb"],
+  "items": [
+    {
+      "term": "teacher",
+      "translation": ["noun"]
+    },
+    {
+      "term": "pencil",
+      "translation": ["noun"]
+    },
+    {
+      "term": "classroom",
+      "translation": ["noun"]
+    },
+    {
+      "term": "blue",
+      "translation": ["adjective"]
+    },
+    {
+      "term": "tall",
+      "translation": ["adjective"]
+    },
+    {
+      "term": "happy",
+      "translation": ["adjective"]
+    },
+    {
+      "term": "I",
+      "translation": ["pronoun"]
+    },
+    {
+      "term": "she",
+      "translation": ["pronoun"]
+    },
+    {
+      "term": "they",
+      "translation": ["pronoun"]
+    },
+    {
+      "term": "quickly",
+      "translation": ["adverb"]
+    },
+    {
+      "term": "slowly",
+      "translation": ["adverb"]
+    },
+    {
+      "term": "always",
+      "translation": ["adverb"]
+    },
+    {
+      "term": "run",
+      "translation": ["verb"]
+    },
+    {
+      "term": "write",
+      "translation": ["verb"]
+    },
+    {
+      "term": "listen",
+      "translation": ["verb"]
+    }
+  ]
+}

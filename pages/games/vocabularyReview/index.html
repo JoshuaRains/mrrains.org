@@ -73,6 +73,35 @@
             font-size: 1.1em;
             color: #d9534f;
         }
+        .choice-grid {
+            display: none;
+            grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+            gap: 12px;
+            margin-top: 20px;
+        }
+        .choice-button {
+            padding: 14px 16px;
+            font-size: 1.05em;
+            border: 2px solid #d3d3d3;
+            border-radius: 8px;
+            cursor: pointer;
+            background-color: #fff;
+            transition: background-color 0.2s, border-color 0.2s, color 0.2s;
+        }
+        .choice-button:hover {
+            background-color: #eef7f0;
+            border-color: #79b791;
+        }
+        .choice-button.correct {
+            background-color: #d8f3dc;
+            border-color: #28a745;
+            color: #176b2c;
+        }
+        .choice-button.incorrect {
+            background-color: #f8d7da;
+            border-color: #d9534f;
+            color: #8a1f2d;
+        }
         .accent-buttons {
             margin-top: 10px;
         }
@@ -99,6 +128,7 @@
     <p id="prompt"></p>
     <p id="hint" class="hint">Hint: (in 5 seconds)</p>
     <p id="answerDisplay" class="answer-display"></p>
+    <div id="choiceGrid" class="choice-grid"></div>
     <input type="text" id="answerInput" class="input-box" autocomplete="off" spellcheck="false" />
     <div class="accent-buttons">
         <button class="accent-button" onclick="insertAccent('á')">á</button>
@@ -128,6 +158,10 @@ let checkPunctuation = false;
 let checkCapitalization = false;
 
 let vocabularyList = [];
+let gameTitle = "Spanish Vocabulary Review";
+let questionPromptTemplate = "Translate this word: {term}";
+let answerMode = "typed";
+let multipleChoiceOptions = [];
 let roundCount = 0;
 let currentWord = null;
 let isTermQuestion = false;
@@ -143,6 +177,7 @@ const promptElement = document.getElementById("prompt");
 const answerInput = document.getElementById("answerInput");
 const hintElement = document.getElementById("hint");
 const answerDisplay = document.getElementById("answerDisplay");
+const choiceGrid = document.getElementById("choiceGrid");
 const restartButton = document.getElementById("restartButton");
 const timerDisplay = document.getElementById("timerDisplay");
 
@@ -163,15 +198,20 @@ async function loadVocabSet() {
         const resp = await fetch(url);
         if (!resp.ok) throw new Error();
         const data = await resp.json();
+        const words = Array.isArray(data) ? data : data.items;
+        gameTitle = Array.isArray(data) ? "Spanish Vocabulary Review" : (data.title || "Spanish Vocabulary Review");
+        questionPromptTemplate = Array.isArray(data) ? "Translate this word: {term}" : (data.promptTemplate || "Translate this word: {term}");
+        answerMode = Array.isArray(data) ? "typed" : (data.answerMode || "typed");
+        multipleChoiceOptions = Array.isArray(data) ? [] : (data.choices || []);
         // Normalize structure and add tracking fields if not present
-        vocabularyList = data.map(word => ({
+        vocabularyList = words.map(word => ({
             term: word.term,
             translation: Array.isArray(word.translation) ? word.translation : [word.translation],
             times_seen: 0,
             times_correct: 0
         }));
         totalPoints = vocabularyList.length * CorrectTimesRequired;
-        document.getElementById("gameTitle").textContent = "Spanish Vocabulary Review";
+        document.getElementById("gameTitle").textContent = gameTitle;
         startGame();
     } catch (e) {
         document.getElementById("gameTitle").textContent = "Error loading set";
@@ -217,9 +257,19 @@ function startGame() {
     answerInput.value = "";
     answerInput.disabled = false;
     answerInput.classList.remove("correct");
-    answerInput.style.display = "";
-    document.querySelector(".accent-buttons").style.display = "";
-    answerInput.focus();
+    choiceGrid.innerHTML = "";
+    if (answerMode === "multipleChoice") {
+        answerInput.style.display = "none";
+        document.querySelector(".accent-buttons").style.display = "none";
+        hintElement.style.display = "none";
+        choiceGrid.style.display = "grid";
+    } else {
+        answerInput.style.display = "";
+        document.querySelector(".accent-buttons").style.display = "";
+        hintElement.style.display = "";
+        choiceGrid.style.display = "none";
+        answerInput.focus();
+    }
     startTime = new Date();
     nextQuestion();
 }
@@ -234,18 +284,57 @@ function nextQuestion() {
     currentWord = remainingTerms[randomIndex];
     currentWord.times_seen++;
     hintUsed = false;
-    isTermQuestion = (currentWord.times_correct > 2);
+    isTermQuestion = answerMode === "typed" && (currentWord.times_correct > 2);
     if (isTermQuestion) {
         promptElement.textContent = `What is the Spanish word for: ${currentWord.translation.join(", ")}`;
     } else {
-        promptElement.textContent = `Translate this word: ${currentWord.term}`;
+        promptElement.textContent = questionPromptTemplate.replace("{term}", currentWord.term);
     }
     answerInput.value = "";
     answerInput.classList.remove("correct");
     answerInput.disabled = false;
-    answerInput.focus();
-    startHintCountdown();
+    choiceGrid.innerHTML = "";
+    if (answerMode === "multipleChoice") {
+        renderMultipleChoiceOptions();
+    } else {
+        answerInput.focus();
+        startHintCountdown();
+    }
     roundCount++;
+}
+
+function renderMultipleChoiceOptions() {
+    const choices = multipleChoiceOptions.length ? multipleChoiceOptions : vocabularyList
+        .map(word => word.translation[0])
+        .filter((choice, index, list) => list.indexOf(choice) === index);
+    choices.forEach(choice => {
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = "choice-button";
+        button.textContent = choice;
+        button.addEventListener("click", () => checkMultipleChoiceAnswer(button, choice));
+        choiceGrid.appendChild(button);
+    });
+}
+
+function checkMultipleChoiceAnswer(button, choice) {
+    if (!currentWord) return;
+    const isCorrect = currentWord.translation.some(tr => normalizeAnswer(choice) === normalizeAnswer(tr));
+    if (!isCorrect) {
+        button.classList.add("incorrect");
+        answerDisplay.textContent = "Try again.";
+        return;
+    }
+
+    button.classList.add("correct");
+    answerDisplay.textContent = "";
+    currentWord.times_correct++;
+    totalCorrectPoints++;
+    updateProgressBar();
+    Array.from(choiceGrid.children).forEach(choiceButton => {
+        choiceButton.disabled = true;
+    });
+    setTimeout(nextQuestion, answerTime);
 }
 
 function startHintCountdown() {
