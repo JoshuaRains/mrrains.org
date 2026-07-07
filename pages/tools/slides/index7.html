@@ -114,21 +114,6 @@
 			box-shadow: none;
 		}
 
-		.time-ticklayer {
-			position: absolute;
-			inset: 0;
-			pointer-events: none;
-			z-index: 4;
-		}
-
-		.time-tick {
-			position: absolute;
-			top: 50%;
-			height: 16px;
-			width: 1px;
-			transform: translate(-50%, -50%);
-			background: rgba(243, 244, 246, .38);
-		}
 		/* No more caps */
 		.progress-fill::before,
 		.progress-fill::after {
@@ -717,22 +702,6 @@
 			background: #e9eef6;
 		}
 
-		.timer-step-select {
-			pointer-events: auto;
-			height: 38px;
-			width: auto;
-			border: 0;
-			border-radius: 12px;
-			background: #ffffff;
-			color: #172033;
-			padding: 0 26px 0 10px;
-			font: inherit;
-			font-size: 13px;
-			font-weight: 800;
-			line-height: 1;
-			cursor: pointer;
-			flex: 0 0 auto;
-		}
 		/* Pause Button */
 		#pauseBtn {
 			min-width: 86px;
@@ -891,7 +860,6 @@
 		input[type="number"],
 		input[type="time"],
 		input[type="file"],
-		textarea,
 		select {
 			width: 100%;
 			background: #0f141e;
@@ -903,15 +871,7 @@
 			outline: none;
 		}
 
-		textarea {
-			min-height: 150px;
-			resize: vertical;
-			font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-			line-height: 1.35;
-		}
-
-		input:focus,
-		textarea:focus {
+		input:focus {
 			border-color: var(--green);
 			box-shadow: 0 0 0 3px rgba(54, 194, 105, .12);
 		}
@@ -1125,172 +1085,6 @@
 			display: grid;
 		}
 
-		.multiple-choice-layer {
-			position: fixed;
-			left: 0;
-			top: 0;
-			width: 0;
-			height: 0;
-			display: none;
-			pointer-events: none;
-			z-index: 9000;
-		}
-
-		.multiple-choice-layer.show {
-			display: block;
-		}
-
-		.mc-question-text {
-			display: none !important;
-		}
-
-
-		.mc-meta {
-			position: absolute;
-			left: 0;
-			right: 0;
-			bottom: calc(var(--mc-bottom-offset, 72px) + var(--mc-options-h, 120px) + 4px);
-			height: var(--mc-meta-h, 42px);
-			display: flex;
-			align-items: end;
-			justify-content: space-between;
-			gap: 10px;
-			pointer-events: none;
-		}
-
-		.mc-nav {
-			display: flex;
-			align-items: center;
-			gap: 8px;
-			pointer-events: auto;
-		}
-
-		.mc-nav button {
-			width: clamp(36px, calc(var(--mc-slide-h, 540px) * .075), 58px);
-			height: clamp(36px, calc(var(--mc-slide-h, 540px) * .075), 58px);
-			display: grid;
-			place-items: center;
-			border: 2px solid #000;
-			border-radius: 8px;
-			background: rgba(255, 255, 255, .95);
-			color: #111;
-			padding: 0;
-			cursor: pointer;
-			box-shadow: 2px 2px 0 rgba(0, 0, 0, .55);
-		}
-
-		.mc-nav button:disabled {
-			opacity: .42;
-			cursor: not-allowed;
-		}
-
-
-		.mc-total-wrap {
-			display: flex;
-			align-items: end;
-			gap: 8px;
-			pointer-events: auto;
-		}
-
-		.mc-receiver-status {
-			width: clamp(36px, calc(var(--mc-slide-h, 540px) * .075), 58px);
-			height: clamp(36px, calc(var(--mc-slide-h, 540px) * .075), 58px);
-			display: grid;
-			place-items: center;
-			border: 2px solid #000;
-			border-radius: 8px;
-			background: #fff6b8;
-			color: #111;
-			padding: 0;
-			cursor: pointer;
-			box-shadow: 2px 2px 0 rgba(0, 0, 0, .55);
-		}
-
-		.mc-receiver-status.connected {
-			background: #c8f7d1;
-		}
-
-		.mc-receiver-status .material-symbols-outlined {
-			color: currentColor;
-			font-size: clamp(22px, calc(var(--mc-slide-h, 540px) * .05), 36px);
-		}
-		.mc-progress {
-			min-width: clamp(54px, calc(var(--mc-slide-h, 540px) * .12), 92px);
-			padding: 4px 10px;
-			border: 2px solid #000;
-			border-radius: 8px;
-			background: rgba(255, 255, 255, .94);
-			color: #111;
-			font-size: clamp(18px, calc(var(--mc-slide-h, 540px) * .045), 40px);
-			font-weight: 1000;
-			line-height: 1;
-			text-align: center;
-			box-shadow: 2px 2px 0 rgba(0, 0, 0, .55);
-		}
-
-		.mc-options {
-			position: absolute;
-			left: 0;
-			right: 0;
-			bottom: var(--mc-bottom-offset, 72px);
-			height: var(--mc-options-h, 120px);
-			display: grid;
-			grid-template-columns: repeat(2, minmax(0, 1fr));
-			grid-template-rows: repeat(2, minmax(0, 1fr));
-			gap: clamp(6px, calc(var(--mc-slide-h, 540px) * .015), 14px);
-			pointer-events: auto;
-		}
-
-
-		.multiple-choice-layer.counts-hidden .mc-options {
-			display: none;
-		}
-
-		.mc-option {
-			position: relative;
-			min-width: 0;
-			border: 0;
-			border-radius: 0;
-			padding: 0;
-			background: transparent !important;
-			box-shadow: none;
-			pointer-events: none;
-		}
-
-
-
-		.mc-count {
-			position: absolute;
-			right: clamp(48px, calc(var(--mc-slide-w, 960px) * .085), 100px);
-			top: 50%;
-			transform: translateY(-50%);
-			min-width: clamp(42px, calc(var(--mc-slide-h, 540px) * .09), 72px);
-			height: clamp(42px, calc(var(--mc-slide-h, 540px) * .09), 72px);
-			display: grid;
-			place-items: center;
-			border-radius: 999px;
-			background: rgba(255, 255, 255, .92);
-			color: #111;
-			font-size: clamp(24px, calc(var(--mc-slide-h, 540px) * .055), 46px);
-			font-weight: 1000;
-		}
-
-
-		.mc-option:nth-child(odd) .mc-count {
-			left: clamp(48px, calc(var(--mc-slide-w, 960px) * .085), 100px);
-			right: auto;
-		}
-		.mc-config-row {
-			display: flex;
-			align-items: center;
-			gap: 10px;
-			flex-wrap: wrap;
-		}
-
-		.mc-status {
-			color: var(--muted);
-			font-size: .9rem;
-		}
 		.vocab-table-wrap {
 			min-height: 0;
 			overflow: hidden;
@@ -1651,7 +1445,6 @@
 		<div class="topbar">
 			<div class="progress-wrap">
 				<div class="progress-track">
-					<div class="time-ticklayer" id="timeTickLayer" aria-hidden="true"></div>
 					<div class="progress-fill" id="progressFill"></div>
 				</div>
 				<div class="checklayer" id="checkLayer" aria-hidden="true"></div>
@@ -1722,13 +1515,6 @@
 				</button>
 			</div>
 
-			<select class="timer-step-select" id="timerStepSelect" title="Timeline skip amount" aria-label="Timeline skip amount">
-				<option value="30000">30s</option>
-				<option value="60000" selected>1m</option>
-				<option value="300000">5m</option>
-				<option value="600000">10m</option>
-			</select>
-
 			<button class="btn" id="pauseBtn" title="Pause" aria-label="Pause">
 				<span class="material-symbols-outlined" id="pauseBtnIcon" aria-hidden="true">pause</span>
 				<span class="control-text" id="pauseBtnLabel">Pause</span>
@@ -1768,9 +1554,6 @@
 		</button>
 		<button class="page-tool-toggle" id="vocabToggle" type="button" title="Vocabulary list" aria-label="Vocabulary list">
 			<span class="material-symbols-outlined" aria-hidden="true">format_list_bulleted</span>
-		</button>
-		<button class="page-tool-toggle" id="multipleChoiceToggle" type="button" title="Multiple choice" aria-label="Multiple choice">
-			<span class="material-symbols-outlined" aria-hidden="true">quiz</span>
 		</button>
 		<button class="page-tool-toggle translator-btn" id="translatorBtn" type="button" title="Open whiteboard" aria-label="Open whiteboard" disabled>
 			<span class="material-symbols-outlined" aria-hidden="true">draw</span>
@@ -1832,21 +1615,6 @@
 		</div>
 	</div>
 
-	<div class="multiple-choice-layer" id="multipleChoiceLayer" aria-live="polite">
-		<div class="mc-question-text" id="mcQuestionText"></div>
-		<div class="mc-meta">
-			<div class="mc-nav">
-				<button id="mcResetResponses" type="button" title="Reset responses" aria-label="Reset responses">
-					<span class="material-symbols-outlined" aria-hidden="true">restart_alt</span>
-				</button>
-				<button id="mcToggleCounts" type="button" title="Show answer counts" aria-label="Show answer counts">
-					<span class="material-symbols-outlined" id="mcToggleCountsIcon" aria-hidden="true">visibility</span>
-				</button>
-			</div>
-			<div class="mc-total-wrap"><button class="mc-receiver-status" id="mcReceiverStatusBtn" type="button" title="Connect clicker receiver" aria-label="Connect clicker receiver"><span class="material-symbols-outlined" id="mcReceiverStatusIcon" aria-hidden="true">warning</span></button><div class="mc-progress" id="mcResponseTotal">0</div></div>
-		</div>
-		<div class="mc-options" id="mcOptions"></div>
-	</div>
 	<!-- Config overlay -->
 	<div class="overlay" id="overlay">
 		<div class="cfg">
@@ -1859,13 +1627,7 @@
 				<label for="slideFiles">PDF or slide images</label>
 				<input type="file" id="slideFiles" accept="application/pdf,image/*,.pdf,.png,.jpg,.jpeg,.webp,.gif" multiple />
 			</div>
-			<div class="field">
-				<label>Clicker receiver</label>
-				<div class="mc-config-row">
-					<button class="add-btn" id="connectClickerReceiver" type="button">Connect clicker receiver</button>
-					<span class="mc-status" id="clickerReceiverStatus">Not connected.</span>
-				</div>
-			</div>
+
 			<div class="field">
 				<label for="timerSoundSelect">Timer Sound</label>
 				<select class="sound-select" id="timerSoundSelect">
@@ -1982,12 +1744,6 @@
 		let presetScheduleEnabled = false;
 		let presetLunch = "B";
 		let slidesURL = "";
-		let multipleChoiceJson = "";
-		let multipleChoiceQuestions = [];
-		let multipleChoiceOpen = false;
-		let multipleChoiceIndex = 0;
-		let multipleChoiceCountsVisible = false;
-		const multipleChoiceResponses = new Map();
 
 		let timerSoundChoice = "nfl"; // "nfl" | "cave" | "amongus" | "custom"
 		let customTimerSoundDataUrl = ""; // data:audio/...;base64,...
@@ -2013,7 +1769,6 @@
 		let slideTimerLastTs = 0;
 		let slideTimerRafId = null;
 		let slideTimerChimeEnabled = false;
-		let timerStepMs = 60000;
 		let vocabOpen = false;
 		let vocabRows = [
 			{ term: "", definition: "" },
@@ -2044,7 +1799,6 @@
 		let ends = [];
 		let lastChimedIndex = -1;
 		const EPS = 60;
-		const FIVE_MINUTES_MS = 5 * 60000;
 
 		const TIMER_SOUNDS = {
 			nfl: "./sounds/nfl.mp3",
@@ -2055,12 +1809,6 @@
 		let fileDeck = null;
 		let fileSlideIndex = 0;
 		const fileDeckObjectUrls = [];
-		let clickerPort;
-		let clickerReader;
-		let clickerKeepReading = false;
-		let clickerLineBuffer = "";
-		let clickerLineCount = 0;
-		const CLICKER_ANSWER_BUTTONS = [5, 6, 7, 8];
 
 		/* ---------- Elements ---------- */
 		const overlay = document.getElementById('overlay');
@@ -2079,7 +1827,6 @@
 		const restartBtn = document.getElementById('restartBtn');
 		const backBtn = document.getElementById('backBtn');
 		const fwdBtn = document.getElementById('fwdBtn');
-		const timerStepSelect = document.getElementById('timerStepSelect');
 		const pauseBtn = document.getElementById('pauseBtn');
 		const pauseBtnIcon = document.getElementById('pauseBtnIcon');
 		const pauseBtnLabel = document.getElementById('pauseBtnLabel');
@@ -2127,25 +1874,11 @@
 		const deskFilePick = document.getElementById('deskFilePick');
 		const deskCloseBtn = document.getElementById('deskCloseBtn');
 		const deskSpinBtn = document.getElementById('deskSpinBtn');
-		const multipleChoiceToggle = document.getElementById('multipleChoiceToggle');
-		const multipleChoiceLayer = document.getElementById('multipleChoiceLayer');
-		const mcQuestionText = document.getElementById('mcQuestionText');
-		const mcOptions = document.getElementById('mcOptions');
-		const mcResponseTotal = document.getElementById('mcResponseTotal');
-		const mcReceiverStatusBtn = document.getElementById('mcReceiverStatusBtn');
-		const mcReceiverStatusIcon = document.getElementById('mcReceiverStatusIcon');
-		const mcResetResponses = document.getElementById('mcResetResponses');
-		const mcToggleCounts = document.getElementById('mcToggleCounts');
-		const mcToggleCountsIcon = document.getElementById('mcToggleCountsIcon');
-		const multipleChoiceJsonInput = document.getElementById('multipleChoiceJson');
-		const connectClickerReceiverBtn = document.getElementById('connectClickerReceiver');
-		const clickerReceiverStatus = document.getElementById('clickerReceiverStatus');
 
 		const bellBtn = document.getElementById('bellBtn');      // NEW
 		const bellAudioEl = document.getElementById('bellSound'); // NEW
 
 		const progressFill = document.getElementById('progressFill');
-		const timeTickLayer = document.getElementById('timeTickLayer');
 		const checkLayer = document.getElementById('checkLayer');
 
 		const audioEl = document.getElementById('ding');
@@ -2269,233 +2002,6 @@
 			renderFileSlide();
 		}
 
-		function escapeHtml(value) {
-			return String(value ?? "").replace(/[&<>"]/g, char => ({
-				"&": "&amp;",
-				"<": "&lt;",
-				">": "&gt;",
-				'"': "&quot;",
-			}[char]));
-		}
-
-		function normalizeMultipleChoiceQuestion(item, index) {
-			if (Array.isArray(item)) {
-				return { question: "", choices: item.slice(0, 4).map(value => String(value ?? "")) };
-			}
-
-			if (typeof item === "string") {
-				return { question: "", choices: [item, "", "", ""] };
-			}
-
-			if (!item || typeof item !== "object") return null;
-			const choices = item.choices || item.options || item.answers;
-			if (!Array.isArray(choices)) return null;
-			return {
-				question: String(item.question ?? item.prompt ?? item.text ?? `Question ${index + 1}`),
-				choices: choices.slice(0, 4).map(value => String(value ?? "")),
-			};
-		}
-
-		function parseMultipleChoiceQuestions(resetResponses = true) {
-			multipleChoiceJson = multipleChoiceJsonInput?.value || "";
-			let parsed = [];
-			try {
-				const raw = multipleChoiceJson.trim() ? JSON.parse(multipleChoiceJson) : [];
-				const source = Array.isArray(raw) ? raw : Array.isArray(raw.questions) ? raw.questions : [];
-				parsed = source
-					.map((item, index) => normalizeMultipleChoiceQuestion(item, index))
-					.filter(Boolean)
-					.map(question => ({
-						question: question.question,
-						choices: [...question.choices, "", "", "", ""].slice(0, 4),
-					}));
-				if (clickerReceiverStatus && !clickerPort) {
-					clickerReceiverStatus.textContent = parsed.length ? `${parsed.length} question${parsed.length === 1 ? "" : "s"} loaded. Not connected.` : "No questions loaded. Not connected.";
-				}
-			} catch (err) {
-				parsed = [];
-				if (clickerReceiverStatus) clickerReceiverStatus.textContent = `Question JSON error: ${err.message}`;
-			}
-
-			multipleChoiceQuestions = parsed;
-			multipleChoiceIndex = Math.max(0, Math.min(multipleChoiceIndex, Math.max(0, multipleChoiceQuestions.length - 1)));
-			if (resetResponses) multipleChoiceResponses.clear();
-			renderMultipleChoiceOverlay();
-			updateMultipleChoiceOverlayPosition();
-		}
-
-		function getMultipleChoiceResponseMap(questionIndex = multipleChoiceIndex) {
-			if (!multipleChoiceResponses.has(questionIndex)) {
-				multipleChoiceResponses.set(questionIndex, new Map());
-			}
-			return multipleChoiceResponses.get(questionIndex);
-		}
-
-		function getMultipleChoiceCounts() {
-			const counts = [0, 0, 0, 0];
-			for (const answerIndex of getMultipleChoiceResponseMap().values()) {
-				if (answerIndex >= 0 && answerIndex < counts.length) counts[answerIndex] += 1;
-			}
-			return counts;
-		}
-
-		function getActiveSlideElement() {
-			return fileDeck && !fileSlideViewer.hidden ? fileSlideViewer : slidesFrame;
-		}
-
-		function updateMultipleChoiceOverlayPosition() {
-			if (!multipleChoiceOpen || !multipleChoiceLayer) return;
-			const slideEl = getActiveSlideElement();
-			const rect = slideEl.getBoundingClientRect();
-			const optionsHeight = Math.max(72, rect.height / 3);
-			const bottomOffset = Math.max(44, Math.min(84, rect.height * .10));
-			multipleChoiceLayer.style.left = `${rect.left}px`;
-			multipleChoiceLayer.style.top = `${rect.top}px`;
-			multipleChoiceLayer.style.width = `${rect.width}px`;
-			multipleChoiceLayer.style.height = `${rect.height}px`;
-			multipleChoiceLayer.style.setProperty('--mc-slide-w', `${rect.width}px`);
-			multipleChoiceLayer.style.setProperty('--mc-slide-h', `${rect.height}px`);
-			multipleChoiceLayer.style.setProperty('--mc-options-h', `${optionsHeight}px`);
-			multipleChoiceLayer.style.setProperty('--mc-bottom-offset', `${bottomOffset}px`);
-		}
-
-        function renderMultipleChoiceOverlay() {
-            if (!multipleChoiceLayer) return;
-            multipleChoiceLayer.classList.toggle('show', multipleChoiceOpen);
-            multipleChoiceLayer.classList.toggle('counts-hidden', !multipleChoiceCountsVisible);
-            mcToggleCounts.title = multipleChoiceCountsVisible ? 'Hide answer counts' : 'Show answer counts';
-            mcToggleCounts.setAttribute('aria-label', mcToggleCounts.title);
-            mcToggleCountsIcon.textContent = multipleChoiceCountsVisible ? 'visibility_off' : 'visibility';
-            multipleChoiceToggle?.classList.toggle('active', multipleChoiceOpen);
-            if (multipleChoiceToggle) multipleChoiceToggle.disabled = false;
-
-            const counts = getMultipleChoiceCounts();
-            const total = counts.reduce((sum, count) => sum + count, 0);
-            mcResponseTotal.textContent = String(total);
-            updateReceiverStatusUI();
-            mcOptions.replaceChildren(...["A", "B", "C", "D"].map((label, index) => {
-                const option = document.createElement("div");
-                option.className = "mc-option";
-                option.setAttribute("aria-label", `Choice ${label} responses`);
-                const count = document.createElement("span");
-                count.className = "mc-count";
-                count.textContent = String(counts[index]);
-                option.appendChild(count);
-                return option;
-            }));
-        }
-
-        function resetMultipleChoiceResponses() {
-            multipleChoiceResponses.clear();
-            multipleChoiceCountsVisible = false;
-            renderMultipleChoiceOverlay();
-        }
-
-        function toggleMultipleChoiceCounts() {
-            multipleChoiceCountsVisible = !multipleChoiceCountsVisible;
-            renderMultipleChoiceOverlay();
-        }
-
-		function goToMultipleChoiceQuestion(delta) {
-			if (!multipleChoiceQuestions.length) return;
-			multipleChoiceIndex = Math.max(0, Math.min(multipleChoiceQuestions.length - 1, multipleChoiceIndex + delta));
-			renderMultipleChoiceOverlay();
-			updateMultipleChoiceOverlayPosition();
-		}
-
-		function recordMultipleChoiceAnswer(controllerId, answerIndex) {
-			if (!multipleChoiceOpen) return;
-			if (answerIndex < 0 || answerIndex > 3) return;
-			const responses = getMultipleChoiceResponseMap();
-			if (responses.has(controllerId)) return;
-			responses.set(controllerId, answerIndex);
-			renderMultipleChoiceOverlay();
-		}
-
-
-		function updateReceiverStatusUI() {
-			const connected = Boolean(clickerPort?.readable && clickerKeepReading);
-			mcReceiverStatusBtn.classList.toggle('connected', connected);
-			mcReceiverStatusIcon.textContent = connected ? 'settings_input_component' : 'warning';
-			const label = connected ? 'Clicker receiver connected' : 'Connect clicker receiver';
-			mcReceiverStatusBtn.title = label;
-			mcReceiverStatusBtn.setAttribute('aria-label', label);
-		}
-		function setClickerStatus(message) {
-			if (clickerReceiverStatus) clickerReceiverStatus.textContent = message;
-		}
-
-		function handleClickerEvent(event) {
-			if (event.type === "status") {
-				setClickerStatus(`Connected. Receiver packets: ${event.packets ?? 0}`);
-				return;
-			}
-
-			if (event.type !== "clicker" || event.action !== "pressed") return;
-			const button = Number.parseInt(event.button, 10);
-			const answerIndex = CLICKER_ANSWER_BUTTONS.indexOf(button);
-			if (answerIndex < 0) return;
-			const controllerId = String(event.sender ?? event.mac ?? "unknown");
-			recordMultipleChoiceAnswer(controllerId, answerIndex);
-			setClickerStatus(`Sender ${controllerId} chose ${String.fromCharCode(65 + answerIndex)}.`);
-		}
-
-		function handleClickerSerialText(text) {
-			clickerLineBuffer += text;
-			const lines = clickerLineBuffer.split(/\r?\n/);
-			clickerLineBuffer = lines.pop() || "";
-
-			for (const line of lines) {
-				const trimmed = line.trim();
-				if (!trimmed || !trimmed.startsWith("{")) continue;
-				clickerLineCount += 1;
-				try {
-					handleClickerEvent(JSON.parse(trimmed));
-				} catch (err) {
-					setClickerStatus(`Bad receiver JSON on line ${clickerLineCount}.`);
-				}
-			}
-		}
-
-		async function readClickerLoop() {
-			const decoder = new TextDecoder();
-			while (clickerPort && clickerPort.readable && clickerKeepReading) {
-				clickerReader = clickerPort.readable.getReader();
-				try {
-					while (clickerKeepReading) {
-						const { value, done } = await clickerReader.read();
-						if (done) break;
-						if (value) handleClickerSerialText(decoder.decode(value, { stream: true }));
-					}
-				} catch (err) {
-					setClickerStatus(`Receiver read error: ${err.message}`);
-				} finally {
-					clickerReader.releaseLock();
-					clickerReader = undefined;
-				}
-			}
-		}
-
-		async function connectClickerReceiver() {
-			if (!("serial" in navigator)) {
-				setClickerStatus("Use Chrome or Edge for Web Serial.");
-				return;
-			}
-
-			try {
-				clickerPort = await navigator.serial.requestPort();
-				await clickerPort.open({ baudRate: 115200 });
-				clickerKeepReading = true;
-				clickerLineCount = 0;
-				connectClickerReceiverBtn.disabled = true;
-				updateReceiverStatusUI();
-				setClickerStatus("Connected. Waiting for clickers 1-4.");
-				readClickerLoop();
-			} catch (err) {
-				updateReceiverStatusUI();
-				setClickerStatus(`Connection failed: ${err.message}`);
-			}
-		}
 		/* ---------- Persistence ---------- */
 		const LS_KEY = 'classTimelineConfig.v2';
 		function saveConfig() {
@@ -2515,9 +2021,7 @@
 				slidesURL,
 				timerSoundChoice,
 				customTimerSoundDataUrl,
-				vocabRows,
-				multipleChoiceJson,
-				timerStepMs
+				vocabRows
 			};
 			localStorage.setItem(LS_KEY, JSON.stringify(payload));
 			updateTotalTime();
@@ -2545,9 +2049,6 @@
 						deskPickerKeyCode = typeof data.deskPickerKeyCode === 'string' ? data.deskPickerKeyCode : "F16";
 						deskPickerKeyLabel = typeof data.deskPickerKeyLabel === 'string' ? data.deskPickerKeyLabel : deskPickerKeyCode;
 						slidesURL = typeof data.slidesURL === 'string' ? data.slidesURL : '';
-						multipleChoiceJson = typeof data.multipleChoiceJson === 'string' ? data.multipleChoiceJson : '';
-						const savedTimerStepMs = Number(data.timerStepMs);
-						if ([30000, 60000, 300000, 600000].includes(savedTimerStepMs)) timerStepMs = savedTimerStepMs;
 
 						timerSoundChoice = typeof data.timerSoundChoice === 'string' ? data.timerSoundChoice : "nfl";
 						customTimerSoundDataUrl = typeof data.customTimerSoundDataUrl === 'string' ? data.customTimerSoundDataUrl : "";
@@ -2582,15 +2083,12 @@
 
 			slidesInput.value = slidesURL || "";
 			slidesFrame.src = slidesURL || "";
-			if (multipleChoiceJsonInput) multipleChoiceJsonInput.value = multipleChoiceJson;
-			parseMultipleChoiceQuestions(false);
 
 			timerSoundSelect.value = timerSoundChoice || "nfl";
 			applyTimerSound();
 			updateKeybindUI();
 			updatePresetScheduleUI();
 			renderVocabTable();
-			updateTimerStepUI();
 
 			updateTotalTime();
 		}
@@ -2689,51 +2187,6 @@
 			deskKeyBtn.classList.toggle('listening', capturingKeybind === "desk");
 		}
 
-
-		function formatTimerStep(ms) {
-			if (ms < 60000) return `${Math.round(ms / 1000)}s`;
-			return `${Math.round(ms / 60000)}m`;
-		}
-
-		function formatTimerStepTitle(ms) {
-			if (ms < 60000) {
-				const seconds = Math.round(ms / 1000);
-				return `${seconds} second${seconds === 1 ? "" : "s"}`;
-			}
-			const minutes = Math.round(ms / 60000);
-			return `${minutes} minute${minutes === 1 ? "" : "s"}`;
-		}
-
-		function updateTimerStepUI() {
-			const shortLabel = formatTimerStep(timerStepMs);
-			const titleLabel = formatTimerStepTitle(timerStepMs);
-			if (timerStepSelect) timerStepSelect.value = String(timerStepMs);
-			backBtn.querySelector('.control-text').textContent = shortLabel;
-			fwdBtn.querySelector('.control-text').textContent = shortLabel;
-			backBtn.title = `Back ${titleLabel}`;
-			backBtn.setAttribute('aria-label', `Back ${titleLabel}`);
-			fwdBtn.title = `Forward ${titleLabel}`;
-			fwdBtn.setAttribute('aria-label', `Forward ${titleLabel}`);
-		}
-
-		function setTimerStep(value) {
-			const nextStep = Number(value);
-			if (![30000, 60000, 300000, 600000].includes(nextStep)) return;
-			timerStepMs = nextStep;
-			updateTimerStepUI();
-			saveConfig();
-		}
-
-		function buildTimeTicks() {
-			timeTickLayer.innerHTML = '';
-			if (!totalMs || totalMs <= FIVE_MINUTES_MS) return;
-			for (let ms = FIVE_MINUTES_MS; ms < totalMs; ms += FIVE_MINUTES_MS) {
-				const tick = document.createElement('div');
-				tick.className = 'time-tick';
-				tick.style.left = `${(ms / totalMs) * 100}%`;
-				timeTickLayer.appendChild(tick);
-			}
-		}
 		function getPresetAction(timeStr) {
 			if (!presetScheduleEnabled) return null;
 
@@ -2763,7 +2216,6 @@
 		function buildTimeline() {
 			computeTotals();
 			checkLayer.innerHTML = '';
-			buildTimeTicks();
 			if (!sections.length) return;
 
 			const percents = starts.map(ms => totalMs ? (ms / totalMs) * 100 : 0);
@@ -3133,8 +2585,6 @@
 		vocabAddRow.addEventListener('click', addVocabRow);
 		vocabRemoveRow.addEventListener('click', removeVocabRow);
 		window.addEventListener('resize', resizeVocabText);
-		window.addEventListener('resize', updateMultipleChoiceOverlayPosition);
-		slidesArea.addEventListener('transitionend', updateMultipleChoiceOverlayPosition);
 
 		updateSlideTimerUI();
 
@@ -4357,9 +3807,8 @@
 		});
 
 		restartBtn.addEventListener('click', resetTimer);
-		backBtn.addEventListener('click', () => adjustTime(-timerStepMs));
-		fwdBtn.addEventListener('click', () => adjustTime(timerStepMs));
-		timerStepSelect.addEventListener('change', event => setTimerStep(event.target.value));
+		backBtn.addEventListener('click', () => adjustTime(-60000));
+		fwdBtn.addEventListener('click', () => adjustTime(60000));
 
 		// Config UI
 		overlay.addEventListener('click', e => {
@@ -4459,25 +3908,6 @@
 			saveConfig();
 		});
 
-		if (multipleChoiceJsonInput) {
-			multipleChoiceJsonInput.addEventListener('input', () => {
-				parseMultipleChoiceQuestions(true);
-				saveConfig();
-			});
-		}
-
-		multipleChoiceToggle.addEventListener('click', () => {
-			multipleChoiceOpen = !multipleChoiceOpen;
-			renderMultipleChoiceOverlay();
-			updateMultipleChoiceOverlayPosition();
-		});
-
-		mcResetResponses.addEventListener('click', resetMultipleChoiceResponses);
-		mcToggleCounts.addEventListener('click', toggleMultipleChoiceCounts);
-		mcReceiverStatusBtn.addEventListener('click', connectClickerReceiver);
-		connectClickerReceiverBtn.addEventListener('click', connectClickerReceiver);
-
-
 		fileSlidePrev.addEventListener('click', () => moveFileSlide(-1));
 		fileSlideNext.addEventListener('click', () => moveFileSlide(1));
 
@@ -4542,12 +3972,6 @@
 			if (e.code === deskPickerKeyCode) {
 				e.preventDefault();
 				if (!e.repeat) toggleDeskPickerOrRoll();
-				return;
-			}
-
-			if (multipleChoiceOpen && !e.repeat && /^[1-4]$/.test(e.key)) {
-				e.preventDefault();
-				recordMultipleChoiceAnswer('keyboard-test', Number.parseInt(e.key, 10) - 1);
 				return;
 			}
 
