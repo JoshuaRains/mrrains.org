@@ -1080,6 +1080,59 @@
 			color: currentColor;
 			font-size: 40px;
 		}
+		.serial-picker-button {
+			position: fixed;
+			right: 10px;
+			bottom: 10px;
+			width: 52px;
+			height: 52px;
+			display: grid;
+			place-items: center;
+			border: 2px solid #000;
+			border-radius: 12px;
+			background: #facc15;
+			color: #111827;
+			box-shadow: 3px 3px 0 rgba(0, 0, 0, .7);
+			cursor: pointer;
+			padding: 0;
+			z-index: 10000;
+		}
+
+		.serial-picker-button:hover {
+			background: #fde047;
+		}
+
+		.serial-picker-button.connected {
+			background: #86efac;
+		}
+
+		.serial-picker-button .material-symbols-outlined {
+			color: currentColor;
+			font-size: 34px;
+			font-variation-settings: "FILL" 1, "wght" 600, "GRAD" 0, "opsz" 36;
+		}
+		.serial-status-chip {
+			position: fixed;
+			right: 72px;
+			bottom: 14px;
+			max-width: min(460px, calc(100vw - 96px));
+			min-height: 38px;
+			display: flex;
+			align-items: center;
+			justify-content: flex-end;
+			border: 2px solid #000;
+			border-radius: 10px;
+			background: rgba(17, 24, 39, .92);
+			color: #fff;
+			padding: 7px 10px;
+			font-size: 13px;
+			font-weight: 800;
+			line-height: 1.2;
+			text-align: right;
+			box-shadow: 3px 3px 0 rgba(0, 0, 0, .7);
+			z-index: 10000;
+			pointer-events: none;
+		}
 
 		.slide-timer-panel {
 			position: fixed;
@@ -1103,27 +1156,6 @@
 			display: grid;
 		}
 
-		.vocab-panel {
-			position: fixed;
-			left: calc(var(--sidebar-clearance) + 10px);
-			top: 50%;
-			transform: translateY(-50%);
-			width: calc(var(--timer-panel-w) - 15px);
-			height: min(760px, calc(100svh - 28px));
-			display: none;
-			grid-template-rows: 1fr auto;
-			gap: 10px;
-			padding: 14px 10px 12px;
-			background: #2c3141;
-			color: #172033;
-			border-radius: 24px;
-			box-shadow: 0 18px 48px rgba(0, 0, 0, .38);
-			z-index: 9998;
-		}
-
-		.app.vocab-panel-open~.vocab-panel {
-			display: grid;
-		}
 
 		.multiple-choice-layer {
 			position: fixed;
@@ -1291,68 +1323,6 @@
 			color: var(--muted);
 			font-size: .9rem;
 		}
-		.vocab-table-wrap {
-			min-height: 0;
-			overflow: hidden;
-			border-radius: 16px;
-			background: #e9edf3;
-		}
-
-		.vocab-table {
-			width: 100%;
-			height: 100%;
-			border-collapse: collapse;
-			table-layout: fixed;
-			background: #e9edf3;
-			font-size: var(--vocab-font-size, 36px);
-			font-weight: 800;
-			color: #172033;
-		}
-
-		.vocab-table td {
-			width: 50%;
-			border: 2px solid #cfd6e2;
-			padding: .32em .42em;
-			vertical-align: middle;
-			outline: none;
-			overflow-wrap: anywhere;
-		}
-
-		.vocab-table td:first-child {
-			background: #d7dde7;
-		}
-
-		.vocab-table td:focus {
-			box-shadow: inset 0 0 0 3px rgba(59, 130, 246, .45);
-		}
-
-		.vocab-actions {
-			display: flex;
-			justify-content: center;
-			gap: 12px;
-		}
-
-		.vocab-action {
-			width: 54px;
-			height: 54px;
-			display: grid;
-			place-items: center;
-			border: 0;
-			border-radius: 16px;
-			background: #fff;
-			color: #172033;
-			padding: 0;
-			cursor: pointer;
-		}
-
-		.vocab-action:hover {
-			background: #eeeeee;
-		}
-
-		.vocab-action .material-symbols-outlined {
-			font-size: 34px;
-			font-variation-settings: "FILL" 1, "wght" 600, "GRAD" 0, "opsz" 36;
-		}
 
 		.slide-timer-ring {
 			position: relative;
@@ -1487,33 +1457,51 @@
 			font-variation-settings: "FILL" 1, "wght" 500, "GRAD" 0, "opsz" 48;
 		}
 
-		.slide-timer-actions {
+		.slide-timer-total-control {
+			width: min(340px, calc(100% - 60px));
 			display: grid;
-			grid-template-columns: repeat(3, 1fr);
-			gap: 14px;
-			width: min(320px, calc(100% - 60px));
+			grid-template-columns: 1fr auto;
+			align-items: center;
+			gap: 12px;
 		}
 
-		.slide-timer-adjust {
+		.slide-timer-total-slider {
+			appearance: none;
 			width: 100%;
-			min-width: 0;
-			height: 54px;
-			border: 0;
-			border-radius: 18px;
-			background: #fff;
-			color: #1f7e2e;
-			font-weight: 500;
-			font-size: 28px;
-			line-height: 1;
+			height: 8px;
+			border-radius: 999px;
+			background: #d7deea;
+			outline: none;
 			cursor: pointer;
 		}
 
-		.slide-timer-adjust:hover {
-			background: #eeeeee;
+		.slide-timer-total-slider::-webkit-slider-thumb {
+			appearance: none;
+			width: 22px;
+			height: 22px;
+			border-radius: 999px;
+			background: #24d2d2;
+			border: 3px solid #fff;
+			box-shadow: 0 2px 8px rgba(0, 0, 0, .25);
 		}
 
-		.slide-timer-adjust[data-timer-delta^="-"] {
-			color: #8a2424;
+		.slide-timer-total-slider::-moz-range-thumb {
+			width: 18px;
+			height: 18px;
+			border-radius: 999px;
+			background: #24d2d2;
+			border: 3px solid #fff;
+			box-shadow: 0 2px 8px rgba(0, 0, 0, .25);
+		}
+
+		.slide-timer-total-label {
+			min-width: 46px;
+			color: rgba(255, 255, 255, .78);
+			font-size: 14px;
+			font-weight: 700;
+			line-height: 1;
+			text-align: right;
+			white-space: nowrap;
 		}
 
 		.desk-overlay {
@@ -1766,12 +1754,6 @@
 		<button class="page-tool-toggle" id="slideTimerToggle" type="button" title="Slide timer" aria-label="Slide timer">
 			<span class="material-symbols-outlined" aria-hidden="true">timer</span>
 		</button>
-		<button class="page-tool-toggle" id="vocabToggle" type="button" title="Vocabulary list" aria-label="Vocabulary list">
-			<span class="material-symbols-outlined" aria-hidden="true">format_list_bulleted</span>
-		</button>
-		<button class="page-tool-toggle" id="multipleChoiceToggle" type="button" title="Multiple choice" aria-label="Multiple choice">
-			<span class="material-symbols-outlined" aria-hidden="true">quiz</span>
-		</button>
 		<button class="page-tool-toggle translator-btn" id="translatorBtn" type="button" title="Open whiteboard" aria-label="Open whiteboard" disabled>
 			<span class="material-symbols-outlined" aria-hidden="true">draw</span>
 		</button>
@@ -1786,6 +1768,10 @@
 		</button>
 	</div>
 
+	<button class="serial-picker-button" id="serialPickerBtn" type="button" title="Select USB or Bluetooth clicker serial port" aria-label="Select USB or Bluetooth clicker serial port">
+		<span class="material-symbols-outlined" id="serialPickerIcon" aria-hidden="true">warning</span>
+	</button>
+	<div class="serial-status-chip" id="serialStatusChip">No clicker selected</div>
 	<div class="slide-timer-panel" id="slideTimerPanel" aria-live="polite">
 		<div class="slide-timer-ring" aria-label="Slide timer countdown">
 			<svg viewBox="0 0 120 120" aria-hidden="true">
@@ -1795,13 +1781,9 @@
 		</div>
 		<input class="slide-timer-time" id="slideTimerTime" type="text" value="5:00" inputmode="numeric" aria-label="Timer duration" />
 		<div class="slide-timer-minutes" id="slideTimerMinutes" hidden>5 min left</div>
-		<div class="slide-timer-actions">
-			<button class="slide-timer-adjust" type="button" data-timer-delta="30">+0:30</button>
-			<button class="slide-timer-adjust" type="button" data-timer-delta="60">+1:00</button>
-			<button class="slide-timer-adjust" type="button" data-timer-delta="300">+5:00</button>
-			<button class="slide-timer-adjust" type="button" data-timer-delta="-30">-0:30</button>
-			<button class="slide-timer-adjust" type="button" data-timer-delta="-60">-1:00</button>
-			<button class="slide-timer-adjust" type="button" data-timer-delta="-300">-5:00</button>
+		<div class="slide-timer-total-control">
+			<input class="slide-timer-total-slider" id="slideTimerTotalSlider" type="range" min="60" max="3600" step="60" value="300" aria-label="Total timer length" />
+			<span class="slide-timer-total-label" id="slideTimerTotalLabel">5 min</span>
 		</div>
 		<div class="slide-timer-footer">
 			<button class="slide-timer-chime" id="slideTimerChimeToggle" type="button" title="Timer chime off" aria-label="Timer chime off">
@@ -1812,22 +1794,6 @@
 			</button>
 			<button class="slide-timer-clear" id="slideTimerClear" type="button" title="Clear timer" aria-label="Clear timer">
 				<span class="material-symbols-outlined" aria-hidden="true">delete_history</span>
-			</button>
-		</div>
-	</div>
-
-	<div class="vocab-panel" id="vocabPanel" aria-label="Vocabulary list">
-		<div class="vocab-table-wrap">
-			<table class="vocab-table" id="vocabTable">
-				<tbody id="vocabTableBody"></tbody>
-			</table>
-		</div>
-		<div class="vocab-actions">
-			<button class="vocab-action" id="vocabAddRow" type="button" title="Add vocabulary row" aria-label="Add vocabulary row">
-				<span class="material-symbols-outlined" aria-hidden="true">add</span>
-			</button>
-			<button class="vocab-action" id="vocabRemoveRow" type="button" title="Remove last row" aria-label="Remove last row">
-				<span class="material-symbols-outlined" aria-hidden="true">remove</span>
 			</button>
 		</div>
 	</div>
@@ -1843,7 +1809,7 @@
 					<span class="material-symbols-outlined" id="mcToggleCountsIcon" aria-hidden="true">visibility</span>
 				</button>
 			</div>
-			<div class="mc-total-wrap"><button class="mc-receiver-status" id="mcReceiverStatusBtn" type="button" title="Connect clicker receiver" aria-label="Connect clicker receiver"><span class="material-symbols-outlined" id="mcReceiverStatusIcon" aria-hidden="true">warning</span></button><div class="mc-progress" id="mcResponseTotal">0</div></div>
+			<div class="mc-total-wrap"><button class="mc-receiver-status" id="mcReceiverStatusBtn" type="button" title="Connect USB or Bluetooth clicker" aria-label="Connect USB or Bluetooth clicker"><span class="material-symbols-outlined" id="mcReceiverStatusIcon" aria-hidden="true">warning</span></button><div class="mc-progress" id="mcResponseTotal">0</div></div>
 		</div>
 		<div class="mc-options" id="mcOptions"></div>
 	</div>
@@ -1862,7 +1828,7 @@
 			<div class="field">
 				<label>Clicker receiver</label>
 				<div class="mc-config-row">
-					<button class="add-btn" id="connectClickerReceiver" type="button">Connect clicker receiver</button>
+					<button class="add-btn" id="connectClickerReceiver" type="button">Connect USB/Bluetooth clicker</button>
 					<span class="mc-status" id="clickerReceiverStatus">Not connected.</span>
 				</div>
 			</div>
@@ -2014,12 +1980,6 @@
 		let slideTimerRafId = null;
 		let slideTimerChimeEnabled = false;
 		let timerStepMs = 60000;
-		let vocabOpen = false;
-		let vocabRows = [
-			{ term: "", definition: "" },
-			{ term: "", definition: "" },
-			{ term: "", definition: "" },
-		];
 		let subtitleRecognition = null;
 		let subtitleFinalText = "";
 		let liveTranslationRequestId = 0;
@@ -2060,7 +2020,11 @@
 		let clickerKeepReading = false;
 		let clickerLineBuffer = "";
 		let clickerLineCount = 0;
-		const CLICKER_ANSWER_BUTTONS = [5, 6, 7, 8];
+		const CLICKER_ACTIONS = {
+			1: 'timer',
+			2: 'sound',
+			3: 'desk-roll',
+		};
 
 		/* ---------- Elements ---------- */
 		const overlay = document.getElementById('overlay');
@@ -2111,13 +2075,8 @@
 		const slideTimerChimeToggle = document.getElementById('slideTimerChimeToggle');
 		const slideTimerChimeIcon = document.getElementById('slideTimerChimeIcon');
 		const slideTimerClear = document.getElementById('slideTimerClear');
-		const slideTimerAdjustBtns = document.querySelectorAll('[data-timer-delta]');
-		const vocabToggle = document.getElementById('vocabToggle');
-		const vocabPanel = document.getElementById('vocabPanel');
-		const vocabTable = document.getElementById('vocabTable');
-		const vocabTableBody = document.getElementById('vocabTableBody');
-		const vocabAddRow = document.getElementById('vocabAddRow');
-		const vocabRemoveRow = document.getElementById('vocabRemoveRow');
+		const slideTimerTotalSlider = document.getElementById('slideTimerTotalSlider');
+		const slideTimerTotalLabel = document.getElementById('slideTimerTotalLabel');
 		const deskPageToggle = document.getElementById('deskPageToggle');
 		const fullscreenToggle = document.getElementById('fullscreenToggle');
 		const fullscreenToggleIcon = document.getElementById('fullscreenToggleIcon');
@@ -2140,6 +2099,9 @@
 		const multipleChoiceJsonInput = document.getElementById('multipleChoiceJson');
 		const connectClickerReceiverBtn = document.getElementById('connectClickerReceiver');
 		const clickerReceiverStatus = document.getElementById('clickerReceiverStatus');
+		const serialPickerBtn = document.getElementById('serialPickerBtn');
+		const serialPickerIcon = document.getElementById('serialPickerIcon');
+		const serialStatusChip = document.getElementById('serialStatusChip');
 
 		const bellBtn = document.getElementById('bellBtn');      // NEW
 		const bellAudioEl = document.getElementById('bellSound'); // NEW
@@ -2415,31 +2377,86 @@
 
 		function updateReceiverStatusUI() {
 			const connected = Boolean(clickerPort?.readable && clickerKeepReading);
-			mcReceiverStatusBtn.classList.toggle('connected', connected);
-			mcReceiverStatusIcon.textContent = connected ? 'settings_input_component' : 'warning';
-			const label = connected ? 'Clicker receiver connected' : 'Connect clicker receiver';
-			mcReceiverStatusBtn.title = label;
-			mcReceiverStatusBtn.setAttribute('aria-label', label);
-		}
-		function setClickerStatus(message) {
-			if (clickerReceiverStatus) clickerReceiverStatus.textContent = message;
+			mcReceiverStatusBtn?.classList.toggle('connected', connected);
+			serialPickerBtn?.classList.toggle('connected', connected);
+			if (mcReceiverStatusIcon) mcReceiverStatusIcon.textContent = connected ? 'settings_input_component' : 'warning';
+			if (serialPickerIcon) serialPickerIcon.textContent = connected ? 'settings_input_component' : 'warning';
+			const label = connected ? 'Clicker connected' : 'Connect USB or Bluetooth clicker';
+			if (mcReceiverStatusBtn) {
+				mcReceiverStatusBtn.title = label;
+				mcReceiverStatusBtn.setAttribute('aria-label', label);
+			}
+			if (serialPickerBtn) {
+				serialPickerBtn.title = label;
+				serialPickerBtn.setAttribute('aria-label', label);
+			}
 		}
 
+		function setClickerStatus(message) {
+			if (clickerReceiverStatus) clickerReceiverStatus.textContent = message;
+			if (serialStatusChip) serialStatusChip.textContent = message;
+		}
+
+		function rollDeskFromClicker() {
+			openDeskPicker();
+			window.setTimeout(() => deskStartSpin(), 80);
+		}
+
+		function runClickerAction(action, button, source) {
+			if (action === 'timer') {
+				setSlideTimerOpen(true);
+				setClickerStatus(`Button ${button} opened the timer.`);
+				return;
+			}
+			if (action === 'sound') {
+				playChimeSound();
+				setClickerStatus(`Button ${button} played the sound.`);
+				return;
+			}
+			if (action === 'desk-roll') {
+				rollDeskFromClicker();
+				setClickerStatus(`Button ${button} started a desk roll.`);
+				return;
+			}
+			setClickerStatus(`Button ${button} from ${source} is ready for a future action.`);
+		}
+
+		function normalizeClickerActionName(action) {
+			const normalized = String(action || '').trim().toLowerCase();
+			if (['timer', 'open-timer', 'open_timer'].includes(normalized)) return 'timer';
+			if (['sound', 'chime', 'bell', 'play-sound', 'play_sound'].includes(normalized)) return 'sound';
+			if (['desk', 'desk-roll', 'desk_roll', 'roll', 'random-desk'].includes(normalized)) return 'desk-roll';
+			return normalized;
+		}
+
+		function parseClickerSerialLine(line) {
+			const trimmed = String(line || '').trim();
+			if (!trimmed) return null;
+			if (trimmed.startsWith('{')) return JSON.parse(trimmed);
+			const numberMatch = trimmed.match(/(?:button|btn|b)?\s*[:=#-]?\s*(\d+)/i);
+			if (numberMatch) {
+				return { type: 'clicker', action: 'pressed', button: Number(numberMatch[1]), device: 'raw-serial', raw: trimmed };
+			}
+			const action = normalizeClickerActionName(trimmed);
+			if (['timer', 'sound', 'desk-roll'].includes(action)) {
+				return { type: 'clicker', action: 'pressed', button: 0, command: action, device: 'raw-serial', raw: trimmed };
+			}
+			return { type: 'unknown', raw: trimmed };
+		}
 		function handleClickerEvent(event) {
-			if (event.type === "status") {
+			if (event.type === 'status') {
 				setClickerStatus(`Connected. Receiver packets: ${event.packets ?? 0}`);
 				return;
 			}
 
-			if (event.type !== "clicker" || event.action !== "pressed") return;
-			const button = Number.parseInt(event.button, 10);
-			const answerIndex = CLICKER_ANSWER_BUTTONS.indexOf(button);
-			if (answerIndex < 0) return;
-			const controllerId = String(event.sender ?? event.mac ?? "unknown");
-			recordMultipleChoiceAnswer(controllerId, answerIndex);
-			setClickerStatus(`Sender ${controllerId} chose ${String.fromCharCode(65 + answerIndex)}.`);
+			const actionState = String(event.action ?? event.state ?? '').toLowerCase();
+			if (!['pressed', 'press', 'down'].includes(actionState)) return;
+			const button = Number.parseInt(event.button ?? event.id ?? event.buttonId, 10);
+			if (!Number.isFinite(button)) return;
+			const source = String(event.sender ?? event.device ?? event.mac ?? 'clicker');
+			const action = normalizeClickerActionName(event.command || event.name || CLICKER_ACTIONS[button] || `extra-${button}`);
+			runClickerAction(action, button, source);
 		}
-
 		function handleClickerSerialText(text) {
 			clickerLineBuffer += text;
 			const lines = clickerLineBuffer.split(/\r?\n/);
@@ -2447,12 +2464,17 @@
 
 			for (const line of lines) {
 				const trimmed = line.trim();
-				if (!trimmed || !trimmed.startsWith("{")) continue;
+				if (!trimmed) continue;
 				clickerLineCount += 1;
 				try {
-					handleClickerEvent(JSON.parse(trimmed));
+					const event = parseClickerSerialLine(trimmed);
+					if (event?.type === 'unknown') {
+						setClickerStatus(`Serial line ${clickerLineCount}: ${event.raw}`);
+						continue;
+					}
+					handleClickerEvent(event);
 				} catch (err) {
-					setClickerStatus(`Bad receiver JSON on line ${clickerLineCount}.`);
+					setClickerStatus(`Bad serial line ${clickerLineCount}: ${trimmed.slice(0, 60)}`);
 				}
 			}
 		}
@@ -2478,18 +2500,19 @@
 
 		async function connectClickerReceiver() {
 			if (!("serial" in navigator)) {
-				setClickerStatus("Use Chrome or Edge for Web Serial.");
+				setClickerStatus("Use Chrome or Edge. USB cable and paired Bluetooth serial ports both use Web Serial.");
 				return;
 			}
 
 			try {
 				clickerPort = await navigator.serial.requestPort();
 				await clickerPort.open({ baudRate: 115200 });
+				try { await clickerPort.setSignals({ dataTerminalReady: true, requestToSend: true }); } catch { }
 				clickerKeepReading = true;
 				clickerLineCount = 0;
 				connectClickerReceiverBtn.disabled = true;
 				updateReceiverStatusUI();
-				setClickerStatus("Connected. Waiting for clickers 1-4.");
+				setClickerStatus("Connected over serial. Waiting for buttons 1-8.");
 				readClickerLoop();
 			} catch (err) {
 				updateReceiverStatusUI();
@@ -2515,7 +2538,6 @@
 				slidesURL,
 				timerSoundChoice,
 				customTimerSoundDataUrl,
-				vocabRows,
 				multipleChoiceJson,
 				timerStepMs
 			};
@@ -2551,23 +2573,12 @@
 
 						timerSoundChoice = typeof data.timerSoundChoice === 'string' ? data.timerSoundChoice : "nfl";
 						customTimerSoundDataUrl = typeof data.customTimerSoundDataUrl === 'string' ? data.customTimerSoundDataUrl : "";
-						if (Array.isArray(data.vocabRows)) {
-							vocabRows = data.vocabRows
-								.filter(row => row && typeof row === 'object')
-								.map(row => ({
-									term: String(row.term ?? ""),
-									definition: String(row.definition ?? ""),
-								}));
-						}
 
 						sections = sections.filter(s => s && (s.name ?? '') !== '');
 					}
 				}
 			} catch { }
 
-			if (!vocabRows.length) {
-				vocabRows = [{ term: "", definition: "" }];
-			}
 
 			if (!sections.length) {
 				sections = [
@@ -2589,7 +2600,6 @@
 			applyTimerSound();
 			updateKeybindUI();
 			updatePresetScheduleUI();
-			renderVocabTable();
 			updateTimerStepUI();
 
 			updateTotalTime();
@@ -2890,6 +2900,9 @@
 			return Math.max(0, Math.round(mins * 60));
 		}
 
+		function clampSlideTimerTotalSeconds(seconds) {
+			return Math.max(60, Math.min(3600, Math.round(Number(seconds) / 60) * 60));
+		}
 		function commitSlideTimerInput() {
 			const parsedSeconds = parseTimerInput(slideTimerTime.value);
 			if (parsedSeconds === null) {
@@ -2897,8 +2910,9 @@
 				return;
 			}
 			stopSlideTimer();
-			slideTimerRemainingSeconds = parsedSeconds;
-			slideTimerTotalSeconds = parsedSeconds;
+			const nextTotal = clampSlideTimerTotalSeconds(parsedSeconds);
+			slideTimerRemainingSeconds = nextTotal;
+			slideTimerTotalSeconds = nextTotal;
 			updateSlideTimerUI();
 		}
 
@@ -2909,8 +2923,9 @@
 				updateSlideTimerUI();
 				return;
 			}
-			slideTimerRemainingSeconds = parsedSeconds;
-			slideTimerTotalSeconds = parsedSeconds;
+			const nextTotal = clampSlideTimerTotalSeconds(parsedSeconds);
+			slideTimerRemainingSeconds = nextTotal;
+			slideTimerTotalSeconds = nextTotal;
 			updateSlideTimerUI();
 		}
 
@@ -2928,6 +2943,11 @@
 			}
 			const minuteText = Math.ceil(remaining / 60);
 			slideTimerMinutes.textContent = `${minuteText} min left`;
+			const sliderTotal = clampSlideTimerTotalSeconds(total || 60);
+			if (document.activeElement !== slideTimerTotalSlider) {
+				slideTimerTotalSlider.value = String(sliderTotal);
+			}
+			slideTimerTotalLabel.textContent = `${Math.round(sliderTotal / 60)} min`;
 			const timerAction = slideTimerRunning ? "Stop timer" : "Start timer";
 			slideTimerStartStop.title = timerAction;
 			slideTimerStartStop.setAttribute('aria-label', timerAction);
@@ -2937,62 +2957,6 @@
 			slideTimerChimeToggle.setAttribute('aria-label', chimeAction);
 			slideTimerChimeIcon.textContent = slideTimerChimeEnabled ? "notifications" : "notifications_off";
 			slideTimerToggle.classList.toggle('active', slideTimerOpen);
-		}
-
-		function resizeVocabText() {
-			const rowCount = Math.max(1, vocabRows.length);
-			const panelHeight = vocabPanel.getBoundingClientRect().height || window.innerHeight;
-			const availableRowHeight = Math.max(18, (panelHeight - 112) / rowCount);
-			const nextSize = Math.max(16, Math.min(42, Math.floor(availableRowHeight * .56)));
-			vocabTable.style.setProperty('--vocab-font-size', `${nextSize}px`);
-		}
-
-		function saveVocabRows() {
-			saveConfig();
-			resizeVocabText();
-		}
-
-		function renderVocabTable() {
-			vocabTableBody.innerHTML = "";
-			vocabRows.forEach((row, rowIndex) => {
-				const tr = document.createElement('tr');
-				["term", "definition"].forEach(key => {
-					const td = document.createElement('td');
-					td.contentEditable = "true";
-					td.spellcheck = true;
-					td.textContent = row[key] || "";
-					td.setAttribute('aria-label', key === "term" ? "Vocabulary term" : "Vocabulary definition");
-					td.addEventListener('input', () => {
-						vocabRows[rowIndex][key] = td.textContent.trim();
-						saveVocabRows();
-					});
-					td.addEventListener('keydown', event => {
-						if (event.key === "Enter") {
-							event.preventDefault();
-							if (rowIndex === vocabRows.length - 1) addVocabRow();
-						}
-					});
-					tr.appendChild(td);
-				});
-				vocabTableBody.appendChild(tr);
-			});
-			resizeVocabText();
-		}
-
-		function addVocabRow() {
-			vocabRows.push({ term: "", definition: "" });
-			renderVocabTable();
-			saveVocabRows();
-		}
-
-		function removeVocabRow() {
-			if (vocabRows.length > 1) {
-				vocabRows.pop();
-			} else {
-				vocabRows[0] = { term: "", definition: "" };
-			}
-			renderVocabTable();
-			saveVocabRows();
 		}
 
 		function stopSlideTimer() {
@@ -3040,53 +3004,32 @@
 		function setSlideTimerOpen(open) {
 			if (translatorMode && open) return;
 			slideTimerOpen = open;
-			if (open) vocabOpen = false;
-			document.querySelector('.app').classList.toggle('side-panel-open', slideTimerOpen || vocabOpen);
-			document.querySelector('.app').classList.toggle('timer-panel-open', slideTimerOpen);
-			document.querySelector('.app').classList.toggle('vocab-panel-open', vocabOpen);
-			vocabToggle.classList.toggle('active', vocabOpen);
+			const app = document.querySelector('.app');
+			app.classList.toggle('side-panel-open', slideTimerOpen);
+			app.classList.toggle('timer-panel-open', slideTimerOpen);
 			if (!slideTimerOpen) stopSlideTimer();
 			updateSlideTimerUI();
-			resizeVocabText();
 		}
 
-		function setVocabOpen(open) {
-			if (translatorMode && open) return;
-			vocabOpen = open;
-			if (open) {
-				slideTimerOpen = false;
-				stopSlideTimer();
-			}
-			const app = document.querySelector('.app');
-			app.classList.toggle('vocab-panel-open', vocabOpen);
-			app.classList.toggle('timer-panel-open', slideTimerOpen);
-			app.classList.toggle('side-panel-open', slideTimerOpen || vocabOpen);
-			vocabToggle.classList.toggle('active', vocabOpen);
-			updateSlideTimerUI();
-			resizeVocabText();
-		}
-
-		function adjustSlideTimer(deltaSeconds) {
+		function setSlideTimerTotalSeconds(totalSeconds) {
+			const nextTotal = clampSlideTimerTotalSeconds(totalSeconds);
 			const elapsed = getSlideTimerElapsedSeconds();
-			slideTimerTotalSeconds = Math.max(0, slideTimerTotalSeconds + deltaSeconds);
+			slideTimerTotalSeconds = nextTotal;
 			slideTimerRemainingSeconds = Math.max(0, slideTimerTotalSeconds - elapsed);
 			if (slideTimerRemainingSeconds <= 0) stopSlideTimer();
 			updateSlideTimerUI();
 		}
-
 		function clearSlideTimer() {
 			stopSlideTimer();
-			slideTimerTotalSeconds = 0;
-			slideTimerRemainingSeconds = 0;
+			slideTimerTotalSeconds = clampSlideTimerTotalSeconds(slideTimerTotalSeconds || 60);
+			slideTimerRemainingSeconds = slideTimerTotalSeconds;
 			updateSlideTimerUI();
 		}
 
 		function updateSlideTimerAvailability() {
 			const enabled = !translatorMode;
 			slideTimerToggle.disabled = !enabled;
-			vocabToggle.disabled = !enabled;
 			if (!enabled) setSlideTimerOpen(false);
-			if (!enabled) setVocabOpen(false);
 		}
 
 		slideTimerToggle.addEventListener('click', () => {
@@ -3094,10 +3037,6 @@
 			setSlideTimerOpen(!slideTimerOpen);
 		});
 
-		vocabToggle.addEventListener('click', () => {
-			if (vocabToggle.disabled) return;
-			setVocabOpen(!vocabOpen);
-		});
 
 		slideTimerStartStop.addEventListener('click', () => {
 			if (slideTimerRunning) stopSlideTimer();
@@ -3111,6 +3050,7 @@
 		});
 
 		slideTimerClear.addEventListener('click', clearSlideTimer);
+		slideTimerTotalSlider.addEventListener('input', event => setSlideTimerTotalSeconds(event.target.value));
 
 		slideTimerTime.addEventListener('focus', () => {
 			stopSlideTimer();
@@ -3126,13 +3066,7 @@
 			}
 		});
 
-		slideTimerAdjustBtns.forEach(btn => {
-			btn.addEventListener('click', () => adjustSlideTimer(Number(btn.dataset.timerDelta) || 0));
-		});
 
-		vocabAddRow.addEventListener('click', addVocabRow);
-		vocabRemoveRow.addEventListener('click', removeVocabRow);
-		window.addEventListener('resize', resizeVocabText);
 		window.addEventListener('resize', updateMultipleChoiceOverlayPosition);
 		slidesArea.addEventListener('transitionend', updateMultipleChoiceOverlayPosition);
 
@@ -4466,7 +4400,7 @@
 			});
 		}
 
-		multipleChoiceToggle.addEventListener('click', () => {
+		multipleChoiceToggle?.addEventListener('click', () => {
 			multipleChoiceOpen = !multipleChoiceOpen;
 			renderMultipleChoiceOverlay();
 			updateMultipleChoiceOverlayPosition();
@@ -4476,6 +4410,7 @@
 		mcToggleCounts.addEventListener('click', toggleMultipleChoiceCounts);
 		mcReceiverStatusBtn.addEventListener('click', connectClickerReceiver);
 		connectClickerReceiverBtn.addEventListener('click', connectClickerReceiver);
+		serialPickerBtn.addEventListener('click', connectClickerReceiver);
 
 
 		fileSlidePrev.addEventListener('click', () => moveFileSlide(-1));
