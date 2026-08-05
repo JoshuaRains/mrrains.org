@@ -276,6 +276,40 @@
 			display: none;
 		}
 
+		.document-camera-viewer {
+			position: relative; width: 100%; height: calc(100% - var(--controls-clearance));
+			margin-bottom: var(--controls-clearance); background: #050505; border: 3px solid #000;
+			box-shadow: var(--shadow); overflow: hidden; display: flex; flex-direction: column;
+		}
+		.document-camera-viewer[hidden], .document-camera-status[hidden] { display: none; }
+		.document-camera-video {
+			order: 2; flex: 1 1 auto; min-height: 0; width: 100%; height: auto; display: block;
+			object-fit: contain; background: #050505; transform: scale(var(--camera-zoom, 1));
+			transform-origin: center; transition: transform .16s ease;
+		}
+		.document-camera-toolbar {
+			position: relative; order: 1; flex: 0 0 auto; display: flex; align-items: center;
+			gap: 5px; padding: 4px; z-index: 3; background: #111; border-bottom: 2px solid #000;
+		}
+		.document-camera-toolbar select, .document-camera-toolbar button, .document-camera-zoom {
+			min-height: 34px; border: 1px solid #555; border-radius: 0; background: #f2f2f2;
+			color: #000; font: 800 13px/1 ui-sans-serif,system-ui,sans-serif;
+		}
+		.document-camera-toolbar select { flex: 1 1 180px; min-width: 0; max-width: 420px; padding: 0 8px; }
+		.document-camera-toolbar button { flex: 0 0 34px; width: 34px; display: grid; place-items: center; padding: 0; cursor: pointer; }
+		.document-camera-toolbar button:hover { background: #ddd; }
+		.document-camera-toolbar .material-symbols-outlined { font-size: 23px; }
+		.document-camera-zoom { flex: 0 0 48px; display: grid; place-items: center; padding: 0 5px; font-variant-numeric: tabular-nums; }
+		.document-camera-close { margin-left: auto; }
+		.document-camera-status {
+			position: absolute; top: 44px; right: 0; bottom: 0; left: 0; display: grid; place-items: center;
+			padding: 24px; text-align: center; font: 800 clamp(18px,2.2vw,30px)/1.25 ui-sans-serif,system-ui,sans-serif;
+			color: #fff; background: #111; z-index: 2;
+		}
+		.slides-area.camera-mode .slides-frame,
+		.slides-area.camera-mode .file-slide-viewer,
+		.slides-area.camera-mode .subtitle-bar { display: none; }
+
 		.slides-area.subtitles-live .slides-frame {
 			height: min(calc(100% - var(--subtitle-h) - var(--controls-clearance) - 4px), calc(var(--slides-fit-w) * 9 / 16));
 		}
@@ -1664,6 +1698,17 @@
 					</button>
 				</div>
 			</div>
+			<section class="document-camera-viewer" id="documentCameraViewer" aria-label="Document camera" hidden>
+				<video class="document-camera-video" id="documentCameraVideo" autoplay playsinline muted></video>
+				<div class="document-camera-status" id="documentCameraStatus">Starting camera...</div>
+				<div class="document-camera-toolbar">
+					<select id="documentCameraSelect" aria-label="Select document camera"><option value="">Select camera</option></select>
+					<button id="documentCameraZoomOut" type="button" title="Zoom out" aria-label="Zoom out"><span class="material-symbols-outlined" aria-hidden="true">zoom_out</span></button>
+					<span class="document-camera-zoom" id="documentCameraZoomLabel" aria-live="polite">1.0x</span>
+					<button id="documentCameraZoomIn" type="button" title="Zoom in" aria-label="Zoom in"><span class="material-symbols-outlined" aria-hidden="true">zoom_in</span></button>
+					<button class="document-camera-close" id="documentCameraClose" type="button" title="Return to slides" aria-label="Return to slides"><span class="material-symbols-outlined" aria-hidden="true">close</span></button>
+				</div>
+			</section>
 			<div class="subtitle-bar" aria-live="polite">
 				<div class="subtitle-text" id="subtitleText"></div>
 				<div class="translator-stage" id="translatorStage">
@@ -1754,8 +1799,8 @@
 		<button class="page-tool-toggle" id="slideTimerToggle" type="button" title="Slide timer" aria-label="Slide timer">
 			<span class="material-symbols-outlined" aria-hidden="true">timer</span>
 		</button>
-		<button class="page-tool-toggle translator-btn" id="translatorBtn" type="button" title="Open whiteboard" aria-label="Open whiteboard" disabled>
-			<span class="material-symbols-outlined" aria-hidden="true">draw</span>
+		<button class="page-tool-toggle" id="documentCameraToggle" type="button" title="Document camera" aria-label="Open document camera">
+			<span class="material-symbols-outlined" aria-hidden="true">video_camera_front</span>
 		</button>
 		<button class="page-tool-toggle" id="bellBtn" type="button" title="Play bell" aria-label="Play bell">
 			<span class="material-symbols-outlined" aria-hidden="true">notifications</span>
@@ -1771,7 +1816,6 @@
 	<button class="serial-picker-button" id="serialPickerBtn" type="button" title="Select USB or Bluetooth clicker serial port" aria-label="Select USB or Bluetooth clicker serial port">
 		<span class="material-symbols-outlined" id="serialPickerIcon" aria-hidden="true">warning</span>
 	</button>
-	<div class="serial-status-chip" id="serialStatusChip">No clicker selected</div>
 	<div class="slide-timer-panel" id="slideTimerPanel" aria-live="polite">
 		<div class="slide-timer-ring" aria-label="Slide timer countdown">
 			<svg viewBox="0 0 120 120" aria-hidden="true">
@@ -1972,6 +2016,8 @@
 		let subtitleMode = ""; // caption-en | caption-es | translate-en-es | translate-es-en
 		let subtitleListening = false;
 		let translatorMode = false;
+		let documentCameraStream = null;
+		let documentCameraZoom = 1;
 		let slideTimerOpen = false;
 		let slideTimerRunning = false;
 		let slideTimerTotalSeconds = 300;
@@ -2052,6 +2098,15 @@
 		const translateEnEsBtn = document.getElementById('translateEnEsBtn');
 		const translateEsEnBtn = document.getElementById('translateEsEnBtn');
 		const translatorBtn = document.getElementById('translatorBtn');
+		const documentCameraToggle = document.getElementById('documentCameraToggle');
+		const documentCameraViewer = document.getElementById('documentCameraViewer');
+		const documentCameraVideo = document.getElementById('documentCameraVideo');
+		const documentCameraStatus = document.getElementById('documentCameraStatus');
+		const documentCameraSelect = document.getElementById('documentCameraSelect');
+		const documentCameraZoomOut = document.getElementById('documentCameraZoomOut');
+		const documentCameraZoomIn = document.getElementById('documentCameraZoomIn');
+		const documentCameraZoomLabel = document.getElementById('documentCameraZoomLabel');
+		const documentCameraClose = document.getElementById('documentCameraClose');
 		const slidesArea = document.querySelector('.slides-area');
 		const subtitleText = document.getElementById('subtitleText');
 		const translatorStage = document.getElementById('translatorStage');
@@ -3604,8 +3659,10 @@
 			spanishSubBtn.classList.toggle('listening', subtitleListening && subtitleMode === "caption-es");
 			translateEnEsBtn.classList.toggle('listening', subtitleListening && subtitleMode === "translate-en-es");
 			translateEsEnBtn.classList.toggle('listening', subtitleListening && subtitleMode === "translate-es-en");
-			translatorBtn.disabled = !isCaptionMode();
-			translatorBtn.classList.toggle('active', translatorMode);
+			if (translatorBtn) {
+				translatorBtn.disabled = !isCaptionMode();
+				translatorBtn.classList.toggle('active', translatorMode);
+			}
 			slidesArea.classList.toggle('translator-mode', translatorMode);
 			updateSlideTimerAvailability();
 			renderTranslatorView();
@@ -4083,11 +4140,102 @@
 			} catch { }
 		}
 
+		function stopDocumentCameraStream() {
+			if (documentCameraStream) {
+				documentCameraStream.getTracks().forEach(track => track.stop());
+				documentCameraStream = null;
+			}
+			documentCameraVideo.srcObject = null;
+		}
+
+		function updateDocumentCameraZoom(nextZoom) {
+			documentCameraZoom = Math.min(4, Math.max(1, Math.round(nextZoom * 10) / 10));
+			documentCameraVideo.style.setProperty('--camera-zoom', String(documentCameraZoom));
+			documentCameraZoomLabel.textContent = documentCameraZoom.toFixed(1) + 'x';
+			documentCameraZoomOut.disabled = documentCameraZoom <= 1;
+			documentCameraZoomIn.disabled = documentCameraZoom >= 4;
+		}
+
+		async function refreshDocumentCameraList(selectedId = '') {
+			const devices = await navigator.mediaDevices.enumerateDevices();
+			const cameras = devices.filter(device => device.kind === 'videoinput');
+			documentCameraSelect.innerHTML = '';
+			cameras.forEach((camera, index) => {
+				const option = document.createElement('option');
+				option.value = camera.deviceId;
+				option.textContent = camera.label || ('Camera ' + (index + 1));
+				documentCameraSelect.appendChild(option);
+			});
+			if (!cameras.length) {
+				documentCameraSelect.innerHTML = '<option value="">No cameras found</option>';
+				return;
+			}
+			const activeId = selectedId || documentCameraStream?.getVideoTracks()[0]?.getSettings().deviceId || '';
+			if (activeId && cameras.some(camera => camera.deviceId === activeId)) documentCameraSelect.value = activeId;
+		}
+
+		async function startDocumentCamera(deviceId = '') {
+			if (!navigator.mediaDevices?.getUserMedia) {
+				documentCameraStatus.textContent = 'Camera access is not supported in this browser.';
+				documentCameraStatus.hidden = false;
+				return;
+			}
+			documentCameraStatus.textContent = 'Starting camera...';
+			documentCameraStatus.hidden = false;
+			stopDocumentCameraStream();
+			try {
+				const video = deviceId
+					? { deviceId: { exact: deviceId }, width: { ideal: 1920 }, height: { ideal: 1080 } }
+					: { width: { ideal: 1920 }, height: { ideal: 1080 } };
+				documentCameraStream = await navigator.mediaDevices.getUserMedia({ video, audio: false });
+				documentCameraVideo.srcObject = documentCameraStream;
+				await documentCameraVideo.play();
+				await refreshDocumentCameraList(deviceId);
+				documentCameraStatus.hidden = true;
+			} catch (error) {
+				const blocked = error?.name === 'NotAllowedError' || error?.name === 'SecurityError';
+				documentCameraStatus.textContent = blocked
+					? 'Camera permission was blocked. Allow camera access, then open the document camera again.'
+					: 'The selected camera could not be opened. Choose another camera or reconnect it.';
+				documentCameraStatus.hidden = false;
+			}
+		}
+
+		async function openDocumentCamera() {
+			documentCameraViewer.hidden = false;
+			slidesArea.classList.add('camera-mode');
+			documentCameraToggle.classList.add('active');
+			documentCameraToggle.setAttribute('aria-label', 'Close document camera');
+			updateDocumentCameraZoom(1);
+			await startDocumentCamera(documentCameraSelect.value);
+		}
+
+		function closeDocumentCamera() {
+			stopDocumentCameraStream();
+			documentCameraViewer.hidden = true;
+			slidesArea.classList.remove('camera-mode');
+			documentCameraToggle.classList.remove('active');
+			documentCameraToggle.setAttribute('aria-label', 'Open document camera');
+		}
+
+		documentCameraToggle.addEventListener('click', () => {
+			if (slidesArea.classList.contains('camera-mode')) closeDocumentCamera();
+			else openDocumentCamera();
+		});
+		documentCameraClose.addEventListener('click', closeDocumentCamera);
+		documentCameraSelect.addEventListener('change', () => startDocumentCamera(documentCameraSelect.value));
+		documentCameraZoomOut.addEventListener('click', () => updateDocumentCameraZoom(documentCameraZoom - .25));
+		documentCameraZoomIn.addEventListener('click', () => updateDocumentCameraZoom(documentCameraZoom + .25));
+		navigator.mediaDevices?.addEventListener?.('devicechange', () => {
+			if (slidesArea.classList.contains('camera-mode')) refreshDocumentCameraList(documentCameraSelect.value);
+		});
+		window.addEventListener('pagehide', stopDocumentCameraStream);
+
 		englishSubBtn.addEventListener('click', () => setSubtitleMode("caption-en"));
 		spanishSubBtn.addEventListener('click', () => setSubtitleMode("caption-es"));
 		translateEnEsBtn.addEventListener('click', () => setSubtitleMode("translate-en-es"));
 		translateEsEnBtn.addEventListener('click', () => setSubtitleMode("translate-es-en"));
-		translatorBtn.addEventListener('click', toggleTranslatorMode);
+		if (translatorBtn) translatorBtn.addEventListener('click', toggleTranslatorMode);
 
 		toolDrawBtn.addEventListener('click', () => setTranslatorTool("draw"));
 		toolMagicBtn.addEventListener('click', () => setTranslatorTool("magic"));
