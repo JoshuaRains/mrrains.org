@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Pr&aacute;ctica del alfabeto</title>
+	<style>
+		:root {
+			color-scheme: dark;
+			--ink: #f7f7f5;
+			--yellow: #facc15;
+			--red: #ef4444;
+			--panel: #111;
+		}
+		* { box-sizing: border-box; }
+		html, body { width: 100%; height: 100%; margin: 0; overflow: hidden; }
+		body {
+			background:
+				linear-gradient(rgba(255,255,255,.025) 1px, transparent 1px),
+				linear-gradient(90deg, rgba(255,255,255,.025) 1px, transparent 1px),
+				#090909;
+			background-size: 30px 30px;
+			color: var(--ink);
+			font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+			cursor: pointer;
+			user-select: none;
+			-webkit-user-select: none;
+			touch-action: manipulation;
+		}
+		.timer {
+			position: fixed;
+			top: clamp(14px, 2.5vw, 30px);
+			left: clamp(16px, 2.5vw, 34px);
+			z-index: 3;
+			font-size: clamp(48px, 7vw, 108px);
+			font-weight: 950;
+			line-height: .9;
+			letter-spacing: -.06em;
+			font-variant-numeric: tabular-nums;
+			color: var(--yellow);
+			text-shadow: 4px 4px 0 #000;
+		}
+		.timer.stopped { color: var(--red); }
+		.letters {
+			width: 100%;
+			height: 100%;
+			display: grid;
+			grid-template-columns: repeat(10, minmax(0, 1fr));
+			grid-template-rows: minmax(0, 1fr);
+			align-items: center;
+			justify-items: center;
+			gap: clamp(6px, 1.4vw, 20px);
+			padding: clamp(120px, 16vh, 170px) clamp(28px, 5vw, 76px) clamp(100px, 14vh, 145px);
+		}
+		.letter {
+			display: grid;
+			place-items: center;
+			width: 100%;
+			height: 100%;
+			min-width: 0;
+			min-height: 0;
+			font-size: clamp(42px, 8vw, 135px);
+			font-weight: 950;
+			line-height: 1;
+			letter-spacing: -.04em;
+			color: var(--ink);
+			text-shadow: 5px 5px 0 #000;
+		}
+		.letter.cycling {
+			color: #93c5fd;
+			animation: reel-pulse .22s ease-in-out infinite alternate;
+		}
+		.letter.locked {
+			animation: letter-lock .48s cubic-bezier(.2, 1.7, .4, 1);
+		}
+		@keyframes reel-pulse {
+			from { transform: scale(.9); opacity: .62; filter: blur(1px); }
+			to { transform: scale(1.04); opacity: 1; filter: blur(0); }
+		}
+		@keyframes letter-lock {
+			0% { transform: scale(.82) rotate(-5deg); color: #93c5fd; }
+			48% { transform: scale(1.24) rotate(3deg); color: var(--yellow); }
+			100% { transform: scale(1) rotate(0); color: var(--ink); }
+		}
+
+		.timer-control {
+			position: fixed;
+			left: 72px;
+			bottom: 16px;
+			z-index: 4;
+			min-width: clamp(150px, 18vw, 240px);
+			min-height: clamp(58px, 7vw, 82px);
+			padding: 0 24px;
+			border: 3px solid #000;
+			border-radius: 0;
+			background: var(--yellow);
+			color: #111;
+			box-shadow: 5px 5px 0 #000;
+			font: 950 clamp(24px, 3vw, 42px)/1 ui-sans-serif, system-ui, sans-serif;
+			cursor: pointer;
+			touch-action: manipulation;
+		}
+		.timer-control:hover { background: #fde047; }
+		.timer-control.reset { background: #fff; }
+		.timer-control:focus-visible { outline: 4px solid #fff; outline-offset: 4px; }
+		@media (max-width: 700px) {
+			.letters {
+				padding: 105px 16px 100px;
+				gap: 4px;
+			}
+			.letter { font-size: clamp(30px, 9vw, 70px); }
+			.timer-control { left: 66px; }
+		}
+	</style>
+</head>
+<body>
+	<div class="timer" id="timer" aria-live="off">0:00.0</div>
+	<main class="letters" id="letters" aria-label="Ten random alphabet letters"></main>
+	<button class="timer-control" id="timerControl" type="button">Stop</button>
+
+	<script>
+		(() => {
+			const alphabet = Array.from("ABCDEFGHIJKLMN\u00D1OPQRSTUVWXYZ");
+			const timer = document.getElementById("timer");
+			const letters = document.getElementById("letters");
+			const timerControl = document.getElementById("timerControl");
+
+			let running = true;
+			let startedAt = performance.now();
+			let elapsedBeforeStart = 0;
+			let animationFrameId = 0;
+			let letterIntervals = [];
+			let letterTimeouts = [];
+
+			function shuffle(values) {
+				const copy = [...values];
+				for (let index = copy.length - 1; index > 0; index -= 1) {
+					const swapIndex = Math.floor(Math.random() * (index + 1));
+					[copy[index], copy[swapIndex]] = [copy[swapIndex], copy[index]];
+				}
+				return copy;
+			}
+
+			function stopLetterAnimation() {
+				letterIntervals.forEach(clearInterval);
+				letterTimeouts.forEach(clearTimeout);
+				letterIntervals = [];
+				letterTimeouts = [];
+			}
+
+			function playLetterAnimation() {
+				stopLetterAnimation();
+				const targetLetters = shuffle(alphabet).slice(0, 10);
+				const letterElements = targetLetters.map((targetLetter, index) => {
+					const item = document.createElement("span");
+					item.className = "letter cycling";
+					item.textContent = alphabet[(index * 3) % alphabet.length];
+					return item;
+				});
+				letters.replaceChildren(...letterElements);
+
+				letterElements.forEach((item, index) => {
+					let cycleIndex = (index * 3) % alphabet.length;
+					const intervalId = setInterval(() => {
+						cycleIndex = (cycleIndex + 1) % alphabet.length;
+						item.textContent = alphabet[cycleIndex];
+					}, 55);
+					letterIntervals.push(intervalId);
+
+					const timeoutId = setTimeout(() => {
+						clearInterval(intervalId);
+						item.textContent = targetLetters[index];
+						item.classList.remove("cycling");
+						item.classList.add("locked");
+						item.addEventListener("animationend", () => item.classList.remove("locked"), { once: true });
+					}, (index + 1) * 300);
+					letterTimeouts.push(timeoutId);
+				});
+			}
+
+			function formatTime(milliseconds) {
+				const totalTenths = Math.floor(milliseconds / 100);
+				const minutes = Math.floor(totalTenths / 600);
+				const seconds = Math.floor((totalTenths % 600) / 10);
+				const tenths = totalTenths % 10;
+				return minutes + ":" + String(seconds).padStart(2, "0") + "." + tenths;
+			}
+
+			function currentElapsed() {
+				return elapsedBeforeStart + (running ? performance.now() - startedAt : 0);
+			}
+
+			function drawTimer() {
+				timer.textContent = formatTime(currentElapsed());
+				animationFrameId = requestAnimationFrame(drawTimer);
+			}
+
+			function toggleTimer(event) {
+				event.stopPropagation();
+				if (running) {
+					elapsedBeforeStart += performance.now() - startedAt;
+					running = false;
+					timer.classList.add("stopped");
+					timerControl.classList.add("reset");
+					timerControl.textContent = "Reset";
+				} else {
+					elapsedBeforeStart = 0;
+					startedAt = performance.now();
+					running = true;
+					timer.classList.remove("stopped");
+					timerControl.classList.remove("reset");
+					timerControl.textContent = "Stop";
+					timer.textContent = "0:00.0";
+					playLetterAnimation();
+				}
+			}
+
+			document.body.addEventListener("pointerup", (event) => {
+				if (event.target.closest("button")) return;
+				playLetterAnimation();
+			});
+			timerControl.addEventListener("pointerup", toggleTimer);
+			window.addEventListener("pagehide", () => {
+				cancelAnimationFrame(animationFrameId);
+				stopLetterAnimation();
+			});
+
+			playLetterAnimation();
+			drawTimer();
+		})();
+	</script>
+</body>
+</html>

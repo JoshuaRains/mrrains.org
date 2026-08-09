@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Review Games</title>
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,600,0,0" rel="stylesheet">
+	<style>
+		:root {
+			color-scheme: dark;
+			--yellow: #facc15;
+			--ink: #f5f7fa;
+			--panel: #151515;
+			--shadow: 5px 5px 0 #000;
+		}
+		* { box-sizing: border-box; }
+		html, body { min-height: 100%; margin: 0; }
+		body {
+			background:
+				linear-gradient(rgba(255,255,255,.025) 1px, transparent 1px),
+				linear-gradient(90deg, rgba(255,255,255,.025) 1px, transparent 1px),
+				#090909;
+			background-size: 28px 28px;
+			color: var(--ink);
+			font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+		}
+		main {
+			width: min(1120px, 100%); min-height: 100vh; margin: 0 auto; padding: clamp(24px, 4vw, 52px);
+			display: flex; align-items: center;
+		}
+		.games { width: 100%; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; }
+		.game {
+			min-height: 190px; display: flex; flex-direction: column; justify-content: space-between;
+			padding: 20px; border: 3px solid #000; background: var(--panel); color: var(--ink);
+			text-decoration: none; box-shadow: var(--shadow); transition: transform .12s ease, background .12s ease;
+		}
+		.game:hover, .game:focus-visible { transform: translate(-2px, -2px); background: #202020; outline: 3px solid var(--yellow); }
+		.game .material-symbols-outlined { font-size: 54px; }
+		.game h2 { margin: 16px 0 4px; font-size: clamp(22px, 2.4vw, 32px); line-height: 1; }
+		@media (max-width: 760px) {
+			main { padding: 22px; }
+			.games { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+			.game { min-height: 160px; }
+		}
+		@media (max-width: 460px) {
+			.games { grid-template-columns: 1fr; }
+		}
+	</style>
+</head>
+<body>
+	<main>
+
+		<section class="games" aria-label="Review game choices">
+			<a class="game" href="../flaggame/">
+				<span class="material-symbols-outlined" aria-hidden="true">flag</span>
+				<div><h2>Flag Game</h2></div>
+			</a>
+			<a class="game" href="../../maps/mapgames/spanish%20speaking%20countries/index.html">
+				<span class="material-symbols-outlined" aria-hidden="true">map</span>
+				<div><h2>Countries Map</h2></div>
+			</a>
+			<a class="game" href="../numbergame/">
+				<span class="material-symbols-outlined" aria-hidden="true">pin</span>
+				<div><h2>Number Game</h2></div>
+			</a>
+			<a class="game" href="../alphabetgame/">
+				<span class="material-symbols-outlined" aria-hidden="true">abc</span>
+				<div><h2>Alphabet Speed</h2></div>
+			</a>
+			<a class="game" href="../weekgame/">
+				<span class="material-symbols-outlined" aria-hidden="true">calendar_month</span>
+				<div><h2>Hoy es&hellip;</h2></div>
+			</a>
+		</section>
+	</main>
+</body>
+</html>

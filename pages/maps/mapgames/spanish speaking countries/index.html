@@ -9,8 +9,10 @@
       --correct: #21a366;
       --wrong: #d94a3a;
       --neutral: #f1f3f5;
+      --non-spanish: #929aa3;
       --water: #b9d7ff;
       --line: #111;
+      --prompt-width: clamp(190px, 22vw, 320px);
     }
 
     * {
@@ -42,7 +44,7 @@
     }
 
     #mapContainer path[id] {
-      fill: var(--neutral);
+      fill: var(--non-spanish);
       stroke: var(--line);
       stroke-width: 2;
       stroke-linejoin: round;
@@ -64,34 +66,90 @@
       outline: none;
     }
 
-    .bottom-bar {
+    #targetPanel {
       position: fixed;
-      left: 12px;
-      bottom: 12px;
+      left: 0;
+      top: 50%;
+      width: var(--prompt-width);
+      padding: 18px 4px 18px 18px;
+      transform: translateY(-50%);
+      color: #000;
+      text-align: right;
+      z-index: 10;
+    }
+
+    #targetText {
+      font-size: clamp(24px, 3vw, 44px);
+      font-weight: 800;
+      line-height: 1.08;
+      text-wrap: balance;
+    }
+
+    #endSummary[hidden],
+    #restartButton[hidden],
+    .stats-bar[hidden] { display: none; }
+
+    .end-title {
+      font-size: clamp(26px, 3.2vw, 46px);
+      font-weight: 900;
+      line-height: 1;
+    }
+
+    #endRestartButton {
+      min-height: 40px;
+      margin: 14px 0 10px;
+      padding: 0 16px;
+      border: 2px solid #000;
+      border-radius: 6px;
+      background: #fff;
+      color: #000;
+      font-size: clamp(14px, 1.4vw, 18px);
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    #endRestartButton:hover { background: #f0f0f0; }
+
+    .end-stats {
+      display: grid;
+      gap: 5px;
+      font-size: clamp(12px, 1.25vw, 16px);
+      font-weight: 700;
+      line-height: 1.15;
+    }
+
+    .stats-bar {
+      position: fixed;
+      right: 14px;
+      bottom: 16px;
       display: flex;
       align-items: center;
       gap: 18px;
       color: #000;
-      font-size: clamp(14px, 1.6vw, 20px);
+      font-size: clamp(14px, 1.5vw, 19px);
       font-weight: 700;
       line-height: 1;
       z-index: 10;
     }
 
     #restartButton {
-      min-height: 38px;
-      padding: 0 16px;
+      position: fixed;
+      left: 50%;
+      bottom: 10px;
+      min-height: 42px;
+      padding: 0 20px;
+      transform: translateX(-50%);
       border: 2px solid #000;
       border-radius: 6px;
       background: #fff;
       color: #000;
-      font: inherit;
+      font-size: clamp(15px, 1.5vw, 19px);
+      font-weight: 700;
       cursor: pointer;
+      z-index: 11;
     }
 
-    #restartButton:hover {
-      background: #f0f0f0;
-    }
+    #restartButton:hover { background: #f0f0f0; }
 
     #restartButton:focus-visible {
       outline: 3px solid #000;
@@ -99,46 +157,48 @@
     }
 
     @media (max-width: 760px) {
-      .bottom-bar {
-        right: 12px;
-        flex-wrap: wrap;
-        gap: 10px 14px;
-        line-height: 1.15;
-      }
+      :root { --prompt-width: clamp(140px, 27vw, 200px); }
+      #targetPanel { padding: 10px 4px 10px 10px; }
+      #targetText { font-size: clamp(19px, 4vw, 30px); }
+      .stats-bar { gap: 10px; font-size: 13px; }
     }
   </style>
 </head>
 <body>
   <div id="mapContainer" aria-label="Interactive map of countries"></div>
 
-  <div class="bottom-bar" aria-live="polite">
-    <button id="restartButton" type="button">Restart</button>
+  <div id="targetPanel" aria-live="polite">
+    <div id="targetText">Select: Loading...</div>
+    <div id="endSummary" hidden>
+      <div class="end-title">Complete!</div>
+      <button id="endRestartButton" type="button">Restart</button>
+      <div class="end-stats">
+        <span id="endTimeText"></span>
+        <span id="endAccuracyText"></span>
+        <span id="endCorrectText"></span>
+      </div>
+    </div>
+  </div>
+  <button id="restartButton" type="button">Restart</button>
+  <div class="stats-bar" id="statsBar" aria-live="polite">
     <span id="timeText">Time: 0:00</span>
     <span id="accuracyText">Accuracy: 100%</span>
-    <span id="targetText">Select: Loading...</span>
   </div>
 
   <script>
     const countries = [
       { id: "path17", name: "México" },
       { id: "path12", name: "Guatemala" },
-      { id: "path4", name: "Belice" },
       { id: "path24", name: "El Salvador" },
       { id: "path14", name: "Honduras" },
       { id: "path18", name: "Nicaragua" },
       { id: "path7", name: "Costa Rica" },
       { id: "path19", name: "Panamá" },
       { id: "path8", name: "Cuba" },
-      { id: "path15", name: "Haití" },
       { id: "path9", name: "República Dominicana" },
-      { id: "path16", name: "Jamaica" },
       { id: "path21", name: "Puerto Rico" },
       { id: "path6", name: "Colombia" },
       { id: "path26", name: "Venezuela" },
-      { id: "path13", name: "Guyana" },
-      { id: "path23", name: "Surinam" },
-      { id: "path11", name: "Guayana Francesa" },
-      { id: "path29", name: "Brasil" },
       { id: "path22", name: "Paraguay" },
       { id: "path25", name: "Uruguay" },
       { id: "path27", name: "Argentina" },
@@ -153,7 +213,14 @@
       restartButton: document.getElementById("restartButton"),
       timeText: document.getElementById("timeText"),
       accuracyText: document.getElementById("accuracyText"),
-      targetText: document.getElementById("targetText")
+      targetPanel: document.getElementById("targetPanel"),
+      targetText: document.getElementById("targetText"),
+      endSummary: document.getElementById("endSummary"),
+      endRestartButton: document.getElementById("endRestartButton"),
+      endTimeText: document.getElementById("endTimeText"),
+      endAccuracyText: document.getElementById("endAccuracyText"),
+      endCorrectText: document.getElementById("endCorrectText"),
+      statsBar: document.getElementById("statsBar")
     };
 
     let svg = null;
@@ -228,9 +295,18 @@
       stopCorrectFlash();
       if (!remaining.length) {
         currentCountry = null;
-        setTargetText("Complete");
         clearInterval(timerId);
         updateTimer();
+        const elapsed = Date.now() - startedAt;
+        const accuracy = attempts ? Math.round((correct / attempts) * 100) : 100;
+        elements.endTimeText.textContent = "Time: " + formatTime(elapsed);
+        elements.endAccuracyText.textContent = "Accuracy: " + accuracy + "%";
+        elements.endCorrectText.textContent = "Countries: " + correct + "/" + countries.length;
+        elements.targetText.hidden = true;
+        elements.endSummary.hidden = false;
+        elements.restartButton.hidden = true;
+        elements.statsBar.hidden = true;
+        requestAnimationFrame(positionTargetBesideMap);
         return;
       }
 
@@ -267,6 +343,10 @@
 
     function restartGame() {
       stopCorrectFlash();
+      elements.targetText.hidden = false;
+      elements.endSummary.hidden = true;
+      elements.restartButton.hidden = false;
+      elements.statsBar.hidden = false;
       correct = 0;
       attempts = 0;
       completed = new Set();
@@ -281,6 +361,17 @@
       chooseNextCountry();
     }
 
+    function positionTargetBesideMap() {
+      if (!svg) return;
+      const svgRect = svg.getBoundingClientRect();
+      const viewBox = svg.viewBox.baseVal;
+      if (!viewBox.width || !viewBox.height) return;
+      const scale = Math.min(svgRect.width / viewBox.width, svgRect.height / viewBox.height);
+      const renderedMapLeft = svgRect.left + (svgRect.width - viewBox.width * scale) / 2;
+      const promptLeft = Math.max(0, renderedMapLeft - elements.targetPanel.offsetWidth - 4);
+      elements.targetPanel.style.left = promptLeft + "px";
+    }
+
     function prepareMap(svgText) {
       const parser = new DOMParser();
       svg = parser.parseFromString(svgText, "image/svg+xml").querySelector("svg");
@@ -289,18 +380,20 @@
 
       svg.querySelectorAll("path[id]").forEach((path) => {
         path.removeAttribute("fill");
-        path.style.fill = "var(--neutral)";
+        path.style.fill = "var(--non-spanish)";
       });
 
       countries.forEach((country) => {
         const path = svg.querySelector(`#${country.id}`);
         if (!path) return;
+        path.style.fill = "var(--neutral)";
         path.dataset.countryId = country.id;
         path.setAttribute("aria-label", country.name);
         path.addEventListener("click", handleCountryClick);
       });
 
       elements.mapContainer.replaceChildren(svg);
+      requestAnimationFrame(positionTargetBesideMap);
     }
 
     async function loadMap() {
@@ -311,6 +404,8 @@
     }
 
     elements.restartButton.addEventListener("click", restartGame);
+    elements.endRestartButton.addEventListener("click", restartGame);
+    window.addEventListener("resize", () => requestAnimationFrame(positionTargetBesideMap));
 
     loadMap().catch((error) => {
       setTargetText(error.message);

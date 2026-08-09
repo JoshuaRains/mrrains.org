@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Spanish Pronunciation Practice</title>
+  <style>
+    * { box-sizing: border-box; }
+    :root { color-scheme: light; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      background: #f7f7f5;
+      color: #171717;
+      font-family: Arial, Helvetica, sans-serif;
+    }
+    main {
+      width: min(820px, calc(100% - 40px));
+      padding: 32px 0 80px;
+    }
+    .topline {
+      display: flex;
+      justify-content: space-between;
+      gap: 20px;
+      color: #666;
+      font-size: clamp(.85rem, 1.5vw, 1rem);
+    }
+    .card {
+      min-height: 390px;
+      margin: 18px 0;
+      padding: clamp(32px, 7vw, 70px);
+      display: grid;
+      place-items: center;
+      align-content: center;
+      text-align: center;
+      background: #fff;
+      border: 1px solid #d8d8d4;
+      border-radius: 18px;
+      cursor: pointer;
+      user-select: none;
+    }
+    .group {
+      margin: 0 0 22px;
+      color: #666;
+      font-size: clamp(1rem, 2vw, 1.2rem);
+    }
+    .word {
+      margin: 0;
+      font-size: clamp(4.5rem, 13vw, 9rem);
+      font-weight: 600;
+      line-height: .95;
+      letter-spacing: -.04em;
+    }
+    .focus {
+      min-height: 1.5em;
+      margin: 26px 0 0;
+      color: #4b4b4b;
+      font-size: clamp(1rem, 2vw, 1.25rem);
+    }
+    .controls {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+    }
+    button {
+      min-height: 54px;
+      padding: 12px 16px;
+      border: 1px solid #aaa;
+      border-radius: 10px;
+      background: #fff;
+      color: inherit;
+      font: inherit;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    button:hover, button:focus-visible { background: #ededeb; }
+    .listen {
+      border-color: #171717;
+      background: #171717;
+      color: #fff;
+    }
+    .listen:hover, .listen:focus-visible { background: #363636; }
+    .status {
+      min-height: 1.4em;
+      margin: 14px 0 0;
+      color: #666;
+      text-align: center;
+      font-size: .9rem;
+    }
+    .menu {
+      position: fixed;
+      left: 18px;
+      bottom: 18px;
+      color: #333;
+      text-decoration: none;
+      font-size: .95rem;
+    }
+    @media (max-width: 620px) {
+      main { width: min(100% - 24px, 820px); }
+      .card { min-height: 330px; }
+      .controls { grid-template-columns: 1fr 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <div class="topline">
+      <span id="category">Vowels</span>
+      <span id="progress">1 / 46</span>
+    </div>
+
+    <section class="card" id="card" tabindex="0" role="button" aria-label="Listen to this word">
+      <p class="group" id="group">Vowel sound</p>
+      <h1 class="word" id="word">casa</h1>
+      <p class="focus" id="focus">a · consistent open vowel</p>
+    </section>
+
+    <div class="controls">
+      <button type="button" id="previous">Previous</button>
+      <button type="button" class="listen" id="listen">Listen</button>
+      <button type="button" id="next">Next</button>
+      <button type="button" id="shuffle">Shuffle</button>
+    </div>
+    <p class="status" id="status" aria-live="polite">Try it first, then listen.</p>
+  </main>
+
+  <a class="menu" href="../tools/slides/review-games.html">← Menu</a>
+  <audio id="audio" preload="auto"></audio>
+
+  <script>
+    const audioRoot = 'audio/pronunciation/';
+    const words = [
+      { word: 'casa', category: 'Vowels', group: 'Vowel sound', focus: 'a · consistent open vowel', file: 'vowel-a-casa.mp3' },
+      { word: 'mesa', category: 'Vowels', group: 'Vowel sound', focus: 'e · consistent clear vowel', file: 'vowel-e-mesa.mp3' },
+      { word: 'vino', category: 'Vowels', group: 'Vowel sound', focus: 'i · consistent “ee” sound', file: 'vowel-i-vino.mp3' },
+      { word: 'lobo', category: 'Vowels', group: 'Vowel sound', focus: 'o · consistent rounded vowel', file: 'vowel-o-lobo.mp3' },
+      { word: 'luna', category: 'Vowels', group: 'Vowel sound', focus: 'u · consistent “oo” sound', file: 'vowel-u-luna.mp3' },
+
+      { word: 'boca', category: 'b / v', group: 'Beginning of a word', focus: 'b · lips close fully', file: 'bv-boca.mp3' },
+      { word: 'vaso', category: 'b / v', group: 'Beginning of a word', focus: 'v uses the same Spanish b sound', file: 'bv-vaso.mp3' },
+      { word: 'ambos', category: 'b / v', group: 'After m', focus: 'b · lips close fully', file: 'bv-ambos.mp3' },
+      { word: 'enviar', category: 'b / v', group: 'After n', focus: 'v uses the Spanish b sound', file: 'bv-enviar.mp3' },
+      { word: 'uva', category: 'b / v', group: 'Between vowels', focus: 'soft b/v · lips come close without fully closing', file: 'bv-uva.mp3' },
+      { word: 'saber', category: 'b / v', group: 'Between vowels', focus: 'soft b/v · keep the sound flowing', file: 'bv-saber.mp3' },
+
+      { word: 'casa', category: 'c', group: 'ca', focus: 'c sounds like k', file: 'c-ca-casa.mp3' },
+      { word: 'copa', category: 'c', group: 'co', focus: 'c sounds like k', file: 'c-co-copa.mp3' },
+      { word: 'cuna', category: 'c', group: 'cu', focus: 'c sounds like k', file: 'c-cu-cuna.mp3' },
+      { word: 'cena', category: 'c', group: 'ce · Latin America', focus: 'c sounds like s', file: 'c-ce-cena-mx.mp3' },
+      { word: 'cine', category: 'c', group: 'ci · Latin America', focus: 'c sounds like s', file: 'c-ci-cine-mx.mp3' },
+      { word: 'cena', category: 'c', group: 'ce · Spain', focus: 'c sounds like th in “think”', file: 'c-ce-cena-es.mp3' },
+      { word: 'cine', category: 'c', group: 'ci · Spain', focus: 'c sounds like th in “think”', file: 'c-ci-cine-es.mp3' },
+
+      { word: 'gato', category: 'g', group: 'ga · beginning of a word', focus: 'hard g', file: 'g-ga-gato.mp3' },
+      { word: 'goma', category: 'g', group: 'go · beginning of a word', focus: 'hard g', file: 'g-go-goma.mp3' },
+      { word: 'gusano', category: 'g', group: 'gu · beginning of a word', focus: 'hard g', file: 'g-gu-gusano.mp3' },
+      { word: 'amigo', category: 'g', group: 'g between vowels', focus: 'soft g · keep your voice on and let air pass', file: 'g-soft-amigo.mp3' },
+      { word: 'agua', category: 'g', group: 'g between vowels', focus: 'soft g · keep the sound flowing', file: 'g-soft-agua.mp3' },
+      { word: 'gente', category: 'g', group: 'ge', focus: 'strong breath from the back of the mouth', file: 'g-ge-gente.mp3' },
+      { word: 'girasol', category: 'g', group: 'gi', focus: 'strong breath from the back of the mouth', file: 'g-gi-girasol.mp3' },
+      { word: 'guerra', category: 'g', group: 'gue', focus: 'hard g · the u is silent', file: 'g-gue-guerra.mp3' },
+      { word: 'guitarra', category: 'g', group: 'gui', focus: 'hard g · the u is silent', file: 'g-gui-guitarra.mp3' },
+      { word: 'vergüenza', category: 'g', group: 'güe', focus: 'the two dots make the u audible', file: 'g-gue-diaeresis-vergueenza.mp3' },
+      { word: 'pingüino', category: 'g', group: 'güi', focus: 'the two dots make the u audible', file: 'g-gui-diaeresis-pingueino.mp3' },
+
+      { word: 'hola', category: 'h', group: 'Silent h', focus: 'begin directly with the vowel', file: 'h-hola.mp3' },
+      { word: 'ahora', category: 'h', group: 'Silent h', focus: 'do not add an English h sound', file: 'h-ahora.mp3' },
+      { word: 'jamón', category: 'j', group: 'j', focus: 'strong breath from the back of the mouth', file: 'j-jamon.mp3' },
+      { word: 'jirafa', category: 'j', group: 'j', focus: 'strong breath from the back of the mouth', file: 'j-jirafa.mp3' },
+
+      { word: 'pala', category: 'l / ll', group: 'single l', focus: 'tongue touches behind the upper teeth', file: 'l-pala.mp3' },
+      { word: 'calle', category: 'l / ll', group: 'double ll', focus: 'll uses the Spanish y sound', file: 'll-calle.mp3' },
+
+      { word: 'rojo', category: 'r / rr', group: 'r at the beginning', focus: 'trilled r', file: 'r-initial-rojo.mp3' },
+      { word: 'Enrique', category: 'r / rr', group: 'r after n', focus: 'trilled r', file: 'r-after-n-enrique.mp3' },
+      { word: 'alrededor', category: 'r / rr', group: 'r after l', focus: 'trilled r', file: 'r-after-l-alrededor.mp3' },
+      { word: 'Israel', category: 'r / rr', group: 'r after s', focus: 'trilled r', file: 'r-after-s-israel.mp3' },
+      { word: 'pero', category: 'r / rr', group: 'single r between vowels', focus: 'tap the tongue once', file: 'r-tap-pero.mp3' },
+      { word: 'cara', category: 'r / rr', group: 'single r between vowels', focus: 'tap the tongue once', file: 'r-tap-cara.mp3' },
+      { word: 'perro', category: 'r / rr', group: 'rr', focus: 'trilled r', file: 'rr-perro.mp3' },
+
+      { word: 'dedo', category: 'd', group: 'd at the beginning', focus: 'firm d · tongue touches behind the upper teeth', file: 'd-initial-dedo.mp3' },
+      { word: 'andar', category: 'd', group: 'd after n', focus: 'firm d', file: 'd-after-n-andar.mp3' },
+      { word: 'falda', category: 'd', group: 'd after l', focus: 'firm d', file: 'd-after-l-falda.mp3' },
+      { word: 'cada', category: 'd', group: 'd between vowels', focus: 'soft d · tongue touches lightly and air continues', file: 'd-soft-cada.mp3' }
+    ];
+
+    const wordElement = document.getElementById('word');
+    const categoryElement = document.getElementById('category');
+    const groupElement = document.getElementById('group');
+    const focusElement = document.getElementById('focus');
+    const progressElement = document.getElementById('progress');
+    const statusElement = document.getElementById('status');
+    const audio = document.getElementById('audio');
+    let index = 0;
+
+    function showWord() {
+      const item = words[index];
+      wordElement.textContent = item.word;
+      categoryElement.textContent = item.category;
+      groupElement.textContent = item.group;
+      focusElement.textContent = item.focus;
+      progressElement.textContent = `${index + 1} / ${words.length}`;
+      audio.src = audioRoot + item.file;
+      statusElement.textContent = 'Try it first, then listen.';
+    }
+
+    function move(amount) {
+      audio.pause();
+      index = (index + amount + words.length) % words.length;
+      showWord();
+    }
+
+    function listen() {
+      audio.currentTime = 0;
+      audio.play()
+        .then(() => { statusElement.textContent = 'Listening…'; })
+        .catch(() => { statusElement.textContent = 'Audio could not be played.'; });
+    }
+
+    function shuffle() {
+      if (words.length < 2) return;
+      let nextIndex = index;
+      while (nextIndex === index) nextIndex = Math.floor(Math.random() * words.length);
+      audio.pause();
+      index = nextIndex;
+      showWord();
+    }
+
+    document.getElementById('previous').addEventListener('click', () => move(-1));
+    document.getElementById('next').addEventListener('click', () => move(1));
+    document.getElementById('listen').addEventListener('click', listen);
+    document.getElementById('shuffle').addEventListener('click', shuffle);
+    document.getElementById('card').addEventListener('click', listen);
+    document.getElementById('card').addEventListener('keydown', event => {
+      if (event.key === 'Enter' || event.key === ' ') {
+        event.preventDefault();
+        listen();
+      }
+    });
+    audio.addEventListener('ended', () => { statusElement.textContent = 'Your turn: say it again.'; });
+    document.addEventListener('keydown', event => {
+      if (event.key === 'ArrowLeft') move(-1);
+      if (event.key === 'ArrowRight') move(1);
+      if (event.key === ' ' && event.target === document.body) {
+        event.preventDefault();
+        listen();
+      }
+    });
+
+    showWord();
+  </script>
+</body>
+</html>

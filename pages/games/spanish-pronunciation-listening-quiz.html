@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Spanish Pronunciation Listening Quiz</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      background: #f7f7f5;
+      color: #171717;
+      font-family: Arial, Helvetica, sans-serif;
+    }
+    main {
+      width: min(820px, calc(100% - 32px));
+      padding: 32px 0 76px;
+    }
+    .topline {
+      display: flex;
+      justify-content: space-between;
+      color: #666;
+      font-size: 1rem;
+    }
+    .question {
+      min-height: 270px;
+      margin: 18px 0;
+      display: grid;
+      place-items: center;
+      background: #fff;
+      border: 1px solid #d8d8d4;
+      border-radius: 18px;
+      text-align: center;
+    }
+    h1 {
+      margin: 0;
+      font-size: clamp(4.5rem, 14vw, 9rem);
+      line-height: 1;
+      letter-spacing: -.04em;
+    }
+    .choices {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+    }
+    .choice {
+      min-height: 110px;
+      border: 1px solid #aaa;
+      border-radius: 14px;
+      background: #fff;
+      color: #171717;
+      font: 700 clamp(2rem, 5vw, 3rem) Arial, Helvetica, sans-serif;
+      cursor: pointer;
+    }
+    .choice:hover, .choice:focus-visible { background: #ececea; }
+    .choice.playing { box-shadow: inset 0 0 0 3px #777; }
+    .navigation {
+      margin-top: 18px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    .navigation button {
+      min-height: 52px;
+      border: 1px solid #aaa;
+      border-radius: 10px;
+      background: #fff;
+      color: inherit;
+      font: 600 1rem Arial, Helvetica, sans-serif;
+      cursor: pointer;
+    }
+    .navigation button:hover, .navigation button:focus-visible { background: #ececea; }
+    .status {
+      min-height: 1.4em;
+      margin: 14px 0 0;
+      color: #666;
+      text-align: center;
+      font-size: .9rem;
+    }
+    .menu {
+      position: fixed;
+      left: 18px;
+      bottom: 18px;
+      color: #333;
+      text-decoration: none;
+      font-size: .95rem;
+    }
+    @media (max-width: 600px) {
+      .question { min-height: 230px; }
+      .choices { grid-template-columns: 1fr 1fr; }
+      .choice { min-height: 82px; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <div class="topline">
+      <span>Choose the matching pronunciation</span>
+      <span id="progress">1 / 22</span>
+    </div>
+
+    <section class="question">
+      <h1 id="word">joya</h1>
+    </section>
+
+    <div class="choices" id="choices" aria-label="Audio answer choices">
+      <button class="choice" type="button" data-index="0" aria-label="Play answer A">A</button>
+      <button class="choice" type="button" data-index="1" aria-label="Play answer B">B</button>
+      <button class="choice" type="button" data-index="2" aria-label="Play answer C">C</button>
+      <button class="choice" type="button" data-index="3" aria-label="Play answer D">D</button>
+    </div>
+
+    <div class="navigation">
+      <button id="previous" type="button">Previous</button>
+      <button id="next" type="button">Next</button>
+    </div>
+    <p class="status" id="status" aria-live="polite">Tap a letter to hear that choice.</p>
+  </main>
+
+  <a class="menu" href="../tools/slides/review-games.html">← Menu</a>
+  <audio id="audio" preload="none"></audio>
+
+  <script>
+    const questions = [
+      'joya', 'casa', 'cena', 'gente', 'guitarra',
+      'pingüino', 'hola', 'jamón', 'rojo', 'pero',
+      'perro', 'dedo', 'cada', 'boca', 'amigo',
+      'guerra', 'luna', 'mesa', 'vino', 'lobo',
+      'pala', 'calle'
+    ];
+
+    const letters = ['A', 'B', 'C', 'D'];
+    const wordElement = document.getElementById('word');
+    const progressElement = document.getElementById('progress');
+    const statusElement = document.getElementById('status');
+    const choiceButtons = [...document.querySelectorAll('.choice')];
+    const audio = document.getElementById('audio');
+    let current = 0;
+    let playingButton = null;
+
+    function render() {
+      audio.pause();
+      playingButton?.classList.remove('playing');
+      playingButton = null;
+      wordElement.textContent = questions[current];
+      progressElement.textContent = `${current + 1} / ${questions.length}`;
+      choiceButtons.forEach(button => button.classList.remove('playing'));
+      statusElement.textContent = 'Tap a letter to hear that choice.';
+    }
+
+    function playChoice(optionIndex) {
+      const letter = letters[optionIndex];
+      choiceButtons.forEach(button => button.classList.remove('playing'));
+      const button = choiceButtons[optionIndex];
+      button.classList.add('playing');
+      playingButton = button;
+      const questionNumber = String(current + 1).padStart(2, '0');
+      audio.src = `audio/pronunciation-quiz/q${questionNumber}-${letter.toLowerCase()}.mp3`;
+      audio.currentTime = 0;
+      audio.play()
+        .then(() => { statusElement.textContent = `Playing choice ${letter}…`; })
+        .catch(() => { statusElement.textContent = 'Audio could not be played.'; });
+    }
+
+    function move(amount) {
+      const target = current + amount;
+      if (target < 0 || target >= questions.length) return;
+      current = target;
+      render();
+    }
+
+    choiceButtons.forEach(button => {
+      button.addEventListener('click', () => playChoice(Number(button.dataset.index)));
+    });
+    document.getElementById('previous').addEventListener('click', () => move(-1));
+    document.getElementById('next').addEventListener('click', () => move(1));
+    audio.addEventListener('ended', () => {
+      playingButton?.classList.remove('playing');
+      playingButton = null;
+    });
+    document.addEventListener('keydown', event => {
+      const key = event.key.toUpperCase();
+      if (letters.includes(key)) playChoice(letters.indexOf(key));
+      if (event.key === 'ArrowLeft') move(-1);
+      if (event.key === 'ArrowRight') move(1);
+    });
+
+    render();
+  </script>
+</body>
+</html>

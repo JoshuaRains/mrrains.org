@@ -298,6 +298,7 @@
 		.document-camera-toolbar select { flex: 1 1 180px; min-width: 0; max-width: 420px; padding: 0 8px; }
 		.document-camera-toolbar button { flex: 0 0 34px; width: 34px; display: grid; place-items: center; padding: 0; cursor: pointer; }
 		.document-camera-toolbar button:hover { background: #ddd; }
+		.document-camera-toolbar button.active { background: #facc15; border-color: #facc15; }
 		.document-camera-toolbar .material-symbols-outlined { font-size: 23px; }
 		.document-camera-zoom { flex: 0 0 48px; display: grid; place-items: center; padding: 0 5px; font-variant-numeric: tabular-nums; }
 		.document-camera-close { margin-left: auto; }
@@ -309,6 +310,27 @@
 		.slides-area.camera-mode .slides-frame,
 		.slides-area.camera-mode .file-slide-viewer,
 		.slides-area.camera-mode .subtitle-bar { display: none; }
+
+		.review-game-viewer {
+			position: relative; width: 100%; height: calc(100% - var(--controls-clearance));
+			margin-bottom: var(--controls-clearance); background: #090909; border: 3px solid #000;
+			box-shadow: var(--shadow); overflow: hidden; display: flex; flex-direction: column;
+		}
+		.review-game-viewer[hidden] { display: none; }
+		.review-game-frame {
+			flex: 1 1 auto; min-height: 0; width: 100%; border: 0; background: #090909;
+		}
+		.review-game-home {
+			position: absolute; left: 10px; bottom: 10px; z-index: 4; width: 44px; height: 44px;
+			display: grid; place-items: center; padding: 0; cursor: pointer; border: 2px solid #000;
+			border-radius: 0; background: #facc15; color: #111; box-shadow: 3px 3px 0 #000;
+		}
+		.review-game-home:hover { background: #fde047; }
+		.review-game-home .material-symbols-outlined { font-size: 28px; }
+		.slides-area.review-game-mode .slides-frame,
+		.slides-area.review-game-mode .file-slide-viewer,
+		.slides-area.review-game-mode .subtitle-bar,
+		.slides-area.review-game-mode .document-camera-viewer { display: none; }
 
 		.slides-area.subtitles-live .slides-frame {
 			height: min(calc(100% - var(--subtitle-h) - var(--controls-clearance) - 4px), calc(var(--slides-fit-w) * 9 / 16));
@@ -1703,11 +1725,16 @@
 				<div class="document-camera-status" id="documentCameraStatus">Starting camera...</div>
 				<div class="document-camera-toolbar">
 					<select id="documentCameraSelect" aria-label="Select document camera"><option value="">Select camera</option></select>
+					<button id="documentCameraFreeze" type="button" title="Freeze camera" aria-label="Freeze camera"><span class="material-symbols-outlined" id="documentCameraFreezeIcon" aria-hidden="true">pause</span></button>
 					<button id="documentCameraZoomOut" type="button" title="Zoom out" aria-label="Zoom out"><span class="material-symbols-outlined" aria-hidden="true">zoom_out</span></button>
 					<span class="document-camera-zoom" id="documentCameraZoomLabel" aria-live="polite">1.0x</span>
 					<button id="documentCameraZoomIn" type="button" title="Zoom in" aria-label="Zoom in"><span class="material-symbols-outlined" aria-hidden="true">zoom_in</span></button>
 					<button class="document-camera-close" id="documentCameraClose" type="button" title="Return to slides" aria-label="Return to slides"><span class="material-symbols-outlined" aria-hidden="true">close</span></button>
 				</div>
+			</section>
+			<section class="review-game-viewer" id="reviewGameViewer" aria-label="Review games" hidden>
+				<iframe class="review-game-frame" id="reviewGameFrame" title="Review game selector" allow="autoplay; fullscreen" src="about:blank"></iframe>
+				<button class="review-game-home" id="reviewGameHome" type="button" title="Game selector" aria-label="Return to game selector"><span class="material-symbols-outlined" aria-hidden="true">grid_view</span></button>
 			</section>
 			<div class="subtitle-bar" aria-live="polite">
 				<div class="subtitle-text" id="subtitleText"></div>
@@ -1801,6 +1828,9 @@
 		</button>
 		<button class="page-tool-toggle" id="documentCameraToggle" type="button" title="Document camera" aria-label="Open document camera">
 			<span class="material-symbols-outlined" aria-hidden="true">video_camera_front</span>
+		</button>
+		<button class="page-tool-toggle" id="reviewGameToggle" type="button" title="Review games" aria-label="Open review games">
+			<span class="material-symbols-outlined" aria-hidden="true">sports_esports</span>
 		</button>
 		<button class="page-tool-toggle" id="bellBtn" type="button" title="Play bell" aria-label="Play bell">
 			<span class="material-symbols-outlined" aria-hidden="true">notifications</span>
@@ -2018,6 +2048,7 @@
 		let translatorMode = false;
 		let documentCameraStream = null;
 		let documentCameraZoom = 1;
+		let documentCameraFrozen = false;
 		let slideTimerOpen = false;
 		let slideTimerRunning = false;
 		let slideTimerTotalSeconds = 300;
@@ -2103,10 +2134,16 @@
 		const documentCameraVideo = document.getElementById('documentCameraVideo');
 		const documentCameraStatus = document.getElementById('documentCameraStatus');
 		const documentCameraSelect = document.getElementById('documentCameraSelect');
+		const documentCameraFreeze = document.getElementById('documentCameraFreeze');
+		const documentCameraFreezeIcon = document.getElementById('documentCameraFreezeIcon');
 		const documentCameraZoomOut = document.getElementById('documentCameraZoomOut');
 		const documentCameraZoomIn = document.getElementById('documentCameraZoomIn');
 		const documentCameraZoomLabel = document.getElementById('documentCameraZoomLabel');
 		const documentCameraClose = document.getElementById('documentCameraClose');
+		const reviewGameToggle = document.getElementById('reviewGameToggle');
+		const reviewGameViewer = document.getElementById('reviewGameViewer');
+		const reviewGameFrame = document.getElementById('reviewGameFrame');
+		const reviewGameHome = document.getElementById('reviewGameHome');
 		const slidesArea = document.querySelector('.slides-area');
 		const subtitleText = document.getElementById('subtitleText');
 		const translatorStage = document.getElementById('translatorStage');
@@ -4140,12 +4177,24 @@
 			} catch { }
 		}
 
+		function setDocumentCameraFrozen(frozen) {
+			documentCameraFrozen = Boolean(frozen && documentCameraStream);
+			documentCameraFreeze.classList.toggle('active', documentCameraFrozen);
+			documentCameraFreezeIcon.textContent = documentCameraFrozen ? 'play_arrow' : 'pause';
+			const label = documentCameraFrozen ? 'Resume live camera' : 'Freeze camera';
+			documentCameraFreeze.title = label;
+			documentCameraFreeze.setAttribute('aria-label', label);
+			if (documentCameraFrozen) documentCameraVideo.pause();
+			else if (documentCameraStream) documentCameraVideo.play().catch(() => {});
+		}
+
 		function stopDocumentCameraStream() {
 			if (documentCameraStream) {
 				documentCameraStream.getTracks().forEach(track => track.stop());
 				documentCameraStream = null;
 			}
 			documentCameraVideo.srcObject = null;
+			setDocumentCameraFrozen(false);
 		}
 
 		function updateDocumentCameraZoom(nextZoom) {
@@ -4190,6 +4239,7 @@
 				documentCameraStream = await navigator.mediaDevices.getUserMedia({ video, audio: false });
 				documentCameraVideo.srcObject = documentCameraStream;
 				await documentCameraVideo.play();
+				setDocumentCameraFrozen(false);
 				await refreshDocumentCameraList(deviceId);
 				documentCameraStatus.hidden = true;
 			} catch (error) {
@@ -4202,6 +4252,7 @@
 		}
 
 		async function openDocumentCamera() {
+			closeReviewGameSelector();
 			documentCameraViewer.hidden = false;
 			slidesArea.classList.add('camera-mode');
 			documentCameraToggle.classList.add('active');
@@ -4218,12 +4269,36 @@
 			documentCameraToggle.setAttribute('aria-label', 'Open document camera');
 		}
 
+		function openReviewGameSelector() {
+			closeDocumentCamera();
+			reviewGameViewer.hidden = false;
+			reviewGameFrame.src = './review-games.html';
+			slidesArea.classList.add('review-game-mode');
+			reviewGameToggle.classList.add('active');
+			reviewGameToggle.setAttribute('aria-label', 'Close review games');
+		}
+
+		function closeReviewGameSelector() {
+			reviewGameViewer.hidden = true;
+			reviewGameFrame.src = 'about:blank';
+			slidesArea.classList.remove('review-game-mode');
+			reviewGameToggle.classList.remove('active');
+			reviewGameToggle.setAttribute('aria-label', 'Open review games');
+		}
+
+		reviewGameToggle.addEventListener('click', () => {
+			if (slidesArea.classList.contains('review-game-mode')) closeReviewGameSelector();
+			else openReviewGameSelector();
+		});
+		reviewGameHome.addEventListener('click', () => { reviewGameFrame.src = './review-games.html'; });
+
 		documentCameraToggle.addEventListener('click', () => {
 			if (slidesArea.classList.contains('camera-mode')) closeDocumentCamera();
 			else openDocumentCamera();
 		});
 		documentCameraClose.addEventListener('click', closeDocumentCamera);
 		documentCameraSelect.addEventListener('change', () => startDocumentCamera(documentCameraSelect.value));
+		documentCameraFreeze.addEventListener('click', () => setDocumentCameraFrozen(!documentCameraFrozen));
 		documentCameraZoomOut.addEventListener('click', () => updateDocumentCameraZoom(documentCameraZoom - .25));
 		documentCameraZoomIn.addEventListener('click', () => updateDocumentCameraZoom(documentCameraZoom + .25));
 		navigator.mediaDevices?.addEventListener?.('devicechange', () => {
