@@ -24,7 +24,7 @@ AUDIO_OPTIONS = [
     ["pero", "pelo", "perro", "pedo"],
     ["teto", "dedo", "deyo", "dero"],
     ["cata", "cara", "caja", "cada"],
-    ["poca", "boca", "foca", "moca"],
+    ["toca", "boca", "foca", "moca"],
     ["amico", "amijo", "amigo", "amiso"],
     ["kuerra", "jerra", "guerra", "cerra"],
     ["lana", "lina", "lona", "luna"],
