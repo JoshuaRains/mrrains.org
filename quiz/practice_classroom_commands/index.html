@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Practice Classroom Commands • Listening</title>
+  <style>
+    @page { size: Letter portrait; margin: 0.5in; }
+    :root { --ink: #111; --rule: #222; }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: #fff; color: var(--ink); font-family: "Times New Roman", Georgia, serif; }
+    .page { max-width: 8.5in; margin: 0 auto; padding: 0.5in; }
+    .header { display: flex; justify-content: space-between; align-items: flex-end; gap: 12px; }
+    .title { font-size: 20pt; font-weight: 700; letter-spacing: .2px; }
+    .subtitle { font-size: 14pt; font-weight: 700; }
+    .rule { height: 1px; background: var(--rule); margin: 10px 0 12px; }
+    .instructions { font-size: 12pt; line-height: 1.35; margin: 0 0 14px; }
+    .columns { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; align-items: start; }
+    .items { list-style: none; margin: 0; padding: 0; }
+    .items li { display: flex; align-items: center; gap: 8px; padding: 2px 0; }
+    .items .num { width: 2ch; text-align: right; font-weight: 700; }
+    .items audio { width: 100%; max-width: 100%; }
+    .items li.group { margin-top: 6px; }
+    @media (max-width: 640px) { .page { padding: 24px 16px; } .header { align-items: flex-start; flex-direction: column; } .columns { grid-template-columns: 1fr; } }
+    @media print { audio { display: none; } .audio-print { display: inline-block; width: 100%; height: 18px; border: 1px solid #000; } }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <div class="header"><div class="title">Practice Classroom Commands</div><div class="subtitle">Listening</div></div>
+    <div class="rule"></div>
+    <p class="instructions">Press play on each audio sample. Listen as many times as needed.</p>
+    <div class="columns">
+      <ol class="items">
+        <li><span class="num">1.</span><audio aria-label="Audio clip 1" controls preload="none" src="audio/1.mp3"></audio><span class="audio-print" aria-hidden="true"></span></li>
+        <li><span class="num">2.</span><audio aria-label="Audio clip 2" controls preload="none" src="audio/2.mp3"></audio><span class="audio-print" aria-hidden="true"></span></li>
+        <li><span class="num">3.</span><audio aria-label="Audio clip 3" controls preload="none" src="audio/3.mp3"></audio><span class="audio-print" aria-hidden="true"></span></li>
+        <li><span class="num">4.</span><audio aria-label="Audio clip 4" controls preload="none" src="audio/4.mp3"></audio><span class="audio-print" aria-hidden="true"></span></li>
+        <li><span class="num">5.</span><audio aria-label="Audio clip 5" controls preload="none" src="audio/5.mp3"></audio><span class="audio-print" aria-hidden="true"></span></li>
+        <li class="group"><span class="num">6.</span><audio aria-label="Audio clip 6" controls preload="none" src="audio/6.mp3"></audio><span class="audio-print" aria-hidden="true"></span></li>
+        <li><span class="num">7.</span><audio aria-label="Audio clip 7" controls preload="none" src="audio/7.mp3"></audio><span class="audio-print" aria-hidden="true"></span></li>
+        <li><span class="num">8.</span><audio aria-label="Audio clip 8" controls preload="none" src="audio/8.mp3"></audio><span class="audio-print" aria-hidden="true"></span></li>
+        <li><span class="num">9.</span><audio aria-label="Audio clip 9" controls preload="none" src="audio/9.mp3"></audio><span class="audio-print" aria-hidden="true"></span></li>
+        <li><span class="num">10.</span><audio aria-label="Audio clip 10" controls preload="none" src="audio/10.mp3"></audio><span class="audio-print" aria-hidden="true"></span></li>
+      </ol>
+    </div>
+  </main>
+</body>
+</html>
