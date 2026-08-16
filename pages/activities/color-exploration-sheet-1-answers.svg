@@ -1,0 +1,29 @@
+<svg width="612" height="792" viewBox="0 0 612 792" xmlns="http://www.w3.org/2000/svg">
+  <image href="color-exploration-sheet-1.svg" width="612" height="792"/>
+  <g fill="#111" font-family="Arial, Helvetica, sans-serif" font-size="10.5">
+    <g>
+      <text x="75" y="84">azul</text><text x="75" y="108">rojo claro</text><text x="75" y="132">verde oscuro</text>
+      <text x="75" y="157">anaranjado</text><text x="75" y="181">morado claro</text><text x="75" y="205">amarillo oscuro</text><text x="75" y="231">rosa</text>
+      <text x="274" y="84">morado oscuro</text><text x="274" y="108">verde claro</text><text x="274" y="132">rojo oscuro</text>
+      <text x="274" y="157">anaranjado claro</text><text x="274" y="181">gris</text><text x="274" y="205">violeta</text><text x="274" y="231">azul oscuro</text>
+      <text x="467" y="84">amarillo claro</text><text x="467" y="108">negro</text><text x="467" y="132">verde</text>
+      <text x="467" y="157">marrón</text><text x="467" y="181">rosa oscuro</text><text x="467" y="205">azul claro</text>
+    </g>
+    <g transform="translate(0 263)">
+      <text x="75" y="84">violeta oscuro</text><text x="75" y="108">amarillo</text><text x="75" y="132">gris oscuro</text>
+      <text x="75" y="157">rosa claro</text><text x="75" y="181">anaranjado oscuro</text><text x="75" y="205">morado</text><text x="75" y="231">verde claro</text>
+      <text x="274" y="84">rojo</text><text x="274" y="108">azul</text><text x="274" y="132">marrón oscuro</text>
+      <text x="274" y="157">violeta claro</text><text x="274" y="181">verde oscuro</text><text x="274" y="205">anaranjado claro</text><text x="274" y="231">gris claro</text>
+      <text x="467" y="84">amarillo oscuro</text><text x="467" y="108">azul claro</text><text x="467" y="132">rojo oscuro</text>
+      <text x="467" y="157">verde</text><text x="467" y="181">rosa</text><text x="467" y="205">blanco</text>
+    </g>
+    <g transform="translate(0 526)">
+      <text x="75" y="84">amarillo claro</text><text x="75" y="108">azul oscuro</text><text x="75" y="132">violeta</text>
+      <text x="75" y="157">marrón</text><text x="75" y="181">rojo claro</text><text x="75" y="205">morado oscuro</text><text x="75" y="231">verde</text>
+      <text x="274" y="84">gris</text><text x="274" y="108">anaranjado</text><text x="274" y="132">rosa oscuro</text>
+      <text x="274" y="157">morado claro</text><text x="274" y="181">verde oscuro</text><text x="274" y="205">anaranjado oscuro</text><text x="274" y="231">rosa claro</text>
+      <text x="467" y="84">amarillo</text><text x="467" y="108">negro</text><text x="467" y="132">azul claro</text>
+      <text x="467" y="157">violeta oscuro</text><text x="467" y="181">verde claro</text><text x="467" y="205">marrón oscuro</text>
+    </g>
+  </g>
+</svg>

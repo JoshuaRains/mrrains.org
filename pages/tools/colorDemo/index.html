@@ -101,17 +101,16 @@ function rgbToHsl({r,g,b}){
 /* Spanish naming */
 function spanishNameFromRGB(rgb){
   const {h,s,l}=rgbToHsl(rgb); const H=(isNaN(h)?0:h), S=s*100, L=l*100;
-  if(S<10){if(L>=92)return"blanco"; if(L<20)return"negro"; if(L>=70)return"gris claro"; if(L<=35)return"gris oscuro"; return"gris";}
+  if(S<15){if(L>=92)return"blanco"; if(L<20)return"negro"; if(L>=70)return"gris claro"; if(L<=35)return"gris oscuro"; return"gris";}
   let base=""; if(H<15||H>=345) base="rojo";
   else if(H<45) base=(S<50&&L<55)?"marrón":"anaranjado";
   else if(H<75) base="amarillo";
   else if(H<165) base="verde";
-  else if(H<195) base=(S>50?"turquesa":"aguamarina");
-  else if(H<255) base=(L>=85&&S>=35&&H>=185&&H<=210)?"celeste":"azul";
+  else if(H<255) base="azul";
   else if(H<285) base="morado";
   else if(H<330) base="violeta";
-  else base=(S>60?"fucsia":"rosa");
-  let mod=""; if(L>=82) mod="claro"; else if(L<35) mod="oscuro";
+  else base="rosa";
+  let mod=""; if(L>=70) mod="claro"; else if(L<45) mod="oscuro";
   const parts=[base]; if(mod&&base!=="blanco"&&base!=="negro"&&base!=="gris") parts.push(mod);
   return parts.join(" ");
 }
