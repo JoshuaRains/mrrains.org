@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#f5f0e6" />
+    <title>Quipu Renderer</title>
+    <link rel="stylesheet" href="styles.css" />
+    <script src="quipu-renderer.js" defer></script>
+  </head>
+  <body>
+    <main>
+      <header>
+        <p class="eyebrow">Quipu renderer</p>
+        <h1>Type a number.</h1>
+        <p class="instructions">Use a space to begin a new cord.</p>
+      </header>
+
+      <label for="quipu-input">Numbers</label>
+      <input
+        id="quipu-input"
+        type="text"
+        inputmode="numeric"
+        autocomplete="off"
+        autocapitalize="off"
+        spellcheck="false"
+        placeholder="7 24 503"
+        aria-describedby="input-hint"
+      />
+      <p id="input-hint" class="visually-hidden">
+        Enter digits. Each space creates a new quipu cord.
+      </p>
+
+      <section class="visualization" aria-label="Quipu visualization">
+        <svg
+          id="quipu-output"
+          xmlns="http://www.w3.org/2000/svg"
+          role="img"
+          aria-labelledby="quipu-title quipu-description"
+        >
+          <title id="quipu-title">Generated quipu</title>
+          <desc id="quipu-description">A quipu generated from the typed numbers.</desc>
+        </svg>
+        <p id="empty-message">Your quipu will appear here.</p>
+      </section>
+
+      <div class="export-actions" aria-label="Export quipu">
+        <button id="export-svg" type="button" disabled>Download SVG</button>
+        <button id="export-png" type="button" disabled>Download PNG · 1500px</button>
+      </div>
+    </main>
+  </body>
+</html>

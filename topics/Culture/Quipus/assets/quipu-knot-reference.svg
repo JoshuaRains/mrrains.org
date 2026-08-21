@@ -1,0 +1,52 @@
+<svg
+  xmlns="http://www.w3.org/2000/svg"
+  width="306"
+  height="479"
+  viewBox="0 0 306 479"
+  fill="none"
+  role="img"
+  aria-labelledby="title description"
+>
+  <title id="title">Quipu long knot reference</title>
+  <desc id="description">
+    A geometrically precise black line drawing of a quipu cord with a seven-turn long knot.
+  </desc>
+
+  <g
+    stroke="currentColor"
+    stroke-width="5"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+    vector-effect="non-scaling-stroke"
+  >
+    <!-- Cord above the knot -->
+    <path d="M110 131V38.5C110 28.835 117.835 21 127.5 21S145 28.835 145 38.5V78" />
+
+    <!-- Outer loop of the cord -->
+    <path d="M110 130A56 56 0 0 1 222 130V329A56 56 0 0 1 166 385A56 56 0 0 1 145 380.913" />
+
+    <!-- Inner loop of the cord -->
+    <path d="M145 130A21 21 0 0 1 187 130V329A21 21 0 0 1 145 329" />
+
+    <!-- Cord below the knot -->
+    <!--
+      The white-filled body is drawn above the circular swoop, so the swoop
+      disappears across the full 35 px width of the base cord at the crossing.
+    -->
+    <path
+      d="M110 329V439.5A17.5 17.5 0 0 0 145 439.5V329"
+      fill="white"
+    />
+
+    <!-- Seven identical, evenly spaced turns of the long knot -->
+    <g fill="white" transform="translate(0 -20)">
+      <rect x="84" y="145" width="98" height="30" rx="15" transform="rotate(-15 133 160)" />
+      <rect x="84" y="176" width="98" height="30" rx="15" transform="rotate(-15 133 191)" />
+      <rect x="84" y="207" width="98" height="30" rx="15" transform="rotate(-15 133 222)" />
+      <rect x="84" y="238" width="98" height="30" rx="15" transform="rotate(-15 133 253)" />
+      <rect x="84" y="269" width="98" height="30" rx="15" transform="rotate(-15 133 284)" />
+      <rect x="84" y="300" width="98" height="30" rx="15" transform="rotate(-15 133 315)" />
+      <rect x="84" y="331" width="98" height="30" rx="15" transform="rotate(-15 133 346)" />
+    </g>
+  </g>
+</svg>
