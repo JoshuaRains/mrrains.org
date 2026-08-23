@@ -36,6 +36,14 @@
 			box-sizing: border-box;
 		}
 
+		[hidden] {
+			display: none !important;
+		}
+
+		.advanced-caption-controls {
+			display: contents;
+		}
+
 		html,
 		body {
 			height: 100%;
@@ -715,8 +723,8 @@
 		}
 
 		.btn-accent.stop-active {
-			background: #e54d2e;
-			color: #fff;
+			background: var(--green);
+			color: #07130b;
 		}
 
 		.control-text {
@@ -789,16 +797,6 @@
 			cursor: pointer;
 			flex: 0 0 auto;
 		}
-		/* Pause Button */
-		#pauseBtn {
-			min-width: 86px;
-		}
-
-		#pauseBtn.timing {
-			background: #e8f7ed;
-			color: #177737;
-		}
-
 		.vol {
 			pointer-events: auto;
 			appearance: none;
@@ -1099,6 +1097,7 @@
 		}
 
 		.page-tool-toggle {
+			position: relative;
 			width: 40px;
 			height: 40px;
 			display: grid;
@@ -1109,6 +1108,16 @@
 			border-radius: 0;
 			padding: 0;
 			cursor: pointer;
+		}
+
+		/* Extra invisible hit area toward the slide; the icons stay unchanged. */
+		.page-tool-toggle::after {
+			content: "";
+			position: absolute;
+			top: 0;
+			left: 100%;
+			width: 28px;
+			height: 100%;
 		}
 
 		.page-tool-toggle:hover {
@@ -1136,6 +1145,22 @@
 			color: currentColor;
 			font-size: 40px;
 		}
+
+		.annotation-canvas { position:fixed; top:0; right:72px; bottom:var(--controls-clearance); left:72px; width:calc(100vw - 144px); height:calc(100vh - var(--controls-clearance)); z-index:9500; pointer-events:none; touch-action:none; }
+		.annotation-canvas.enabled { pointer-events:auto; cursor:crosshair; }
+		.annotation-canvas.erasing { cursor:cell; }
+		.canvas-tool-stack { position:fixed; right:4px; bottom:4px; display:grid; justify-items:end; gap:6px; z-index:9999; }
+		.canvas-tool-button { width:40px; height:40px; display:grid; place-items:center; border:0; border-radius:12px; background:#111; color:#fff; padding:0; cursor:pointer; box-shadow:0 4px 12px rgba(0,0,0,.3); }
+		.canvas-tool-button:hover { color:#e7e7e7; }
+		.canvas-tool-button.active { color:#ffeb3b; }
+		.canvas-tool-button .material-symbols-outlined { color:currentColor; font-size:40px; }
+		.canvas-primary-column { display:grid; gap:6px; padding:6px; border-radius:16px; background:#111; }
+		.canvas-primary-column .canvas-tool-button { border-radius:0; background:transparent; box-shadow:none; }
+		.canvas-edit-row { display:flex; gap:6px; justify-content:flex-end; padding:6px; border-radius:16px; background:#111; }
+		.canvas-edit-row .canvas-tool-button { box-shadow:none; }
+		.canvas-color-dot { width:20px; height:20px; border:3px solid rgba(255,255,255,.75); border-radius:50%; box-shadow:0 1px 5px rgba(0,0,0,.8); }
+		.canvas-tool-button.selected .canvas-color-dot { outline:3px solid #ffeb3b; outline-offset:2px; }
+
 		.serial-picker-button {
 			position: fixed;
 			right: 10px;
@@ -1482,6 +1507,7 @@
 		}
 
 		.slide-timer-chime:hover,
+		.slide-timer-jigsaw:hover,
 		.slide-timer-clear:hover {
 			color: #eeeeee;
 		}
@@ -1489,6 +1515,33 @@
 		.slide-timer-chime .material-symbols-outlined {
 			color: #fff;
 			font-size: 58px;
+			font-variation-settings: "FILL" 1, "wght" 500, "GRAD" 0, "opsz" 48;
+		}
+
+		.slide-timer-jigsaw {
+			position: absolute;
+			left: 76px;
+			bottom: 6px;
+			width: 52px;
+			height: 52px;
+			display: grid;
+			place-items: center;
+			border: 0;
+			border-radius: 12px;
+			background: transparent;
+			color: #fff;
+			padding: 0;
+			cursor: pointer;
+		}
+
+		.slide-timer-jigsaw.active {
+			background: #facc15;
+			color: #2c3141;
+		}
+
+		.slide-timer-jigsaw .material-symbols-outlined {
+			color: currentColor;
+			font-size: 42px;
 			font-variation-settings: "FILL" 1, "wght" 500, "GRAD" 0, "opsz" 48;
 		}
 
@@ -1789,16 +1842,12 @@
 				<option value="600000">10m</option>
 			</select>
 
-			<button class="btn" id="pauseBtn" title="Pause" aria-label="Pause">
-				<span class="material-symbols-outlined" id="pauseBtnIcon" aria-hidden="true">pause</span>
-				<span class="control-text" id="pauseBtnLabel">Pause</span>
+			<button class="btn btn-accent" id="toggleBtn" title="Timer paused; click to run" aria-label="Timer paused; click to run">
+				<span class="material-symbols-outlined" id="toggleBtnIcon" aria-hidden="true">pause</span>
+				<span class="control-text" id="toggleBtnLabel">Paused</span>
 			</button>
 
-			<button class="btn btn-accent" id="toggleBtn" title="Start" aria-label="Start">
-				<span class="material-symbols-outlined" id="toggleBtnIcon" aria-hidden="true">play_arrow</span>
-				<span class="control-text" id="toggleBtnLabel">Start</span>
-			</button>
-
+			<div class="advanced-caption-controls" id="advancedCaptionControls" hidden>
 			<button class="btn subtitle-btn" id="englishSubBtn" title="English captions" aria-label="English captions">
 				<span class="material-symbols-outlined" aria-hidden="true">closed_caption</span>
 				<span class="control-text">EN</span>
@@ -1815,10 +1864,14 @@
 				<span class="material-symbols-outlined" aria-hidden="true">translate</span>
 				<span class="control-text">ES→EN</span>
 			</button>
+			</div>
 			<label class="volume-control" title="Volume" aria-label="Volume">
 				<span class="material-symbols-outlined" aria-hidden="true">volume_up</span>
 				<input class="vol" id="vol" type="range" min="0" max="1" step="0.01" value="0.6" title="Volume" />
 			</label>
+			<button class="btn" id="settingsMenuToggle" type="button" title="Open settings menu" aria-label="Open settings menu">
+				<span class="material-symbols-outlined" aria-hidden="true">settings</span>
+			</button>
 		</div>
 	</div>
 
@@ -1843,7 +1896,23 @@
 		</button>
 	</div>
 
-	<button class="serial-picker-button" id="serialPickerBtn" type="button" title="Select USB or Bluetooth clicker serial port" aria-label="Select USB or Bluetooth clicker serial port">
+	<canvas class="annotation-canvas" id="annotationCanvas" aria-label="Slide drawing canvas"></canvas>
+	<div class="canvas-tool-stack" aria-label="Drawing tools">
+		<div class="canvas-primary-column">
+		<button class="canvas-tool-button" id="annotationToggle" type="button" title="Enable drawing" aria-label="Enable drawing" aria-pressed="false"><span class="material-symbols-outlined" aria-hidden="true">draw</span></button>
+		<button class="canvas-tool-button selected" type="button" data-annotation-color="#ef4444" title="Red" aria-label="Draw in red"><span class="canvas-color-dot" style="background:#ef4444" aria-hidden="true"></span></button>
+		<button class="canvas-tool-button" type="button" data-annotation-color="#ffffff" title="White" aria-label="Draw in white"><span class="canvas-color-dot" style="background:#ffffff" aria-hidden="true"></span></button>
+		<button class="canvas-tool-button" type="button" data-annotation-color="#3b82f6" title="Blue" aria-label="Draw in blue"><span class="canvas-color-dot" style="background:#3b82f6" aria-hidden="true"></span></button>
+		<button class="canvas-tool-button" type="button" data-annotation-color="#22c55e" title="Green" aria-label="Draw in green"><span class="canvas-color-dot" style="background:#22c55e" aria-hidden="true"></span></button>
+		</div>
+		<div class="canvas-edit-row">
+			<button class="canvas-tool-button" id="annotationUndo" type="button" title="Undo last stroke" aria-label="Undo last stroke"><span class="material-symbols-outlined" aria-hidden="true">undo</span></button>
+			<button class="canvas-tool-button" id="annotationClear" type="button" title="Clear drawing" aria-label="Clear drawing"><span class="material-symbols-outlined" aria-hidden="true">delete_sweep</span></button>
+			<button class="canvas-tool-button" id="annotationErase" type="button" title="Erase full strokes" aria-label="Erase full strokes" aria-pressed="false"><span class="material-symbols-outlined" aria-hidden="true">ink_eraser</span></button>
+		</div>
+	</div>
+
+	<button class="serial-picker-button" id="serialPickerBtn" type="button" title="Select USB or Bluetooth clicker serial port" aria-label="Select USB or Bluetooth clicker serial port" hidden>
 		<span class="material-symbols-outlined" id="serialPickerIcon" aria-hidden="true">warning</span>
 	</button>
 	<div class="slide-timer-panel" id="slideTimerPanel" aria-live="polite">
@@ -1856,12 +1925,15 @@
 		<input class="slide-timer-time" id="slideTimerTime" type="text" value="5:00" inputmode="numeric" aria-label="Timer duration" />
 		<div class="slide-timer-minutes" id="slideTimerMinutes" hidden>5 min left</div>
 		<div class="slide-timer-total-control">
-			<input class="slide-timer-total-slider" id="slideTimerTotalSlider" type="range" min="60" max="3600" step="60" value="300" aria-label="Total timer length" />
+			<input class="slide-timer-total-slider" id="slideTimerTotalSlider" type="range" min="30" max="3600" step="30" value="300" aria-label="Total timer length" />
 			<span class="slide-timer-total-label" id="slideTimerTotalLabel">5 min</span>
 		</div>
 		<div class="slide-timer-footer">
 			<button class="slide-timer-chime" id="slideTimerChimeToggle" type="button" title="Timer chime off" aria-label="Timer chime off">
 				<span class="material-symbols-outlined" id="slideTimerChimeIcon" aria-hidden="true">notifications_off</span>
+			</button>
+			<button class="slide-timer-jigsaw" id="slideTimerJigsawToggle" type="button" title="Jigsaw repeat off" aria-label="Jigsaw repeat off" aria-pressed="false">
+				<span class="material-symbols-outlined" aria-hidden="true">extension</span>
 			</button>
 			<button class="slide-timer-start" id="slideTimerStartStop" type="button" title="Start timer" aria-label="Start timer">
 				<span class="material-symbols-outlined" id="slideTimerStartStopIcon" aria-hidden="true">play_arrow</span>
@@ -1900,6 +1972,12 @@
 				<input type="file" id="slideFiles" accept="application/pdf,image/*,.pdf,.png,.jpg,.jpeg,.webp,.gif" multiple />
 			</div>
 			<div class="field">
+				<label class="check-row" for="advancedFeaturesEnabled">
+					<input type="checkbox" id="advancedFeaturesEnabled" />
+					Advanced features
+				</label>
+			</div>
+			<div class="field" id="clickerReceiverField" hidden>
 				<label>Clicker receiver</label>
 				<div class="mc-config-row">
 					<button class="add-btn" id="connectClickerReceiver" type="button">Connect USB/Bluetooth clicker</button>
@@ -1912,6 +1990,16 @@
 					<option value="nfl">nfl.mp3</option>
 					<option value="cave">cave.mp3</option>
 					<option value="amongus">amongus.mp3</option>
+					<option value="intercom">Intercom chime</option>
+					<option value="macbook">MacBook startup</option>
+					<option value="ford">Ford chime</option>
+					<option value="cabin">Cabin chime</option>
+					<option value="lostconnection">Lost connection</option>
+					<option value="huh">Huh?</option>
+					<option value="robloxdeath">Roblox death</option>
+					<option value="error">Error</option>
+					<option value="extra">Extra chime</option>
+					<option value="applepay">Apple Pay</option>
 					<option value="custom">Custom Upload…</option>
 				</select>
 				<input type="file" id="timerSoundFile" accept="audio/*" />
@@ -1954,7 +2042,7 @@
 				<button class="add-btn" id="addSchedRow" style="width:fit-content;">+ Add Trigger</button>
 			</div>
 
-			<div class="field">
+			<div class="field" id="keybindsField" hidden>
 				<label>Caption mic toggle key</label>
 				<div class="keybind-row">
 					<button class="keybind-btn" id="pushToTalkKeyBtn" type="button">F13</button>
@@ -2029,7 +2117,7 @@
 		let multipleChoiceCountsVisible = false;
 		const multipleChoiceResponses = new Map();
 
-		let timerSoundChoice = "nfl"; // "nfl" | "cave" | "amongus" | "custom"
+		let timerSoundChoice = "nfl";
 		let customTimerSoundDataUrl = ""; // data:audio/...;base64,...
 		let pushToTalkKeyCode = "F13";
 		let pushToTalkKeyLabel = "F13";
@@ -2040,6 +2128,8 @@
 		let deskPickerKeyCode = "F16";
 		let deskPickerKeyLabel = "F16";
 		let capturingKeybind = "";
+		let advancedFeaturesEnabled = false;
+		let volumeLevel = 0.6;
 
 		let running = false;
 		let paused = false;
@@ -2056,6 +2146,7 @@
 		let slideTimerLastTs = 0;
 		let slideTimerRafId = null;
 		let slideTimerChimeEnabled = false;
+		let slideTimerJigsawEnabled = false;
 		let timerStepMs = 60000;
 		let subtitleRecognition = null;
 		let subtitleFinalText = "";
@@ -2063,6 +2154,11 @@
 		let currentSubtitleText = "";
 		let translatorGroups = [];
 		let normalStrokes = [];
+		let annotationStrokes = [];
+		let annotationActiveStroke = null;
+		let annotationEnabled = false;
+		let annotationMode = "draw";
+		let annotationColor = "#ef4444";
 		let translatorEntries = [];
 		let translatorEntryIndex = -1;
 		let subtitleCaptureEntryIndex = -1;
@@ -2087,6 +2183,16 @@
 			nfl: "./sounds/nfl.mp3",
 			cave: "./sounds/cave.mp3",
 			amongus: "./sounds/amongus.mp3",
+			intercom: "./sounds/intercom-chime.mp3",
+			macbook: "./sounds/macbook-startup.mp3",
+			ford: "./sounds/ford-chime.mp3",
+			cabin: "./sounds/cabin-chime.mp3",
+			lostconnection: "./sounds/lost-connection.mp3",
+			huh: "./sounds/huh.mp3",
+			robloxdeath: "./sounds/roblox-death.mp3",
+			error: "./sounds/error.mp3",
+			extra: "./sounds/chime-extra.mp3",
+			applepay: "./sounds/apple-pay.mp3",
 		};
 
 		let fileDeck = null;
@@ -2121,9 +2227,6 @@
 		const backBtn = document.getElementById('backBtn');
 		const fwdBtn = document.getElementById('fwdBtn');
 		const timerStepSelect = document.getElementById('timerStepSelect');
-		const pauseBtn = document.getElementById('pauseBtn');
-		const pauseBtnIcon = document.getElementById('pauseBtnIcon');
-		const pauseBtnLabel = document.getElementById('pauseBtnLabel');
 		const englishSubBtn = document.getElementById('englishSubBtn');
 		const spanishSubBtn = document.getElementById('spanishSubBtn');
 		const translateEnEsBtn = document.getElementById('translateEnEsBtn');
@@ -2152,12 +2255,20 @@
 		const translatorLines = document.getElementById('translatorLines');
 		const translatorCanvas = document.getElementById('translatorCanvas');
 		const translatorCtx = translatorCanvas.getContext('2d');
+		const annotationCanvas = document.getElementById('annotationCanvas');
+		const annotationCtx = annotationCanvas.getContext('2d');
+		const annotationToggle = document.getElementById('annotationToggle');
+		const annotationErase = document.getElementById('annotationErase');
+		const annotationUndo = document.getElementById('annotationUndo');
+		const annotationClear = document.getElementById('annotationClear');
+		const annotationColorButtons = [...document.querySelectorAll('[data-annotation-color]')];
 		const translatorPrevBtn = document.getElementById('translatorPrev');
 		const translatorNextBtn = document.getElementById('translatorNext');
 		const toolDrawBtn = document.getElementById('toolDraw');
 		const toolMagicBtn = document.getElementById('toolMagic');
 		const toolEraseBtn = document.getElementById('toolErase');
 		const slideTimerToggle = document.getElementById('slideTimerToggle');
+		const settingsMenuToggle = document.getElementById('settingsMenuToggle');
 		const slideTimerPanel = document.getElementById('slideTimerPanel');
 		const slideTimerProgress = document.getElementById('slideTimerProgress');
 		const slideTimerTime = document.getElementById('slideTimerTime');
@@ -2166,6 +2277,7 @@
 		const slideTimerStartStopIcon = document.getElementById('slideTimerStartStopIcon');
 		const slideTimerChimeToggle = document.getElementById('slideTimerChimeToggle');
 		const slideTimerChimeIcon = document.getElementById('slideTimerChimeIcon');
+		const slideTimerJigsawToggle = document.getElementById('slideTimerJigsawToggle');
 		const slideTimerClear = document.getElementById('slideTimerClear');
 		const slideTimerTotalSlider = document.getElementById('slideTimerTotalSlider');
 		const slideTimerTotalLabel = document.getElementById('slideTimerTotalLabel');
@@ -2191,6 +2303,10 @@
 		const multipleChoiceJsonInput = document.getElementById('multipleChoiceJson');
 		const connectClickerReceiverBtn = document.getElementById('connectClickerReceiver');
 		const clickerReceiverStatus = document.getElementById('clickerReceiverStatus');
+		const advancedFeaturesEnabledEl = document.getElementById('advancedFeaturesEnabled');
+		const clickerReceiverField = document.getElementById('clickerReceiverField');
+		const keybindsField = document.getElementById('keybindsField');
+		const advancedCaptionControls = document.getElementById('advancedCaptionControls');
 		const serialPickerBtn = document.getElementById('serialPickerBtn');
 		const serialPickerIcon = document.getElementById('serialPickerIcon');
 		const serialStatusChip = document.getElementById('serialStatusChip');
@@ -2236,6 +2352,148 @@
 			audioEl.src = src;
 			audioEl.load();
 		}
+
+		function updateAdvancedFeaturesUI() {
+			advancedFeaturesEnabledEl.checked = advancedFeaturesEnabled;
+			clickerReceiverField.hidden = !advancedFeaturesEnabled;
+			keybindsField.hidden = !advancedFeaturesEnabled;
+			serialPickerBtn.hidden = !advancedFeaturesEnabled;
+			mcReceiverStatusBtn.hidden = !advancedFeaturesEnabled;
+			advancedCaptionControls.hidden = !advancedFeaturesEnabled;
+			if (!advancedFeaturesEnabled) disableCaptionTranslationSystem();
+		}
+
+		function resizeAnnotationCanvas() {
+			const rect = annotationCanvas.getBoundingClientRect();
+			const dpr = window.devicePixelRatio || 1;
+			annotationCanvas.width = Math.round(rect.width * dpr);
+			annotationCanvas.height = Math.round(rect.height * dpr);
+			annotationCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
+			redrawAnnotations();
+		}
+
+		function redrawAnnotations() {
+			annotationCtx.clearRect(0, 0, annotationCanvas.clientWidth, annotationCanvas.clientHeight);
+			annotationCtx.lineCap = "round";
+			annotationCtx.lineJoin = "round";
+			annotationCtx.lineWidth = 6;
+			for (const stroke of annotationStrokes) {
+				if (!stroke.points.length) continue;
+				annotationCtx.strokeStyle = stroke.color;
+				annotationCtx.fillStyle = stroke.color;
+				annotationCtx.beginPath();
+				annotationCtx.moveTo(stroke.points[0].x, stroke.points[0].y);
+				for (const point of stroke.points.slice(1)) annotationCtx.lineTo(point.x, point.y);
+				annotationCtx.stroke();
+				if (stroke.points.length === 1) {
+					annotationCtx.beginPath();
+					annotationCtx.arc(stroke.points[0].x, stroke.points[0].y, 3, 0, Math.PI * 2);
+					annotationCtx.fill();
+				}
+			}
+		}
+
+		function pointToSegmentDistance(point, start, end) {
+			const dx = end.x - start.x;
+			const dy = end.y - start.y;
+			if (!dx && !dy) return Math.hypot(point.x - start.x, point.y - start.y);
+			const t = Math.max(0, Math.min(1, ((point.x - start.x) * dx + (point.y - start.y) * dy) / (dx * dx + dy * dy)));
+			return Math.hypot(point.x - (start.x + t * dx), point.y - (start.y + t * dy));
+		}
+
+		function eraseAnnotationStrokeAt(point) {
+			let closestIndex = -1;
+			let closestDistance = 14;
+			annotationStrokes.forEach((stroke, index) => {
+				if (stroke.points.length === 1) {
+					const distance = Math.hypot(point.x - stroke.points[0].x, point.y - stroke.points[0].y);
+					if (distance < closestDistance) { closestDistance = distance; closestIndex = index; }
+					return;
+				}
+				for (let i = 1; i < stroke.points.length; i++) {
+					const distance = pointToSegmentDistance(point, stroke.points[i - 1], stroke.points[i]);
+					if (distance < closestDistance) { closestDistance = distance; closestIndex = index; }
+				}
+			});
+			if (closestIndex >= 0) {
+				annotationStrokes.splice(closestIndex, 1);
+				redrawAnnotations();
+			}
+		}
+
+		function updateAnnotationControls() {
+			annotationCanvas.classList.toggle('enabled', annotationEnabled);
+			annotationCanvas.classList.toggle('erasing', annotationEnabled && annotationMode === "erase");
+			annotationToggle.classList.toggle('active', annotationEnabled && annotationMode === "draw");
+			annotationErase.classList.toggle('active', annotationEnabled && annotationMode === "erase");
+			annotationToggle.setAttribute('aria-pressed', String(annotationEnabled && annotationMode === "draw"));
+			annotationErase.setAttribute('aria-pressed', String(annotationEnabled && annotationMode === "erase"));
+			annotationToggle.title = annotationEnabled ? "Disable drawing" : "Enable drawing";
+		}
+
+		function getAnnotationPoint(event) {
+			const rect = annotationCanvas.getBoundingClientRect();
+			return { x: event.clientX - rect.left, y: event.clientY - rect.top };
+		}
+
+		annotationCanvas.addEventListener('pointerdown', event => {
+			if (!annotationEnabled) return;
+			event.preventDefault();
+			annotationCanvas.setPointerCapture(event.pointerId);
+			const point = getAnnotationPoint(event);
+			if (annotationMode === "erase") {
+				eraseAnnotationStrokeAt(point);
+				return;
+			}
+			annotationActiveStroke = { color: annotationColor, points: [point] };
+			annotationStrokes.push(annotationActiveStroke);
+			redrawAnnotations();
+		});
+
+		annotationCanvas.addEventListener('pointermove', event => {
+			if (!annotationEnabled || !annotationCanvas.hasPointerCapture(event.pointerId)) return;
+			const point = getAnnotationPoint(event);
+			if (annotationMode === "erase") eraseAnnotationStrokeAt(point);
+			else if (annotationActiveStroke) {
+				annotationActiveStroke.points.push(point);
+				redrawAnnotations();
+			}
+		});
+
+		function finishAnnotationStroke(event) {
+			annotationActiveStroke = null;
+			if (annotationCanvas.hasPointerCapture(event.pointerId)) annotationCanvas.releasePointerCapture(event.pointerId);
+		}
+		annotationCanvas.addEventListener('pointerup', finishAnnotationStroke);
+		annotationCanvas.addEventListener('pointercancel', finishAnnotationStroke);
+		annotationToggle.addEventListener('click', () => {
+			if (annotationEnabled && annotationMode === "draw") annotationEnabled = false;
+			else { annotationEnabled = true; annotationMode = "draw"; }
+			updateAnnotationControls();
+		});
+		annotationErase.addEventListener('click', () => {
+			if (annotationEnabled && annotationMode === "erase") annotationEnabled = false;
+			else { annotationEnabled = true; annotationMode = "erase"; }
+			updateAnnotationControls();
+		});
+		annotationUndo.addEventListener('click', () => {
+			annotationStrokes.pop();
+			redrawAnnotations();
+		});
+		annotationClear.addEventListener('click', () => {
+			annotationStrokes = [];
+			annotationActiveStroke = null;
+			redrawAnnotations();
+		});
+		annotationColorButtons.forEach(button => button.addEventListener('click', () => {
+			annotationColor = button.dataset.annotationColor;
+			annotationMode = "draw";
+			annotationColorButtons.forEach(item => item.classList.toggle('selected', item === button));
+			updateAnnotationControls();
+		}));
+		window.addEventListener('resize', resizeAnnotationCanvas);
+		resizeAnnotationCanvas();
+		updateAnnotationControls();
 
 		function showFileSlideMessage(message) {
 			slidesFrame.hidden = true;
@@ -2631,7 +2889,10 @@
 				timerSoundChoice,
 				customTimerSoundDataUrl,
 				multipleChoiceJson,
-				timerStepMs
+				timerStepMs,
+				advancedFeaturesEnabled,
+				volumeLevel,
+				documentCameraZoom
 			};
 			localStorage.setItem(LS_KEY, JSON.stringify(payload));
 			updateTotalTime();
@@ -2660,6 +2921,11 @@
 						deskPickerKeyLabel = typeof data.deskPickerKeyLabel === 'string' ? data.deskPickerKeyLabel : deskPickerKeyCode;
 						slidesURL = typeof data.slidesURL === 'string' ? data.slidesURL : '';
 						multipleChoiceJson = typeof data.multipleChoiceJson === 'string' ? data.multipleChoiceJson : '';
+						advancedFeaturesEnabled = Boolean(data.advancedFeaturesEnabled);
+						const savedVolume = Number(data.volumeLevel);
+						if (Number.isFinite(savedVolume)) volumeLevel = Math.max(0, Math.min(1, savedVolume));
+						const savedCameraZoom = Number(data.documentCameraZoom);
+						if (Number.isFinite(savedCameraZoom)) documentCameraZoom = Math.min(4, Math.max(1, savedCameraZoom));
 						const savedTimerStepMs = Number(data.timerStepMs);
 						if ([30000, 60000, 300000, 600000].includes(savedTimerStepMs)) timerStepMs = savedTimerStepMs;
 
@@ -2690,7 +2956,11 @@
 
 			timerSoundSelect.value = timerSoundChoice || "nfl";
 			applyTimerSound();
+			volEl.value = String(volumeLevel);
+			setVolume(volumeLevel);
+			updateDocumentCameraZoom(documentCameraZoom);
 			updateKeybindUI();
+			updateAdvancedFeaturesUI();
 			updatePresetScheduleUI();
 			updateTimerStepUI();
 
@@ -2896,11 +3166,13 @@
 		/* ---------- Audio ---------- */
 		function setVolume(v) {
 			const vv = Math.max(0, Math.min(1, v));
+			volumeLevel = vv;
 			audioEl.volume = vv;
 			// Optional but useful: keep the bell volume aligned with the slider too
 			if (bellAudioEl) bellAudioEl.volume = vv;
 		}
-		volEl.addEventListener('input', e => setVolume(parseFloat(e.target.value) || 0));
+		volEl.addEventListener('input', e => setVolume(Number(e.target.value)));
+		volEl.addEventListener('change', saveConfig);
 
 		timerSoundSelect.addEventListener('change', () => {
 			timerSoundChoice = timerSoundSelect.value;
@@ -2993,7 +3265,15 @@
 		}
 
 		function clampSlideTimerTotalSeconds(seconds) {
-			return Math.max(60, Math.min(3600, Math.round(Number(seconds) / 60) * 60));
+			const safeSeconds = Math.max(30, Math.min(3600, Number(seconds) || 30));
+			const interval = safeSeconds <= 300 ? 30 : 60;
+			return Math.max(30, Math.min(3600, Math.round(safeSeconds / interval) * interval));
+		}
+
+		function formatSlideTimerTotalLabel(seconds) {
+			const mins = Math.floor(seconds / 60);
+			const secs = seconds % 60;
+			return secs ? `${mins}:30 min` : `${mins} min`;
 		}
 		function commitSlideTimerInput() {
 			const parsedSeconds = parseTimerInput(slideTimerTime.value);
@@ -3039,7 +3319,7 @@
 			if (document.activeElement !== slideTimerTotalSlider) {
 				slideTimerTotalSlider.value = String(sliderTotal);
 			}
-			slideTimerTotalLabel.textContent = `${Math.round(sliderTotal / 60)} min`;
+			slideTimerTotalLabel.textContent = formatSlideTimerTotalLabel(sliderTotal);
 			const timerAction = slideTimerRunning ? "Stop timer" : "Start timer";
 			slideTimerStartStop.title = timerAction;
 			slideTimerStartStop.setAttribute('aria-label', timerAction);
@@ -3048,6 +3328,11 @@
 			slideTimerChimeToggle.title = chimeAction;
 			slideTimerChimeToggle.setAttribute('aria-label', chimeAction);
 			slideTimerChimeIcon.textContent = slideTimerChimeEnabled ? "notifications" : "notifications_off";
+			const jigsawAction = slideTimerJigsawEnabled ? "Jigsaw repeat on" : "Jigsaw repeat off";
+			slideTimerJigsawToggle.title = jigsawAction;
+			slideTimerJigsawToggle.setAttribute('aria-label', jigsawAction);
+			slideTimerJigsawToggle.setAttribute('aria-pressed', String(slideTimerJigsawEnabled));
+			slideTimerJigsawToggle.classList.toggle('active', slideTimerJigsawEnabled);
 			slideTimerToggle.classList.toggle('active', slideTimerOpen);
 		}
 
@@ -3077,6 +3362,11 @@
 			if (slideTimerRemainingSeconds <= 0) {
 				stopSlideTimer();
 				playSlideTimerChime();
+				if (slideTimerJigsawEnabled) {
+					slideTimerRemainingSeconds = slideTimerTotalSeconds;
+					startSlideTimer();
+					updateSlideTimerUI();
+				}
 				return;
 			}
 			slideTimerRafId = requestAnimationFrame(tickSlideTimer);
@@ -3138,6 +3428,11 @@
 
 		slideTimerChimeToggle.addEventListener('click', () => {
 			slideTimerChimeEnabled = !slideTimerChimeEnabled;
+			updateSlideTimerUI();
+		});
+
+		slideTimerJigsawToggle.addEventListener('click', () => {
+			slideTimerJigsawEnabled = !slideTimerJigsawEnabled;
 			updateSlideTimerUI();
 		});
 
@@ -3705,7 +4000,20 @@
 			renderTranslatorView();
 		}
 
+		function disableCaptionTranslationSystem() {
+			stopSubtitles();
+			subtitleMode = "";
+			translatorMode = false;
+			translatorGroups = [];
+			normalStrokes = [];
+			subtitleText.textContent = "";
+			currentSubtitleText = "";
+			slidesArea.classList.remove('subtitles-live', 'translator-mode');
+			updateSubtitleButtons();
+		}
+
 		function toggleTranslatorMode() {
+			if (!advancedFeaturesEnabled) return;
 			if (!isCaptionMode()) return;
 			if (translatorMode) saveCurrentTranslatorEntry();
 			translatorMode = !translatorMode;
@@ -3723,6 +4031,7 @@
 		}
 
 		function setSubtitleMode(mode) {
+			if (!advancedFeaturesEnabled) return;
 			if (subtitleMode === mode) {
 				stopSubtitles();
 				subtitleMode = "";
@@ -4197,12 +4506,13 @@
 			setDocumentCameraFrozen(false);
 		}
 
-		function updateDocumentCameraZoom(nextZoom) {
+		function updateDocumentCameraZoom(nextZoom, persist = false) {
 			documentCameraZoom = Math.min(4, Math.max(1, Math.round(nextZoom * 10) / 10));
 			documentCameraVideo.style.setProperty('--camera-zoom', String(documentCameraZoom));
 			documentCameraZoomLabel.textContent = documentCameraZoom.toFixed(1) + 'x';
 			documentCameraZoomOut.disabled = documentCameraZoom <= 1;
 			documentCameraZoomIn.disabled = documentCameraZoom >= 4;
+			if (persist) saveConfig();
 		}
 
 		async function refreshDocumentCameraList(selectedId = '') {
@@ -4257,7 +4567,7 @@
 			slidesArea.classList.add('camera-mode');
 			documentCameraToggle.classList.add('active');
 			documentCameraToggle.setAttribute('aria-label', 'Close document camera');
-			updateDocumentCameraZoom(1);
+			updateDocumentCameraZoom(documentCameraZoom);
 			await startDocumentCamera(documentCameraSelect.value);
 		}
 
@@ -4292,6 +4602,23 @@
 		});
 		reviewGameHome.addEventListener('click', () => { reviewGameFrame.src = './review-games.html'; });
 
+		// Prevent accidental browser menus during presentations and in every
+		// same-origin review game loaded in the embedded game frame.
+		document.addEventListener('contextmenu', event => event.preventDefault());
+		reviewGameFrame.addEventListener('load', () => {
+			try {
+				const gameDocument = reviewGameFrame.contentDocument;
+				gameDocument?.addEventListener('contextmenu', event => event.preventDefault());
+				if (gameDocument?.head) {
+					const interactionStyle = gameDocument.createElement('style');
+					interactionStyle.textContent = '*{-webkit-user-select:none!important;user-select:none!important}';
+					gameDocument.head.appendChild(interactionStyle);
+				}
+			} catch (error) {
+				// Cross-origin iframe pages cannot be modified by the parent page.
+			}
+		});
+
 		documentCameraToggle.addEventListener('click', () => {
 			if (slidesArea.classList.contains('camera-mode')) closeDocumentCamera();
 			else openDocumentCamera();
@@ -4299,8 +4626,8 @@
 		documentCameraClose.addEventListener('click', closeDocumentCamera);
 		documentCameraSelect.addEventListener('change', () => startDocumentCamera(documentCameraSelect.value));
 		documentCameraFreeze.addEventListener('click', () => setDocumentCameraFrozen(!documentCameraFrozen));
-		documentCameraZoomOut.addEventListener('click', () => updateDocumentCameraZoom(documentCameraZoom - .25));
-		documentCameraZoomIn.addEventListener('click', () => updateDocumentCameraZoom(documentCameraZoom + .25));
+		documentCameraZoomOut.addEventListener('click', () => updateDocumentCameraZoom(documentCameraZoom - .25, true));
+		documentCameraZoomIn.addEventListener('click', () => updateDocumentCameraZoom(documentCameraZoom + .25, true));
 		navigator.mediaDevices?.addEventListener?.('devicechange', () => {
 			if (slidesArea.classList.contains('camera-mode')) refreshDocumentCameraList(documentCameraSelect.value);
 		});
@@ -4428,19 +4755,13 @@
 
 		function setBottomBarTimerState(state) {
 			const isRunning = state === "running";
-			const isPaused = state === "paused";
-			const toggleLabel = isRunning ? "Stop" : "Start";
-			const pauseLabel = isPaused ? "Resume" : "Pause";
+			const toggleLabel = isRunning ? "Running" : "Paused";
+			const toggleAction = isRunning ? "Timer running; click to pause" : "Timer paused; click to run";
 			toggleBtnLabel.textContent = toggleLabel;
-			toggleBtnIcon.textContent = isRunning ? "stop" : "play_arrow";
-			toggleBtn.title = toggleLabel;
-			toggleBtn.setAttribute('aria-label', toggleLabel);
+			toggleBtnIcon.textContent = isRunning ? "play_arrow" : "pause";
+			toggleBtn.title = toggleAction;
+			toggleBtn.setAttribute('aria-label', toggleAction);
 			toggleBtn.classList.toggle('stop-active', isRunning);
-			pauseBtnLabel.textContent = pauseLabel;
-			pauseBtnIcon.textContent = isPaused ? "play_arrow" : "pause";
-			pauseBtn.title = pauseLabel;
-			pauseBtn.setAttribute('aria-label', pauseLabel);
-			pauseBtn.classList.toggle('timing', isPaused);
 		}
 
 		function startTimer() {
@@ -4497,20 +4818,8 @@
 
 		/* ---------- Event Listeners ---------- */
 		toggleBtn.addEventListener('click', () => {
-			if (running) {
-				// Stop -> reset timer, then open config
-				resetTimer();
-				overlay.classList.add('show');
-				buildConfigRows();
-				buildScheduleRows();
-			} else {
-				startTimer();
-			}
-		});
-
-		pauseBtn.addEventListener('click', () => {
 			if (running) pauseTimer();
-			else if (paused) startTimer();
+			else startTimer();
 		});
 
 		restartBtn.addEventListener('click', resetTimer);
@@ -4527,6 +4836,12 @@
 		});
 
 		document.querySelector('.topbar').addEventListener('dblclick', () => {
+			overlay.classList.add('show');
+			buildConfigRows();
+			buildScheduleRows();
+		});
+
+		settingsMenuToggle.addEventListener('click', () => {
 			overlay.classList.add('show');
 			buildConfigRows();
 			buildScheduleRows();
@@ -4550,6 +4865,12 @@
 			presetScheduleEnabled = e.target.checked;
 			saveConfig();
 			updatePresetScheduleUI();
+		});
+
+		advancedFeaturesEnabledEl.addEventListener('change', event => {
+			advancedFeaturesEnabled = event.target.checked;
+			updateAdvancedFeaturesUI();
+			saveConfig();
 		});
 
 		lunchRadioEls.forEach(radio => {
@@ -4766,7 +5087,7 @@
 		buildConfigRows();
 		buildScheduleRows();
 		overlay.classList.add('show');
-		setVolume(parseFloat(volEl.value) || 0.6);
+		setVolume(Number(volEl.value));
 
 	</script>
 </body>

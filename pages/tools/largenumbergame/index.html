@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Números 100–10.000 — juego rápido</title>
+<style>
+  :root{color-scheme:dark}*{box-sizing:border-box;user-select:none;-webkit-user-select:none}html,body{height:100%;margin:0;background:#0d0f12;color:#e9eef4;font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial}.wrap{height:100%;display:grid;grid-template-rows:1fr auto;place-items:center;gap:2rem;padding:6vh 4vw 4vh;text-align:center}.brand{position:fixed;top:10px;left:14px;font-weight:800;font-size:14px;letter-spacing:.06em;opacity:.55}.prompt,.answer,.hint{margin:.35em 0;font-weight:800;letter-spacing:.02em}.number{font-size:clamp(48px,12vw,160px);line-height:1}.prompt{font-size:clamp(24px,4.5vw,48px);opacity:.95}.answer{font-size:clamp(25px,4.5vw,52px);opacity:0;transform:translateY(6px);transition:opacity 180ms ease-out,transform 180ms ease-out}.answer.revealed{opacity:1;transform:translateY(0)}.hint{opacity:.7;font-weight:700;font-size:clamp(14px,1.8vw,18px)}.kbd{border:1px solid #4a5568;border-radius:6px;padding:2px 8px;font-weight:800}
+</style>
+</head>
+<body>
+  <div class="brand">HOY ES… (NÚMEROS GRANDES)</div>
+  <div class="wrap"><main aria-live="polite"><div id="number" class="number">—</div><div id="prompt" class="prompt">Pulsa <span class="kbd">Espacio</span> para empezar</div><div id="answer" class="answer" aria-hidden="true"></div></main><div class="hint" id="hint">Espacio: nuevo número / revelar nombre</div></div>
+<script>
+(()=>{
+  const ONES=['','uno','dos','tres','cuatro','cinco','seis','siete','ocho','nueve'];
+  const SPECIAL=['diez','once','doce','trece','catorce','quince','dieciséis','diecisiete','dieciocho','diecinueve','veinte','veintiuno','veintidós','veintitrés','veinticuatro','veinticinco','veintiséis','veintisiete','veintiocho','veintinueve'];
+  const TENS=['','','','treinta','cuarenta','cincuenta','sesenta','setenta','ochenta','noventa'];
+  const HUNDREDS=['','ciento','doscientos','trescientos','cuatrocientos','quinientos','seiscientos','setecientos','ochocientos','novecientos'];
+  function under100(n){if(n<10)return ONES[n];if(n<30)return SPECIAL[n-10];const t=Math.floor(n/10),o=n%10;return TENS[t]+(o?' y '+ONES[o]:'')}
+  function under1000(n){if(n<100)return under100(n);if(n===100)return'cien';const h=Math.floor(n/100),rest=n%100;return HUNDREDS[h]+(rest?' '+under100(rest):'')}
+  function spanish(n){if(n<1000)return under1000(n);if(n===1000)return'mil';const thousands=Math.floor(n/1000),rest=n%1000;const prefix=thousands===1?'mil':under1000(thousands)+' mil';return prefix+(rest?' '+under1000(rest):'')}
+  const numberEl=document.getElementById('number'),promptEl=document.getElementById('prompt'),answerEl=document.getElementById('answer'),hintEl=document.getElementById('hint');let state='idle',lastNum=null,current=null;
+  function instantHide(){answerEl.style.transition='none';answerEl.classList.remove('revealed');answerEl.setAttribute('aria-hidden','true');void answerEl.offsetWidth;answerEl.style.transition=''}
+  function newRound(){instantHide();let n;do{n=Math.floor(Math.random()*9901)+100}while(n===lastNum);lastNum=n;current={n,text:spanish(n)};numberEl.textContent=n.toLocaleString('es-ES');promptEl.textContent='¿Cómo se escribe?';answerEl.textContent=current.text.charAt(0).toUpperCase()+current.text.slice(1);state='question';hintEl.textContent='Espacio: revelar nombre'}
+  function reveal(){if(!current)return;answerEl.classList.add('revealed');answerEl.setAttribute('aria-hidden','false');state='answer';hintEl.textContent='Espacio: nuevo número'}
+  function advance(){if(state==='idle'||state==='answer')newRound();else reveal()}
+  addEventListener('keydown',e=>{if(e.code==='Space'){e.preventDefault();advance()}},{passive:false});addEventListener('click',advance);addEventListener('contextmenu',e=>e.preventDefault());
+})();
+</script>
+</body></html>
