@@ -1757,6 +1757,7 @@
 
 		<!-- Slides area -->
 		<div class="slides-area">
+			<button class="slides-reload-button" id="slidesReloadBtn" type="button" title="Reload current slides or document" aria-label="Reload current slides or document"><span class="material-symbols-outlined" aria-hidden="true">refresh</span></button>
 			<iframe class="slides-frame" id="slidesFrame" loading="lazy"
 				allow="autoplay; fullscreen; clipboard-write; encrypted-media; picture-in-picture; screen-wake-lock"
 				sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-presentation allow-downloads"
@@ -1968,8 +1969,9 @@
 			</div>
 
 			<div class="field">
-				<label for="slideFiles">PDF or slide images</label>
-				<input type="file" id="slideFiles" accept="application/pdf,image/*,.pdf,.png,.jpg,.jpeg,.webp,.gif" multiple />
+				<label for="slideFiles">Add PDF documents</label>
+				<input type="file" id="slideFiles" accept="application/pdf,.pdf" multiple />
+				<div class="document-settings-list" id="documentSettingsList" aria-live="polite"></div>
 			</div>
 			<div class="field">
 				<label class="check-row" for="advancedFeaturesEnabled">
@@ -2003,6 +2005,12 @@
 					<option value="custom">Custom Upload…</option>
 				</select>
 				<input type="file" id="timerSoundFile" accept="audio/*" />
+			</div>
+			<div class="field">
+				<label class="check-row" for="checkpointSoundEnabled">
+					<input type="checkbox" id="checkpointSoundEnabled" />
+					Play sound at progress-bar checkpoints
+				</label>
 			</div>
 
 			<div class="rows" id="rows"></div>
@@ -2093,6 +2101,7 @@
 	<script type="module">
 		const pdfjsLib = await import('https://cdn.jsdelivr.net/npm/pdfjs-dist@4.10.38/build/pdf.min.mjs');
 		pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdn.jsdelivr.net/npm/pdfjs-dist@4.10.38/build/pdf.worker.min.mjs';
+		window.slidesPdfJs = pdfjsLib;
 
 		function getZoom() {
 			return window.devicePixelRatio || 1;
@@ -4694,8 +4703,8 @@
 				elapsedMs = totalMs;
 				pauseTimer();
 				if (lastChimedIndex < starts.length) {
-					audioEl.currentTime = 0;
-					audioEl.play().catch(() => { });
+					if (window.playTimelineTick) window.playTimelineTick();
+					else { audioEl.currentTime = 0; audioEl.play().catch(() => { }); }
 					lastChimedIndex = starts.length;
 				}
 			}
@@ -4720,8 +4729,8 @@
 
 			if (currentIdx > lastChimedIndex && running) {
 				if (lastChimedIndex !== -1) {
-					audioEl.currentTime = 0;
-					audioEl.play().catch(() => { });
+					if (window.playTimelineTick) window.playTimelineTick();
+					else { audioEl.currentTime = 0; audioEl.play().catch(() => { }); }
 				}
 				lastChimedIndex = currentIdx;
 			}
@@ -5090,6 +5099,8 @@
 		setVolume(Number(volEl.value));
 
 	</script>
+	<link rel="stylesheet" href="./document-workspace.css" />
+	<script src="./document-workspace.js"></script>
 </body>
 
 </html>

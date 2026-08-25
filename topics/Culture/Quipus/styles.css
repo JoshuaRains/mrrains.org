@@ -168,6 +168,41 @@ button:disabled {
   opacity: 0.32;
 }
 
+.mode-control {
+  padding: 0;
+  margin: 26px 0 0;
+  border: 0;
+}
+
+.mode-control legend {
+  margin-bottom: 10px;
+  font-size: 0.72rem;
+  font-weight: 750;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.mode-switch {
+  display: inline-flex;
+}
+
+.mode-button {
+  min-height: 40px;
+  margin-left: -2px;
+  background: transparent;
+}
+
+.mode-button:first-child {
+  margin-left: 0;
+}
+
+.mode-button[aria-pressed="true"] {
+  position: relative;
+  z-index: 1;
+  color: white;
+  background: var(--ink);
+}
+
 .visually-hidden {
   position: absolute;
   width: 1px;
@@ -201,6 +236,14 @@ button:disabled {
   .export-actions {
     align-items: stretch;
     flex-direction: column;
+  }
+
+  .mode-switch {
+    display: flex;
+  }
+
+  .mode-button {
+    flex: 1;
   }
 }
 

@@ -31,6 +31,18 @@
         Enter digits. Each space creates a new quipu cord.
       </p>
 
+      <fieldset class="mode-control">
+        <legend>Rendering mode</legend>
+        <div class="mode-switch">
+          <button class="mode-button" type="button" data-mode="connected" aria-pressed="true">
+            Side string
+          </button>
+          <button class="mode-button" type="button" data-mode="plain" aria-pressed="false">
+            No side string
+          </button>
+        </div>
+      </fieldset>
+
       <section class="visualization" aria-label="Quipu visualization">
         <svg
           id="quipu-output"

@@ -8,6 +8,8 @@
   const description = document.querySelector("#quipu-description");
   const exportSvgButton = document.querySelector("#export-svg");
   const exportPngButton = document.querySelector("#export-png");
+  const modeButtons = [...document.querySelectorAll(".mode-button")];
+  let renderingMode = "connected";
 
   const MODULE_WIDTH = 306;
   const MODULE_TOP = 21;
@@ -70,7 +72,7 @@
     return connector;
   }
 
-  function makeKnotModule(wrapCount, offsetY) {
+  function makeKnotModule(wrapCount, offsetY, showSideString) {
     const group = svgElement("g", {
       transform: `translate(0 ${offsetY})`,
       fill: "none",
@@ -92,30 +94,37 @@
     const outerSwoop = `M110 130A56 56 0 0 1 222 130V${bottomY}A56 56 0 0 1 166 ${bottomY + 56}A56 56 0 0 1 145 ${outerIntersectionY.toFixed(3)}`;
     const innerSwoop = `M145 130A21 21 0 0 1 187 130V${bottomY}A21 21 0 0 1 145 ${bottomY}`;
 
+    if (showSideString) {
+      group.append(
+        svgElement("path", {
+          d: "M110 21V131L145 130V21Z",
+          fill: "white",
+          stroke: "none",
+        }),
+        svgElement("path", {
+          d: "M110 21V131M145 21V78",
+          "stroke-linecap": "butt",
+        }),
+        svgElement("path", {
+          d: `${outerSwoop}L110 130Z ${innerSwoop}Z`,
+          fill: "white",
+          "fill-rule": "evenodd",
+          stroke: "none",
+        }),
+        svgElement("path", {
+          d: outerSwoop,
+          fill: "none",
+        }),
+        svgElement("path", {
+          d: innerSwoop,
+          fill: "none",
+        }),
+      );
+    } else {
+      group.append(makeRibbonConnector(21, bottomY));
+    }
+
     group.append(
-      svgElement("path", {
-        d: "M110 21V131L145 130V21Z",
-        fill: "white",
-        stroke: "none",
-      }),
-      svgElement("path", {
-        d: "M110 21V131M145 21V78",
-        "stroke-linecap": "butt",
-      }),
-      svgElement("path", {
-        d: `${outerSwoop}L110 130Z ${innerSwoop}Z`,
-        fill: "white",
-        "fill-rule": "evenodd",
-        stroke: "none",
-      }),
-      svgElement("path", {
-        d: outerSwoop,
-        fill: "none",
-      }),
-      svgElement("path", {
-        d: innerSwoop,
-        fill: "none",
-      }),
       svgElement("path", {
         d: `M110 ${bottomY}V${lowerLoopY}A17.5 17.5 0 0 0 145 ${lowerLoopY}V${bottomY}`,
         fill: "white",
@@ -130,7 +139,7 @@
     return group;
   }
 
-  function makeCord(value, cordIndex, x) {
+  function makeCord(value, cordIndex, x, showSideString) {
     const group = svgElement("g", {
       transform: `translate(${x - MODULE_WIDTH / 2} 34)`,
       "data-cord": cordIndex + 1,
@@ -147,7 +156,7 @@
       if (previousBottom !== null) {
         group.append(makeRibbonConnector(previousBottom - 17.5, y + MODULE_TOP + 2.5));
       }
-      group.append(makeKnotModule(digit, y));
+      group.append(makeKnotModule(digit, y, showSideString));
       previousBottom = y + moduleHeight(digit);
     }
 
@@ -176,7 +185,8 @@
 
   function exportFileName(extension) {
     const numberPart = parseInput(input.value).join("-") || "quipu";
-    return `quipu-${numberPart}.${extension}`;
+    const modePart = renderingMode === "plain" ? "-no-side-string" : "";
+    return `quipu-${numberPart}${modePart}.${extension}`;
   }
 
   function downloadableSvg() {
@@ -288,9 +298,10 @@
     );
 
     let tallestCord = 0;
+    const showSideString = renderingMode === "connected";
     cords.forEach((value, index) => {
       const x = 36 + MODULE_WIDTH / 2 + index * (MODULE_WIDTH + CORD_GAP);
-      const cord = makeCord(value, index, x);
+      const cord = makeCord(value, index, x, showSideString);
       generated.append(cord.group);
       tallestCord = Math.max(tallestCord, cord.height);
     });
@@ -306,6 +317,15 @@
   }
 
   input.addEventListener("input", render);
+  modeButtons.forEach((button) => {
+    button.addEventListener("click", () => {
+      renderingMode = button.dataset.mode;
+      modeButtons.forEach((candidate) => {
+        candidate.setAttribute("aria-pressed", String(candidate === button));
+      });
+      render();
+    });
+  });
   exportSvgButton.addEventListener("click", exportSvg);
   exportPngButton.addEventListener("click", () => {
     exportPng().catch((error) => window.alert(error.message));

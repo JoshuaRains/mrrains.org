@@ -1,0 +1,23 @@
+.slides-reload-button {
+  position: absolute; top: 8px; right: 8px; z-index: 40; width: 42px; height: 42px;
+  display: grid; place-items: center; padding: 0; color: #111; background: #fff;
+  border: 2px solid #000; border-radius: 8px; cursor: pointer;
+}
+.slides-reload-button:hover { background: #e7e7e7; }
+.document-settings-list { display: grid; gap: 6px; margin-top: 8px; }
+.document-settings-item { display: flex; align-items: center; gap: 8px; padding: 7px 9px; background: #181818; border: 1px solid #444; border-radius: 7px; }
+.document-settings-item span { min-width: 0; flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.document-settings-item button { padding: 4px 9px; color: #fff; background: #631d1d; border: 1px solid #ef4444; border-radius: 5px; cursor: pointer; }
+.document-switcher { position: absolute; bottom: 0; left: calc(100% + 6px); z-index: 1; display: flex; align-items: center; gap: 8px; padding: 10px 12px 8px; background: #f8fafd; border-radius: 18px 18px 0 0; box-shadow: 0 -10px 28px rgba(15,23,42,.18); pointer-events: none; }
+.document-switcher button.btn { pointer-events: auto; min-width: 42px; width: 42px; height: 38px; padding: 0; display: inline-flex; align-items: center; justify-content: center; color: #172033; background: #fff; border: 0; border-radius: 12px; cursor: pointer; }
+.document-switcher button.btn:hover { background: #e7e7e7; }
+.document-switcher .document-label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+.document-switcher.compact-position { bottom: calc(100% + 6px); }
+.slides-area { position: relative; }
+.document-stage { position: absolute; top: 0; right: var(--edge-pad-r); bottom: var(--controls-clearance); left: var(--slides-pad-left); z-index: 25; overflow: hidden; background: transparent; touch-action: none; cursor: grab; transition: left .22s ease, bottom .22s ease; }
+.document-stage.dragging { cursor: grabbing; }
+.document-page-wrap { position: absolute; left: 50%; top: 50%; transform-origin: 0 0; }
+.document-page-wrap canvas { display: block; box-shadow: 0 5px 28px #000b; }
+.document-annotation-layer { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+.document-annotation-layer, .document-annotation-layer * { user-select: none; -webkit-user-select: none; -webkit-user-drag: none; }
+.document-page-counter { position: absolute; right: 10px; bottom: 10px; z-index: 3; padding: 5px 9px; color: #fff; background: #000b; border-radius: 6px; font: 600 13px system-ui; }
