@@ -3349,6 +3349,7 @@
 			slideTimerRunning = false;
 			cancelAnimationFrame(slideTimerRafId);
 			slideTimerRafId = null;
+			slideTimerLastTs = 0;
 		}
 
 		function playSlideTimerChime() {
@@ -3370,6 +3371,7 @@
 			updateSlideTimerUI();
 			if (slideTimerRemainingSeconds <= 0) {
 				stopSlideTimer();
+				updateSlideTimerUI();
 				playSlideTimerChime();
 				if (slideTimerJigsawEnabled) {
 					slideTimerRemainingSeconds = slideTimerTotalSeconds;
@@ -5041,6 +5043,7 @@
 
 			const tag = e.target.tagName;
 			const isTyping = tag === 'INPUT' || tag === 'TEXTAREA' || e.target.isContentEditable;
+			const isInteractiveControl = !!e.target.closest?.('button, input, select, textarea, a, [contenteditable="true"]');
 
 			// Close overlay
 			if (e.key === 'Escape') {
@@ -5048,7 +5051,7 @@
 			}
 
 			// Spacebar: play/pause timer (only when not typing)
-			if (e.key === ' ' && !isTyping) {
+			if (e.key === ' ' && !isTyping && !isInteractiveControl) {
 				e.preventDefault();
 				if (running) pauseTimer();
 				else if (paused) startTimer();
