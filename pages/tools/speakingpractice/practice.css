@@ -1,7 +1,5 @@
 body { font-family: Arial, sans-serif; color: #222; background: #fff; margin: 0; }
 main { max-width: 640px; margin: 48px auto; padding: 0 24px; text-align: center; }
-nav { display: flex; flex-wrap: wrap; justify-content: center; gap: 16px; margin-bottom: 40px; }
-a { color: #365c45; }
 h1 { font-size: 1.8rem; }
 #prompt { font-size: clamp(2rem, 6vw, 3rem); margin: 40px 0 24px; overflow-wrap: anywhere; }
 #answer { font-size: 2rem; margin: 24px 0 16px; }
