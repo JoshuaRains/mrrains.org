@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="en" translate="no">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Numbers 1–100 Practice | MrRains.org</title>
+  <link rel="stylesheet" href="practice.css">
+  <script src="practice.js" defer></script>
+</head>
+<body data-practice="numbers">
+  <main>
+    <nav aria-label="Practice pages"><a href="../../../index.html">Home</a><a href="numbers.html">Numbers</a><a href="pronouns.html">Pronouns</a><a href="verbs.html">Verbs</a></nav>
+    <h1>Numbers 1–100 Practice</h1>
+    <p>Say the Spanish answer to yourself, then reveal it to check.</p>
+    <div id="prompt" aria-live="polite">Ready?</div>
+    <section id="reveal" aria-label="Answer" hidden>
+      <p id="answer" lang="es" aria-live="polite"></p>
+      <audio id="audio" controls preload="none" aria-label="Spanish pronunciation"></audio>
+      <p id="audio-status" hidden>Audio is not available yet.</p>
+    </section>
+    <p><button id="next" type="button">Give Me a Number</button></p>
+  </main>
+</body>
+</html>
