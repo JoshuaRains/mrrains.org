@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en" translate="no">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Conjugation Raffle</title>
+<style>
+  :root{color-scheme:dark}*{box-sizing:border-box}html,body{min-height:100%;margin:0;background:#0d0f12;color:#e9eef4;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial}
+  .brand{font-weight:800;font-size:14px;letter-spacing:.06em;opacity:.65;padding:12px 16px}
+  .settings{display:flex;flex-wrap:wrap;align-items:center;gap:12px;padding:0 16px;font-size:14px;color:#bbc4d0}label{display:flex;align-items:center;gap:6px}select{font:inherit;color:inherit;background:#171d25;border:1px solid #4a5568;border-radius:6px;padding:6px}input{accent-color:#facc15}
+  .wrap{min-height:calc(100vh - 92px);display:grid;grid-template-rows:1fr auto;place-items:center;gap:2rem;padding:4vh 4vw;text-align:center}
+  main{width:100%;max-width:1200px}.prompt{font-size:clamp(36px,8vw,112px);font-weight:800;line-height:1.1;margin:.3em 0;overflow-wrap:anywhere}
+  .instruction{font-size:clamp(18px,2.5vw,30px);opacity:.8}.context{font-size:clamp(16px,2.2vw,26px);color:#facc15;min-height:1.5em}
+  .answer{font-size:clamp(28px,5vw,68px);font-weight:800;margin:.5em 0;line-height:1.2;color:#a7e2bb;overflow-wrap:anywhere}.answer[hidden]{display:block;visibility:hidden}
+  .hint{opacity:.75;font-size:clamp(14px,1.8vw,18px);font-weight:700;line-height:1.7}button{font:inherit;background:transparent;color:inherit;border:1px solid #4a5568;border-radius:6px;padding:7px 14px;cursor:pointer}button:focus-visible,select:focus-visible,input:focus-visible{outline:3px solid #facc15;outline-offset:3px}
+  @media(max-width:600px){.settings{gap:8px;font-size:12px}.wrap{min-height:calc(100vh - 140px)}}
+</style>
+</head>
+<body>
+<div class="brand">CONJUGATION RAFFLE · PRESENT TENSE</div>
+<div class="settings" aria-label="Game settings">
+  <label>Verbs <select id="source"><option value="all">Both lists (54)</option><option value="notes">Notes (29)</option><option value="practice">Dictionary lookup (25)</option></select></label>
+  <label>Endings <select id="ending"><option value="all">All</option><option value="ar">-AR</option><option value="er">-ER</option><option value="ir">-IR</option></select></label>
+  <label><input id="vosotros" type="checkbox">Vosotros</label>
+</div>
+<div class="wrap">
+  <main aria-live="polite" aria-atomic="true">
+    <p class="instruction">Write the phrase in Spanish.</p>
+    <h1 id="prompt" class="prompt">Press Space to start</h1>
+    <p id="context" class="context"></p>
+    <div id="answer" class="answer" lang="es" hidden aria-hidden="true">—</div>
+  </main>
+  <div class="hint"><button id="advance">Start</button><div id="hint">Space or click: draw a phrase</div><div>Subject pronouns are optional.</div></div>
+</div>
+<script type="module" src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,30 @@
+{
+  "rules": {
+    ".read": false,
+    ".write": false,
+    "conjugationBattleship": {
+      "rooms": {
+        "$room": {
+          ".read": "auth != null && auth.token.email == 'test@gmail.com'",
+          ".write": "auth != null && auth.token.email == 'test@gmail.com'",
+          ".validate": "newData.hasChildren(['createdAt', 'host', 'phase', 'verbs', 'players']) && newData.child('players').hasChildren()",
+          "verbs": {
+            ".validate": "newData.hasChildren(['0', '1', '2', '3', '4', '5'])",
+            "$index": {
+              ".validate": "($index == '0' || $index == '1' || $index == '2' || $index == '3' || $index == '4' || $index == '5') && newData.isString()"
+            }
+          }
+        }
+      },
+      "presence": {
+        "$room": {
+          ".read": "auth != null && auth.token.email == 'test@gmail.com'",
+          "$player": {
+            ".write": "auth != null && auth.token.email == 'test@gmail.com'",
+            ".validate": "newData.isBoolean()"
+          }
+        }
+      }
+    }
+  }
+}
