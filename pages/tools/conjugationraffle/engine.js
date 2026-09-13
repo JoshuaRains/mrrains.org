@@ -22,9 +22,9 @@ export const SUBJECTS = [
   {en:'He',es:'él',column:2}, {en:'She',es:'ella',column:2},
   {en:'You',hint:'one person · formal',es:'usted',column:2},
   {en:'We',es:'nosotros / nosotras',column:3},
-  {en:'You all',hint:'Spain · informal',es:'vosotros / vosotras',column:4},
+  {en:"Y'all",hint:'Spain · informal',es:'vosotros / vosotras',column:4},
   {en:'They',es:'ellos / ellas',column:5},
-  {en:'You all',hint:'ustedes',es:'ustedes',column:5}
+  {en:"Y'all",hint:'ustedes',es:'ustedes',column:5}
 ];
 export function conjugate(verb,column) {
   const endings={ar:['o','as','a','amos','áis','an'],er:['o','es','e','emos','éis','en'],ir:['o','es','e','imos','ís','en']};
