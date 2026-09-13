@@ -1237,6 +1237,45 @@
 			display: grid;
 		}
 
+		.app.timer-panel-open.noise-panel-open~.slide-timer-panel {
+			top: 8px; transform: none; gap: 6px; padding: 10px 5px;
+		}
+		.app.timer-panel-open.noise-panel-open~.slide-timer-panel .slide-timer-ring { width: min(190px, calc(100% - 10px)); }
+		.app.timer-panel-open.noise-panel-open~.slide-timer-panel input.slide-timer-time { width:min(240px, calc(100% - 60px)); padding-bottom:5px; font-size:58px; }
+		.app.timer-panel-open.noise-panel-open~.slide-timer-panel .slide-timer-total-control { width:min(300px, calc(100% - 60px)); }
+		.app.timer-panel-open.noise-panel-open~.slide-timer-panel .slide-timer-footer { min-height:52px; }
+		.app.timer-panel-open.noise-panel-open~.slide-timer-panel .slide-timer-start { width:48px; height:48px; border-radius:14px; }
+		.app.timer-panel-open.noise-panel-open~.slide-timer-panel .slide-timer-start .material-symbols-outlined { font-size:34px; }
+		.app.timer-panel-open.noise-panel-open~.slide-timer-panel .slide-timer-chime,
+		.app.timer-panel-open.noise-panel-open~.slide-timer-panel .slide-timer-clear { width:48px; height:48px; }
+		.app.timer-panel-open.noise-panel-open~.slide-timer-panel .slide-timer-chime .material-symbols-outlined,
+		.app.timer-panel-open.noise-panel-open~.slide-timer-panel .slide-timer-clear .material-symbols-outlined { font-size:42px; }
+		.app.timer-panel-open.noise-panel-open~.slide-timer-panel .slide-timer-jigsaw { left:58px; width:44px; height:44px; bottom:2px; }
+
+		.noise-monitor-panel {
+			position: fixed; left: calc(var(--sidebar-clearance) + 10px); top: 50%;
+			transform: translateY(-50%); width: calc(var(--timer-panel-w) - 15px);
+			display: none; gap: 14px; padding: 20px; background: #2c3141; color: #fff;
+			border-radius: 24px; box-shadow: 0 18px 48px rgba(0, 0, 0, .38); z-index: 9998;
+			transition: top .22s ease, background-color .12s linear;
+		}
+		.app.noise-panel-open~.noise-monitor-panel { display: grid; }
+		.app.timer-panel-open.noise-panel-open~.noise-monitor-panel { top:auto; bottom:8px; transform:none; }
+		.noise-monitor-panel.over-limit { background: #b91c1c; }
+		.noise-monitor-heading { display:flex; align-items:center; justify-content:space-between; gap:10px; }
+		.noise-monitor-title { font-size:22px; font-weight:900; }
+		.noise-status { color:rgba(255,255,255,.78); font-size:14px; font-weight:700; }
+		.noise-meter { height:54px; overflow:hidden; border:3px solid rgba(255,255,255,.9); border-radius:14px; background:#151925; }
+		.noise-meter-fill { width:0; height:100%; background:#24d2d2; transition:width .07s linear, background-color .12s linear; }
+		.noise-monitor-panel.over-limit .noise-meter-fill { background:#fff; }
+		.noise-level-readout { font-size:30px; font-weight:900; font-variant-numeric:tabular-nums; text-align:center; }
+		.noise-threshold-row { display:grid; grid-template-columns:auto 1fr auto; align-items:center; gap:10px; font-weight:800; }
+		.noise-threshold { width:100%; accent-color:#24d2d2; }
+		.noise-mic-row { display:grid; grid-template-columns:1fr auto; gap:8px; }
+		.noise-mic-select,.noise-mic-button { min-width:0; height:42px; border:2px solid #fff; border-radius:10px; background:#fff; color:#172033; padding:0 10px; font:inherit; font-weight:800; }
+		.noise-mic-button { display:flex; align-items:center; gap:6px; cursor:pointer; }
+		.noise-mic-button .material-symbols-outlined { font-size:24px; }
+
 
 		.multiple-choice-layer {
 			position: fixed;
@@ -1880,6 +1919,9 @@
 		<button class="page-tool-toggle" id="slideTimerToggle" type="button" title="Slide timer" aria-label="Slide timer">
 			<span class="material-symbols-outlined" aria-hidden="true">timer</span>
 		</button>
+		<button class="page-tool-toggle" id="noiseMonitorToggle" type="button" title="Noise level monitor" aria-label="Noise level monitor">
+			<span class="material-symbols-outlined" aria-hidden="true">graphic_eq</span>
+		</button>
 		<button class="page-tool-toggle" id="documentCameraToggle" type="button" title="Document camera" aria-label="Open document camera">
 			<span class="material-symbols-outlined" aria-hidden="true">video_camera_front</span>
 		</button>
@@ -1943,6 +1985,13 @@
 				<span class="material-symbols-outlined" aria-hidden="true">delete_history</span>
 			</button>
 		</div>
+	</div>
+	<div class="noise-monitor-panel" id="noiseMonitorPanel" aria-live="polite">
+		<div class="noise-monitor-heading"><span class="noise-monitor-title">Noise level</span><span class="noise-status" id="noiseStatus">Microphone off</span></div>
+		<div class="noise-meter" role="meter" aria-label="Current classroom noise" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="noiseMeter"><div class="noise-meter-fill" id="noiseMeterFill"></div></div>
+		<div class="noise-level-readout" id="noiseLevelReadout">0%</div>
+		<label class="noise-threshold-row" for="noiseThreshold"><span>Maximum</span><input class="noise-threshold" id="noiseThreshold" type="range" min="5" max="100" step="1" value="65"><span id="noiseThresholdLabel">65%</span></label>
+		<div class="noise-mic-row"><select class="noise-mic-select" id="noiseMicSelect" aria-label="Microphone"><option value="">Default microphone</option></select><button class="noise-mic-button" id="noiseMicButton" type="button" title="Ask Chrome to select or allow a microphone"><span class="material-symbols-outlined" aria-hidden="true">mic</span><span>Choose mic</span></button></div>
 	</div>
 
 	<div class="multiple-choice-layer" id="multipleChoiceLayer" aria-live="polite">
@@ -2149,6 +2198,12 @@
 		let documentCameraZoom = 1;
 		let documentCameraFrozen = false;
 		let slideTimerOpen = false;
+		let noiseMonitorOpen = false;
+		let noiseMonitorStream = null;
+		let noiseAudioContext = null;
+		let noiseAnalyser = null;
+		let noiseMonitorRafId = null;
+		let noiseThresholdValue = 65;
 		let slideTimerRunning = false;
 		let slideTimerTotalSeconds = 300;
 		let slideTimerRemainingSeconds = 300;
@@ -2277,6 +2332,16 @@
 		const toolMagicBtn = document.getElementById('toolMagic');
 		const toolEraseBtn = document.getElementById('toolErase');
 		const slideTimerToggle = document.getElementById('slideTimerToggle');
+		const noiseMonitorToggle = document.getElementById('noiseMonitorToggle');
+		const noiseMonitorPanel = document.getElementById('noiseMonitorPanel');
+		const noiseMeter = document.getElementById('noiseMeter');
+		const noiseMeterFill = document.getElementById('noiseMeterFill');
+		const noiseLevelReadout = document.getElementById('noiseLevelReadout');
+		const noiseThreshold = document.getElementById('noiseThreshold');
+		const noiseThresholdLabel = document.getElementById('noiseThresholdLabel');
+		const noiseMicSelect = document.getElementById('noiseMicSelect');
+		const noiseMicButton = document.getElementById('noiseMicButton');
+		const noiseStatus = document.getElementById('noiseStatus');
 		const settingsMenuToggle = document.getElementById('settingsMenuToggle');
 		const slideTimerPanel = document.getElementById('slideTimerPanel');
 		const slideTimerProgress = document.getElementById('slideTimerProgress');
@@ -2901,7 +2966,8 @@
 				timerStepMs,
 				advancedFeaturesEnabled,
 				volumeLevel,
-				documentCameraZoom
+				documentCameraZoom,
+				noiseThresholdValue
 			};
 			localStorage.setItem(LS_KEY, JSON.stringify(payload));
 			updateTotalTime();
@@ -2935,6 +3001,8 @@
 						if (Number.isFinite(savedVolume)) volumeLevel = Math.max(0, Math.min(1, savedVolume));
 						const savedCameraZoom = Number(data.documentCameraZoom);
 						if (Number.isFinite(savedCameraZoom)) documentCameraZoom = Math.min(4, Math.max(1, savedCameraZoom));
+						const savedNoiseThreshold = Number(data.noiseThresholdValue);
+						if (Number.isFinite(savedNoiseThreshold)) noiseThresholdValue = Math.min(100, Math.max(5, savedNoiseThreshold));
 						const savedTimerStepMs = Number(data.timerStepMs);
 						if ([30000, 60000, 300000, 600000].includes(savedTimerStepMs)) timerStepMs = savedTimerStepMs;
 
@@ -3398,7 +3466,7 @@
 			if (translatorMode && open) return;
 			slideTimerOpen = open;
 			const app = document.querySelector('.app');
-			app.classList.toggle('side-panel-open', slideTimerOpen);
+			app.classList.toggle('side-panel-open', slideTimerOpen || noiseMonitorOpen);
 			app.classList.toggle('timer-panel-open', slideTimerOpen);
 			if (!slideTimerOpen) stopSlideTimer();
 			updateSlideTimerUI();
@@ -3422,7 +3490,9 @@
 		function updateSlideTimerAvailability() {
 			const enabled = !translatorMode;
 			slideTimerToggle.disabled = !enabled;
+			noiseMonitorToggle.disabled = !enabled;
 			if (!enabled) setSlideTimerOpen(false);
+			if (!enabled) setNoiseMonitorOpen(false);
 		}
 
 		slideTimerToggle.addEventListener('click', () => {
@@ -4629,6 +4699,106 @@
 				// Cross-origin iframe pages cannot be modified by the parent page.
 			}
 		});
+
+		/* ---------- Noise Monitor ---------- */
+		function renderNoiseLevel(level) {
+			const value = Math.max(0, Math.min(100, Math.round(level)));
+			noiseMeterFill.style.width = `${value}%`;
+			noiseLevelReadout.textContent = `${value}%`;
+			noiseMeter.setAttribute('aria-valuenow', String(value));
+			const overLimit = value > noiseThresholdValue;
+			noiseMonitorPanel.classList.toggle('over-limit', overLimit);
+			noiseStatus.textContent = overLimit ? 'Too loud' : (noiseMonitorStream ? 'Listening' : 'Microphone off');
+		}
+
+		function stopNoiseMonitor() {
+			cancelAnimationFrame(noiseMonitorRafId);
+			noiseMonitorRafId = null;
+			if (noiseMonitorStream) noiseMonitorStream.getTracks().forEach(track => track.stop());
+			noiseMonitorStream = null;
+			if (noiseAudioContext) noiseAudioContext.close().catch(() => {});
+			noiseAudioContext = null;
+			noiseAnalyser = null;
+			renderNoiseLevel(0);
+		}
+
+		function tickNoiseMonitor() {
+			if (!noiseAnalyser || !noiseMonitorStream) return;
+			const samples = new Uint8Array(noiseAnalyser.fftSize);
+			noiseAnalyser.getByteTimeDomainData(samples);
+			let sumSquares = 0;
+			for (const sample of samples) {
+				const normalized = (sample - 128) / 128;
+				sumSquares += normalized * normalized;
+			}
+			const rms = Math.sqrt(sumSquares / samples.length);
+			const decibels = rms > 0 ? 20 * Math.log10(rms) : -60;
+			renderNoiseLevel(((Math.max(-60, Math.min(0, decibels)) + 60) / 60) * 100);
+			noiseMonitorRafId = requestAnimationFrame(tickNoiseMonitor);
+		}
+
+		async function refreshNoiseMicrophones(selectedId = '') {
+			const devices = await navigator.mediaDevices.enumerateDevices();
+			const microphones = devices.filter(device => device.kind === 'audioinput');
+			noiseMicSelect.innerHTML = '<option value="">Default microphone</option>';
+			microphones.forEach((device, index) => {
+				const option = document.createElement('option');
+				option.value = device.deviceId;
+				option.textContent = device.label || `Microphone ${index + 1}`;
+				noiseMicSelect.appendChild(option);
+			});
+			if ([...noiseMicSelect.options].some(option => option.value === selectedId)) noiseMicSelect.value = selectedId;
+		}
+
+		async function startNoiseMonitor(deviceId = '') {
+			if (!navigator.mediaDevices?.getUserMedia) {
+				noiseStatus.textContent = 'Microphone unavailable';
+				return;
+			}
+			stopNoiseMonitor();
+			noiseStatus.textContent = 'Waiting for Chrome…';
+			try {
+				const audio = deviceId ? { deviceId: { exact: deviceId }, echoCancellation: false, noiseSuppression: false, autoGainControl: false } : { echoCancellation: false, noiseSuppression: false, autoGainControl: false };
+				noiseMonitorStream = await navigator.mediaDevices.getUserMedia({ audio });
+				noiseAudioContext = new (window.AudioContext || window.webkitAudioContext)();
+				await noiseAudioContext.resume();
+				noiseAnalyser = noiseAudioContext.createAnalyser();
+				noiseAnalyser.fftSize = 1024;
+				noiseAnalyser.smoothingTimeConstant = .72;
+				noiseAudioContext.createMediaStreamSource(noiseMonitorStream).connect(noiseAnalyser);
+				const activeId = noiseMonitorStream.getAudioTracks()[0]?.getSettings().deviceId || deviceId;
+				await refreshNoiseMicrophones(activeId);
+				noiseStatus.textContent = 'Listening';
+				tickNoiseMonitor();
+			} catch (err) {
+				noiseStatus.textContent = err?.name === 'NotAllowedError' ? 'Allow microphone in Chrome' : 'Could not open microphone';
+			}
+		}
+
+		function setNoiseMonitorOpen(open) {
+			if (translatorMode && open) return;
+			noiseMonitorOpen = open;
+			const app = document.querySelector('.app');
+			app.classList.toggle('noise-panel-open', open);
+			app.classList.toggle('side-panel-open', slideTimerOpen || noiseMonitorOpen);
+			noiseMonitorToggle.classList.toggle('active', open);
+			if (open) startNoiseMonitor(noiseMicSelect.value);
+			else stopNoiseMonitor();
+		}
+
+		noiseMonitorToggle.addEventListener('click', () => setNoiseMonitorOpen(!noiseMonitorOpen));
+		noiseThreshold.addEventListener('input', event => {
+			noiseThresholdValue = Number(event.target.value);
+			noiseThresholdLabel.textContent = `${noiseThresholdValue}%`;
+			renderNoiseLevel(Number(noiseMeter.getAttribute('aria-valuenow')) || 0);
+			saveConfig();
+		});
+		noiseMicButton.addEventListener('click', () => startNoiseMonitor(noiseMicSelect.value));
+		noiseMicSelect.addEventListener('change', () => startNoiseMonitor(noiseMicSelect.value));
+		if (navigator.mediaDevices?.addEventListener) navigator.mediaDevices.addEventListener('devicechange', () => refreshNoiseMicrophones(noiseMicSelect.value).catch(() => {}));
+		window.addEventListener('pagehide', stopNoiseMonitor);
+		noiseThreshold.value = String(noiseThresholdValue);
+		noiseThresholdLabel.textContent = `${noiseThresholdValue}%`;
 
 		documentCameraToggle.addEventListener('click', () => {
 			if (slidesArea.classList.contains('camera-mode')) closeDocumentCamera();
