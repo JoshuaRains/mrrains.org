@@ -1919,7 +1919,7 @@
 		<button class="page-tool-toggle" id="slideTimerToggle" type="button" title="Slide timer" aria-label="Slide timer">
 			<span class="material-symbols-outlined" aria-hidden="true">timer</span>
 		</button>
-		<button class="page-tool-toggle" id="noiseMonitorToggle" type="button" title="Noise level monitor" aria-label="Noise level monitor">
+		<button class="page-tool-toggle" id="noiseMonitorToggle" type="button" title="Noise level monitor" aria-label="Noise level monitor" hidden disabled>
 			<span class="material-symbols-outlined" aria-hidden="true">graphic_eq</span>
 		</button>
 		<button class="page-tool-toggle" id="documentCameraToggle" type="button" title="Document camera" aria-label="Open document camera">
@@ -2198,6 +2198,7 @@
 		let documentCameraZoom = 1;
 		let documentCameraFrozen = false;
 		let slideTimerOpen = false;
+		const NOISE_MONITOR_ENABLED = false;
 		let noiseMonitorOpen = false;
 		let noiseMonitorStream = null;
 		let noiseAudioContext = null;
@@ -3490,7 +3491,7 @@
 		function updateSlideTimerAvailability() {
 			const enabled = !translatorMode;
 			slideTimerToggle.disabled = !enabled;
-			noiseMonitorToggle.disabled = !enabled;
+			noiseMonitorToggle.disabled = !NOISE_MONITOR_ENABLED || !enabled;
 			if (!enabled) setSlideTimerOpen(false);
 			if (!enabled) setNoiseMonitorOpen(false);
 		}
@@ -4776,6 +4777,7 @@
 		}
 
 		function setNoiseMonitorOpen(open) {
+			if (!NOISE_MONITOR_ENABLED && open) return;
 			if (translatorMode && open) return;
 			noiseMonitorOpen = open;
 			const app = document.querySelector('.app');
