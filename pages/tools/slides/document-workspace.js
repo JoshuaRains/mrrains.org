@@ -153,6 +153,7 @@ async function getPdf(doc) {
 
 async function renderActive() {
   ensureSlidesDocument(); const doc = activeDocument(); const stage = $('.document-stage'); const frame = $('#slidesFrame'); const viewer = $('#fileSlideViewer');
+  window.refreshSlideDrawing?.();
   $('.document-label').textContent = doc?.name || 'No documents';
   const teacherButton = $('[data-doc-action="teacher"]');
   if (teacherButton) teacherButton.title = `Open teacher editor${doc ? ` — ${doc.name}` : ''}`;
@@ -196,6 +197,86 @@ function setupGestures(stage) {
 function pairDistance(points) { return points.length < 2 ? 1 : Math.hypot(points[1].x - points[0].x, points[1].y - points[0].y); }
 function pairCenter(points) { return points.length < 2 ? points[0] : { x: (points[0].x + points[1].x) / 2, y: (points[0].y + points[1].y) / 2 }; }
 function moveDocument(delta) { if (!state.documents.length) return; state.activeIndex = (state.activeIndex + delta + state.documents.length) % state.documents.length; saveState(); renderActive(); }
+window.requestTeacherHistoryMove = delta => {
+  const doc = activeDocument();
+  if (doc?.type !== 'pdf') return false;
+  channel.postMessage({ type: 'history-control', id: doc.id, delta });
+  return true;
+};
+window.requestTeacherHistoryStart = () => {
+  const doc = activeDocument();
+  if (doc?.type !== 'pdf') return false;
+  channel.postMessage({ type: 'history-control', id: doc.id, start: true });
+  return true;
+};
+function documentCanvasPoint(clientX, clientY) {
+  if (activeDocument()?.type !== 'pdf') return null;
+  const canvas = $('.document-stage canvas');
+  const rect = canvas?.getBoundingClientRect();
+  if (!rect || clientX < rect.left || clientX > rect.right || clientY < rect.top || clientY > rect.bottom) return null;
+  return { x: (clientX - rect.left) * canvas.clientWidth / rect.width,
+           y: (clientY - rect.top) * canvas.clientHeight / rect.height };
+}
+let documentAnnotationSyncFrame = 0;
+function publishDocumentAnnotations(save = false) {
+  const doc = activeDocument();
+  if (!doc || doc.type !== 'pdf') return;
+  renderAnnotations($('.document-stage'), doc.id, state.pageById[doc.id] || 1);
+  if (save) saveState();
+  else if (!documentAnnotationSyncFrame) documentAnnotationSyncFrame = requestAnimationFrame(() => {
+    documentAnnotationSyncFrame = 0;
+    channel.postMessage({ type: 'state', state, annotationsOnly: true });
+  });
+}
+function beginDocumentStroke(point, color) {
+  const doc = activeDocument(); if (!doc || !point) return null;
+  const actions = state.histories[doc.id] ||= [];
+  actions.splice(state.historyPositions[doc.id] ?? actions.length);
+  const stroke = { id: uid(), type: 'stroke', page: state.pageById[doc.id] || 1, color, width: 4, points: [point] };
+  actions.push(stroke); state.historyPositions[doc.id] = actions.length;
+  publishDocumentAnnotations(); return stroke;
+}
+function appendDocumentStroke(stroke, point) { if (!stroke || !point) return; stroke.points.push(point); publishDocumentAnnotations(); }
+function finishDocumentStroke(stroke) { if (stroke) publishDocumentAnnotations(true); }
+function editDocumentStrokes(action, point = null) {
+  const doc = activeDocument(); if (doc?.type !== 'pdf') return;
+  const page = state.pageById[doc.id] || 1;
+  const actions = state.histories[doc.id] ||= [];
+  const visible = actions.slice(0, state.historyPositions[doc.id] ?? actions.length);
+  let target = -1;
+  if (action === 'undo') target = visible.findLastIndex(item => item.type === 'stroke' && item.page === page);
+  if (action === 'erase' && point) {
+    const scale = $('.document-stage canvas').getBoundingClientRect().width / $('.document-stage canvas').clientWidth;
+    const radius = 14 / Math.max(.01, scale);
+    let best = radius;
+    visible.forEach((item, index) => {
+      if (item.type !== 'stroke' || item.page !== page) return;
+      for (let i = 0; i < item.points.length; i++) {
+        const a = item.points[Math.max(0, i - 1)], b = item.points[i];
+        const dx = b.x - a.x, dy = b.y - a.y;
+        const t = dx || dy ? Math.max(0, Math.min(1, ((point.x-a.x)*dx+(point.y-a.y)*dy)/(dx*dx+dy*dy))) : 0;
+        const distance = Math.hypot(point.x-a.x-t*dx, point.y-a.y-t*dy);
+        if (distance < best) { best = distance; target = index; }
+      }
+    });
+  }
+  if (action === 'clear') {
+    state.histories[doc.id] = visible.filter(item => item.type !== 'stroke' || item.page !== page);
+    state.historyPositions[doc.id] = state.histories[doc.id].length;
+  } else if (target >= 0) {
+    visible.splice(target, 1); state.histories[doc.id] = visible; state.historyPositions[doc.id] = visible.length;
+  } else return;
+  publishDocumentAnnotations(true);
+}
+async function movePdfPage(delta) {
+  const doc = activeDocument();
+  if (doc?.type !== 'pdf') return;
+  const pdf = await getPdf(doc);
+  const current = state.pageById[doc.id] || 1;
+  state.pageById[doc.id] = Math.max(1, Math.min(pdf.numPages, current + delta));
+  saveState();
+  renderActive();
+}
 
 function renderAnnotations(stage, id, page) {
   const svg = stage.querySelector('svg'); const canvas = stage.querySelector('canvas'); svg.setAttribute('viewBox', `0 0 ${canvas.width / 2} ${canvas.height / 2}`); svg.innerHTML = '';

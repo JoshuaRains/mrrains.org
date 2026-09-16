@@ -167,13 +167,15 @@
 		}
 
 		.cp-dot {
-			width: 2px;
+			width: 12px;
 			height: 36px;
+			pointer-events: auto;
 			/* Taller than bar for tick mark effect */
 			background: #4b5563;
 			transition: background .25s ease, transform .3s ease, box-shadow .25s ease;
 			border-radius: 1px;
 		}
+		.cp:not(.first) .cp-dot { cursor: ew-resize; touch-action: none; }
 
 		.cp.completed .cp-dot {
 			background: #fff;
@@ -1939,7 +1941,7 @@
 		</button>
 	</div>
 
-	<canvas class="annotation-canvas" id="annotationCanvas" aria-label="Slide drawing canvas"></canvas>
+	<canvas class="annotation-canvas" id="annotationCanvas" aria-label="Slide or document drawing canvas"></canvas>
 	<div class="canvas-tool-stack" aria-label="Drawing tools">
 		<div class="canvas-primary-column">
 		<button class="canvas-tool-button" id="annotationToggle" type="button" title="Enable drawing" aria-label="Enable drawing" aria-pressed="false"><span class="material-symbols-outlined" aria-hidden="true">draw</span></button>
@@ -1955,9 +1957,6 @@
 		</div>
 	</div>
 
-	<button class="serial-picker-button" id="serialPickerBtn" type="button" title="Select USB or Bluetooth clicker serial port" aria-label="Select USB or Bluetooth clicker serial port" hidden>
-		<span class="material-symbols-outlined" id="serialPickerIcon" aria-hidden="true">warning</span>
-	</button>
 	<div class="slide-timer-panel" id="slideTimerPanel" aria-live="polite">
 		<div class="slide-timer-ring" aria-label="Slide timer countdown">
 			<svg viewBox="0 0 120 120" aria-hidden="true">
@@ -2005,7 +2004,7 @@
 					<span class="material-symbols-outlined" id="mcToggleCountsIcon" aria-hidden="true">visibility</span>
 				</button>
 			</div>
-			<div class="mc-total-wrap"><button class="mc-receiver-status" id="mcReceiverStatusBtn" type="button" title="Connect USB or Bluetooth clicker" aria-label="Connect USB or Bluetooth clicker"><span class="material-symbols-outlined" id="mcReceiverStatusIcon" aria-hidden="true">warning</span></button><div class="mc-progress" id="mcResponseTotal">0</div></div>
+			<div class="mc-total-wrap"><div class="mc-progress" id="mcResponseTotal">0</div></div>
 		</div>
 		<div class="mc-options" id="mcOptions"></div>
 	</div>
@@ -2028,7 +2027,7 @@
 					Advanced features
 				</label>
 			</div>
-			<div class="field" id="clickerReceiverField" hidden>
+			<div class="field" id="clickerReceiverField">
 				<label>Clicker receiver</label>
 				<div class="mc-config-row">
 					<button class="add-btn" id="connectClickerReceiver" type="button">Connect USB/Bluetooth clicker</button>
@@ -2099,26 +2098,6 @@
 				<button class="add-btn" id="addSchedRow" style="width:fit-content;">+ Add Trigger</button>
 			</div>
 
-			<div class="field" id="keybindsField" hidden>
-				<label>Caption mic toggle key</label>
-				<div class="keybind-row">
-					<button class="keybind-btn" id="pushToTalkKeyBtn" type="button">F13</button>
-					<div style="color:var(--muted); font-size:.9rem;">Press once to open CC mic, press again to close</div>
-				</div>
-				<div class="keybind-row">
-					<button class="keybind-btn" id="translatorKeyBtn" type="button">F14</button>
-					<div style="color:var(--muted); font-size:.9rem;">Open/close translator canvas</div>
-				</div>
-				<div class="keybind-row">
-					<button class="keybind-btn" id="chimeKeyBtn" type="button">F15</button>
-					<div style="color:var(--muted); font-size:.9rem;">Play chime sound</div>
-				</div>
-				<div class="keybind-row">
-					<button class="keybind-btn" id="deskKeyBtn" type="button">F16</button>
-					<div style="color:var(--muted); font-size:.9rem;">Open random desk selector</div>
-				</div>
-			</div>
-
 			<div class="cfg-actions">
 				<button class="ghost" id="clearAll">Clear</button>
 				<button class="primary" id="startNow">Start</button>
@@ -2148,9 +2127,13 @@
 	</div>
 
 	<script type="module">
-		const pdfjsLib = await import('https://cdn.jsdelivr.net/npm/pdfjs-dist@4.10.38/build/pdf.min.mjs');
-		pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdn.jsdelivr.net/npm/pdfjs-dist@4.10.38/build/pdf.worker.min.mjs';
-		window.slidesPdfJs = pdfjsLib;
+		try {
+			const pdfjsLib = await import('https://cdn.jsdelivr.net/npm/pdfjs-dist@4.10.38/build/pdf.min.mjs');
+			pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdn.jsdelivr.net/npm/pdfjs-dist@4.10.38/build/pdf.worker.min.mjs';
+			window.slidesPdfJs = pdfjsLib;
+		} catch (error) {
+			console.warn('PDF renderer will load when needed:', error);
+		}
 
 		function getZoom() {
 			return window.devicePixelRatio || 1;
@@ -2185,7 +2168,6 @@
 		let chimeKeyLabel = "F15";
 		let deskPickerKeyCode = "F16";
 		let deskPickerKeyLabel = "F16";
-		let capturingKeybind = "";
 		let advancedFeaturesEnabled = false;
 		let volumeLevel = 0.6;
 
@@ -2221,6 +2203,7 @@
 		let normalStrokes = [];
 		let annotationStrokes = [];
 		let annotationActiveStroke = null;
+		let annotationDocumentStroke = null;
 		let annotationEnabled = false;
 		let annotationMode = "draw";
 		let annotationColor = "#ef4444";
@@ -2269,10 +2252,19 @@
 		let clickerLineBuffer = "";
 		let clickerLineCount = 0;
 		const CLICKER_ACTIONS = {
-			1: 'timer',
-			2: 'sound',
-			3: 'desk-roll',
+			1: 'slide-right',
+			2: 'document-next',
+			3: 'timer-sound',
+			4: 'history-forward',
+			6: 'history-back',
+			7: 'document-previous',
+			8: 'slide-left',
 		};
+		let previousClickerMask = 0;
+		let lastClickerPressMs = 0;
+		let buttonSixHoldTimer = null;
+		let buttonSixHeld = false;
+		let buttonSixReset = false;
 
 		/* ---------- Elements ---------- */
 		const overlay = document.getElementById('overlay');
@@ -2370,8 +2362,6 @@
 		const mcQuestionText = document.getElementById('mcQuestionText');
 		const mcOptions = document.getElementById('mcOptions');
 		const mcResponseTotal = document.getElementById('mcResponseTotal');
-		const mcReceiverStatusBtn = document.getElementById('mcReceiverStatusBtn');
-		const mcReceiverStatusIcon = document.getElementById('mcReceiverStatusIcon');
 		const mcResetResponses = document.getElementById('mcResetResponses');
 		const mcToggleCounts = document.getElementById('mcToggleCounts');
 		const mcToggleCountsIcon = document.getElementById('mcToggleCountsIcon');
@@ -2380,11 +2370,7 @@
 		const clickerReceiverStatus = document.getElementById('clickerReceiverStatus');
 		const advancedFeaturesEnabledEl = document.getElementById('advancedFeaturesEnabled');
 		const clickerReceiverField = document.getElementById('clickerReceiverField');
-		const keybindsField = document.getElementById('keybindsField');
 		const advancedCaptionControls = document.getElementById('advancedCaptionControls');
-		const serialPickerBtn = document.getElementById('serialPickerBtn');
-		const serialPickerIcon = document.getElementById('serialPickerIcon');
-		const serialStatusChip = document.getElementById('serialStatusChip');
 
 		const bellBtn = document.getElementById('bellBtn');      // NEW
 		const bellAudioEl = document.getElementById('bellSound'); // NEW
@@ -2409,10 +2395,6 @@
 
 		const timerSoundSelect = document.getElementById('timerSoundSelect');
 		const timerSoundFile = document.getElementById('timerSoundFile');
-		const pushToTalkKeyBtn = document.getElementById('pushToTalkKeyBtn');
-		const translatorKeyBtn = document.getElementById('translatorKeyBtn');
-		const chimeKeyBtn = document.getElementById('chimeKeyBtn');
-		const deskKeyBtn = document.getElementById('deskKeyBtn');
 
 		function applyTimerSound() {
 			if (timerSoundChoice === "custom") {
@@ -2430,10 +2412,7 @@
 
 		function updateAdvancedFeaturesUI() {
 			advancedFeaturesEnabledEl.checked = advancedFeaturesEnabled;
-			clickerReceiverField.hidden = !advancedFeaturesEnabled;
-			keybindsField.hidden = !advancedFeaturesEnabled;
-			serialPickerBtn.hidden = !advancedFeaturesEnabled;
-			mcReceiverStatusBtn.hidden = !advancedFeaturesEnabled;
+			clickerReceiverField.hidden = false;
 			advancedCaptionControls.hidden = !advancedFeaturesEnabled;
 			if (!advancedFeaturesEnabled) disableCaptionTranslationSystem();
 		}
@@ -2449,6 +2428,7 @@
 
 		function redrawAnnotations() {
 			annotationCtx.clearRect(0, 0, annotationCanvas.clientWidth, annotationCanvas.clientHeight);
+			if (activeDocument()?.type === 'pdf') return;
 			annotationCtx.lineCap = "round";
 			annotationCtx.lineJoin = "round";
 			annotationCtx.lineWidth = 6;
@@ -2467,6 +2447,7 @@
 				}
 			}
 		}
+		window.refreshSlideDrawing = redrawAnnotations;
 
 		function pointToSegmentDistance(point, start, end) {
 			const dx = end.x - start.x;
@@ -2514,7 +2495,14 @@
 		annotationCanvas.addEventListener('pointerdown', event => {
 			if (!annotationEnabled) return;
 			event.preventDefault();
+			const documentPoint = documentCanvasPoint(event.clientX, event.clientY);
+			if (activeDocument()?.type === 'pdf' && !documentPoint) return;
 			annotationCanvas.setPointerCapture(event.pointerId);
+			if (activeDocument()?.type === 'pdf') {
+				if (annotationMode === 'erase') editDocumentStrokes('erase', documentPoint);
+				else annotationDocumentStroke = beginDocumentStroke(documentPoint, annotationColor);
+				return;
+			}
 			const point = getAnnotationPoint(event);
 			if (annotationMode === "erase") {
 				eraseAnnotationStrokeAt(point);
@@ -2527,6 +2515,12 @@
 
 		annotationCanvas.addEventListener('pointermove', event => {
 			if (!annotationEnabled || !annotationCanvas.hasPointerCapture(event.pointerId)) return;
+			if (activeDocument()?.type === 'pdf') {
+				const point = documentCanvasPoint(event.clientX, event.clientY);
+				if (annotationMode === 'erase') { if (point) editDocumentStrokes('erase', point); }
+				else appendDocumentStroke(annotationDocumentStroke, point);
+				return;
+			}
 			const point = getAnnotationPoint(event);
 			if (annotationMode === "erase") eraseAnnotationStrokeAt(point);
 			else if (annotationActiveStroke) {
@@ -2536,6 +2530,8 @@
 		});
 
 		function finishAnnotationStroke(event) {
+			finishDocumentStroke(annotationDocumentStroke);
+			annotationDocumentStroke = null;
 			annotationActiveStroke = null;
 			if (annotationCanvas.hasPointerCapture(event.pointerId)) annotationCanvas.releasePointerCapture(event.pointerId);
 		}
@@ -2552,10 +2548,12 @@
 			updateAnnotationControls();
 		});
 		annotationUndo.addEventListener('click', () => {
+			if (activeDocument()?.type === 'pdf') { editDocumentStrokes('undo'); return; }
 			annotationStrokes.pop();
 			redrawAnnotations();
 		});
 		annotationClear.addEventListener('click', () => {
+			if (activeDocument()?.type === 'pdf') { editDocumentStrokes('clear'); return; }
 			annotationStrokes = [];
 			annotationActiveStroke = null;
 			redrawAnnotations();
@@ -2802,56 +2800,85 @@
 
 		function updateReceiverStatusUI() {
 			const connected = Boolean(clickerPort?.readable && clickerKeepReading);
-			mcReceiverStatusBtn?.classList.toggle('connected', connected);
-			serialPickerBtn?.classList.toggle('connected', connected);
-			if (mcReceiverStatusIcon) mcReceiverStatusIcon.textContent = connected ? 'settings_input_component' : 'warning';
-			if (serialPickerIcon) serialPickerIcon.textContent = connected ? 'settings_input_component' : 'warning';
 			const label = connected ? 'Clicker connected' : 'Connect USB or Bluetooth clicker';
-			if (mcReceiverStatusBtn) {
-				mcReceiverStatusBtn.title = label;
-				mcReceiverStatusBtn.setAttribute('aria-label', label);
-			}
-			if (serialPickerBtn) {
-				serialPickerBtn.title = label;
-				serialPickerBtn.setAttribute('aria-label', label);
-			}
+			connectClickerReceiverBtn.textContent = label;
 		}
 
 		function setClickerStatus(message) {
 			if (clickerReceiverStatus) clickerReceiverStatus.textContent = message;
-			if (serialStatusChip) serialStatusChip.textContent = message;
 		}
 
-		function rollDeskFromClicker() {
-			openDeskPicker();
-			window.setTimeout(() => deskStartSpin(), 80);
+		function runClickerAction(action, button) {
+			if (!['document-previous', 'document-next', 'slide-left', 'slide-right', 'timer-sound', 'history-forward', 'history-back'].includes(action)) return;
+			if (action === 'history-forward' || action === 'history-back') {
+				window.requestTeacherHistoryMove?.(action === 'history-forward' ? 1 : -1);
+				return;
+			}
+			if (action === 'timer-sound') {
+				audioEl.currentTime = 0;
+				audioEl.play().catch(error => setClickerStatus(`Button ${button} pressed, but timer sound failed: ${error.message}`));
+				return;
+			}
+			if (action === 'document-previous' || action === 'document-next') {
+				moveDocument(action === 'document-next' ? 1 : -1);
+				setClickerStatus(`Button ${button} changed the document.`);
+				return;
+			}
+			if (action === 'slide-left' || action === 'slide-right') {
+				const result = advanceEmbeddedSlide(action === 'slide-right' ? 1 : -1);
+				setClickerStatus(result ? `Button ${button} prepared slide control.` : 'Clicker arrow received; pair Slides Clicker as a Bluetooth keyboard to move external slides.');
+				return;
+			}
 		}
 
-		function runClickerAction(action, button, source) {
-			if (action === 'timer') {
-				setSlideTimerOpen(true);
-				setClickerStatus(`Button ${button} opened the timer.`);
-				return;
+		function advanceEmbeddedSlide(delta) {
+			if (activeDocument()?.type === 'pdf') { movePdfPage(delta); return true; }
+			if (fileDeck && !fileSlideViewer.hidden) {
+				fileSlideViewer.tabIndex = -1;
+				fileSlideViewer.focus();
+				return true; // The BLE keyboard's real arrow moves the local file deck.
 			}
-			if (action === 'sound') {
-				playChimeSound();
-				setClickerStatus(`Button ${button} played the sound.`);
-				return;
+			const frame = !reviewGameViewer.hidden ? reviewGameFrame : slidesFrame;
+			frame.focus();
+			try {
+				if (!frame.contentDocument) return true; // BLE HID sends a real arrow after iframe focus.
+				const gameActive = frame === reviewGameFrame && !frame.contentWindow.location.pathname.endsWith('/review-games.html');
+				if (!gameActive) return true; // Avoid a duplicate synthetic arrow in slides.
+				if (delta > 0 && /\/(?:conjugation)?bingo\//.test(frame.contentWindow.location.pathname)) return true;
+				const target = gameActive ? frame.contentDocument?.body : (frame.contentDocument?.activeElement || frame.contentDocument?.body);
+				const key = gameActive && delta > 0 ? ' ' : (delta > 0 ? 'ArrowRight' : 'ArrowLeft');
+				const code = key === ' ' ? 'Space' : key;
+				for (const type of ['keydown', 'keyup']) target?.dispatchEvent(new KeyboardEvent(type, { key, code, bubbles: true }));
+				return Boolean(target);
+			} catch (error) {
+				if (error.name !== 'SecurityError') console.warn('Slide control:', error);
+				return false;
 			}
-			if (action === 'desk-roll') {
-				rollDeskFromClicker();
-				setClickerStatus(`Button ${button} started a desk roll.`);
-				return;
-			}
-			setClickerStatus(`Button ${button} from ${source} is ready for a future action.`);
+		}
+
+		function startButtonSixHold() {
+			if (buttonSixHeld) return;
+			buttonSixHeld = true;
+			buttonSixReset = false;
+			buttonSixHoldTimer = setTimeout(() => {
+				buttonSixHoldTimer = null;
+				if (!buttonSixHeld) return;
+				buttonSixReset = Boolean(window.requestTeacherHistoryStart?.());
+				if (buttonSixReset) setClickerStatus('Button 6 held · edit history reset to start');
+			}, 3000);
+		}
+
+		function releaseButtonSix(cancel = false) {
+			if (!buttonSixHeld) return;
+			buttonSixHeld = false;
+			if (buttonSixHoldTimer !== null) clearTimeout(buttonSixHoldTimer);
+			buttonSixHoldTimer = null;
+			if (!cancel && !buttonSixReset) runClickerAction('history-back', 6);
+			buttonSixReset = false;
 		}
 
 		function normalizeClickerActionName(action) {
-			const normalized = String(action || '').trim().toLowerCase();
-			if (['timer', 'open-timer', 'open_timer'].includes(normalized)) return 'timer';
-			if (['sound', 'chime', 'bell', 'play-sound', 'play_sound'].includes(normalized)) return 'sound';
-			if (['desk', 'desk-roll', 'desk_roll', 'roll', 'random-desk'].includes(normalized)) return 'desk-roll';
-			return normalized;
+			return String(action || '').trim().toLowerCase();
 		}
 
 		function parseClickerSerialLine(line) {
@@ -2863,24 +2890,42 @@
 				return { type: 'clicker', action: 'pressed', button: Number(numberMatch[1]), device: 'raw-serial', raw: trimmed };
 			}
 			const action = normalizeClickerActionName(trimmed);
-			if (['timer', 'sound', 'desk-roll'].includes(action)) {
+			if (['slide-left', 'slide-right', 'document-previous', 'document-next'].includes(action)) {
 				return { type: 'clicker', action: 'pressed', button: 0, command: action, device: 'raw-serial', raw: trimmed };
 			}
 			return { type: 'unknown', raw: trimmed };
 		}
 		function handleClickerEvent(event) {
+			if (event.event === 'transmitter') {
+				if (!event.connected) { previousClickerMask = 0; releaseButtonSix(true); return; }
+				const mask = Number(event.buttons) & 255;
+				const pressed = mask & ~previousClickerMask;
+				const released = previousClickerMask & ~mask;
+				previousClickerMask = mask;
+				if (released & (1 << 5)) releaseButtonSix();
+				for (let index = 0; index < 8; index++) if (pressed & (1 << index)) {
+					const button = index + 1;
+					if (button === 6) startButtonSixHold();
+					else runClickerAction(CLICKER_ACTIONS[button], button);
+					lastClickerPressMs = Date.now();
+					setClickerStatus(`Button ${button} pressed · receiver mask ${mask} · ${CLICKER_ACTIONS[button] || 'no assigned action'}`);
+				}
+				return;
+			}
 			if (event.type === 'status') {
-				setClickerStatus(`Connected. Receiver packets: ${event.packets ?? 0}`);
+				if (Date.now() - lastClickerPressMs > 5000) setClickerStatus(`Connected. Receiver packets: ${event.packets ?? 0}`);
 				return;
 			}
 
 			const actionState = String(event.action ?? event.state ?? '').toLowerCase();
-			if (!['pressed', 'press', 'down'].includes(actionState)) return;
 			const button = Number.parseInt(event.button ?? event.id ?? event.buttonId, 10);
 			if (!Number.isFinite(button)) return;
-			const source = String(event.sender ?? event.device ?? event.mac ?? 'clicker');
-			const action = normalizeClickerActionName(event.command || event.name || CLICKER_ACTIONS[button] || `extra-${button}`);
-			runClickerAction(action, button, source);
+			if (button === 6 && ['released', 'release', 'up'].includes(actionState)) { releaseButtonSix(); return; }
+			if (!['pressed', 'press', 'down'].includes(actionState)) return;
+			if (button === 6 && event.device !== 'raw-serial') startButtonSixHold();
+			else runClickerAction(CLICKER_ACTIONS[button], button);
+			lastClickerPressMs = Date.now();
+			setClickerStatus(`Button ${button} pressed · ${CLICKER_ACTIONS[button] || 'no assigned action'}`);
 		}
 		function handleClickerSerialText(text) {
 			clickerLineBuffer += text;
@@ -3037,7 +3082,6 @@
 			volEl.value = String(volumeLevel);
 			setVolume(volumeLevel);
 			updateDocumentCameraZoom(documentCameraZoom);
-			updateKeybindUI();
 			updateAdvancedFeaturesUI();
 			updatePresetScheduleUI();
 			updateTimerStepUI();
@@ -3120,23 +3164,6 @@
 				radio.disabled = !presetScheduleEnabled;
 			});
 			lunchChoiceEl.style.opacity = presetScheduleEnabled ? "1" : ".45";
-		}
-
-		function formatKeyLabel(event) {
-			if (event.code && /^F\d{1,2}$/.test(event.code)) return event.code;
-			if (event.key && event.key.length === 1) return event.key.toUpperCase();
-			return event.key || event.code || "Key";
-		}
-
-		function updateKeybindUI() {
-			pushToTalkKeyBtn.textContent = capturingKeybind === "caption" ? "Press a key..." : pushToTalkKeyLabel;
-			translatorKeyBtn.textContent = capturingKeybind === "translator" ? "Press a key..." : translatorToggleKeyLabel;
-			chimeKeyBtn.textContent = capturingKeybind === "chime" ? "Press a key..." : chimeKeyLabel;
-			deskKeyBtn.textContent = capturingKeybind === "desk" ? "Press a key..." : deskPickerKeyLabel;
-			pushToTalkKeyBtn.classList.toggle('listening', capturingKeybind === "caption");
-			translatorKeyBtn.classList.toggle('listening', capturingKeybind === "translator");
-			chimeKeyBtn.classList.toggle('listening', capturingKeybind === "chime");
-			deskKeyBtn.classList.toggle('listening', capturingKeybind === "desk");
 		}
 
 
@@ -3227,6 +3254,10 @@
 				const dot = document.createElement('div');
 				dot.className = 'cp-dot';
 				dot.dataset.index = i;
+				if (i > 0) {
+					dot.title = `Drag to move minutes between ${sections[i - 1].name} and ${s.name}`;
+					dot.addEventListener('pointerdown', event => beginBoundaryDrag(event, i));
+				}
 
 				const label = document.createElement('div');
 				label.className = 'cp-label ' + (i % 2 === 0 ? 'top' : 'bottom');
@@ -3240,6 +3271,32 @@
 
 			updateCompletionUI(true);
 		}
+
+		let boundaryDrag = null;
+		function beginBoundaryDrag(event, index) {
+			if (event.button !== 0 || !totalMs) return;
+			event.preventDefault();
+			const track = document.querySelector('.progress-track').getBoundingClientRect();
+			boundaryDrag = { index, startX: event.clientX, width: track.width,
+				before: Number(sections[index - 1].minutes) || 0,
+				after: Number(sections[index].minutes) || 0 };
+		}
+		window.addEventListener('pointermove', event => {
+			if (!boundaryDrag) return;
+			const {index, startX, width, before, after} = boundaryDrag;
+			const requested = Math.round((event.clientX - startX) / Math.max(1, width) * totalMs / 60000);
+			const delta = Math.max(Math.ceil(-before), Math.min(Math.floor(after), requested));
+			sections[index - 1].minutes = before + delta;
+			sections[index].minutes = after - delta;
+			buildTimeline();
+			const rowBefore = rowsEl.children[index - 1]?.querySelector('input[type="number"]');
+			const rowAfter = rowsEl.children[index]?.querySelector('input[type="number"]');
+			if (rowBefore) rowBefore.value = sections[index - 1].minutes;
+			if (rowAfter) rowAfter.value = sections[index].minutes;
+			updateTotalTime();
+		});
+		window.addEventListener('pointerup', () => { if (boundaryDrag) { boundaryDrag = null; saveConfig(); } });
+		window.addEventListener('pointercancel', () => { if (boundaryDrag) { boundaryDrag = null; saveConfig(); } });
 
 		/* ---------- Audio ---------- */
 		function setVolume(v) {
@@ -5065,25 +5122,6 @@
 			});
 		});
 
-		pushToTalkKeyBtn.addEventListener('click', () => {
-			capturingKeybind = "caption";
-			updateKeybindUI();
-		});
-
-		translatorKeyBtn.addEventListener('click', () => {
-			capturingKeybind = "translator";
-			updateKeybindUI();
-		});
-
-		chimeKeyBtn.addEventListener('click', () => {
-			capturingKeybind = "chime";
-			updateKeybindUI();
-		});
-
-		deskKeyBtn.addEventListener('click', () => {
-			capturingKeybind = "desk";
-			updateKeybindUI();
-		});
 
 		startNowBtn.addEventListener('click', () => {
 			overlay.classList.remove('show');
@@ -5135,38 +5173,13 @@
 
 		mcResetResponses.addEventListener('click', resetMultipleChoiceResponses);
 		mcToggleCounts.addEventListener('click', toggleMultipleChoiceCounts);
-		mcReceiverStatusBtn.addEventListener('click', connectClickerReceiver);
 		connectClickerReceiverBtn.addEventListener('click', connectClickerReceiver);
-		serialPickerBtn.addEventListener('click', connectClickerReceiver);
 
 
 		fileSlidePrev.addEventListener('click', () => moveFileSlide(-1));
 		fileSlideNext.addEventListener('click', () => moveFileSlide(1));
 
 		document.addEventListener('keydown', e => {
-			if (capturingKeybind) {
-				e.preventDefault();
-				const code = e.code || e.key;
-				const label = formatKeyLabel(e);
-				if (capturingKeybind === "caption") {
-					pushToTalkKeyCode = code;
-					pushToTalkKeyLabel = label;
-				} else if (capturingKeybind === "translator") {
-					translatorToggleKeyCode = code;
-					translatorToggleKeyLabel = label;
-				} else if (capturingKeybind === "chime") {
-					chimeKeyCode = code;
-					chimeKeyLabel = label;
-				} else if (capturingKeybind === "desk") {
-					deskPickerKeyCode = code;
-					deskPickerKeyLabel = label;
-				}
-				capturingKeybind = "";
-				updateKeybindUI();
-				saveConfig();
-				return;
-			}
-
 			if (deskOverlay.classList.contains('show')) {
 				if (e.key === 'Escape') {
 					e.preventDefault();
