@@ -167,20 +167,32 @@
 		}
 
 		.cp-dot {
+			position: relative;
+			width: 44px;
+			height: 52px;
+			pointer-events: auto;
+			background: transparent;
+		}
+
+		.cp-dot::before {
+			content: '';
+			position: absolute;
+			left: 50%;
+			top: 50%;
 			width: 12px;
 			height: 36px;
-			pointer-events: auto;
-			/* Taller than bar for tick mark effect */
+			transform: translate(-50%, -50%);
 			background: #4b5563;
 			transition: background .25s ease, transform .3s ease, box-shadow .25s ease;
 			border-radius: 1px;
 		}
-		.cp:not(.first) .cp-dot { cursor: ew-resize; touch-action: none; }
+		.cp:not(.first) .cp-dot,
+		.cp:not(.first) .cp-label { cursor: ew-resize; touch-action: none; }
 
-		.cp.completed .cp-dot {
+		.cp.completed .cp-dot::before {
 			background: #fff;
 			box-shadow: 0 0 8px rgba(255, 255, 255, 0.6);
-			transform: scaleY(1.1);
+			transform: translate(-50%, -50%) scaleY(1.1);
 		}
 
 		.cp-label {
@@ -1839,6 +1851,9 @@
 
 		<!-- Controls -->
 		<div class="controls">
+			<a class="btn" href="../../../index.html" title="Go to MrRains.org home page" aria-label="Go to MrRains.org home page">
+				<span class="material-symbols-outlined" aria-hidden="true">home</span>
+			</a>
 			<button class="btn" id="restartBtn" title="Restart" aria-label="Restart">
 				<span class="material-symbols-outlined" aria-hidden="true">restart_alt</span>
 				<span class="control-text">Restart</span>
@@ -3097,6 +3112,7 @@
 				const label = document.createElement('div');
 				label.className = 'cp-label ' + (i % 2 === 0 ? 'top' : 'bottom');
 				label.textContent = s.name || 'Untitled';
+				if (i > 0) label.addEventListener('pointerdown', event => beginBoundaryDrag(event, i));
 
 				cp.appendChild(dot);
 				cp.appendChild(label);
@@ -3109,15 +3125,16 @@
 
 		let boundaryDrag = null;
 		function beginBoundaryDrag(event, index) {
-			if (event.button !== 0 || !totalMs) return;
+			if (!event.isPrimary || (event.pointerType === 'mouse' && event.button !== 0) || !totalMs || boundaryDrag) return;
 			event.preventDefault();
+			checkLayer.setPointerCapture(event.pointerId);
 			const track = document.querySelector('.progress-track').getBoundingClientRect();
-			boundaryDrag = { index, startX: event.clientX, width: track.width,
+			boundaryDrag = { pointerId: event.pointerId, index, startX: event.clientX, width: track.width,
 				before: Number(sections[index - 1].minutes) || 0,
 				after: Number(sections[index].minutes) || 0 };
 		}
 		window.addEventListener('pointermove', event => {
-			if (!boundaryDrag) return;
+			if (!boundaryDrag || event.pointerId !== boundaryDrag.pointerId) return;
 			const {index, startX, width, before, after} = boundaryDrag;
 			const requested = Math.round((event.clientX - startX) / Math.max(1, width) * totalMs / 60000);
 			const delta = Math.max(Math.ceil(-before), Math.min(Math.floor(after), requested));
@@ -3130,8 +3147,14 @@
 			if (rowAfter) rowAfter.value = sections[index].minutes;
 			updateTotalTime();
 		});
-		window.addEventListener('pointerup', () => { if (boundaryDrag) { boundaryDrag = null; saveConfig(); } });
-		window.addEventListener('pointercancel', () => { if (boundaryDrag) { boundaryDrag = null; saveConfig(); } });
+		function finishBoundaryDrag(event) {
+			if (!boundaryDrag || event.pointerId !== boundaryDrag.pointerId) return;
+			if (checkLayer.hasPointerCapture(event.pointerId)) checkLayer.releasePointerCapture(event.pointerId);
+			boundaryDrag = null;
+			saveConfig();
+		}
+		window.addEventListener('pointerup', finishBoundaryDrag);
+		window.addEventListener('pointercancel', finishBoundaryDrag);
 
 		/* ---------- Audio ---------- */
 		function setVolume(v) {
