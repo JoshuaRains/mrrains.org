@@ -2028,9 +2028,10 @@
 				</label>
 			</div>
 			<div class="field" id="clickerReceiverField">
-				<label>Clicker receiver</label>
+				<label>Bluetooth clicker</label>
 				<div class="mc-config-row">
-					<button class="add-btn" id="connectClickerReceiver" type="button">Connect USB/Bluetooth clicker</button>
+					<button class="add-btn" id="connectClickerReceiver" type="button">Connect Bluetooth clicker</button>
+					<button class="add-btn" id="connectUsbClickerReceiver" type="button">Connect USB receiver</button>
 					<span class="mc-status" id="clickerReceiverStatus">Not connected.</span>
 				</div>
 			</div>
@@ -2160,14 +2161,14 @@
 
 		let timerSoundChoice = "nfl";
 		let customTimerSoundDataUrl = ""; // data:audio/...;base64,...
-		let pushToTalkKeyCode = "F13";
-		let pushToTalkKeyLabel = "F13";
-		let translatorToggleKeyCode = "F14";
-		let translatorToggleKeyLabel = "F14";
-		let chimeKeyCode = "F15";
-		let chimeKeyLabel = "F15";
-		let deskPickerKeyCode = "F16";
-		let deskPickerKeyLabel = "F16";
+		let pushToTalkKeyCode = "F21";
+		let pushToTalkKeyLabel = "F21";
+		let translatorToggleKeyCode = "F22";
+		let translatorToggleKeyLabel = "F22";
+		let chimeKeyCode = "F23";
+		let chimeKeyLabel = "F23";
+		let deskPickerKeyCode = "F24";
+		let deskPickerKeyLabel = "F24";
 		let advancedFeaturesEnabled = false;
 		let volumeLevel = 0.6;
 
@@ -2246,11 +2247,14 @@
 		let fileDeck = null;
 		let fileSlideIndex = 0;
 		const fileDeckObjectUrls = [];
-		let clickerPort;
-		let clickerReader;
-		let clickerKeepReading = false;
-		let clickerLineBuffer = "";
-		let clickerLineCount = 0;
+		const CLICKER_SERVICE_UUID = '75d45c10-8e7a-4c6a-9a79-3e7dcddf8300';
+		const CLICKER_TELEMETRY_UUID = '75d45c11-8e7a-4c6a-9a79-3e7dcddf8300';
+		let clickerDevice = null;
+		let previousClickerMask = 0;
+		let usbClickerDevice = null;
+		let previousUsbClickerMask = 0;
+		let activeClickerMask = 0;
+		const clickerCommandChannel = new BroadcastChannel('mrrains-slides-document-sync-v1');
 		const CLICKER_ACTIONS = {
 			1: 'slide-right',
 			2: 'document-next',
@@ -2260,8 +2264,6 @@
 			7: 'document-previous',
 			8: 'slide-left',
 		};
-		let previousClickerMask = 0;
-		let lastClickerPressMs = 0;
 		let buttonSixHoldTimer = null;
 		let buttonSixHeld = false;
 		let buttonSixReset = false;
@@ -2366,8 +2368,9 @@
 		const mcToggleCounts = document.getElementById('mcToggleCounts');
 		const mcToggleCountsIcon = document.getElementById('mcToggleCountsIcon');
 		const multipleChoiceJsonInput = document.getElementById('multipleChoiceJson');
-		const connectClickerReceiverBtn = document.getElementById('connectClickerReceiver');
 		const clickerReceiverStatus = document.getElementById('clickerReceiverStatus');
+		const connectClickerReceiverBtn = document.getElementById('connectClickerReceiver');
+		const connectUsbClickerReceiverBtn = document.getElementById('connectUsbClickerReceiver');
 		const advancedFeaturesEnabledEl = document.getElementById('advancedFeaturesEnabled');
 		const clickerReceiverField = document.getElementById('clickerReceiverField');
 		const advancedCaptionControls = document.getElementById('advancedCaptionControls');
@@ -2694,9 +2697,6 @@
 						question: question.question,
 						choices: [...question.choices, "", "", "", ""].slice(0, 4),
 					}));
-				if (clickerReceiverStatus && !clickerPort) {
-					clickerReceiverStatus.textContent = parsed.length ? `${parsed.length} question${parsed.length === 1 ? "" : "s"} loaded. Not connected.` : "No questions loaded. Not connected.";
-				}
 			} catch (err) {
 				parsed = [];
 				if (clickerReceiverStatus) clickerReceiverStatus.textContent = `Question JSON error: ${err.message}`;
@@ -2757,7 +2757,6 @@
             const counts = getMultipleChoiceCounts();
             const total = counts.reduce((sum, count) => sum + count, 0);
             mcResponseTotal.textContent = String(total);
-            updateReceiverStatusUI();
             mcOptions.replaceChildren(...["A", "B", "C", "D"].map((label, index) => {
                 const option = document.createElement("div");
                 option.className = "mc-option";
@@ -2797,12 +2796,6 @@
 			renderMultipleChoiceOverlay();
 		}
 
-
-		function updateReceiverStatusUI() {
-			const connected = Boolean(clickerPort?.readable && clickerKeepReading);
-			const label = connected ? 'Clicker connected' : 'Connect USB or Bluetooth clicker';
-			connectClickerReceiverBtn.textContent = label;
-		}
 
 		function setClickerStatus(message) {
 			if (clickerReceiverStatus) clickerReceiverStatus.textContent = message;
@@ -2877,116 +2870,90 @@
 			buttonSixReset = false;
 		}
 
-		function normalizeClickerActionName(action) {
-			return String(action || '').trim().toLowerCase();
-		}
-
-		function parseClickerSerialLine(line) {
-			const trimmed = String(line || '').trim();
-			if (!trimmed) return null;
-			if (trimmed.startsWith('{')) return JSON.parse(trimmed);
-			const numberMatch = trimmed.match(/(?:button|btn|b)?\s*[:=#-]?\s*(\d+)/i);
-			if (numberMatch) {
-				return { type: 'clicker', action: 'pressed', button: Number(numberMatch[1]), device: 'raw-serial', raw: trimmed };
+		function handleClickerKey(button, pressed) {
+			if (!Number.isInteger(button) || button < 1 || button > 8) return;
+			const bit = 1 << (button - 1);
+			if (Boolean(activeClickerMask & bit) === pressed) return;
+			activeClickerMask = pressed ? activeClickerMask | bit : activeClickerMask & ~bit;
+			if (button === 6) {
+				if (pressed) startButtonSixHold();
+				else if (!pressed) releaseButtonSix();
+			} else if (pressed) {
+				runClickerAction(CLICKER_ACTIONS[button], button);
 			}
-			const action = normalizeClickerActionName(trimmed);
-			if (['slide-left', 'slide-right', 'document-previous', 'document-next'].includes(action)) {
-				return { type: 'clicker', action: 'pressed', button: 0, command: action, device: 'raw-serial', raw: trimmed };
-			}
-			return { type: 'unknown', raw: trimmed };
+			if (pressed) setClickerStatus(`Button ${button} pressed · Bluetooth · ${CLICKER_ACTIONS[button] || 'no assigned action'}`);
 		}
-		function handleClickerEvent(event) {
-			if (event.event === 'transmitter') {
-				if (!event.connected) { previousClickerMask = 0; releaseButtonSix(true); return; }
-				const mask = Number(event.buttons) & 255;
-				const pressed = mask & ~previousClickerMask;
-				const released = previousClickerMask & ~mask;
-				previousClickerMask = mask;
-				if (released & (1 << 5)) releaseButtonSix();
-				for (let index = 0; index < 8; index++) if (pressed & (1 << index)) {
-					const button = index + 1;
-					if (button === 6) startButtonSixHold();
-					else runClickerAction(CLICKER_ACTIONS[button], button);
-					lastClickerPressMs = Date.now();
-					setClickerStatus(`Button ${button} pressed · receiver mask ${mask} · ${CLICKER_ACTIONS[button] || 'no assigned action'}`);
-				}
+		clickerCommandChannel.addEventListener('message', event => {
+			if (event.data?.type === 'clicker-key') handleClickerKey(event.data.button, Boolean(event.data.pressed));
+		});
+		function handleClickerBluetoothValue(event) {
+			const value = new TextDecoder().decode(event.target.value);
+			const mask = Number(value.split(',')[2]);
+			if (!Number.isInteger(mask) || mask < 0 || mask > 255) return;
+			const changed = previousClickerMask ^ mask;
+			previousClickerMask = mask;
+			for (let button = 1; button <= 8; button++) {
+				const bit = 1 << (button - 1);
+				if (changed & bit) handleClickerKey(button, Boolean(mask & bit));
+			}
+		}
+		function handleClickerUsbMask(mask) {
+			if (!Number.isInteger(mask) || mask < 0 || mask > 255) return;
+			const changed = previousUsbClickerMask ^ mask;
+			previousUsbClickerMask = mask;
+			for (let button = 1; button <= 8; button++) {
+				const bit = 1 << (button - 1);
+				if (changed & bit) handleClickerKey(button, Boolean(mask & bit));
+			}
+		}
+		async function connectUsbClickerReceiver() {
+			if (!navigator.hid) {
+				setClickerStatus('USB receiver control requires Chrome or Edge on a secure page.');
 				return;
 			}
-			if (event.type === 'status') {
-				if (Date.now() - lastClickerPressMs > 5000) setClickerStatus(`Connected. Receiver packets: ${event.packets ?? 0}`);
-				return;
-			}
-
-			const actionState = String(event.action ?? event.state ?? '').toLowerCase();
-			const button = Number.parseInt(event.button ?? event.id ?? event.buttonId, 10);
-			if (!Number.isFinite(button)) return;
-			if (button === 6 && ['released', 'release', 'up'].includes(actionState)) { releaseButtonSix(); return; }
-			if (!['pressed', 'press', 'down'].includes(actionState)) return;
-			if (button === 6 && event.device !== 'raw-serial') startButtonSixHold();
-			else runClickerAction(CLICKER_ACTIONS[button], button);
-			lastClickerPressMs = Date.now();
-			setClickerStatus(`Button ${button} pressed · ${CLICKER_ACTIONS[button] || 'no assigned action'}`);
-		}
-		function handleClickerSerialText(text) {
-			clickerLineBuffer += text;
-			const lines = clickerLineBuffer.split(/\r?\n/);
-			clickerLineBuffer = lines.pop() || "";
-
-			for (const line of lines) {
-				const trimmed = line.trim();
-				if (!trimmed) continue;
-				clickerLineCount += 1;
-				try {
-					const event = parseClickerSerialLine(trimmed);
-					if (event?.type === 'unknown') {
-						setClickerStatus(`Serial line ${clickerLineCount}: ${event.raw}`);
-						continue;
-					}
-					handleClickerEvent(event);
-				} catch (err) {
-					setClickerStatus(`Bad serial line ${clickerLineCount}: ${trimmed.slice(0, 60)}`);
-				}
-			}
-		}
-
-		async function readClickerLoop() {
-			const decoder = new TextDecoder();
-			while (clickerPort && clickerPort.readable && clickerKeepReading) {
-				clickerReader = clickerPort.readable.getReader();
-				try {
-					while (clickerKeepReading) {
-						const { value, done } = await clickerReader.read();
-						if (done) break;
-						if (value) handleClickerSerialText(decoder.decode(value, { stream: true }));
-					}
-				} catch (err) {
-					setClickerStatus(`Receiver read error: ${err.message}`);
-				} finally {
-					clickerReader.releaseLock();
-					clickerReader = undefined;
-				}
-			}
-		}
-
-		async function connectClickerReceiver() {
-			if (!("serial" in navigator)) {
-				setClickerStatus("Use Chrome or Edge. USB cable and paired Bluetooth serial ports both use Web Serial.");
-				return;
-			}
-
 			try {
-				clickerPort = await navigator.serial.requestPort();
-				await clickerPort.open({ baudRate: 115200 });
-				try { await clickerPort.setSignals({ dataTerminalReady: true, requestToSend: true }); } catch { }
-				clickerKeepReading = true;
-				clickerLineCount = 0;
-				connectClickerReceiverBtn.disabled = true;
-				updateReceiverStatusUI();
-				setClickerStatus("Connected over serial. Waiting for buttons 1-8.");
-				readClickerLoop();
-			} catch (err) {
-				updateReceiverStatusUI();
-				setClickerStatus(`Connection failed: ${err.message}`);
+				const devices = await navigator.hid.requestDevice({ filters: [{ vendorId: 0x2341, productId: 0x0070 }] });
+				const device = devices.find(item => item.collections.some(collection => collection.usagePage === 0xFF00));
+				if (!device) { setClickerStatus('Nano ESP32 USB receiver was not selected.'); return; }
+				usbClickerDevice = device;
+				if (!device.opened) await device.open();
+				device.addEventListener('inputreport', event => {
+					if (event.data.byteLength) handleClickerUsbMask(event.data.getUint8(0));
+				});
+				setClickerStatus('USB keyboard receiver connected. Buttons 1–8 ready.');
+			} catch (error) {
+				setClickerStatus(`USB receiver connection failed: ${error.message}`);
+			}
+		}
+		navigator.hid?.addEventListener('disconnect', event => {
+			if (event.device !== usbClickerDevice) return;
+			previousUsbClickerMask = 0;
+			if (activeClickerMask & (1 << 5)) releaseButtonSix(true);
+			activeClickerMask = 0;
+			setClickerStatus('USB receiver disconnected. Reconnect the clicker.');
+		});
+		async function connectClickerReceiver() {
+			if (!navigator.bluetooth) {
+				setClickerStatus('Bluetooth connection requires Chrome or Edge on a secure page.');
+				return;
+			}
+			try {
+				clickerDevice = await navigator.bluetooth.requestDevice({ filters: [{ name: 'Slides Clicker' }], optionalServices: [CLICKER_SERVICE_UUID] });
+				clickerDevice.addEventListener('gattserverdisconnected', () => {
+					previousClickerMask = 0;
+					if (activeClickerMask & (1 << 5)) releaseButtonSix(true);
+					activeClickerMask = 0;
+					setClickerStatus('Bluetooth disconnected. Reconnect the clicker.');
+				});
+				const server = await clickerDevice.gatt.connect();
+				const service = await server.getPrimaryService(CLICKER_SERVICE_UUID);
+				const characteristic = await service.getCharacteristic(CLICKER_TELEMETRY_UUID);
+				characteristic.addEventListener('characteristicvaluechanged', handleClickerBluetoothValue);
+				await characteristic.startNotifications();
+				handleClickerBluetoothValue({ target: { value: await characteristic.readValue() } });
+				setClickerStatus('Bluetooth clicker connected. Buttons 1–8 ready.');
+			} catch (error) {
+				setClickerStatus(`Bluetooth connection failed: ${error.message}`);
 			}
 		}
 		/* ---------- Persistence ---------- */
@@ -3032,14 +2999,18 @@
 						schedule = Array.isArray(data.schedule) ? data.schedule : [];
 						presetScheduleEnabled = Boolean(data.presetScheduleEnabled);
 						presetLunch = data.presetLunch === "A" ? "A" : "B";
-						pushToTalkKeyCode = typeof data.pushToTalkKeyCode === 'string' ? data.pushToTalkKeyCode : "F13";
+						pushToTalkKeyCode = typeof data.pushToTalkKeyCode === 'string' ? data.pushToTalkKeyCode : "F21";
 						pushToTalkKeyLabel = typeof data.pushToTalkKeyLabel === 'string' ? data.pushToTalkKeyLabel : pushToTalkKeyCode;
-						translatorToggleKeyCode = typeof data.translatorToggleKeyCode === 'string' ? data.translatorToggleKeyCode : "F14";
+						translatorToggleKeyCode = typeof data.translatorToggleKeyCode === 'string' ? data.translatorToggleKeyCode : "F22";
 						translatorToggleKeyLabel = typeof data.translatorToggleKeyLabel === 'string' ? data.translatorToggleKeyLabel : translatorToggleKeyCode;
-						chimeKeyCode = typeof data.chimeKeyCode === 'string' ? data.chimeKeyCode : "F15";
+						chimeKeyCode = typeof data.chimeKeyCode === 'string' ? data.chimeKeyCode : "F23";
 						chimeKeyLabel = typeof data.chimeKeyLabel === 'string' ? data.chimeKeyLabel : chimeKeyCode;
-						deskPickerKeyCode = typeof data.deskPickerKeyCode === 'string' ? data.deskPickerKeyCode : "F16";
+						deskPickerKeyCode = typeof data.deskPickerKeyCode === 'string' ? data.deskPickerKeyCode : "F24";
 						deskPickerKeyLabel = typeof data.deskPickerKeyLabel === 'string' ? data.deskPickerKeyLabel : deskPickerKeyCode;
+						if (pushToTalkKeyCode === 'F13') { pushToTalkKeyCode = 'F21'; pushToTalkKeyLabel = 'F21'; }
+						if (translatorToggleKeyCode === 'F14') { translatorToggleKeyCode = 'F22'; translatorToggleKeyLabel = 'F22'; }
+						if (chimeKeyCode === 'F15') { chimeKeyCode = 'F23'; chimeKeyLabel = 'F23'; }
+						if (deskPickerKeyCode === 'F16') { deskPickerKeyCode = 'F24'; deskPickerKeyLabel = 'F24'; }
 						slidesURL = typeof data.slidesURL === 'string' ? data.slidesURL : '';
 						multipleChoiceJson = typeof data.multipleChoiceJson === 'string' ? data.multipleChoiceJson : '';
 						advancedFeaturesEnabled = Boolean(data.advancedFeaturesEnabled);
@@ -5174,11 +5145,21 @@
 		mcResetResponses.addEventListener('click', resetMultipleChoiceResponses);
 		mcToggleCounts.addEventListener('click', toggleMultipleChoiceCounts);
 		connectClickerReceiverBtn.addEventListener('click', connectClickerReceiver);
+		connectUsbClickerReceiverBtn.addEventListener('click', connectUsbClickerReceiver);
 
 
 		fileSlidePrev.addEventListener('click', () => moveFileSlide(-1));
 		fileSlideNext.addEventListener('click', () => moveFileSlide(1));
 
+		function captureClickerFunctionKey(event) {
+			const match = /^F(1[3-9]|20)$/.exec(event.code || event.key);
+			if (!match) return;
+			event.preventDefault();
+			event.stopImmediatePropagation();
+			handleClickerKey(Number(match[1]) - 12, event.type === 'keydown');
+		}
+		document.addEventListener('keydown', captureClickerFunctionKey, true);
+		document.addEventListener('keyup', captureClickerFunctionKey, true);
 		document.addEventListener('keydown', e => {
 			if (deskOverlay.classList.contains('show')) {
 				if (e.key === 'Escape') {
