@@ -1022,28 +1022,6 @@
 			cursor: pointer;
 		}
 
-		.keybind-row {
-			display: flex;
-			align-items: center;
-			gap: 10px;
-			flex-wrap: wrap;
-		}
-
-		.keybind-btn {
-			min-width: 120px;
-			padding: 10px 14px;
-			border-radius: 0;
-			border: 2px solid #000;
-			background: #fff;
-			color: #000;
-			font-weight: 900;
-			cursor: pointer;
-		}
-
-		.keybind-btn.listening {
-			background: #ffeb3b;
-		}
-
 		.total-time {
 			font-size: 1.1rem;
 			font-weight: 800;
@@ -2100,8 +2078,6 @@
 	</div>
 
 	<audio id="ding" preload="auto" src="./sounds/nfl.mp3"></audio>
-	<!-- clicker sound (ArrowRight) -->
-	<audio id="clickerSound" preload="auto" src="./sounds/cave.mp3"></audio>
 	<!-- NEW: bell sound button audio (always cave) -->
 	<audio id="bellSound" preload="auto" src="./sounds/cave.mp3"></audio>
 
@@ -2154,14 +2130,6 @@
 
 		let timerSoundChoice = "nfl";
 		let customTimerSoundDataUrl = ""; // data:audio/...;base64,...
-		let pushToTalkKeyCode = "F21";
-		let pushToTalkKeyLabel = "F21";
-		let translatorToggleKeyCode = "F22";
-		let translatorToggleKeyLabel = "F22";
-		let chimeKeyCode = "F23";
-		let chimeKeyLabel = "F23";
-		let deskPickerKeyCode = "F24";
-		let deskPickerKeyLabel = "F24";
 		let advancedFeaturesEnabled = false;
 		let volumeLevel = 0.6;
 
@@ -2366,7 +2334,6 @@
 		const checkLayer = document.getElementById('checkLayer');
 
 		const audioEl = document.getElementById('ding');
-		const clickerAudioEl = document.getElementById('clickerSound');
 		const volEl = document.getElementById('vol');
 
 		const slidesInput = document.getElementById('slidesUrl');
@@ -2881,14 +2848,6 @@
 				schedule,
 				presetScheduleEnabled,
 				presetLunch,
-				pushToTalkKeyCode,
-				pushToTalkKeyLabel,
-				translatorToggleKeyCode,
-				translatorToggleKeyLabel,
-				chimeKeyCode,
-				chimeKeyLabel,
-				deskPickerKeyCode,
-				deskPickerKeyLabel,
 				slidesURL,
 				timerSoundChoice,
 				customTimerSoundDataUrl,
@@ -2916,18 +2875,6 @@
 						schedule = Array.isArray(data.schedule) ? data.schedule : [];
 						presetScheduleEnabled = Boolean(data.presetScheduleEnabled);
 						presetLunch = data.presetLunch === "A" ? "A" : "B";
-						pushToTalkKeyCode = typeof data.pushToTalkKeyCode === 'string' ? data.pushToTalkKeyCode : "F21";
-						pushToTalkKeyLabel = typeof data.pushToTalkKeyLabel === 'string' ? data.pushToTalkKeyLabel : pushToTalkKeyCode;
-						translatorToggleKeyCode = typeof data.translatorToggleKeyCode === 'string' ? data.translatorToggleKeyCode : "F22";
-						translatorToggleKeyLabel = typeof data.translatorToggleKeyLabel === 'string' ? data.translatorToggleKeyLabel : translatorToggleKeyCode;
-						chimeKeyCode = typeof data.chimeKeyCode === 'string' ? data.chimeKeyCode : "F23";
-						chimeKeyLabel = typeof data.chimeKeyLabel === 'string' ? data.chimeKeyLabel : chimeKeyCode;
-						deskPickerKeyCode = typeof data.deskPickerKeyCode === 'string' ? data.deskPickerKeyCode : "F24";
-						deskPickerKeyLabel = typeof data.deskPickerKeyLabel === 'string' ? data.deskPickerKeyLabel : deskPickerKeyCode;
-						if (pushToTalkKeyCode === 'F13') { pushToTalkKeyCode = 'F21'; pushToTalkKeyLabel = 'F21'; }
-						if (translatorToggleKeyCode === 'F14') { translatorToggleKeyCode = 'F22'; translatorToggleKeyLabel = 'F22'; }
-						if (chimeKeyCode === 'F15') { chimeKeyCode = 'F23'; chimeKeyLabel = 'F23'; }
-						if (deskPickerKeyCode === 'F16') { deskPickerKeyCode = 'F24'; deskPickerKeyLabel = 'F24'; }
 						slidesURL = typeof data.slidesURL === 'string' ? data.slidesURL : '';
 						multipleChoiceJson = typeof data.multipleChoiceJson === 'string' ? data.multipleChoiceJson : '';
 						advancedFeaturesEnabled = Boolean(data.advancedFeaturesEnabled);
@@ -5090,33 +5037,6 @@
 				}
 			}
 
-			if (e.code === pushToTalkKeyCode) {
-				e.preventDefault();
-				if (!e.repeat && isCaptionMode()) {
-					if (subtitleListening) stopSubtitles();
-					else startSubtitles();
-				}
-				return;
-			}
-
-			if (e.code === translatorToggleKeyCode) {
-				e.preventDefault();
-				if (!e.repeat) toggleTranslatorMode();
-				return;
-			}
-
-			if (e.code === chimeKeyCode) {
-				e.preventDefault();
-				if (!e.repeat) playChimeSound();
-				return;
-			}
-
-			if (e.code === deskPickerKeyCode) {
-				e.preventDefault();
-				if (!e.repeat) toggleDeskPickerOrRoll();
-				return;
-			}
-
 			if (multipleChoiceOpen && !e.repeat && /^[1-4]$/.test(e.key)) {
 				e.preventDefault();
 				recordMultipleChoiceAnswer('keyboard-test', Number.parseInt(e.key, 10) - 1);
@@ -5147,20 +5067,12 @@
 				buildScheduleRows();
 			}
 
-			// ➡ ArrowRight: play clicker sound
+			// Local PDF slides can advance with the keyboard arrow.
 			if (e.key === 'ArrowRight' && !isTyping) {
 				if (fileDeck) {
 					e.preventDefault();
 					moveFileSlide(1);
 					return;
-				}
-				if (clickerAudioEl) {
-					try {
-						clickerAudioEl.currentTime = 0;
-						clickerAudioEl.play().catch(() => { });
-					} catch (err) {
-						console.warn('Clicker sound play error:', err);
-					}
 				}
 			}
 
@@ -5168,11 +5080,6 @@
 				e.preventDefault();
 				moveFileSlide(-1);
 			}
-		});
-
-		document.addEventListener('keyup', e => {
-			if (e.code !== pushToTalkKeyCode) return;
-			e.preventDefault();
 		});
 
 		/* ---------- Init ---------- */
