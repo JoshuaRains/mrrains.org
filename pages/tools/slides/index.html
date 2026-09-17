@@ -2027,6 +2027,7 @@
 					Advanced features
 				</label>
 			</div>
+			<div class="field"><small id="clickerKeyDebug" aria-live="polite">Last key seen by slides: none</small></div>
 			<div class="field">
 				<label for="timerSoundSelect">Timer Sound</label>
 				<select class="sound-select" id="timerSoundSelect">
@@ -2865,6 +2866,9 @@
 			}
 		}
 		clickerCommandChannel.addEventListener('message', event => {
+			if (event.data?.type === 'clicker-key-observed') {
+				document.getElementById('clickerKeyDebug').textContent = `Last key seen by slides: ${event.data.code || '—'} (${event.data.key || '—'}, teacher view)`;
+			}
 			if (event.data?.type === 'clicker-key') handleClickerKey(event.data.button, Boolean(event.data.pressed), false, Boolean(event.data.cancel));
 		});
 		window.addEventListener('blur', () => releaseButtonSix(true));
@@ -5063,7 +5067,8 @@
 		fileSlideNext.addEventListener('click', () => moveFileSlide(1));
 
 		function captureClickerFunctionKey(event) {
-			const match = /^F(1[3-9]|20)$/.exec(event.code || event.key);
+			if (event.type === 'keydown') document.getElementById('clickerKeyDebug').textContent = `Last key seen by slides: ${event.code || '—'} (${event.key || '—'})`;
+			const match = /^F(1[3-9]|20)$/.exec(event.code) || /^F(1[3-9]|20)$/.exec(event.key);
 			if (!match) return;
 			event.preventDefault();
 			event.stopImmediatePropagation();
