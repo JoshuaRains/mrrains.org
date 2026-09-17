@@ -196,7 +196,7 @@ function setupGestures(stage) {
 
 function pairDistance(points) { return points.length < 2 ? 1 : Math.hypot(points[1].x - points[0].x, points[1].y - points[0].y); }
 function pairCenter(points) { return points.length < 2 ? points[0] : { x: (points[0].x + points[1].x) / 2, y: (points[0].y + points[1].y) / 2 }; }
-function moveDocument(delta) { if (!state.documents.length) return; state.activeIndex = (state.activeIndex + delta + state.documents.length) % state.documents.length; saveState(); renderActive(); }
+function moveDocument(delta) { if (!state.documents.length) return; window.closeSlidesHomeViewer?.(); state.activeIndex = (state.activeIndex + delta + state.documents.length) % state.documents.length; saveState(); renderActive(); }
 window.requestTeacherHistoryMove = delta => {
   const doc = activeDocument();
   if (doc?.type !== 'pdf') return false;
@@ -302,7 +302,7 @@ function escapeHtml(value) { return String(value).replace(/[&<>"']/g, char => ({
 
 $('#slideFiles').addEventListener('change', event => { if (!event.target.files?.length) return; event.stopImmediatePropagation(); addFiles(event.target.files); event.target.value = ''; }, true);
 $('#slidesUrl').addEventListener('change', () => { ensureSlidesDocument(); saveState(); renderActive(); });
-$('#slidesReloadBtn').addEventListener('click', () => { const doc = activeDocument(); if (!doc || doc.type === 'slides') { const frame = $('#slidesFrame'); const src = frame.src; frame.src = 'about:blank'; requestAnimationFrame(() => { frame.src = src; }); } else { pdfCache.delete(doc.id); renderActive(); } });
+$('#slidesReloadBtn').addEventListener('click', () => { if (!$('#homeViewer').hidden) { const frame = $('#homeFrame'); try { frame.contentWindow.location.reload(); } catch { frame.src = frame.src; } return; } const doc = activeDocument(); if (!doc || doc.type === 'slides') { const frame = $('#slidesFrame'); const src = frame.src; frame.src = 'about:blank'; requestAnimationFrame(() => { frame.src = src; }); } else { pdfCache.delete(doc.id); renderActive(); } });
 window.addEventListener('resize', () => { positionDocumentSwitcher(); publishStudentViewport(); });
 channel.onmessage = event => { if (event.data?.type === 'state') { state = event.data.state; renderSettingsList(); if (event.data.annotationsOnly && activeDocument()?.type === 'pdf') renderAnnotations($('.document-stage'), activeDocument().id, state.pageById[activeDocument().id] || 1); else renderActive(); } if (event.data?.type === 'viewport') { state.studentViews[event.data.id] = event.data.view; if (activeDocument()?.id === event.data.id) applyStudentTransform(); } };
 function initializeDocumentWorkspace() {

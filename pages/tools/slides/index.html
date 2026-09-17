@@ -354,6 +354,23 @@
 		.slides-area.review-game-mode .subtitle-bar,
 		.slides-area.review-game-mode .document-camera-viewer { display: none; }
 
+		.home-viewer {
+			width: 100%;
+			height: calc(100% - var(--controls-clearance));
+			margin-bottom: var(--controls-clearance);
+			background: #fff;
+			border: 3px solid #000;
+			box-shadow: var(--shadow);
+		}
+		.home-viewer[hidden] { display: none; }
+		.home-frame { width: 100%; height: 100%; border: 0; background: #fff; }
+		.slides-area.home-mode .slides-frame,
+		.slides-area.home-mode .file-slide-viewer,
+		.slides-area.home-mode .subtitle-bar,
+		.slides-area.home-mode .document-camera-viewer,
+		.slides-area.home-mode .review-game-viewer,
+		.slides-area.home-mode .document-stage { display: none; }
+
 		.slides-area.subtitles-live .slides-frame {
 			height: min(calc(100% - var(--subtitle-h) - var(--controls-clearance) - 4px), calc(var(--slides-fit-w) * 9 / 16));
 		}
@@ -1821,6 +1838,9 @@
 				<iframe class="review-game-frame" id="reviewGameFrame" title="Review game selector" allow="autoplay; fullscreen" src="about:blank"></iframe>
 				<button class="review-game-home" id="reviewGameHome" type="button" title="Game selector" aria-label="Return to game selector"><span class="material-symbols-outlined" aria-hidden="true">grid_view</span></button>
 			</section>
+			<section class="home-viewer" id="homeViewer" aria-label="MrRains.org website" hidden>
+				<iframe class="home-frame" id="homeFrame" title="MrRains.org home page" src="about:blank" allow="autoplay; fullscreen; clipboard-write"></iframe>
+			</section>
 			<div class="subtitle-bar" aria-live="polite">
 				<div class="subtitle-text" id="subtitleText"></div>
 				<div class="translator-stage" id="translatorStage">
@@ -1851,9 +1871,6 @@
 
 		<!-- Controls -->
 		<div class="controls">
-			<a class="btn" href="../../../index.html" title="Go to MrRains.org home page" aria-label="Go to MrRains.org home page">
-				<span class="material-symbols-outlined" aria-hidden="true">home</span>
-			</a>
 			<button class="btn" id="restartBtn" title="Restart" aria-label="Restart">
 				<span class="material-symbols-outlined" aria-hidden="true">restart_alt</span>
 				<span class="control-text">Restart</span>
@@ -1922,6 +1939,9 @@
 		</button>
 		<button class="page-tool-toggle" id="reviewGameToggle" type="button" title="Review games" aria-label="Open review games">
 			<span class="material-symbols-outlined" aria-hidden="true">sports_esports</span>
+		</button>
+		<button class="page-tool-toggle" id="homeToggle" type="button" title="Show MrRains.org website" aria-label="Show MrRains.org website" aria-pressed="false">
+			<span class="material-symbols-outlined" aria-hidden="true">home</span>
 		</button>
 		<button class="page-tool-toggle" id="bellBtn" type="button" title="Play bell" aria-label="Play bell">
 			<span class="material-symbols-outlined" aria-hidden="true">notifications</span>
@@ -2276,6 +2296,9 @@
 		const reviewGameViewer = document.getElementById('reviewGameViewer');
 		const reviewGameFrame = document.getElementById('reviewGameFrame');
 		const reviewGameHome = document.getElementById('reviewGameHome');
+		const homeToggle = document.getElementById('homeToggle');
+		const homeViewer = document.getElementById('homeViewer');
+		const homeFrame = document.getElementById('homeFrame');
 		const slidesArea = document.querySelector('.slides-area');
 		const subtitleText = document.getElementById('subtitleText');
 		const translatorStage = document.getElementById('translatorStage');
@@ -2790,7 +2813,7 @@
 				restoreFocusAfterClickerArrow(fileSlideViewer);
 				return true; // The BLE keyboard's real arrow moves the local file deck.
 			}
-			const frame = !reviewGameViewer.hidden ? reviewGameFrame : slidesFrame;
+			const frame = !homeViewer.hidden ? homeFrame : (!reviewGameViewer.hidden ? reviewGameFrame : slidesFrame);
 			frame.focus();
 			restoreFocusAfterClickerArrow(frame);
 			try {
@@ -4559,6 +4582,7 @@
 		}
 
 		async function openDocumentCamera() {
+			closeHomeWebsite();
 			closeReviewGameSelector();
 			documentCameraViewer.hidden = false;
 			slidesArea.classList.add('camera-mode');
@@ -4577,6 +4601,7 @@
 		}
 
 		function openReviewGameSelector() {
+			closeHomeWebsite();
 			closeDocumentCamera();
 			reviewGameViewer.hidden = false;
 			reviewGameFrame.src = './review-games.html';
@@ -4592,6 +4617,32 @@
 			reviewGameToggle.classList.remove('active');
 			reviewGameToggle.setAttribute('aria-label', 'Open review games');
 		}
+
+		function openHomeWebsite() {
+			closeDocumentCamera();
+			closeReviewGameSelector();
+			if (homeFrame.getAttribute('src') === 'about:blank') homeFrame.src = '../../../index.html';
+			homeViewer.hidden = false;
+			slidesArea.classList.add('home-mode');
+			homeToggle.classList.add('active');
+			homeToggle.title = 'Return to slides or document';
+			homeToggle.setAttribute('aria-label', 'Return to slides or document');
+			homeToggle.setAttribute('aria-pressed', 'true');
+		}
+
+		function closeHomeWebsite() {
+			homeViewer.hidden = true;
+			slidesArea.classList.remove('home-mode');
+			homeToggle.classList.remove('active');
+			homeToggle.title = 'Show MrRains.org website';
+			homeToggle.setAttribute('aria-label', 'Show MrRains.org website');
+			homeToggle.setAttribute('aria-pressed', 'false');
+		}
+		window.closeSlidesHomeViewer = closeHomeWebsite;
+		homeToggle.addEventListener('click', () => {
+			if (homeViewer.hidden) openHomeWebsite();
+			else closeHomeWebsite();
+		});
 
 		reviewGameToggle.addEventListener('click', () => {
 			if (slidesArea.classList.contains('review-game-mode')) closeReviewGameSelector();
@@ -4999,6 +5050,7 @@
 		});
 
 		slidesInput.addEventListener('change', e => {
+			closeHomeWebsite();
 			slidesURL = e.target.value;
 			clearFileDeck();
 			slidesFrame.src = slidesURL;
@@ -5008,6 +5060,7 @@
 		slideFilesInput.addEventListener('change', e => {
 			const files = e.target.files;
 			if (!files?.length) return;
+			closeHomeWebsite();
 			slidesURL = "";
 			slidesInput.value = "";
 			slidesFrame.src = "";
