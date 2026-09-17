@@ -2027,14 +2027,6 @@
 					Advanced features
 				</label>
 			</div>
-			<div class="field" id="clickerReceiverField">
-				<label>Bluetooth clicker</label>
-				<div class="mc-config-row">
-					<button class="add-btn" id="connectClickerReceiver" type="button">Connect Bluetooth clicker</button>
-					<button class="add-btn" id="connectUsbClickerReceiver" type="button">Connect USB receiver</button>
-					<span class="mc-status" id="clickerReceiverStatus">Not connected.</span>
-				</div>
-			</div>
 			<div class="field">
 				<label for="timerSoundSelect">Timer Sound</label>
 				<select class="sound-select" id="timerSoundSelect">
@@ -2247,13 +2239,6 @@
 		let fileDeck = null;
 		let fileSlideIndex = 0;
 		const fileDeckObjectUrls = [];
-		const CLICKER_SERVICE_UUID = '75d45c10-8e7a-4c6a-9a79-3e7dcddf8300';
-		const CLICKER_TELEMETRY_UUID = '75d45c11-8e7a-4c6a-9a79-3e7dcddf8300';
-		let clickerDevice = null;
-		let previousClickerMask = 0;
-		let usbClickerDevice = null;
-		let previousUsbClickerMask = 0;
-		let activeClickerMask = 0;
 		const clickerCommandChannel = new BroadcastChannel('mrrains-slides-document-sync-v1');
 		const CLICKER_ACTIONS = {
 			1: 'slide-right',
@@ -2267,6 +2252,7 @@
 		let buttonSixHoldTimer = null;
 		let buttonSixHeld = false;
 		let buttonSixReset = false;
+		let clickerFocusRestoreTimer = null;
 
 		/* ---------- Elements ---------- */
 		const overlay = document.getElementById('overlay');
@@ -2368,11 +2354,7 @@
 		const mcToggleCounts = document.getElementById('mcToggleCounts');
 		const mcToggleCountsIcon = document.getElementById('mcToggleCountsIcon');
 		const multipleChoiceJsonInput = document.getElementById('multipleChoiceJson');
-		const clickerReceiverStatus = document.getElementById('clickerReceiverStatus');
-		const connectClickerReceiverBtn = document.getElementById('connectClickerReceiver');
-		const connectUsbClickerReceiverBtn = document.getElementById('connectUsbClickerReceiver');
 		const advancedFeaturesEnabledEl = document.getElementById('advancedFeaturesEnabled');
-		const clickerReceiverField = document.getElementById('clickerReceiverField');
 		const advancedCaptionControls = document.getElementById('advancedCaptionControls');
 
 		const bellBtn = document.getElementById('bellBtn');      // NEW
@@ -2415,7 +2397,6 @@
 
 		function updateAdvancedFeaturesUI() {
 			advancedFeaturesEnabledEl.checked = advancedFeaturesEnabled;
-			clickerReceiverField.hidden = false;
 			advancedCaptionControls.hidden = !advancedFeaturesEnabled;
 			if (!advancedFeaturesEnabled) disableCaptionTranslationSystem();
 		}
@@ -2699,7 +2680,7 @@
 					}));
 			} catch (err) {
 				parsed = [];
-				if (clickerReceiverStatus) clickerReceiverStatus.textContent = `Question JSON error: ${err.message}`;
+				console.warn('Question JSON error:', err);
 			}
 
 			multipleChoiceQuestions = parsed;
@@ -2797,10 +2778,6 @@
 		}
 
 
-		function setClickerStatus(message) {
-			if (clickerReceiverStatus) clickerReceiverStatus.textContent = message;
-		}
-
 		function runClickerAction(action, button) {
 			if (!['document-previous', 'document-next', 'slide-left', 'slide-right', 'timer-sound', 'history-forward', 'history-back'].includes(action)) return;
 			if (action === 'history-forward' || action === 'history-back') {
@@ -2809,17 +2786,15 @@
 			}
 			if (action === 'timer-sound') {
 				audioEl.currentTime = 0;
-				audioEl.play().catch(error => setClickerStatus(`Button ${button} pressed, but timer sound failed: ${error.message}`));
+				audioEl.play().catch(error => console.warn(`Button ${button} timer sound failed:`, error));
 				return;
 			}
 			if (action === 'document-previous' || action === 'document-next') {
 				moveDocument(action === 'document-next' ? 1 : -1);
-				setClickerStatus(`Button ${button} changed the document.`);
 				return;
 			}
 			if (action === 'slide-left' || action === 'slide-right') {
-				const result = advanceEmbeddedSlide(action === 'slide-right' ? 1 : -1);
-				setClickerStatus(result ? `Button ${button} prepared slide control.` : 'Clicker arrow received; pair Slides Clicker as a Bluetooth keyboard to move external slides.');
+				advanceEmbeddedSlide(action === 'slide-right' ? 1 : -1);
 				return;
 			}
 		}
@@ -2829,10 +2804,12 @@
 			if (fileDeck && !fileSlideViewer.hidden) {
 				fileSlideViewer.tabIndex = -1;
 				fileSlideViewer.focus();
+				restoreFocusAfterClickerArrow(fileSlideViewer);
 				return true; // The BLE keyboard's real arrow moves the local file deck.
 			}
 			const frame = !reviewGameViewer.hidden ? reviewGameFrame : slidesFrame;
 			frame.focus();
+			restoreFocusAfterClickerArrow(frame);
 			try {
 				if (!frame.contentDocument) return true; // BLE HID sends a real arrow after iframe focus.
 				const gameActive = frame === reviewGameFrame && !frame.contentWindow.location.pathname.endsWith('/review-games.html');
@@ -2849,6 +2826,15 @@
 			}
 		}
 
+		function restoreFocusAfterClickerArrow(target) {
+			clearTimeout(clickerFocusRestoreTimer);
+			clickerFocusRestoreTimer = setTimeout(() => {
+				if (document.activeElement !== target) return;
+				document.body.tabIndex = -1;
+				document.body.focus({ preventScroll: true });
+			}, 350);
+		}
+
 		function startButtonSixHold() {
 			if (buttonSixHeld) return;
 			buttonSixHeld = true;
@@ -2857,7 +2843,6 @@
 				buttonSixHoldTimer = null;
 				if (!buttonSixHeld) return;
 				buttonSixReset = Boolean(window.requestTeacherHistoryStart?.());
-				if (buttonSixReset) setClickerStatus('Button 6 held · edit history reset to start');
 			}, 3000);
 		}
 
@@ -2870,92 +2855,20 @@
 			buttonSixReset = false;
 		}
 
-		function handleClickerKey(button, pressed) {
+		function handleClickerKey(button, pressed, repeat = false, cancel = false) {
 			if (!Number.isInteger(button) || button < 1 || button > 8) return;
-			const bit = 1 << (button - 1);
-			if (Boolean(activeClickerMask & bit) === pressed) return;
-			activeClickerMask = pressed ? activeClickerMask | bit : activeClickerMask & ~bit;
 			if (button === 6) {
-				if (pressed) startButtonSixHold();
-				else if (!pressed) releaseButtonSix();
-			} else if (pressed) {
+				if (pressed && !repeat) startButtonSixHold();
+				else if (!pressed) releaseButtonSix(cancel);
+			} else if (pressed && !repeat) {
 				runClickerAction(CLICKER_ACTIONS[button], button);
 			}
-			if (pressed) setClickerStatus(`Button ${button} pressed · Bluetooth · ${CLICKER_ACTIONS[button] || 'no assigned action'}`);
 		}
 		clickerCommandChannel.addEventListener('message', event => {
-			if (event.data?.type === 'clicker-key') handleClickerKey(event.data.button, Boolean(event.data.pressed));
+			if (event.data?.type === 'clicker-key') handleClickerKey(event.data.button, Boolean(event.data.pressed), false, Boolean(event.data.cancel));
 		});
-		function handleClickerBluetoothValue(event) {
-			const value = new TextDecoder().decode(event.target.value);
-			const mask = Number(value.split(',')[2]);
-			if (!Number.isInteger(mask) || mask < 0 || mask > 255) return;
-			const changed = previousClickerMask ^ mask;
-			previousClickerMask = mask;
-			for (let button = 1; button <= 8; button++) {
-				const bit = 1 << (button - 1);
-				if (changed & bit) handleClickerKey(button, Boolean(mask & bit));
-			}
-		}
-		function handleClickerUsbMask(mask) {
-			if (!Number.isInteger(mask) || mask < 0 || mask > 255) return;
-			const changed = previousUsbClickerMask ^ mask;
-			previousUsbClickerMask = mask;
-			for (let button = 1; button <= 8; button++) {
-				const bit = 1 << (button - 1);
-				if (changed & bit) handleClickerKey(button, Boolean(mask & bit));
-			}
-		}
-		async function connectUsbClickerReceiver() {
-			if (!navigator.hid) {
-				setClickerStatus('USB receiver control requires Chrome or Edge on a secure page.');
-				return;
-			}
-			try {
-				const devices = await navigator.hid.requestDevice({ filters: [{ vendorId: 0x2341, productId: 0x0070 }] });
-				const device = devices.find(item => item.collections.some(collection => collection.usagePage === 0xFF00));
-				if (!device) { setClickerStatus('Nano ESP32 USB receiver was not selected.'); return; }
-				usbClickerDevice = device;
-				if (!device.opened) await device.open();
-				device.addEventListener('inputreport', event => {
-					if (event.data.byteLength) handleClickerUsbMask(event.data.getUint8(0));
-				});
-				setClickerStatus('USB keyboard receiver connected. Buttons 1–8 ready.');
-			} catch (error) {
-				setClickerStatus(`USB receiver connection failed: ${error.message}`);
-			}
-		}
-		navigator.hid?.addEventListener('disconnect', event => {
-			if (event.device !== usbClickerDevice) return;
-			previousUsbClickerMask = 0;
-			if (activeClickerMask & (1 << 5)) releaseButtonSix(true);
-			activeClickerMask = 0;
-			setClickerStatus('USB receiver disconnected. Reconnect the clicker.');
-		});
-		async function connectClickerReceiver() {
-			if (!navigator.bluetooth) {
-				setClickerStatus('Bluetooth connection requires Chrome or Edge on a secure page.');
-				return;
-			}
-			try {
-				clickerDevice = await navigator.bluetooth.requestDevice({ filters: [{ name: 'Slides Clicker' }], optionalServices: [CLICKER_SERVICE_UUID] });
-				clickerDevice.addEventListener('gattserverdisconnected', () => {
-					previousClickerMask = 0;
-					if (activeClickerMask & (1 << 5)) releaseButtonSix(true);
-					activeClickerMask = 0;
-					setClickerStatus('Bluetooth disconnected. Reconnect the clicker.');
-				});
-				const server = await clickerDevice.gatt.connect();
-				const service = await server.getPrimaryService(CLICKER_SERVICE_UUID);
-				const characteristic = await service.getCharacteristic(CLICKER_TELEMETRY_UUID);
-				characteristic.addEventListener('characteristicvaluechanged', handleClickerBluetoothValue);
-				await characteristic.startNotifications();
-				handleClickerBluetoothValue({ target: { value: await characteristic.readValue() } });
-				setClickerStatus('Bluetooth clicker connected. Buttons 1–8 ready.');
-			} catch (error) {
-				setClickerStatus(`Bluetooth connection failed: ${error.message}`);
-			}
-		}
+		window.addEventListener('blur', () => releaseButtonSix(true));
+		document.addEventListener('visibilitychange', () => { if (document.hidden) releaseButtonSix(true); });
 		/* ---------- Persistence ---------- */
 		const LS_KEY = 'classTimelineConfig.v2';
 		function saveConfig() {
@@ -5144,8 +5057,6 @@
 
 		mcResetResponses.addEventListener('click', resetMultipleChoiceResponses);
 		mcToggleCounts.addEventListener('click', toggleMultipleChoiceCounts);
-		connectClickerReceiverBtn.addEventListener('click', connectClickerReceiver);
-		connectUsbClickerReceiverBtn.addEventListener('click', connectUsbClickerReceiver);
 
 
 		fileSlidePrev.addEventListener('click', () => moveFileSlide(-1));
@@ -5156,7 +5067,7 @@
 			if (!match) return;
 			event.preventDefault();
 			event.stopImmediatePropagation();
-			handleClickerKey(Number(match[1]) - 12, event.type === 'keydown');
+			handleClickerKey(Number(match[1]) - 12, event.type === 'keydown', event.repeat);
 		}
 		document.addEventListener('keydown', captureClickerFunctionKey, true);
 		document.addEventListener('keyup', captureClickerFunctionKey, true);
