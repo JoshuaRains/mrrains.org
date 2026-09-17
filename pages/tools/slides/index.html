@@ -4631,6 +4631,7 @@
 		}
 
 		function closeHomeWebsite() {
+			if (!homeViewer.hidden) homeFrame.src = 'about:blank';
 			homeViewer.hidden = true;
 			slidesArea.classList.remove('home-mode');
 			homeToggle.classList.remove('active');
