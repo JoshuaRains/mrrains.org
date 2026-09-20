@@ -1155,6 +1155,16 @@
 			font-size: 40px;
 		}
 
+		.clicker-focus-strip {
+			position: fixed;
+			top: 0;
+			right: 0;
+			bottom: 0;
+			width: 3px;
+			z-index: 30000;
+			background: transparent;
+		}
+
 		.annotation-canvas { position:fixed; top:0; right:72px; bottom:var(--controls-clearance); left:72px; width:calc(100vw - 144px); height:calc(100vh - var(--controls-clearance)); z-index:9500; pointer-events:none; touch-action:none; }
 		.annotation-canvas.enabled { pointer-events:auto; cursor:crosshair; }
 		.annotation-canvas.erasing { cursor:cell; }
@@ -1791,6 +1801,7 @@
 </head>
 
 <body>
+	<div class="clicker-focus-strip" id="clickerFocusStrip" aria-hidden="true"></div>
 	<div class="app">
 		<!-- Top progress bar -->
 		<div class="topbar">
@@ -5089,6 +5100,12 @@
 
 		fileSlidePrev.addEventListener('click', () => moveFileSlide(-1));
 		fileSlideNext.addEventListener('click', () => moveFileSlide(1));
+		document.getElementById('clickerFocusStrip').addEventListener('pointerdown', event => {
+			event.preventDefault();
+			event.stopPropagation();
+			document.body.tabIndex = -1;
+			document.body.focus({ preventScroll: true });
+		});
 
 		function captureClickerFunctionKey(event) {
 			if (event.type === 'keydown') document.getElementById('clickerKeyDebug').textContent = `Last key seen by slides: ${event.code || '—'} (${event.key || '—'})`;

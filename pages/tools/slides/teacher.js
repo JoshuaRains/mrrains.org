@@ -62,6 +62,7 @@ function beginShiftMovementToggle(event){if(event.key!=='Shift'||shiftHeld)retur
 function endShiftMovementToggle(event){if(event?.key&&event.key!=='Shift'||!shiftHeld)return;shiftHeld=false;updateMovementMode(shiftOriginalMovementMode||'pan');shiftOriginalMovementMode=''}
 document.addEventListener('keydown',beginShiftMovementToggle);document.addEventListener('keyup',endShiftMovementToggle);window.addEventListener('blur',()=>endShiftMovementToggle());
 const heldClickerButtons=new Set();
+$('#clickerFocusStrip').addEventListener('pointerdown',event=>{event.preventDefault();event.stopPropagation();document.body.tabIndex=-1;document.body.focus({preventScroll:true})});
 function forwardClickerKey(event){if(event.type==='keydown')channel.postMessage({type:'clicker-key-observed',code:event.code,key:event.key});const match=/^F(1[3-9]|20)$/.exec(event.code)||/^F(1[3-9]|20)$/.exec(event.key);if(!match)return;event.preventDefault();event.stopImmediatePropagation();if(event.repeat)return;const button=Number(match[1])-12,pressed=event.type==='keydown';if(pressed)heldClickerButtons.add(button);else heldClickerButtons.delete(button);channel.postMessage({type:'clicker-key',button,pressed});if(pressed&&(button===1||button===8))window.opener?.focus()}
 document.addEventListener('keydown',forwardClickerKey,true);document.addEventListener('keyup',forwardClickerKey,true);
 window.addEventListener('blur',()=>{for(const button of heldClickerButtons)channel.postMessage({type:'clicker-key',button,pressed:false,cancel:true});heldClickerButtons.clear()});

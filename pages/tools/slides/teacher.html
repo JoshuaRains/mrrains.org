@@ -11,6 +11,7 @@
   </style>
   <style>
     .live-text-editor{min-height:1.25em}
+    .clicker-focus-strip{position:fixed;top:0;right:0;bottom:0;width:3px;z-index:1000;background:transparent}
     .status{display:none}
     .top,.bottom{gap:8px;padding:8px}
     .top button,.bottom button{min-width:52px;height:52px;padding:0 12px}
@@ -22,6 +23,7 @@
   </style>
 </head>
 <body>
+  <div class="clicker-focus-strip" id="clickerFocusStrip" aria-hidden="true"></div>
   <div class="stage" id="stage"><div class="page" id="page"><canvas id="pdfCanvas"></canvas><svg class="annotations" id="annotations"></svg><div class="text-interactions" id="textInteractions"></div><div class="student-boundary" id="studentBoundary"></div></div></div>
   <nav class="top" aria-label="Teacher PDF tools">
     <button id="previousDocument" title="Previous document"><span class="material-symbols-outlined">chevron_left</span></button><div class="label" id="documentLabel">No document</div><button id="nextDocument" title="Next document"><span class="material-symbols-outlined">chevron_right</span></button>
