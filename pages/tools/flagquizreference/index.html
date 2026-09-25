@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Flag Quiz Visual Reference</title>
+  <style>
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body { margin: 0; background: #fff; color: #171717; font-family: Arial, Helvetica, sans-serif; }
+    main { width: min(760px, calc(100% - 32px)); margin: 30px auto 70px; }
+    h1 { margin: 0 0 8px; font-size: clamp(26px, 4vw, 40px); }
+    .intro { margin: 0 0 34px; color: #555; font-size: 16px; }
+    .flags { display: flex; flex-direction: column; gap: 42px; }
+    .flag { width: 100%; padding-bottom: 42px; border-bottom: 1px solid #e5e5e5; text-align: center; }
+    .flag:last-child { border-bottom: 0; }
+    .number { display: block; margin-bottom: 12px; color: #555; font-size: 20px; font-weight: 700; text-align: left; }
+    .flag img { display: block; width: 100%; height: auto; max-height: 390px; object-fit: contain; margin: 0 auto; }
+    @media (max-width: 520px) {
+      main { width: calc(100% - 24px); margin-top: 22px; }
+      .flags { gap: 30px; }
+      .flag { padding-bottom: 30px; }
+      .flag img { max-height: 260px; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Flag Quiz Visual Reference</h1>
+    <p class="intro">Flags are shown in quiz order. Scroll for a closer look.</p>
+    <div id="flags" class="flags"></div>
+  </main>
+  <script>
+    // Matches the quiz's visual reading order: down each full column, then right.
+    const flagCodes = ["uy", "pe", "cl", "ec", "cr", "cu", "do", "co", "hn", "gq", "sv", "ni", "es", "gt", "pa", "ar", "bo", "mx", "py", "ve"];
+    const list = document.querySelector("#flags");
+    list.replaceChildren(...flagCodes.map((code, index) => {
+      const item = document.createElement("section");
+      item.className = "flag";
+      const number = document.createElement("span");
+      number.className = "number";
+      number.textContent = `${index + 1}.`;
+      const image = document.createElement("img");
+      image.src = `https://flagcdn.com/${code}.svg`;
+      image.alt = `Flag for quiz question ${index + 1}`;
+      item.append(number, image);
+      return item;
+    }));
+  </script>
+</body>
+</html>
