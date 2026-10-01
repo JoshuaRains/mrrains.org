@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="en" translate="no">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Spanish Time Practice</title>
+  <link rel="icon" type="image/svg+xml" href="../../../assets/favicon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      min-height: 100vh;
+      padding: 24px;
+      display: grid;
+      place-items: center;
+      background: linear-gradient(145deg, #517860, #79b791);
+      color: #303732;
+      font-family: "Noto Sans", sans-serif;
+    }
+
+    .back-link {
+      position: fixed;
+      top: 18px;
+      left: 18px;
+      padding: 10px 14px;
+      border-radius: 10px;
+      background: rgba(236, 239, 236, 0.94);
+      color: #3a5744;
+      font-weight: 700;
+      text-decoration: none;
+      box-shadow: 0 3px 8px rgba(0, 0, 0, 0.16);
+    }
+
+    .game {
+      width: min(100%, 720px);
+      padding: clamp(28px, 6vw, 54px);
+      border-radius: 24px;
+      background: rgba(246, 249, 246, 0.98);
+      text-align: center;
+      box-shadow: 0 18px 42px rgba(25, 48, 32, 0.32);
+    }
+
+    h1 {
+      margin-bottom: 8px;
+      color: #3a5744;
+      font-size: clamp(25px, 6vw, 42px);
+    }
+
+    .instructions {
+      margin-bottom: 20px;
+      color: #5c685f;
+      line-height: 1.5;
+    }
+
+    .round-stats {
+      display: flex;
+      justify-content: center;
+      gap: clamp(16px, 6vw, 48px);
+      margin-bottom: 28px;
+      padding: 12px 16px;
+      border-radius: 12px;
+      background: #e8f1ea;
+      color: #3a5744;
+      font-weight: 700;
+    }
+
+    .stat-value {
+      display: block;
+      font-size: 20px;
+    }
+
+    .stat-label {
+      display: block;
+      color: #718077;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .clock {
+      margin-bottom: 28px;
+      color: #253c2d;
+      font-size: clamp(76px, 20vw, 132px);
+      font-weight: 700;
+      line-height: 1;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 9px;
+      color: #3a5744;
+      font-size: 14px;
+      font-weight: 700;
+      text-align: left;
+    }
+
+    input {
+      width: 100%;
+      padding: 16px 18px;
+      border: 3px solid #79b791;
+      border-radius: 12px;
+      background: #fff;
+      color: #303732;
+      font: inherit;
+      font-size: clamp(17px, 4vw, 21px);
+      outline: none;
+      transition: border-color 0.15s ease, box-shadow 0.15s ease, color 0.15s ease;
+    }
+
+    input:focus {
+      box-shadow: 0 0 0 5px rgba(121, 183, 145, 0.25);
+    }
+
+    input.correct {
+      border-color: #218739;
+      color: #218739;
+      font-weight: 700;
+    }
+
+    .feedback {
+      min-height: 70px;
+      padding-top: 15px;
+      line-height: 1.55;
+    }
+
+    .feedback strong {
+      color: #218739;
+    }
+
+    .enter-hint {
+      display: block;
+      color: #718077;
+      font-size: 13px;
+    }
+
+    .new-round-button {
+      display: none;
+      margin: 8px auto 0;
+      padding: 12px 22px;
+      border: 0;
+      border-radius: 10px;
+      background: #517860;
+      color: #fff;
+      cursor: pointer;
+      font: inherit;
+      font-weight: 700;
+    }
+
+    .new-round-button:hover {
+      background: #3a5744;
+    }
+
+    @media (max-width: 520px) {
+      body {
+        padding: 76px 14px 20px;
+        align-items: start;
+      }
+
+      .game {
+        padding: 30px 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <a class="back-link" href="../../../index.html">← Home</a>
+
+  <main class="game">
+    <h1>¿Qué hora es?</h1>
+    <p class="instructions">Write the time in Spanish using <strong>es la</strong> or <strong>son las</strong>.</p>
+    <div class="round-stats" aria-label="Round progress">
+      <div><span class="stat-value" id="questionCount">1 / 10</span><span class="stat-label">Question</span></div>
+      <div><span class="stat-value" id="score">0</span><span class="stat-label">Correct</span></div>
+      <div><span class="stat-value" id="timer">0:00</span><span class="stat-label">Time</span></div>
+    </div>
+    <div class="clock" id="clock" aria-label="Time to translate"></div>
+
+    <label for="answerInput">La hora en español</label>
+    <input
+      id="answerInput"
+      type="text"
+      autocomplete="off"
+      spellcheck="false"
+      placeholder="Escribe la hora en español…"
+    >
+    <div class="feedback" id="feedback" aria-live="polite">
+      <span class="enter-hint">Press Enter to reveal the answer</span>
+    </div>
+    <button class="new-round-button" id="newRoundButton" type="button">Start a new round</button>
+  </main>
+
+  <script>
+    const clock = document.getElementById('clock');
+    const input = document.getElementById('answerInput');
+    const feedback = document.getElementById('feedback');
+    const questionCount = document.getElementById('questionCount');
+    const scoreDisplay = document.getElementById('score');
+    const timerDisplay = document.getElementById('timer');
+    const newRoundButton = document.getElementById('newRoundButton');
+    const questionsPerRound = 10;
+    const hourWords = [
+      '', 'una', 'dos', 'tres', 'cuatro', 'cinco', 'seis',
+      'siete', 'ocho', 'nueve', 'diez', 'once', 'doce'
+    ];
+    const minuteWords = {
+      5: 'cinco',
+      10: 'diez',
+      15: 'cuarto',
+      20: 'veinte',
+      25: 'veinticinco',
+      30: 'media'
+    };
+    let answer = '';
+    let revealed = false;
+    let previousTime = '';
+    let questionNumber = 1;
+    let score = 0;
+    let roundFinished = false;
+    let roundStartedAt = 0;
+    let timerInterval;
+
+    function prefixFor(hour) {
+      return hour === 1 ? 'es la' : 'son las';
+    }
+
+    function spanishTime(hour, minute) {
+      if (minute === 0) return `${prefixFor(hour)} ${hourWords[hour]} en punto`;
+      if (minute <= 30) return `${prefixFor(hour)} ${hourWords[hour]} y ${minuteWords[minute]}`;
+
+      const nextHour = hour === 12 ? 1 : hour + 1;
+      return `${prefixFor(nextHour)} ${hourWords[nextHour]} menos ${minuteWords[60 - minute]}`;
+    }
+
+    function normalize(value) {
+      return value.trim().toLocaleLowerCase('es').replace(/\s+/g, ' ');
+    }
+
+    function formatTime(totalSeconds) {
+      const minutes = Math.floor(totalSeconds / 60);
+      const seconds = String(totalSeconds % 60).padStart(2, '0');
+      return `${minutes}:${seconds}`;
+    }
+
+    function updateTimer() {
+      const elapsedSeconds = Math.floor((Date.now() - roundStartedAt) / 1000);
+      timerDisplay.textContent = formatTime(elapsedSeconds);
+    }
+
+    function finishRound() {
+      roundFinished = true;
+      clearInterval(timerInterval);
+      updateTimer();
+      clock.textContent = 'Finished!';
+      input.disabled = true;
+      input.classList.remove('correct');
+      feedback.innerHTML = `You got <strong>${score} out of ${questionsPerRound}</strong> correct in <strong>${timerDisplay.textContent}</strong>.`;
+      newRoundButton.style.display = 'block';
+      newRoundButton.focus();
+    }
+
+    function completeQuestion(wasCorrect) {
+      if (wasCorrect) score += 1;
+      scoreDisplay.textContent = score;
+
+      if (questionNumber === questionsPerRound) {
+        finishRound();
+        return;
+      }
+
+      questionNumber += 1;
+      nextQuestion();
+    }
+
+    function nextQuestion() {
+      let hour;
+      let minute;
+      let displayTime;
+
+      do {
+        hour = Math.floor(Math.random() * 12) + 1;
+        minute = Math.floor(Math.random() * 12) * 5;
+        displayTime = `${hour}:${String(minute).padStart(2, '0')}`;
+      } while (displayTime === previousTime);
+
+      previousTime = displayTime;
+      answer = spanishTime(hour, minute);
+      revealed = false;
+      clock.textContent = displayTime;
+      questionCount.textContent = `${questionNumber} / ${questionsPerRound}`;
+      input.value = '';
+      input.classList.remove('correct');
+      input.removeAttribute('aria-invalid');
+      feedback.innerHTML = '<span class="enter-hint">Press Enter to reveal the answer</span>';
+      input.focus();
+    }
+
+    input.addEventListener('input', () => {
+      const isCorrect = normalize(input.value) === normalize(answer);
+      input.classList.toggle('correct', isCorrect);
+      input.removeAttribute('aria-invalid');
+
+      if (!revealed) {
+        feedback.innerHTML = isCorrect
+          ? '<strong>Correct!</strong><span class="enter-hint">Press Enter for the next question</span>'
+          : '<span class="enter-hint">Press Enter to reveal the answer</span>';
+      }
+    });
+
+    input.addEventListener('keydown', event => {
+      if (event.key !== 'Enter') return;
+      event.preventDefault();
+
+      if (revealed) {
+        completeQuestion(false);
+        return;
+      }
+
+      const isCorrect = normalize(input.value) === normalize(answer);
+      if (isCorrect) {
+        completeQuestion(true);
+        return;
+      }
+
+      revealed = true;
+      input.classList.toggle('correct', isCorrect);
+      input.setAttribute('aria-invalid', String(!isCorrect));
+      feedback.innerHTML = `The answer is: <strong>${answer}</strong><span class="enter-hint">Press Enter again for the next question</span>`;
+    });
+
+    function startRound() {
+      clearInterval(timerInterval);
+      questionNumber = 1;
+      score = 0;
+      roundFinished = false;
+      roundStartedAt = Date.now();
+      scoreDisplay.textContent = '0';
+      timerDisplay.textContent = '0:00';
+      input.disabled = false;
+      newRoundButton.style.display = 'none';
+      nextQuestion();
+      timerInterval = setInterval(updateTimer, 250);
+    }
+
+    newRoundButton.addEventListener('click', startRound);
+    startRound();
+  </script>
+</body>
+</html>
