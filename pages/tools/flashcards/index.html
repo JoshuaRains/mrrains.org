@@ -1,0 +1,799 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Flashcards</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #222;
+      --muted: #666;
+      --line: #bbb;
+      --panel: #ffffff;
+      --wash: #eee;
+      --accent: #555;
+      --accent-soft: #eee;
+      --shadow: 5px 6px 0 rgba(0, 0, 0, .12);
+    }
+
+    * { box-sizing: border-box; border-radius: 0 !important; }
+    html, body { min-height: 100%; }
+    body {
+      margin: 0;
+      background: var(--wash);
+      color: var(--ink);
+      font: 16px/1.45 Arial, Helvetica, sans-serif;
+    }
+
+    button, input, textarea { font: inherit; }
+    button { color: inherit; }
+
+    .app {
+      min-height: 100vh;
+      display: grid;
+      grid-template-columns: 175px minmax(0, 1fr);
+    }
+
+    aside {
+      position: relative;
+      z-index: 10;
+      padding: 18px 12px;
+      border-right: 1px solid #aaa;
+      background: #ddd;
+    }
+
+    .side-nav { display: grid; gap: 10px; }
+    .side-button {
+      display: flex;
+      align-items: center;
+      gap: 11px;
+      width: 100%;
+      padding: 12px 14px;
+      border: 0;
+      border: 1px solid transparent;
+      border-radius: 6px;
+      background: transparent;
+      text-align: left;
+      cursor: pointer;
+      transition: background .18s ease, color .18s ease, transform .18s ease;
+    }
+    .side-button:hover { background: #eee; transform: translateX(2px); }
+    .side-button.active { border-color: #aaa; background: #fff; color: #222; font-weight: 700; }
+    .side-icon { width: 22px; font-size: 21px; text-align: center; }
+
+    .privacy-note {
+      position: absolute;
+      right: 20px;
+      bottom: 24px;
+      left: 20px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    main { min-width: 0; display: flex; flex-direction: column; }
+    .deck-bar {
+      display: flex;
+      min-height: 58px;
+      align-items: end;
+      gap: 6px;
+      padding: 8px 22px 0;
+      overflow-x: auto;
+      border-bottom: 1px solid var(--line);
+      background: #ddd;
+    }
+    .deck-tab {
+      flex: 0 0 auto;
+      max-width: 210px;
+      padding: 11px 16px 13px;
+      overflow: hidden;
+      border: 1px solid transparent;
+      border-bottom: 0;
+      border-radius: 6px 6px 0 0;
+      background: transparent;
+      color: var(--muted);
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      cursor: pointer;
+      transition: background .18s ease, color .18s ease;
+    }
+    .deck-tab:hover { background: #eee; color: var(--ink); }
+    .deck-tab.active { border-color: #aaa; background: var(--panel); color: var(--ink); font-weight: 700; }
+    .no-decks { align-self: center; margin-bottom: 13px; color: var(--muted); font-size: 14px; }
+
+    .view { display: none; flex: 1; padding: 42px clamp(22px, 5vw, 72px); }
+    .view.active { display: block; animation: fade-in .24s ease both; }
+    @keyframes fade-in { from { opacity: 0; transform: translateY(5px); } }
+
+    .content { width: min(820px, 100%); margin: 0 auto; }
+    .heading-row { display: flex; align-items: start; justify-content: space-between; gap: 18px; margin-bottom: 26px; }
+    h1 { margin: 0 0 5px; font-size: clamp(25px, 3vw, 34px); letter-spacing: -.035em; }
+    .subtitle { margin: 0; color: var(--muted); }
+    .field-label { display: block; margin-bottom: 7px; font-size: 13px; font-weight: 750; }
+    input, textarea {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 11px;
+      outline: none;
+      background: #fff;
+      color: var(--ink);
+      transition: border-color .18s ease, box-shadow .18s ease;
+    }
+    input { padding: 12px 14px; }
+    textarea { min-height: 78px; padding: 12px 14px; resize: vertical; }
+    input:focus, textarea:focus { border-color: #666; box-shadow: 0 0 0 3px rgba(0, 0, 0, .1); }
+
+    .deck-name-field { margin-bottom: 22px; }
+    .card-editor { display: grid; gap: 12px; }
+    .edit-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr auto;
+      gap: 12px;
+      align-items: start;
+      padding: 14px;
+      border: 1px solid var(--line);
+      border-radius: 15px;
+      background: var(--panel);
+    }
+    .remove-card {
+      width: 38px;
+      height: 38px;
+      border: 0;
+      border-radius: 10px;
+      background: transparent;
+      color: #9a5961;
+      cursor: pointer;
+    }
+    .remove-card:hover { background: #fff0f1; }
+    .editor-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 18px; }
+    .button {
+      border: 0;
+      border-radius: 12px;
+      padding: 11px 17px;
+      background: #e5e5e5;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform .16s ease, filter .16s ease;
+    }
+    .button:hover { filter: brightness(.97); transform: translateY(-1px); }
+    .button.primary { border-color: #333; background: var(--accent); color: #fff; }
+    .button:disabled { border-color: #bbb; background: #ccc; color: #888; cursor: not-allowed; filter: none; transform: none; }
+    .button.danger { margin-left: auto; background: #fff0f1; color: #9a3945; }
+    .status { min-height: 22px; margin: 14px 2px 0; color: var(--muted); font-size: 14px; }
+    .status.error { color: #9a3945; }
+
+    .review-content { width: min(900px, 100%); }
+    .review-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 14px; margin-bottom: 20px; }
+    .progress { color: var(--muted); font-size: 14px; font-variant-numeric: tabular-nums; }
+    .study-area { position: relative; min-height: 500px; padding-top: 28px; }
+    .finished-pile {
+      position: absolute;
+      z-index: 0;
+      top: 86px;
+      left: -330px;
+      width: 430px;
+      height: 245px;
+      border: 0;
+      border-radius: 18px;
+      color: var(--muted);
+      display: grid;
+      place-items: start center;
+      padding-top: 13px;
+      font-size: 11px;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+    }
+    .mini-card {
+      pointer-events: none;
+      z-index: 1;
+      transition: none;
+      will-change: transform;
+    }
+    .mini-card .face {
+      color: var(--ink);
+      letter-spacing: normal;
+      text-transform: none;
+    }
+
+    .card-stage { position: relative; width: min(620px, calc(100% - 24px)); height: 350px; margin: 40px auto 0; perspective: 1300px; }
+    .stack-shadow {
+      position: absolute;
+      z-index: 0;
+      inset: 12px -10px -10px 10px;
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      background: #e5e5e5;
+      transform: rotate(1.2deg);
+    }
+    .flashcard {
+      position: absolute;
+      inset: 0;
+      border: 0;
+      border-radius: 22px;
+      background: transparent;
+      cursor: pointer;
+      transform-style: preserve-3d;
+      transition: transform .48s cubic-bezier(.2, .7, .2, 1), opacity .38s ease;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .flashcard.current-card { z-index: 2; }
+    .flashcard.queued-card { z-index: 1; pointer-events: none; }
+    .flashcard:focus-visible { outline: 3px solid rgba(0, 0, 0, .3); outline-offset: 5px; }
+    .flashcard.flipped { transform: rotateY(180deg); }
+    .flashcard.fly-left {
+      animation: finish-card .48s cubic-bezier(.2, .7, .2, 1) both;
+    }
+    .flashcard.mini-card.fly-left {
+      animation: none;
+      transform: translate(var(--finish-x), var(--finish-y)) scale(var(--finish-scale-x), var(--finish-scale-y));
+    }
+    .flashcard.cycle-down { z-index: -1; transform: translate(30px, 125px) scale(.92); opacity: 0; }
+    .flashcard.return-from-finished { animation: finish-card .48s cubic-bezier(.2, .7, .2, 1) reverse both; }
+    @keyframes finish-card {
+      from { transform: none; }
+      to { transform: translate(var(--finish-x), var(--finish-y)) scale(var(--finish-scale-x), var(--finish-scale-y)); }
+    }
+    .face {
+      position: absolute;
+      inset: 0;
+      display: grid;
+      place-items: center;
+      padding: 42px;
+      overflow: auto;
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      background: #fff;
+      box-shadow: var(--shadow);
+      backface-visibility: hidden;
+      white-space: pre-wrap;
+      font-size: clamp(25px, 4vw, 39px);
+      font-weight: 650;
+      line-height: 1.25;
+      text-align: center;
+    }
+    .face.back { background: #f7f7f7; color: #222; transform: rotateY(180deg); }
+    .face-tag { position: absolute; top: 19px; left: 22px; color: var(--muted); font-size: 11px; font-weight: 750; letter-spacing: .08em; text-transform: uppercase; }
+    .review-hint { margin-top: 34px; color: var(--muted); text-align: center; font-size: 13px; }
+    .review-hint kbd { padding: 3px 8px; border: 1px solid var(--line); border-bottom-width: 2px; border-radius: 6px; background: #fff; font: inherit; }
+    .empty-state { display: grid; min-height: 390px; place-items: center; text-align: center; color: var(--muted); }
+    .empty-state strong { display: block; margin-bottom: 6px; color: var(--ink); font-size: 20px; }
+
+    @media (max-width: 720px) {
+      .app { grid-template-columns: 1fr; grid-template-rows: auto auto 1fr; }
+      aside { position: static; display: flex; align-items: center; gap: 14px; padding: 12px 14px; border-right: 0; border-bottom: 1px solid var(--line); }
+      aside { justify-content: center; }
+      .side-nav { display: flex; gap: 6px; }
+      .side-button { width: auto; padding: 10px 12px; }
+      .side-button span:last-child { display: none; }
+      .privacy-note { display: none; }
+      .deck-bar { min-height: 58px; padding: 8px 14px 0; }
+      .view { padding: 28px 16px; }
+      .edit-row { grid-template-columns: 1fr auto; }
+      .edit-row .answer-field { grid-column: 1; }
+      .remove-card { grid-column: 2; grid-row: 1 / 3; align-self: center; }
+      .study-area { min-height: 390px; }
+      .finished-pile { top: 10px; left: -70px; width: 260px; height: 150px; }
+      .card-stage { height: 285px; margin-top: 120px; }
+      .face { padding: 34px 24px; }
+      .review-hint { line-height: 2.2; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; transition-duration: .01ms !important; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <aside>
+      <nav class="side-nav" aria-label="Flashcard tools">
+        <button class="side-button" data-view="create" type="button"><span class="side-icon">＋</span><span>New deck</span></button>
+        <button class="side-button active" data-view="review" type="button"><span class="side-icon">↻</span><span>Basic review</span></button>
+      </nav>
+      <p class="privacy-note">Decks stay in this browser. No scores or performance data are saved.</p>
+    </aside>
+
+    <main>
+      <nav class="deck-bar" id="deckBar" aria-label="Your decks"></nav>
+
+      <section class="view" id="createView">
+        <div class="content">
+          <div class="heading-row">
+            <div><h1 id="editorTitle">Create a new deck</h1><p class="subtitle">Add a front and back for each card.</p></div>
+          </div>
+          <label class="deck-name-field"><span class="field-label">Deck name</span><input id="deckName" maxlength="48" placeholder="Spanish greetings" autocomplete="off"></label>
+          <div class="card-editor" id="cardEditor"></div>
+          <div class="editor-actions">
+            <button class="button" id="addCard" type="button">＋ Add card</button>
+            <button class="button primary" id="saveDeck" type="button">Save deck</button>
+            <button class="button danger" id="deleteDeck" type="button" hidden>Delete deck</button>
+          </div>
+          <p class="status" id="saveStatus" role="status"></p>
+        </div>
+      </section>
+
+      <section class="view active" id="reviewView">
+        <div class="content review-content" id="reviewContent"></div>
+      </section>
+    </main>
+  </div>
+
+  <template id="editRowTemplate">
+    <div class="edit-row">
+      <label><span class="field-label">Front</span><textarea class="front-field" maxlength="500" placeholder="Term or question"></textarea></label>
+      <label class="answer-field"><span class="field-label">Back</span><textarea class="back-field" maxlength="500" placeholder="Definition or answer"></textarea></label>
+      <button class="remove-card" type="button" aria-label="Remove card" title="Remove card">×</button>
+    </div>
+  </template>
+
+  <script>
+    (() => {
+      'use strict';
+
+      const COOKIE_PREFIX = 'mrr_flashcards_';
+      const CHUNK_SIZE = 3000;
+      const MAX_CHUNKS = 10;
+      const defaultDecks = [{
+        id: 'question-words',
+        name: 'Question Words',
+        cards: [
+          { front: '¿Qué?', back: 'What?' },
+          { front: '¿Quién? / ¿Quiénes?', back: 'Who?' },
+          { front: '¿Cuál? / ¿Cuáles?', back: 'Which?' },
+          { front: '¿Cuándo?', back: 'When?' },
+          { front: '¿Dónde?', back: 'Where?' },
+          { front: '¿Adónde?', back: 'Where to?' },
+          { front: '¿Cómo?', back: 'How?' },
+          { front: '¿Cuánto/a?', back: 'How much?' },
+          { front: '¿Cuántos/as?', back: 'How many?' },
+          { front: '¿Por qué?', back: 'Why?' }
+        ]
+      }, {
+        id: 'answer-words',
+        name: 'Answer Words',
+        cards: [
+          { front: 'que', back: 'that' },
+          { front: 'quien / quienes', back: 'who' },
+          { front: 'cual / cuales', back: 'which' },
+          { front: 'cuando', back: 'when' },
+          { front: 'donde', back: 'where' },
+          { front: 'adonde', back: 'where to' },
+          { front: 'como', back: 'like / as' },
+          { front: 'cuanto/a', back: 'as much' },
+          { front: 'cuantos/as', back: 'as many' },
+          { front: 'porque', back: 'because' }
+        ]
+      }, {
+        id: 'classroom-vocabulary',
+        name: 'En el aula',
+        cards: [
+          { front: 'el/la compañero/a de clase', back: 'classmate' },
+          { front: 'el/la estudiante', back: 'student' },
+          { front: 'el/la profesor(a)', back: 'teacher' },
+          { front: 'el borrador', back: 'eraser' },
+          { front: 'la calculadora', back: 'calculator' },
+          { front: 'el escritorio', back: 'desk' },
+          { front: 'el libro', back: 'book' },
+          { front: 'el mapa', back: 'map' },
+          { front: 'la mesa', back: 'table' },
+          { front: 'la mochila', back: 'backpack' },
+          { front: 'el papel', back: 'paper' },
+          { front: 'la papelera', back: 'wastebasket' },
+          { front: 'la pizarra', back: 'blackboard' },
+          { front: 'la pluma', back: 'pen' },
+          { front: 'la puerta', back: 'door' },
+          { front: 'el reloj', back: 'clock; watch' },
+          { front: 'la silla', back: 'seat' },
+          { front: 'la ventana', back: 'window' }
+        ]
+      }, {
+        id: 'school-vocabulary',
+        name: 'En la escuela',
+        cards: [
+          { front: 'la biblioteca', back: 'library' },
+          { front: 'la cafetería', back: 'cafeteria' },
+          { front: 'la casa', back: 'house; home' },
+          { front: 'el estadio', back: 'stadium' },
+          { front: 'la librería', back: 'bookstore' },
+          { front: 'la universidad', back: 'university; college' },
+          { front: 'la clase', back: 'class' },
+          { front: 'el curso, la materia', back: 'course; subject' },
+          { front: 'el examen', back: 'test; exam' },
+          { front: 'el horario', back: 'schedule' },
+          { front: 'el semestre', back: 'semester' },
+          { front: 'la tarea', back: 'homework' }
+        ]
+      }, {
+        id: 'school-subjects',
+        name: 'Las materias',
+        cards: [
+          { front: 'el arte', back: 'art' },
+          { front: 'la biología', back: 'biology' },
+          { front: 'las ciencias', back: 'sciences' },
+          { front: 'la computación', back: 'computer science' },
+          { front: 'la economía', back: 'economics' },
+          { front: 'el español', back: 'Spanish' },
+          { front: 'la física', back: 'physics' },
+          { front: 'la geografía', back: 'geography' },
+          { front: 'la historia', back: 'history' },
+          { front: 'el inglés', back: 'English' },
+          { front: 'las lenguas extranjeras', back: 'foreign languages' },
+          { front: 'la literatura', back: 'literature' },
+          { front: 'las matemáticas', back: 'mathematics' },
+          { front: 'la música', back: 'music' },
+          { front: 'el periodismo', back: 'journalism' },
+          { front: 'la psicología', back: 'psychology' },
+          { front: 'la química', back: 'chemistry' },
+          { front: 'la clase de banda', back: 'band class' }
+        ]
+      }];
+
+      const els = {
+        deckBar: document.querySelector('#deckBar'),
+        createView: document.querySelector('#createView'),
+        reviewView: document.querySelector('#reviewView'),
+        reviewContent: document.querySelector('#reviewContent'),
+        cardEditor: document.querySelector('#cardEditor'),
+        deckName: document.querySelector('#deckName'),
+        editorTitle: document.querySelector('#editorTitle'),
+        saveStatus: document.querySelector('#saveStatus'),
+        saveDeck: document.querySelector('#saveDeck'),
+        deleteDeck: document.querySelector('#deleteDeck'),
+        rowTemplate: document.querySelector('#editRowTemplate')
+      };
+
+      let decks = loadDecks();
+      let activeDeckId = decks[0]?.id || null;
+      let editingDeckId = null;
+      let queue = [];
+      let finished = [];
+      let history = [];
+      let completed = 0;
+      let flipped = false;
+      let moving = false;
+      let spaceStartedAt = null;
+      let spaceStartingFace = false;
+
+      function readCookie(name) {
+        const prefix = encodeURIComponent(name) + '=';
+        const item = document.cookie.split('; ').find(value => value.startsWith(prefix));
+        return item ? item.slice(prefix.length) : null;
+      }
+
+      function loadDecks() {
+        try {
+          const count = Number(readCookie(COOKIE_PREFIX + 'count'));
+          if (!count || count > MAX_CHUNKS) return structuredClone(defaultDecks);
+          let encoded = '';
+          for (let i = 0; i < count; i++) encoded += readCookie(COOKIE_PREFIX + i) || '';
+          const parsed = JSON.parse(decodeURIComponent(encoded));
+          if (!Array.isArray(parsed) || !parsed.length) return structuredClone(defaultDecks);
+          const customDecks = parsed.filter(deck => deck.id !== 'starter' && deck.id !== 'question-words-classroom');
+          const needsDefaults = customDecks.length !== parsed.length;
+          return needsDefaults ? [...structuredClone(defaultDecks), ...customDecks] : parsed;
+        } catch (_) {
+          return structuredClone(defaultDecks);
+        }
+      }
+
+      function persistDecks() {
+        const encoded = encodeURIComponent(JSON.stringify(decks));
+        const chunks = encoded.match(new RegExp('.{1,' + CHUNK_SIZE + '}', 'g')) || [];
+        if (chunks.length > MAX_CHUNKS) throw new Error('These decks are too large for browser cookies. Remove a few cards or shorten long answers.');
+        const options = '; path=/; max-age=31536000; SameSite=Lax';
+        const previous = Number(readCookie(COOKIE_PREFIX + 'count')) || 0;
+        chunks.forEach((chunk, i) => { document.cookie = encodeURIComponent(COOKIE_PREFIX + i) + '=' + chunk + options; });
+        for (let i = chunks.length; i < previous; i++) document.cookie = encodeURIComponent(COOKIE_PREFIX + i) + '=; path=/; max-age=0; SameSite=Lax';
+        document.cookie = encodeURIComponent(COOKIE_PREFIX + 'count') + '=' + chunks.length + options;
+      }
+
+      function makeId() {
+        return 'deck-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 7);
+      }
+
+      function activeDeck() { return decks.find(deck => deck.id === activeDeckId); }
+
+      function showView(name) {
+        els.createView.classList.toggle('active', name === 'create');
+        els.reviewView.classList.toggle('active', name === 'review');
+        document.querySelectorAll('.side-button').forEach(button => button.classList.toggle('active', button.dataset.view === name));
+        if (name === 'review') startReview();
+      }
+
+      function renderTabs() {
+        els.deckBar.replaceChildren();
+        if (!decks.length) {
+          const note = document.createElement('span');
+          note.className = 'no-decks';
+          note.textContent = 'Create your first deck to begin';
+          els.deckBar.append(note);
+          return;
+        }
+        decks.forEach(deck => {
+          const button = document.createElement('button');
+          button.type = 'button';
+          button.className = 'deck-tab' + (deck.id === activeDeckId ? ' active' : '');
+          button.textContent = deck.name;
+          button.title = deck.name;
+          button.addEventListener('click', () => {
+            activeDeckId = deck.id;
+            renderTabs();
+            showView('review');
+          });
+          els.deckBar.append(button);
+        });
+      }
+
+      function addEditorRow(card = {}) {
+        const row = els.rowTemplate.content.firstElementChild.cloneNode(true);
+        row.querySelector('.front-field').value = card.front ?? '';
+        row.querySelector('.back-field').value = card.back ?? '';
+        row.querySelectorAll('textarea').forEach(field => field.addEventListener('input', updateSaveState));
+        row.querySelector('.remove-card').addEventListener('click', () => {
+          if (els.cardEditor.children.length > 1) row.remove();
+          else {
+            row.querySelector('.front-field').value = '';
+            row.querySelector('.back-field').value = '';
+          }
+          updateSaveState();
+        });
+        els.cardEditor.append(row);
+        updateSaveState();
+      }
+
+      function updateSaveState() {
+        const rows = [...els.cardEditor.querySelectorAll('.edit-row')];
+        els.saveDeck.disabled = !rows.length || rows.some(row =>
+          !row.querySelector('.front-field').value.trim() || !row.querySelector('.back-field').value.trim()
+        );
+      }
+
+      function openEditor(deck = null) {
+        editingDeckId = deck?.id || null;
+        els.editorTitle.textContent = deck ? 'Edit deck' : 'Create a new deck';
+        els.deckName.value = deck?.name || '';
+        els.cardEditor.replaceChildren();
+        (deck?.cards?.length ? deck.cards : [{}, {}]).forEach(addEditorRow);
+        els.deleteDeck.hidden = !deck;
+        els.saveStatus.textContent = '';
+        showView('create');
+        setTimeout(() => els.deckName.focus(), 0);
+      }
+
+      function collectCards() {
+        return [...els.cardEditor.querySelectorAll('.edit-row')].map(row => ({
+          front: row.querySelector('.front-field').value.trim(),
+          back: row.querySelector('.back-field').value.trim()
+        })).filter(card => card.front || card.back);
+      }
+
+      function saveDeck() {
+        const name = els.deckName.value.trim();
+        const cards = collectCards();
+        els.saveStatus.className = 'status';
+        if (!name) return showStatus('Give this deck a name first.', true);
+        if (!cards.length || cards.some(card => !card.front || !card.back)) return showStatus('Each saved card needs both a front and a back.', true);
+
+        const snapshot = JSON.stringify(decks);
+        if (editingDeckId) {
+          const deck = decks.find(item => item.id === editingDeckId);
+          Object.assign(deck, { name, cards });
+          activeDeckId = deck.id;
+        } else {
+          const deck = { id: makeId(), name, cards };
+          decks.push(deck);
+          activeDeckId = deck.id;
+          editingDeckId = deck.id;
+        }
+        try {
+          persistDecks();
+          renderTabs();
+          showStatus('Saved to this browser.');
+          els.editorTitle.textContent = 'Edit deck';
+          els.deleteDeck.hidden = false;
+        } catch (error) {
+          decks = JSON.parse(snapshot);
+          activeDeckId = editingDeckId || decks[0]?.id || null;
+          showStatus(error.message, true);
+        }
+      }
+
+      function showStatus(message, error = false) {
+        els.saveStatus.textContent = message;
+        els.saveStatus.className = 'status' + (error ? ' error' : '');
+      }
+
+      function deleteDeck() {
+        const deck = decks.find(item => item.id === editingDeckId);
+        if (!deck || !confirm('Delete “' + deck.name + '”? This cannot be undone.')) return;
+        decks = decks.filter(item => item.id !== deck.id);
+        activeDeckId = decks[0]?.id || null;
+        persistDecks();
+        renderTabs();
+        showView('review');
+      }
+
+      function startReview() {
+        const deck = activeDeck();
+        if (!deck?.cards?.length) {
+          els.reviewContent.innerHTML = '<div class="empty-state"><div><strong>No cards yet</strong>Create a deck to start reviewing.</div></div>';
+          return;
+        }
+        queue = deck.cards.map((_, index) => index);
+        finished = [];
+        history = [];
+        completed = 0;
+        flipped = false;
+        moving = false;
+        spaceStartedAt = null;
+        renderReview();
+      }
+
+      function renderReview() {
+        const deck = activeDeck();
+        if (!deck) return startReview();
+        if (!queue.length) {
+          els.reviewContent.innerHTML = '<div class="heading-row"><div><h1>' + escapeHtml(deck.name) + '</h1><p class="subtitle">Review complete</p></div></div><div class="empty-state"><div><strong>Nice work — you finished the deck.</strong><button class="button primary" id="againButton" type="button">Review again</button></div></div>';
+          document.querySelector('#againButton').addEventListener('click', startReview);
+          return;
+        }
+        const card = deck.cards[queue[0]];
+        const nextCard = deck.cards[queue[1] ?? queue[0]];
+        els.reviewContent.innerHTML = `
+          <div class="review-toolbar">
+            <div><h1>${escapeHtml(deck.name)}</h1><p class="subtitle">Basic review</p></div>
+            <div><button class="button" id="editDeckButton" type="button">Edit deck</button></div>
+          </div>
+          <div class="progress">${completed} finished · ${queue.length} remaining</div>
+          <div class="study-area">
+            <div class="finished-pile" id="finishedPile">Finished</div>
+            <div class="card-stage">
+              <div class="stack-shadow" aria-hidden="true"></div>
+              <div class="flashcard queued-card" id="queuedCard" aria-hidden="true">
+                <span class="face front"><span class="face-tag">Front</span>${escapeHtml(nextCard.front)}</span>
+                <span class="face back"><span class="face-tag">Back</span>${escapeHtml(nextCard.back)}</span>
+              </div>
+              <button class="flashcard current-card" id="flashcard" type="button" aria-label="Flashcard. Click to flip.">
+                <span class="face front"><span class="face-tag">Front</span>${escapeHtml(card.front)}</span>
+                <span class="face back"><span class="face-tag">Back</span>${escapeHtml(card.back)}</span>
+              </button>
+            </div>
+            <p class="review-hint">Click or <kbd>Space</kbd> to flip &nbsp;·&nbsp; <kbd>←</kbd> finished &nbsp;·&nbsp; <kbd>↓</kbd> see again &nbsp;·&nbsp; <kbd>→</kbd> previous</p>
+          </div>`;
+        document.querySelector('#flashcard').addEventListener('click', flipCard);
+        document.querySelector('#editDeckButton').addEventListener('click', () => openEditor(deck));
+        finished.slice(-4).forEach(finishedCard => addMiniCard(false, finishedCard));
+      }
+
+      function flipCard() {
+        if (moving) return;
+        flipped = !flipped;
+        document.querySelector('#flashcard')?.classList.toggle('flipped', flipped);
+      }
+
+      function finishCard(direction) {
+        if (moving || !queue.length || !els.reviewView.classList.contains('active')) return;
+        const card = document.querySelector('#flashcard');
+        if (!card) return;
+        moving = true;
+        spaceStartedAt = null;
+        let landingStyle = null;
+        card.classList.remove('flipped');
+        if (direction === 'left' && queue.length === 1) document.querySelector('#queuedCard')?.remove();
+        const pileBox = document.querySelector('#finishedPile').getBoundingClientRect();
+        const cardBox = card.getBoundingClientRect();
+        card.style.setProperty('--finish-x', (pileBox.left + pileBox.width / 2 - cardBox.left - cardBox.width / 2 - 7.6) + 'px');
+        card.style.setProperty('--finish-y', (pileBox.top + pileBox.height / 2 - cardBox.top - cardBox.height / 2) + 'px');
+        card.style.setProperty('--finish-scale-x', pileBox.width / cardBox.width);
+        card.style.setProperty('--finish-scale-y', pileBox.height / cardBox.height);
+        landingStyle = {
+          x: card.style.getPropertyValue('--finish-x'),
+          y: card.style.getPropertyValue('--finish-y'),
+          scaleX: card.style.getPropertyValue('--finish-scale-x'),
+          scaleY: card.style.getPropertyValue('--finish-scale-y')
+        };
+        requestAnimationFrame(() => card.classList.add(direction === 'left' ? 'fly-left' : 'cycle-down'));
+        setTimeout(() => {
+          const cardIndex = queue.shift();
+          if (direction === 'left') {
+            completed++;
+            finished.push({ cardIndex, ...landingStyle });
+          }
+          else queue.push(cardIndex);
+          history.push({ cardIndex, wasFinished: direction === 'left', ...landingStyle });
+          flipped = false;
+          moving = false;
+          renderReview();
+        }, 650);
+      }
+
+      function restorePrevious() {
+        if (moving || !history.length || !els.reviewView.classList.contains('active')) return;
+        const previous = history.pop();
+        moving = true;
+        spaceStartedAt = null;
+        queue = queue.filter(cardIndex => cardIndex !== previous.cardIndex);
+        queue.unshift(previous.cardIndex);
+        if (previous.wasFinished) {
+          const finishedIndex = finished.map(item => item.cardIndex).lastIndexOf(previous.cardIndex);
+          if (finishedIndex !== -1) finished.splice(finishedIndex, 1);
+          completed = Math.max(0, completed - 1);
+        }
+        flipped = false;
+        renderReview();
+        const card = document.querySelector('#flashcard');
+        if (!card) { moving = false; return; }
+        card.style.setProperty('--finish-x', previous.x);
+        card.style.setProperty('--finish-y', previous.y);
+        card.style.setProperty('--finish-scale-x', previous.scaleX);
+        card.style.setProperty('--finish-scale-y', previous.scaleY);
+        card.classList.add('return-from-finished');
+        setTimeout(() => {
+          card.classList.remove('return-from-finished');
+          moving = false;
+        }, 500);
+      }
+
+      function addMiniCard(animate, finishedCard) {
+        const stage = document.querySelector('.card-stage');
+        if (!stage) return;
+        const savedCard = activeDeck()?.cards?.[finishedCard.cardIndex];
+        const mini = document.createElement('span');
+        mini.className = 'flashcard mini-card fly-left';
+        mini.setAttribute('aria-hidden', 'true');
+        mini.style.setProperty('--finish-x', finishedCard.x);
+        mini.style.setProperty('--finish-y', finishedCard.y);
+        mini.style.setProperty('--finish-scale-x', finishedCard.scaleX);
+        mini.style.setProperty('--finish-scale-y', finishedCard.scaleY);
+        mini.innerHTML = '<span class="face front"><span class="face-tag">Front</span>' + escapeHtml(savedCard?.front || '') + '</span>' +
+          '<span class="face back"><span class="face-tag">Back</span>' + escapeHtml(savedCard?.back || '') + '</span>';
+        stage.append(mini);
+      }
+
+      function escapeHtml(value) {
+        return String(value).replace(/[&<>'"]/g, character => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' })[character]);
+      }
+
+      document.querySelectorAll('.side-button').forEach(button => button.addEventListener('click', () => {
+        if (button.dataset.view === 'create') openEditor();
+        else showView('review');
+      }));
+      document.querySelector('#addCard').addEventListener('click', () => addEditorRow());
+      els.saveDeck.addEventListener('click', saveDeck);
+      els.deleteDeck.addEventListener('click', deleteDeck);
+      window.addEventListener('keydown', event => {
+        if (event.target.matches('input, textarea')) return;
+        if (event.key === 'ArrowLeft' || event.key === 'ArrowDown' || event.key === 'ArrowRight') {
+          event.preventDefault();
+          if (event.key === 'ArrowRight') restorePrevious();
+          else finishCard(event.key === 'ArrowLeft' ? 'left' : 'down');
+        }
+        if (event.key === ' ' && els.reviewView.classList.contains('active')) {
+          event.preventDefault();
+          if (event.repeat || spaceStartedAt !== null) return;
+          spaceStartedAt = performance.now();
+          spaceStartingFace = flipped;
+          flipCard();
+        }
+        if (event.key === 'Enter' && els.reviewView.classList.contains('active')) {
+          event.preventDefault();
+          flipCard();
+        }
+      });
+      window.addEventListener('keyup', event => {
+        if (event.key !== ' ' || spaceStartedAt === null) return;
+        event.preventDefault();
+        const wasHeld = performance.now() - spaceStartedAt >= 300;
+        spaceStartedAt = null;
+        if (wasHeld && flipped !== spaceStartingFace && !moving) {
+          flipped = spaceStartingFace;
+          document.querySelector('#flashcard')?.classList.toggle('flipped', flipped);
+        }
+      });
+
+      renderTabs();
+      startReview();
+    })();
+  </script>
+</body>
+</html>
