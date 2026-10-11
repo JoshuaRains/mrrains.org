@@ -134,6 +134,7 @@ const activities = {
     items: [
       {
         videoId: "Xd91T54mX5g",
+        mediaSrc: "./media/Xd91T54mX5g.mp4",
         questions: [
           "What does she do in the morning before leaving home at 8:00?",
           "What time does she return from school, and where does she go next?",
@@ -143,6 +144,7 @@ const activities = {
       },
       {
         videoId: "yD7obye3xeU",
+        mediaSrc: "./media/yD7obye3xeU.mp4",
         questions: [
           "Which school subjects and places does the speaker mention? List the nouns with articles.",
           "What farm products does he collect after class? Describe what he finds.",
@@ -152,12 +154,17 @@ const activities = {
       },
       {
         videoId: "ydypIRdWpqg",
+        mediaSrc: "./media/ydypIRdWpqg.mp4",
         questions: [
           "What is the speaker's favorite food, and how does it make him feel?",
           "Why don't his homemade fries taste the same?",
           "What makes the restaurant fries special?",
           "Write four nouns with their articles. Which are singular and which are plural?"
         ]
+      },
+      {
+        videoId: "iUJmWrBuUEI",
+        mediaSrc: "./media/iUJmWrBuUEI.mp4"
       }
     ]
   },
@@ -207,11 +214,11 @@ const listElement = document.getElementById("activity-list");
 
 document.title = `${activity.title} | YouTube Shorts Activity`;
 
-const videoIds = activity.items
-  ? activity.items.map((item) => item.videoId)
-  : activity.videos;
+const videoItems = activity.items
+  ? activity.items
+  : activity.videos.map((videoId) => ({ videoId }));
 
-function makeVideoActivity(videoId, videoIndex) {
+function makeVideoActivity(videoItem, videoIndex) {
   const section = document.createElement("section");
   const videoColumn = document.createElement("div");
 
@@ -224,19 +231,31 @@ function makeVideoActivity(videoId, videoIndex) {
 
   const frame = document.createElement("div");
   frame.className = "video-frame";
-  const iframe = document.createElement("iframe");
-  iframe.src = `https://www.youtube-nocookie.com/embed/${encodeURIComponent(videoId)}`;
-  iframe.title = `${activity.title}, video ${videoIndex + 1}`;
-  iframe.loading = "lazy";
-  iframe.allow = "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share";
-  iframe.allowFullscreen = true;
-  frame.append(iframe);
+
+  if (videoItem.mediaSrc) {
+    const video = document.createElement("video");
+    video.src = videoItem.mediaSrc;
+    video.title = `${activity.title}, video ${videoIndex + 1}`;
+    video.controls = true;
+    video.preload = "metadata";
+    video.playsInline = true;
+    frame.append(video);
+  } else {
+    const iframe = document.createElement("iframe");
+    iframe.src = `https://www.youtube-nocookie.com/embed/${encodeURIComponent(videoItem.videoId)}`;
+    iframe.title = `${activity.title}, video ${videoIndex + 1}`;
+    iframe.loading = "lazy";
+    iframe.allow = "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share";
+    iframe.allowFullscreen = true;
+    frame.append(iframe);
+  }
+
   videoColumn.append(heading, frame);
 
   section.append(videoColumn);
   return section;
 }
 
-videoIds.forEach((videoId, videoIndex) => {
-  listElement.append(makeVideoActivity(videoId, videoIndex));
+videoItems.forEach((videoItem, videoIndex) => {
+  listElement.append(makeVideoActivity(videoItem, videoIndex));
 });
