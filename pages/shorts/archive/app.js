@@ -133,12 +133,12 @@ const activities = {
     title: "Nouns",
     items: [
       {
-        videoId: "9WurQmKLB0E",
+        videoId: "Xd91T54mX5g",
         questions: [
-          "Which fruits and vegetables are named in the video? Write each Spanish noun with its article.",
-          "Which noun can be masculine or feminine depending on the country? Write both forms.",
-          "What word do some countries use instead of aguacate? Explain how the noun’s gender changes too.",
-          "Sort brócoli, berenjena, kiwi, habichuela, aguacate, and palta into masculine and feminine groups."
+          "What does she do in the morning before leaving home at 8:00?",
+          "What time does she return from school, and where does she go next?",
+          "How many hours does she study in total? Why is this school year important to her?",
+          "What does she do after dinner, and what time does she go to sleep?"
         ]
       },
       {
