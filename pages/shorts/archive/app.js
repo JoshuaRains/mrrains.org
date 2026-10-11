@@ -142,7 +142,7 @@ const activities = {
         ]
       },
       {
-        videoId: "nFpEs7f5qds",
+        videoId: "yD7obye3xeU",
         questions: [
           "Which school subjects and places does the speaker mention? List the nouns with articles.",
           "What farm products does he collect after class? Describe what he finds.",
