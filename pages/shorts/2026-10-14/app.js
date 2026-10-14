@@ -4,12 +4,16 @@ const videos = [
     title: "La tortilla más cara del mundo"
   },
   {
-    src: "./media/CzEKLLMw-_k.mp4",
-    title: "Restricción del uso de celulares en las escuelas"
+    src: "./media/mMy_aFoXtQo.mp4",
+    title: "El mejor escudo antirradiación"
   },
   {
-    src: "./media/vs6_Nyns3tI.mp4",
-    title: "Choripán al estilo peruano"
+    src: "./media/qkT-593VcuU.mp4",
+    title: "Un consejo para cada tipo de dolor de cabeza"
+  },
+  {
+    src: "./media/aWKV_UxK4_o.mp4",
+    title: "Rubius se da cuenta de que ya tiene 36 años"
   }
 ];
 
