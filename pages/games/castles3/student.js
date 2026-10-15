@@ -78,10 +78,20 @@ async function joinGame() {
       button.disabled = false;
       return;
     }
+    const room = roomSnapshot.val();
+    if (!["waiting", "started"].includes(room.state)) {
+      error.textContent = "This game is no longer accepting players.";
+      button.disabled = false;
+      return;
+    }
+    if (Object.keys(room.players || {}).length >= 100) {
+      error.textContent = "This game room is full.";
+      button.disabled = false;
+      return;
+    }
 
-    const result = await gameRef.transaction(game => {
-      if (!game || !["waiting", "started"].includes(game.state)) return;
-      const players = game.players || {};
+    const result = await playersRef.transaction(currentPlayers => {
+      const players = currentPlayers || {};
       if (Object.keys(players).length >= 100) return;
       const counts = Object.values(players).reduce((total, player) => {
         if (player.team === "green" || player.team === "red") total.green += 1;
@@ -94,14 +104,11 @@ async function joinGame() {
           ? "blue"
           : Math.random() < 0.5 ? "green" : "blue";
       return {
-        ...game,
-        players: {
-          ...players,
-          [studentId]: {
-            team: assignedTeam,
-            balance: 0,
-            joinedAt: Date.now()
-          }
+        ...players,
+        [studentId]: {
+          team: assignedTeam,
+          balance: 0,
+          joinedAt: Date.now()
         }
       };
     });
@@ -111,8 +118,16 @@ async function joinGame() {
       button.disabled = false;
       return;
     }
-    studentTeam = result.snapshot.child(`players/${studentId}/team`).val() || assignedTeam;
-    await gameRef.child(`players/${studentId}`).onDisconnect().remove();
+    const playerRef = gameRef.child(`players/${studentId}`);
+    const confirmedRoom = await gameRef.once("value");
+    if (!["waiting", "started"].includes(confirmedRoom.child("state").val()) || !confirmedRoom.child(`players/${studentId}`).exists()) {
+      await playerRef.remove();
+      error.textContent = "This game is no longer accepting players.";
+      button.disabled = false;
+      return;
+    }
+    studentTeam = confirmedRoom.child(`players/${studentId}/team`).val() || assignedTeam;
+    await playerRef.onDisconnect().remove();
     byId("teamChip").textContent = `Team: ${studentTeam.toUpperCase()}`;
     byId("teamChip").style.color = TEAM_COLORS[studentTeam];
     byId("codeChip").textContent = `Code: ${gameCode}`;
