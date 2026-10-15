@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Castles — Teacher</title>
+  <link rel="stylesheet" href="./styles.css">
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
+  <script src="./firebase.js"></script>
+</head>
+<body>
+  <div id="teacherCode" class="top-chip left hidden"></div>
+
+  <main class="teacher-shell">
+    <section id="createSection" class="teacher-card lobby-heading">
+      <h1>Castles</h1>
+      <p class="muted">Create a room, share its code, and set up the round.</p>
+      <button id="createGameBtn" class="primary" type="button">Create game</button>
+    </section>
+
+    <section id="lobbySection" class="teacher-card hidden" aria-labelledby="lobbyTitle">
+      <div class="lobby-heading">
+        <h1 id="lobbyTitle">Game code: <span id="gameCodeDisplay" class="code-display"></span></h1>
+        <p><strong id="studentCount">0</strong> students connected</p>
+      </div>
+
+      <div class="team-counters" aria-label="Team counts">
+        <div class="team-counter green"><span>Green team</span><strong id="greenCount">0</strong></div>
+        <div class="team-counter blue"><span>Blue team</span><strong id="blueCount">0</strong></div>
+      </div>
+
+      <div class="settings-grid">
+        <div class="field">
+          <label for="gridSizeInput">Map size</label>
+          <input id="gridSizeInput" type="number" min="7" max="32" value="15">
+        </div>
+        <div class="field">
+          <label for="questionMode">Question style</label>
+          <select id="questionMode">
+            <option value="multiple">Multiple choice</option>
+            <option value="typing">Typing</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="basesPerTeam">Bases per team</label>
+          <input id="basesPerTeam" type="number" min="1" max="4" value="1">
+        </div>
+        <fieldset class="field full price-settings">
+          <legend>Tile prices</legend>
+          <div class="price-grid">
+            <label>Regular <input id="priceRegular" type="number" min="1" max="99" value="1"></label>
+            <label>Armored <input id="priceArmored" type="number" min="1" max="99" value="5"></label>
+            <label>Blast I <input id="priceExplosive1" type="number" min="1" max="99" value="6"></label>
+            <label>Blast II <input id="priceExplosive2" type="number" min="1" max="99" value="12"></label>
+            <label>Repair <input id="priceRepair" type="number" min="1" max="99" value="2"></label>
+          </div>
+        </fieldset>
+        <div class="field full">
+          <label for="questionBox">Questions</label>
+          <textarea id="questionBox" placeholder="Multiple choice: What is 2+2?|3|4|5|6|4&#10;Typing only: What is the capital of Perú?|Lima"></textarea>
+          <small class="muted">Use one question per line. Multiple-choice lines use question | four choices | answer. Typing lines may use question | answer.</small>
+        </div>
+      </div>
+
+      <div class="actions">
+        <button id="startGameBtn" class="primary" type="button">Start game</button>
+      </div>
+      <p id="lobbyError" class="error" role="alert"></p>
+    </section>
+
+    <section id="gameSection" class="teacher-game hidden" aria-label="Active game">
+      <div class="teacher-hud">
+        <span class="status-pill">Accuracy: <strong id="accuracyValue">0%</strong></span>
+        <span class="status-pill">Green: <strong id="greenTiles">0</strong></span>
+        <span class="status-pill">Blue: <strong id="blueTiles">0</strong></span>
+        <button id="endGameBtn" class="danger" type="button">End game</button>
+      </div>
+      <div class="teacher-map-wrap">
+        <svg id="teacherMap" class="teacher-map"></svg>
+      </div>
+    </section>
+  </main>
+
+  <div id="gameOverOverlay" class="overlay hidden" role="dialog" aria-modal="true" aria-labelledby="gameOverTitle">
+    <div class="overlay-card">
+      <h2 id="gameOverTitle">Game over</h2>
+      <p id="winnerText"></p>
+      <p id="tileCounts"></p>
+      <p id="roundTime"></p>
+      <button id="newGameBtn" class="primary" type="button">New game</button>
+    </div>
+  </div>
+
+  <script type="module" src="./teacher.js"></script>
+</body>
+</html>

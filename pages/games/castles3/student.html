@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Castles</title>
+  <link rel="stylesheet" href="./styles.css">
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
+  <script src="./firebase.js"></script>
+</head>
+<body class="student-page">
+  <main id="joinScreen" class="full-screen-card">
+    <section class="join-card">
+      <h1>Join Castles</h1>
+      <p class="muted">Enter the code shown by your teacher.</p>
+      <div class="join-row">
+        <input id="gameCodeInput" type="text" maxlength="6" autocomplete="off" aria-label="Game code" placeholder="Game code">
+        <button id="joinGameBtn" class="primary" type="button">Join</button>
+      </div>
+      <p id="joinError" class="error" role="alert"></p>
+    </section>
+  </main>
+
+  <main id="gameScreen" class="student-shell hidden">
+    <div id="teamChip" class="top-chip left"></div>
+    <div id="codeChip" class="top-chip right"></div>
+    <div class="student-game">
+      <section class="student-left">
+        <div id="questionPanel" class="question-panel">
+          <p id="questionMeta" class="question-meta">Answer correctly to earn tiles</p>
+          <h1 id="questionText">Waiting for the round to start…</h1>
+          <div id="answerArea" class="options"></div>
+          <p id="answerFeedback" class="feedback" aria-live="polite"></p>
+        </div>
+
+        <section class="shop-panel" aria-label="Tile shop">
+          <div class="shop-heading">
+            <strong>Choose what to place</strong>
+            <span id="balanceDisplay" class="balance">Tile bank: <strong id="balanceValue">0</strong></span>
+          </div>
+          <div id="shopList" class="shop-list"></div>
+        </section>
+      </section>
+
+      <section class="map-panel" aria-label="Game map">
+        <svg id="studentMap" class="student-map"></svg>
+        <div id="mapHelp" class="map-help">Earn tiles, choose an item, then place it on a highlighted hex.</div>
+      </section>
+    </div>
+  </main>
+
+  <div id="waitingOverlay" class="overlay hidden" role="status">
+    <div class="overlay-card">
+      <h2>You're in!</h2>
+      <p>Waiting for your teacher to start the game…</p>
+    </div>
+  </div>
+
+  <div id="gameOverOverlay" class="overlay hidden" role="dialog" aria-modal="true">
+    <div class="overlay-card">
+      <h2>Game over</h2>
+      <p id="studentWinnerText">The round has ended.</p>
+    </div>
+  </div>
+
+  <script type="module" src="./student.js"></script>
+</body>
+</html>
