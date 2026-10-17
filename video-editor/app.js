@@ -303,7 +303,9 @@ function play() {
     const active = activeVideoClip(state.currentTime);
     if (active) {
       const desired = active.sourceStart + (state.currentTime - active.start);
-      if (before?.id !== active.id || Math.abs(video.currentTime - desired) > .3) video.currentTime = desired;
+      // Seek only when entering a different clip. Re-seeking on ordinary clock
+      // drift can keep the media element in a short decode/seek loop.
+      if (before?.id !== active.id) video.currentTime = desired;
       if (video.paused) video.play().catch(() => {});
     } else if (!video.paused) video.pause();
     frameRequest = requestAnimationFrame(loop);
@@ -494,10 +496,10 @@ function exportCaptions() {
   toast('WebVTT captions exported');
 }
 
-function drawExportCaption(ctx, caption, text, height, color) {
+function drawExportCaption(ctx, caption, text, height, color, scale = 1) {
   if (!text) return;
   const lines = plain(text).split(/\n|\r/).filter(Boolean);
-  const size = caption.style.size;
+  const size = caption.style.size * scale;
   const lineHeight = size * 1.2;
   const bottom = ctx.canvas.height * (height / 100);
   ctx.save();
@@ -516,14 +518,14 @@ function drawExportCaption(ctx, caption, text, height, color) {
   ctx.restore();
 }
 
-function renderExportFrame(ctx) {
+function renderExportFrame(ctx, captionScale = 1, captions = state.captions) {
   ctx.fillStyle = '#000';
   ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
   if (video.readyState >= 2) ctx.drawImage(video, 0, 0, ctx.canvas.width, ctx.canvas.height);
-  const caption = state.captions.filter(c => state.currentTime >= c.start && state.currentTime < c.start + c.duration).sort((a,b) => b.start-a.start)[0];
+  const caption = captions.find(c => state.currentTime >= c.start && state.currentTime < c.start + c.duration);
   if (!caption) return;
-  drawExportCaption(ctx, caption, caption.spanish, caption.style.spanishHeight, caption.style.color);
-  if (caption.showEnglish) drawExportCaption(ctx, caption, caption.english, caption.style.englishHeight, caption.style.englishColor || '#ffe970');
+  drawExportCaption(ctx, caption, caption.spanish, caption.style.spanishHeight, caption.style.color, captionScale);
+  if (caption.showEnglish) drawExportCaption(ctx, caption, caption.english, caption.style.englishHeight, caption.style.englishColor || '#ffe970', captionScale);
 }
 
 async function exportVideo() {
@@ -544,8 +546,19 @@ async function exportVideo() {
   const canvas = document.createElement('canvas');
   canvas.width = video.videoWidth || 1280;
   canvas.height = video.videoHeight || 720;
-  const ctx = canvas.getContext('2d');
-  const outputStream = canvas.captureStream(30);
+  const ctx = canvas.getContext('2d', {alpha: false, desynchronized: true});
+  const previewWidth = $('#stageWrap').clientWidth || video.clientWidth || canvas.width;
+  const captionScale = canvas.width / Math.max(1, previewWidth);
+  const exportCaptions = [...state.captions].sort((a,b) => b.start-a.start);
+  const exportFps = 30;
+  let outputStream = canvas.captureStream(0);
+  let canvasTrack = outputStream.getVideoTracks()[0];
+  if (typeof canvasTrack.requestFrame !== 'function') {
+    canvasTrack.stop();
+    outputStream = canvas.captureStream(exportFps);
+    canvasTrack = outputStream.getVideoTracks()[0];
+  }
+  const requestCanvasFrame = typeof canvasTrack.requestFrame === 'function' ? () => canvasTrack.requestFrame() : () => {};
   const sourceStream = video.captureStream();
   sourceStream.getAudioTracks().forEach(track => outputStream.addTrack(track));
   const chunks = [];
@@ -563,12 +576,16 @@ async function exportVideo() {
   recorder.start(1000);
   play();
   await new Promise(resolve => {
+    const frameInterval = 1000 / exportFps;
+    let nextFrameAt = performance.now();
     const draw = () => {
-      renderExportFrame(ctx);
-      if (playing) requestAnimationFrame(draw);
-      else resolve();
+      renderExportFrame(ctx, captionScale, exportCaptions);
+      requestCanvasFrame();
+      if (!playing) { resolve(); return; }
+      nextFrameAt += frameInterval;
+      window.setTimeout(draw, Math.max(0, nextFrameAt - performance.now()));
     };
-    requestAnimationFrame(draw);
+    draw();
   });
   recorder.stop();
   try {
