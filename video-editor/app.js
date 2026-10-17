@@ -25,6 +25,7 @@ const defaultState = () => ({
 
 let state = defaultState();
 let objectUrl = null;
+let mediaFile = null;
 let clipboard = null;
 let history = [];
 let future = [];
@@ -287,6 +288,7 @@ function loadVideoFile(file) {
   if (!file || !file.type.startsWith('video/')) { toast('Please choose a video file'); return; }
   pause();
   if (objectUrl) URL.revokeObjectURL(objectUrl);
+  mediaFile = file;
   objectUrl = URL.createObjectURL(file);
   video.src = objectUrl;
   video.onloadedmetadata = () => {
@@ -432,9 +434,19 @@ function download(name, content, type) {
 }
 
 function saveProject() {
+  if (!mediaFile) { toast('Load a video before saving'); return; }
   const exportState = {...state, selected: null};
-  download(`${(state.mediaName || 'video-editor-project').replace(/\.[^.]+$/, '')}.video-editor.json`, JSON.stringify(exportState, null, 2), 'application/json');
-  toast('Project file saved');
+  const metadata = new TextEncoder().encode(JSON.stringify({...exportState, mediaType: mediaFile.type || 'video/mp4'}));
+  const header = new Uint8Array(12);
+  header.set(new TextEncoder().encode('BRUHVID1'), 0);
+  new DataView(header.buffer).setUint32(8, metadata.length, true);
+  const blob = new Blob([header, metadata, mediaFile], {type: 'application/octet-stream'});
+  const base = (state.mediaName || 'video-editor-project').replace(/\.[^.]+$/, '');
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url; link.download = `${base}.bruh`; link.click();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+  toast('Editable .bruh project saved');
 }
 
 function exportCaptions() {
@@ -448,7 +460,37 @@ function exportCaptions() {
   toast('WebVTT captions exported');
 }
 
-function openProject(file) {
+async function openProject(file) {
+  if (file.name.toLowerCase().endsWith('.bruh')) {
+    try {
+      const header = new Uint8Array(await file.slice(0, 12).arrayBuffer());
+      if (new TextDecoder().decode(header.slice(0, 8)) !== 'BRUHVID1') throw new Error('Invalid header');
+      const metadataLength = new DataView(header.buffer).getUint32(8, true);
+      if (!metadataLength || metadataLength > 10_000_000 || 12 + metadataLength >= file.size) throw new Error('Invalid metadata');
+      const saved = JSON.parse(await file.slice(12, 12 + metadataLength).text());
+      const embeddedVideo = new File(
+        [file.slice(12 + metadataLength)],
+        saved.mediaName || 'embedded-video.mp4',
+        {type: saved.mediaType || 'video/mp4'}
+      );
+      pause();
+      if (objectUrl) URL.revokeObjectURL(objectUrl);
+      mediaFile = embeddedVideo;
+      objectUrl = URL.createObjectURL(embeddedVideo);
+      video.src = objectUrl;
+      video.onloadedmetadata = () => {
+        state = {...defaultState(), ...saved, selected: null};
+        history = []; future = [];
+        $('#stageWrap').classList.add('has-video');
+        $('#emptyStage').classList.add('hidden');
+        $('#mediaInfo').classList.remove('empty');
+        $('#mediaInfo').innerHTML = `<div><strong>${esc(state.mediaName)}</strong><small>${fmt(state.mediaDuration)}</small></div>`;
+        renderAll();
+        toast('.bruh project opened');
+      };
+      return;
+    } catch { toast('That .bruh project could not be opened'); return; }
+  }
   const reader = new FileReader();
   reader.onload = () => {
     try {
@@ -478,7 +520,7 @@ $('#fitTimeline').addEventListener('click', fitTimeline);
 $('#snapPlayhead').addEventListener('click', snapToPlayhead);
 $('#saveProject').addEventListener('click', saveProject);
 $('#exportCaptions').addEventListener('click', exportCaptions);
-$('#newProject').addEventListener('click', () => { if (!confirm('Start a new project? Unsaved edits will be lost.')) return; pause(); state = defaultState(); history=[]; future=[]; video.removeAttribute('src'); objectUrl=null; $('#stageWrap').classList.remove('has-video'); $('#emptyStage').classList.remove('hidden'); renderAll(); });
+$('#newProject').addEventListener('click', () => { if (!confirm('Start a new project? Unsaved edits will be lost.')) return; pause(); state = defaultState(); history=[]; future=[]; video.removeAttribute('src'); objectUrl=null; mediaFile=null; $('#stageWrap').classList.remove('has-video'); $('#emptyStage').classList.remove('hidden'); renderAll(); });
 $('#zoom').addEventListener('input', e => { state.zoom = Number(e.target.value); renderTimeline(); updatePlayhead(); });
 
 timelineContent.addEventListener('pointerdown', e => {
