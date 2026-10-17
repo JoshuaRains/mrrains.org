@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex,nofollow">
+  <title>Castles — Classroom Simulator</title>
+  <link rel="stylesheet" href="./styles.css">
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
+  <script src="./firebase.js"></script>
+</head>
+<body class="simulator-page">
+  <main class="simulator-shell">
+    <header class="simulator-header">
+      <div>
+        <h1>Classroom simulator</h1>
+        <p>Connect bot students to a real Castles room, then make them answer and place tiles.</p>
+      </div>
+      <a class="simulator-link" href="./index.html">Teacher page</a>
+    </header>
+
+    <section class="simulator-controls" aria-label="Simulation controls">
+      <label>
+        Game code
+        <input id="simGameCode" type="text" maxlength="6" autocomplete="off" spellcheck="false" placeholder="ABC234">
+      </label>
+      <label>
+        Bot students
+        <input id="simBotCount" type="number" min="1" max="80" value="24">
+      </label>
+      <label>
+        Correct answers
+        <span class="sim-inline-input"><input id="simAccuracy" type="number" min="0" max="100" value="85"><span>%</span></span>
+      </label>
+      <label>
+        Answer every
+        <span class="sim-inline-input"><input id="simAnswerDelay" type="number" min="250" max="30000" step="250" value="1250"><span>ms</span></span>
+      </label>
+      <label>
+        Place every
+        <span class="sim-inline-input"><input id="simPlaceDelay" type="number" min="500" max="60000" step="250" value="2500"><span>ms</span></span>
+      </label>
+      <label>
+        Connection mode
+        <select id="simConnectionMode">
+          <option value="separate">One connection per bot</option>
+          <option value="shared">One shared connection</option>
+        </select>
+      </label>
+      <label class="sim-check"><input id="simPlaceTiles" type="checkbox" checked> Place tiles automatically</label>
+      <div class="sim-buttons">
+        <button id="simConnect" class="primary" type="button">Connect bots</button>
+        <button id="simRun" type="button" disabled>Start autoplay</button>
+        <button id="simRemove" class="danger" type="button" disabled>Remove bots</button>
+      </div>
+    </section>
+
+    <section class="simulator-summary" aria-live="polite">
+      <span>Room <strong id="simRoomState">Not connected</strong></span>
+      <span>Connected <strong id="simConnected">0</strong></span>
+      <span>Answers <strong id="simAnswers">0</strong></span>
+      <span>Points <strong id="simPoints">0</strong></span>
+      <span>Placements <strong id="simPlacements">0</strong></span>
+      <span>Errors <strong id="simErrors">0</strong></span>
+      <span>Operations/sec <strong id="simRate">0.0</strong></span>
+    </section>
+
+    <p id="simMessage" class="simulator-message" role="status">Create a game on the teacher page, enter its code, and connect the bots.</p>
+    <section id="simBotGrid" class="simulator-bot-grid" aria-label="Bot students"></section>
+  </main>
+
+  <script type="module" src="./simulator.js"></script>
+</body>
+</html>

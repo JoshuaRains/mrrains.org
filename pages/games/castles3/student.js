@@ -193,11 +193,11 @@ function maybeStartRound() {
   if (currentGame.state !== "started" || !currentGame.roundId) return;
   const questionSet = currentGame.externalQuestionSet || currentGame.questionSet;
   const questionsReady = questionSet && Number(questionSet.roundId) === Number(currentGame.roundId);
-  const legacyReady = !questionSet && currentGame.questions;
+  const legacyReady = !questionSet && currentGame.legacyQuestions;
   if (!questionsReady && !legacyReady) return;
   if (currentRoundId === currentGame.roundId) return;
 
-  currentGame.questions = questionsReady ? questionSet.items : currentGame.questions;
+  currentGame.questions = questionsReady ? questionSet.items : currentGame.legacyQuestions;
   currentRoundId = currentGame.roundId;
   questionOrder = [];
   answering = false;
@@ -260,7 +260,11 @@ function startGameListeners() {
     maybeStartRound();
   });
   gameRef.child("questions").on("value", snapshot => {
-    currentGame.questions = snapshot.val();
+    // Keep the old in-room question format separate. New rooms store their
+    // question set outside the game object, and this legacy path is normally
+    // null. Letting that null replace the active list made refreshed students
+    // lose their questions immediately after answering the first one.
+    currentGame.legacyQuestions = snapshot.val();
     maybeStartRound();
   });
   gameRef.child("result").on("value", snapshot => {

@@ -8,5 +8,9 @@ const firebaseConfig = {
   measurementId: "G-EFJJGH1GDK"
 };
 
+// The classroom simulator uses this same public web configuration to create
+// optional, isolated Firebase clients. Firebase web configuration is not a
+// secret; database access is still controlled by the project's rules.
+window.castlesFirebaseConfig = firebaseConfig;
 if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
 window.castlesDb = firebase.database();

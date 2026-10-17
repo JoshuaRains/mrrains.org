@@ -108,6 +108,65 @@ button:disabled { cursor: not-allowed; opacity: 0.45; }
 .teacher-map-wrap { min-height: 0; display: grid; place-items: center; padding-top: 1rem; }
 .teacher-map { width: 100%; height: 100%; max-height: calc(100vh - 10rem); }
 .status-pill { padding: 0.45rem 0.8rem; border-radius: 999px; background: #1e1e1e; }
+.simulator-link {
+  display: inline-block; margin: 0.75rem 0.4rem 0; padding: 0.65rem 0.9rem; border: 1px solid #666;
+  border-radius: 8px; color: var(--text); background: #383838; font-weight: 750; text-decoration: none;
+}
+.simulator-link:hover { background: #484848; }
+
+/* Classroom simulator */
+.simulator-page { height: 100vh; height: 100dvh; overflow: hidden; }
+.simulator-shell {
+  display: grid; grid-template-rows: auto auto auto auto minmax(0, 1fr);
+  gap: 0.55rem; height: 100%; padding: 0.7rem;
+}
+.simulator-header { display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
+.simulator-header h1 { margin: 0; font-size: clamp(1.25rem, 2.4vw, 2rem); }
+.simulator-header p { margin: 0.1rem 0 0; color: var(--muted); font-size: 0.85rem; }
+.simulator-header .simulator-link { flex: none; margin: 0; }
+.simulator-controls {
+  display: grid; grid-template-columns: repeat(6, minmax(105px, 1fr)) auto auto;
+  align-items: end; gap: 0.45rem; padding: 0.55rem; border: 1px solid #494949;
+  border-radius: 11px; background: var(--panel);
+}
+.simulator-controls label { display: grid; gap: 0.2rem; min-width: 0; color: var(--muted); font-size: 0.7rem; font-weight: 750; }
+.simulator-controls input, .simulator-controls select {
+  min-width: 0; width: 100%; padding: 0.45rem; border: 1px solid #5c5c5c; border-radius: 6px;
+  background: #181818; color: var(--text);
+}
+.sim-inline-input { display: flex; align-items: center; gap: 0.25rem; }
+.sim-inline-input input { flex: 1; }
+.sim-check { display: flex !important; flex-direction: row; align-items: center; align-self: center; white-space: nowrap; }
+.sim-check input { width: 17px; height: 17px; }
+.sim-buttons { display: flex; gap: 0.35rem; }
+.sim-buttons button { padding: 0.5rem 0.65rem; white-space: nowrap; }
+.simulator-summary {
+  display: flex; flex-wrap: wrap; gap: 0.35rem; padding: 0.1rem 0;
+}
+.simulator-summary span {
+  padding: 0.3rem 0.55rem; border-radius: 999px; background: #1e1e1e; color: var(--muted); font-size: 0.75rem;
+}
+.simulator-summary strong { color: var(--text); }
+.simulator-message { min-height: 1.2em; margin: 0; color: var(--muted); font-size: 0.78rem; }
+.simulator-message.error { color: #ff8787; }
+.simulator-bot-grid {
+  min-height: 0; overflow: auto; display: grid; grid-template-columns: repeat(auto-fill, minmax(112px, 1fr));
+  grid-auto-rows: minmax(68px, 1fr); align-content: stretch; gap: 0.35rem;
+}
+.simulator-bot-card {
+  position: relative; min-width: 0; padding: 0.4rem 0.45rem 0.35rem; overflow: hidden;
+  border: 1px solid #555; border-top: 4px solid #777; border-radius: 8px; background: #252525;
+}
+.simulator-bot-card.green { border-top-color: var(--green); }
+.simulator-bot-card.blue { border-top-color: var(--blue); }
+.simulator-bot-card.connecting { opacity: 0.65; }
+.simulator-bot-card.failed { border-top-color: var(--danger); background: #392626; }
+.sim-bot-title { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 0.77rem; }
+.sim-bot-details { display: flex; justify-content: space-between; gap: 0.25rem; margin-top: 0.15rem; color: var(--muted); font-size: 0.62rem; }
+.sim-bot-card.green [data-field="team"] { color: var(--green); }
+.sim-bot-card.blue [data-field="team"] { color: var(--blue); }
+.sim-bot-activity { display: block; margin-top: 0.26rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 0.65rem; }
+.sim-bot-latency { position: absolute; right: 0.35rem; bottom: 0.2rem; color: #969696; font-size: 0.55rem; }
 
 /* Shared hex map */
 .hex-shape { stroke: #606060; stroke-width: 1.5; vector-effect: non-scaling-stroke; }
@@ -215,6 +274,18 @@ button:disabled { cursor: not-allowed; opacity: 0.45; }
   .settings-grid { grid-template-columns: 1fr; }
   .field.full { grid-column: auto; }
   .price-grid { grid-template-columns: repeat(3, 1fr); }
+  .simulator-page { overflow: auto; }
+  .simulator-shell { height: auto; min-height: 100vh; grid-template-rows: auto; }
+  .simulator-header { align-items: flex-start; }
+  .simulator-header p { display: none; }
+  .simulator-controls { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .sim-buttons { grid-column: 1 / -1; flex-wrap: wrap; }
+  .simulator-bot-grid { overflow: visible; grid-template-columns: repeat(3, minmax(0, 1fr)); grid-auto-rows: 76px; }
+}
+
+@media (max-width: 1100px) and (min-width: 641px) {
+  .simulator-controls { grid-template-columns: repeat(4, minmax(105px, 1fr)); }
+  .sim-buttons { grid-column: span 2; }
 }
 
 @media (max-width: 520px) {
