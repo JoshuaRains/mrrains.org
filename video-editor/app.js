@@ -433,7 +433,7 @@ function download(name, content, type) {
 
 function saveProject() {
   const exportState = {...state, selected: null};
-  download(`${(state.mediaName || 'clasecut-project').replace(/\.[^.]+$/, '')}.clasecut.json`, JSON.stringify(exportState, null, 2), 'application/json');
+  download(`${(state.mediaName || 'video-editor-project').replace(/\.[^.]+$/, '')}.video-editor.json`, JSON.stringify(exportState, null, 2), 'application/json');
   toast('Project file saved');
 }
 
@@ -444,7 +444,7 @@ function exportCaptions() {
     return `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(sec).padStart(2,'0')}.${String(rem).padStart(3,'0')}`;
   };
   const body = state.captions.sort((a,b) => a.start-b.start).map(c => `${ts(c.start)} --> ${ts(c.start+c.duration)}\n${plain(c.spanish)}${c.showEnglish && plain(c.english) ? `\n${plain(c.english)}` : ''}\n`).join('\n');
-  download('clasecut-captions.vtt', `WEBVTT\n\n${body}`, 'text/vtt');
+  download('video-editor-captions.vtt', `WEBVTT\n\n${body}`, 'text/vtt');
   toast('WebVTT captions exported');
 }
 
@@ -662,14 +662,14 @@ function registerBrowserAgentTools() {
   try {
     Promise.resolve(registry.registerTool({
       name:'read_edit_state',
-      description:'Read the current ClaseCut playhead, clips, and bilingual captions in one compact response. Use before editing when IDs or timing are unknown.',
+      description:'Read the current Video Editor playhead, clips, and bilingual captions in one compact response. Use before editing when IDs or timing are unknown.',
       inputSchema:{type:'object', properties:{includeStyles:{type:'boolean'}}, additionalProperties:false},
       annotations:{readOnlyHint:true},
       execute(input = {}) { return compactEditState(Boolean(input.includeStyles)); }
     })).catch(report);
     Promise.resolve(registry.registerTool({
       name:'batch_edit_project',
-      description:'Apply several ClaseCut timeline or bilingual-caption edits in one call. Actions: seek, select, add_caption, update_caption, move, resize, split, delete. Caption text accepts only b, strong, i, em, and br HTML.',
+      description:'Apply several Video Editor timeline or bilingual-caption edits in one call. Actions: seek, select, add_caption, update_caption, move, resize, split, delete. Caption text accepts only b, strong, i, em, and br HTML.',
       inputSchema:{
         type:'object', required:['operations'], additionalProperties:false,
         properties:{operations:{type:'array', minItems:1, maxItems:50, items:{
