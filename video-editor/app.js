@@ -35,6 +35,7 @@ let playStartedFrom = 0;
 let frameRequest = null;
 let focusedEditor = null;
 let toastTimer = null;
+let exportingVideo = false;
 
 const video = $('#video');
 const timelineContent = $('#timelineContent');
@@ -76,7 +77,8 @@ function toast(message) {
 function projectDuration() {
   const clipEnd = state.clips.reduce((m, c) => Math.max(m, c.start + c.duration), 0);
   const capEnd = state.captions.reduce((m, c) => Math.max(m, c.start + c.duration), 0);
-  return Math.max(10, clipEnd, capEnd, state.mediaDuration || 0);
+  const emptyMinimum = state.clips.length || state.captions.length || state.mediaDuration ? .1 : 10;
+  return Math.max(emptyMinimum, clipEnd, capEnd, state.mediaDuration || 0);
 }
 
 function renderAll() {
@@ -460,6 +462,102 @@ function exportCaptions() {
   toast('WebVTT captions exported');
 }
 
+function drawExportCaption(ctx, caption, text, height, color) {
+  if (!text) return;
+  const lines = plain(text).split(/\n|\r/).filter(Boolean);
+  const size = caption.style.size;
+  const lineHeight = size * 1.2;
+  const bottom = ctx.canvas.height * (height / 100);
+  ctx.save();
+  ctx.font = `600 ${size}px ${caption.style.font}`;
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'bottom';
+  ctx.lineJoin = 'round';
+  ctx.strokeStyle = 'rgba(0,0,0,.88)';
+  ctx.lineWidth = Math.max(3, size * .18);
+  ctx.fillStyle = color;
+  lines.forEach((line, index) => {
+    const y = ctx.canvas.height - bottom - (lines.length - 1 - index) * lineHeight;
+    ctx.strokeText(line, ctx.canvas.width / 2, y, ctx.canvas.width * .92);
+    ctx.fillText(line, ctx.canvas.width / 2, y, ctx.canvas.width * .92);
+  });
+  ctx.restore();
+}
+
+function renderExportFrame(ctx) {
+  ctx.fillStyle = '#000';
+  ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+  if (video.readyState >= 2) ctx.drawImage(video, 0, 0, ctx.canvas.width, ctx.canvas.height);
+  const caption = state.captions.filter(c => state.currentTime >= c.start && state.currentTime < c.start + c.duration).sort((a,b) => b.start-a.start)[0];
+  if (!caption) return;
+  drawExportCaption(ctx, caption, caption.spanish, caption.style.spanishHeight, caption.style.color);
+  if (caption.showEnglish) drawExportCaption(ctx, caption, caption.english, caption.style.englishHeight, caption.style.englishColor || '#ffe970');
+}
+
+async function exportVideo() {
+  if (exportingVideo) return;
+  if (!mediaFile || !objectUrl) { toast('Load a video before exporting'); return; }
+  const mimeTypes = [
+    'video/mp4;codecs="avc1.42E01E,mp4a.40.2"',
+    'video/mp4;codecs="avc1.42E01E"',
+    'video/mp4'
+  ];
+  const mimeType = typeof MediaRecorder === 'undefined' ? null : mimeTypes.find(type => MediaRecorder.isTypeSupported(type));
+  if (!mimeType || !video.captureStream || !HTMLCanvasElement.prototype.captureStream) {
+    toast('This browser cannot create MP4 files');
+    return;
+  }
+  pause();
+  const previousTime = state.currentTime;
+  const canvas = document.createElement('canvas');
+  canvas.width = video.videoWidth || 1280;
+  canvas.height = video.videoHeight || 720;
+  const ctx = canvas.getContext('2d');
+  const outputStream = canvas.captureStream(30);
+  const sourceStream = video.captureStream();
+  sourceStream.getAudioTracks().forEach(track => outputStream.addTrack(track));
+  const chunks = [];
+  const recorder = new MediaRecorder(outputStream, {mimeType, videoBitsPerSecond: 8_000_000, audioBitsPerSecond: 192_000});
+  const finished = new Promise((resolve, reject) => {
+    recorder.ondataavailable = event => { if (event.data.size) chunks.push(event.data); };
+    recorder.onerror = event => reject(event.error || new Error('MP4 recording failed'));
+    recorder.onstop = resolve;
+  });
+  exportingVideo = true;
+  const button = $('#exportVideo');
+  button.disabled = true;
+  button.textContent = 'Exporting…';
+  seekProject(0);
+  recorder.start(1000);
+  play();
+  await new Promise(resolve => {
+    const draw = () => {
+      renderExportFrame(ctx);
+      if (playing) requestAnimationFrame(draw);
+      else resolve();
+    };
+    requestAnimationFrame(draw);
+  });
+  recorder.stop();
+  try {
+    await finished;
+    const blob = new Blob(chunks, {type:'video/mp4'});
+    if (!blob.size) throw new Error('Empty MP4');
+    const base = (state.mediaName || 'video-editor-export').replace(/\.[^.]+$/, '');
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url; link.download = `${base}-subtitled.mp4`; link.click();
+    setTimeout(() => URL.revokeObjectURL(url), 2000);
+    toast('MP4 exported');
+  } catch { toast('MP4 export failed'); }
+  outputStream.getTracks().forEach(track => track.stop());
+  sourceStream.getTracks().forEach(track => track.stop());
+  exportingVideo = false;
+  button.disabled = false;
+  button.textContent = 'Export MP4';
+  seekProject(previousTime);
+}
+
 async function openProject(file) {
   if (file.name.toLowerCase().endsWith('.bruh')) {
     try {
@@ -520,6 +618,7 @@ $('#fitTimeline').addEventListener('click', fitTimeline);
 $('#snapPlayhead').addEventListener('click', snapToPlayhead);
 $('#saveProject').addEventListener('click', saveProject);
 $('#exportCaptions').addEventListener('click', exportCaptions);
+$('#exportVideo').addEventListener('click', exportVideo);
 $('#newProject').addEventListener('click', () => { if (!confirm('Start a new project? Unsaved edits will be lost.')) return; pause(); state = defaultState(); history=[]; future=[]; video.removeAttribute('src'); objectUrl=null; mediaFile=null; $('#stageWrap').classList.remove('has-video'); $('#emptyStage').classList.remove('hidden'); renderAll(); });
 $('#zoom').addEventListener('input', e => { state.zoom = Number(e.target.value); renderTimeline(); updatePlayhead(); });
 
