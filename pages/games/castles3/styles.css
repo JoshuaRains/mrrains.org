@@ -98,9 +98,13 @@ button:disabled { cursor: not-allowed; opacity: 0.45; }
 .inline-check { display: flex; align-items: center; gap: 0.55rem; min-height: 44px; }
 .inline-check input { width: 18px; height: 18px; }
 .actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 0.6rem; margin-top: 1.25rem; }
-.teacher-game { display: grid; grid-template-rows: auto minmax(0, 1fr); min-height: calc(100vh - 6rem); }
+.teacher-game { min-height: calc(100vh - 6rem); }
+.teacher-game-stage {
+  display: grid; grid-template-rows: auto minmax(0, 1fr);
+  min-height: calc(100vh - 4.25rem);
+}
 .teacher-hud { display: flex; flex-wrap: wrap; justify-content: center; gap: 0.8rem 1.4rem; align-items: center; }
-.live-price-settings { display: flex; flex-wrap: wrap; align-items: end; justify-content: center; gap: 0.45rem; margin: 0; padding: 0.45rem 0.6rem; border: 1px solid #555; border-radius: 10px; }
+.live-price-settings { display: flex; flex-wrap: wrap; align-items: end; justify-content: center; gap: 0.65rem; width: min(920px, 100%); margin: 1.25rem auto 0; padding: 1rem; border: 1px solid #555; border-radius: 10px; background: var(--panel); }
 .live-price-settings legend { padding: 0 0.35rem; font-weight: 800; }
 .live-price-settings label { display: grid; gap: 0.15rem; color: var(--muted); font-size: 0.72rem; font-weight: 700; }
 .live-price-settings input { width: 68px; padding: 0.4rem; border: 1px solid #555; border-radius: 6px; background: #181818; color: white; text-align: center; }

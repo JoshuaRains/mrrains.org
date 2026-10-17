@@ -71,24 +71,26 @@
     </section>
 
     <section id="gameSection" class="teacher-game hidden" aria-label="Active game">
-      <div class="teacher-hud">
-        <span class="status-pill">Green: <strong id="greenTiles">0</strong></span>
-        <span class="status-pill">Blue: <strong id="blueTiles">0</strong></span>
-        <fieldset class="live-price-settings">
-          <legend>Live prices</legend>
-          <label>Regular <input id="livePriceRegular" type="number" min="1" max="99" value="1"></label>
-          <label>Armored <input id="livePriceArmored" type="number" min="1" max="99" value="5"></label>
-          <label>Patata <input id="livePriceExplosive1" type="number" min="1" max="99" value="6"></label>
-          <label>Patata grande <input id="livePriceExplosive2" type="number" min="1" max="99" value="12"></label>
-          <label>Repair <input id="livePriceRepair" type="number" min="1" max="99" value="2"></label>
-          <button id="applyPricesBtn" class="primary" type="button">Apply prices</button>
-          <span id="priceUpdateStatus" class="muted" aria-live="polite"></span>
-        </fieldset>
-        <button id="endGameBtn" class="danger" type="button">End game</button>
+      <div class="teacher-game-stage">
+        <div class="teacher-hud">
+          <span class="status-pill">Green: <strong id="greenTiles">0</strong></span>
+          <span class="status-pill">Blue: <strong id="blueTiles">0</strong></span>
+          <button id="endGameBtn" class="danger" type="button">End game</button>
+        </div>
+        <div class="teacher-map-wrap">
+          <svg id="teacherMap" class="teacher-map"></svg>
+        </div>
       </div>
-      <div class="teacher-map-wrap">
-        <svg id="teacherMap" class="teacher-map"></svg>
-      </div>
+      <fieldset class="live-price-settings">
+        <legend>Live prices</legend>
+        <label>Regular <input id="livePriceRegular" type="number" min="1" max="99" value="1"></label>
+        <label>Armored <input id="livePriceArmored" type="number" min="1" max="99" value="5"></label>
+        <label>Patata <input id="livePriceExplosive1" type="number" min="1" max="99" value="6"></label>
+        <label>Patata grande <input id="livePriceExplosive2" type="number" min="1" max="99" value="12"></label>
+        <label>Repair <input id="livePriceRepair" type="number" min="1" max="99" value="2"></label>
+        <button id="applyPricesBtn" class="primary" type="button">Apply prices</button>
+        <span id="priceUpdateStatus" class="muted" aria-live="polite"></span>
+      </fieldset>
     </section>
   </main>
 
