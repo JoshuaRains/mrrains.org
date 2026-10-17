@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#111319" />
+  <meta name="robots" content="noindex, nofollow" />
+  <title>ClaseCut — Bilingual clip editor</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <strong>ClaseCut</strong>
+    </div>
+    <div class="top-actions">
+      <button id="newProject" class="ghost">New</button>
+      <label class="button ghost">Open project<input id="projectInput" type="file" accept="application/json" hidden /></label>
+      <button id="saveProject" class="ghost">Save project</button>
+      <button id="exportCaptions" class="accent">Export captions</button>
+    </div>
+  </header>
+
+  <main class="app-shell">
+    <section class="media-panel panel">
+      <div class="panel-heading"><span>Media</span></div>
+      <label class="dropzone" id="dropzone">
+        <input id="videoInput" type="file" accept="video/*" hidden />
+        <strong>Open video</strong>
+        <small>Drop a file or click to browse</small>
+      </label>
+      <div id="mediaInfo" class="media-info empty">
+        <div><strong>No video loaded</strong></div>
+      </div>
+    </section>
+
+    <section class="stage-panel panel">
+      <div class="stage-wrap" id="stageWrap">
+        <video id="video" playsinline></video>
+        <div class="empty-stage" id="emptyStage">
+          <p>Open a video to begin.</p>
+        </div>
+        <div class="caption english-caption" id="englishPreview"></div>
+        <div class="caption spanish-caption" id="spanishPreview"></div>
+      </div>
+      <div class="transport">
+        <button id="jumpBack" title="Back 5 seconds">−5</button>
+        <button id="playButton" class="play" title="Play or pause">▶</button>
+        <button id="jumpForward" title="Forward 5 seconds">+5</button>
+        <div class="time-readout"><span id="currentTime">00:00.0</span><span>/</span><span id="duration">00:00.0</span></div>
+        <div class="transport-spacer"></div>
+        <button id="fitTimeline" title="Fit timeline">Fit</button>
+        <label class="zoom-control">Zoom <input id="zoom" type="range" min="24" max="140" value="56" /></label>
+      </div>
+    </section>
+
+    <aside class="inspector panel">
+      <div class="panel-heading"><span>Inspector</span><span id="selectionKind">Nothing selected</span></div>
+      <div id="emptyInspector" class="empty-inspector">
+        <p>Select a clip or subtitle.</p>
+      </div>
+      <div id="captionInspector" class="inspector-form hidden">
+        <label>Spanish subtitle</label>
+        <div class="rich-toolbar">
+          <button data-command="bold" title="Bold"><b>B</b></button>
+          <button data-command="italic" title="Italic"><i>I</i></button>
+          <button data-command="removeFormat" title="Clear formatting">Clear</button>
+        </div>
+        <div id="spanishEditor" class="rich-editor" contenteditable="true" data-placeholder="Escribe el subtítulo…"></div>
+
+        <label class="switch-row"><span>English translation</span><input id="showEnglish" type="checkbox" checked /></label>
+        <div id="englishFields">
+          <div id="englishEditor" class="rich-editor" contenteditable="true" data-placeholder="Add an English translation…"></div>
+        </div>
+
+        <div class="two-col">
+          <label>Start<input id="captionStart" type="number" min="0" step="0.1" /></label>
+          <label>Length<input id="captionDuration" type="number" min="0.2" step="0.1" /></label>
+        </div>
+        <label>Font<select id="captionFont"><option value="Inter, Arial, sans-serif">Inter</option><option value="Georgia, serif">Georgia</option><option value="Arial, sans-serif">Arial</option><option value="'Trebuchet MS', sans-serif">Trebuchet</option><option value="'Courier New', monospace">Courier</option></select></label>
+        <div class="two-col">
+          <label>Size<input id="captionSize" type="number" min="14" max="72" step="1" /></label>
+          <label>Color<input id="captionColor" type="color" /></label>
+        </div>
+        <label>Spanish height <output id="spanishHeightOut"></output><input id="spanishHeight" type="range" min="4" max="65" /></label>
+        <label>English height <output id="englishHeightOut"></output><input id="englishHeight" type="range" min="8" max="82" /></label>
+      </div>
+      <div id="clipInspector" class="inspector-form hidden">
+        <div class="clip-badge" id="clipBadge">VIDEO CLIP</div>
+        <label>Name<input id="clipName" type="text" /></label>
+        <div class="two-col">
+          <label>Timeline start<input id="clipStart" type="number" min="0" step="0.1" /></label>
+          <label>Length<input id="clipDuration" type="number" min="0.1" step="0.1" /></label>
+        </div>
+        <label>Source starts at<input id="sourceStart" type="number" min="0" step="0.1" /></label>
+      </div>
+    </aside>
+
+    <section class="timeline-panel panel">
+      <div class="edit-toolbar">
+        <button id="undoButton" title="Undo">↶ Undo</button>
+        <button id="redoButton" title="Redo">↷ Redo</button>
+        <span class="toolbar-rule"></span>
+        <button id="splitButton" title="Split at playhead (S)">✂ Split</button>
+        <button id="copyButton" title="Copy (Ctrl/Cmd+C)">Copy</button>
+        <button id="pasteButton" title="Paste (Ctrl/Cmd+V)">Paste</button>
+        <button id="deleteButton" title="Delete selected">Delete</button>
+        <span class="toolbar-rule"></span>
+        <button id="addCaption" class="accent-soft">＋ Subtitle</button>
+        <button id="snapPlayhead" title="Scroll the timeline to the current playhead position">Snap to playhead</button>
+        <span class="timeline-hint">Drag blocks to move · drag the right edge to resize</span>
+      </div>
+      <div class="timeline-grid">
+        <div class="track-labels">
+          <div class="ruler-spacer"></div>
+          <div class="track-label"><span class="track-icon video-color">▣</span><div>VIDEO<small>picture</small></div></div>
+          <div class="track-label"><span class="track-icon audio-color">≋</span><div>AUDIO<small>sound</small></div></div>
+          <div class="track-label"><span class="track-icon sub-color">CC</span><div>SUBTITLES<small>Spanish + English</small></div></div>
+        </div>
+        <div class="timeline-scroll" id="timelineScroll">
+          <div class="timeline-content" id="timelineContent">
+            <div class="ruler" id="ruler"></div>
+            <div class="track" id="videoTrack" data-track="video"></div>
+            <div class="track" id="audioTrack" data-track="audio"></div>
+            <div class="track subtitles-track" id="subtitleTrack" data-track="subtitle"></div>
+            <div class="playhead" id="playhead"><span></span></div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+  <div class="toast" id="toast"></div>
+  <script src="app.js"></script>
+</body>
+</html>
