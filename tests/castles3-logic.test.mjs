@@ -2,6 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import {
   applyPlacement,
+  captureSurroundedBases,
   cellKey,
   countTiles,
   createGrid,
@@ -81,7 +82,7 @@ test("room price settings control affordability and the charged amount", () => {
   assert.equal(placed.game.players.student.balance, 1);
 });
 
-test("blast damage applies to friendly and enemy tiles", () => {
+test("patata damage removes regular tiles and deals two damage to armor", () => {
   const game = baseGame();
   game.grid[cellKey(2, 1)] = { team: "green", type: "regular" };
   game.grid[cellKey(3, 0)] = { team: "blue", type: "armored", health: 5 };
@@ -90,19 +91,23 @@ test("blast damage applies to friendly and enemy tiles", () => {
   assert.equal(blast.ok, true);
   assert.equal(blast.game.grid[cellKey(2, 1)].team, null);
   assert.equal(blast.game.grid[cellKey(1, 0)].team, null);
-  assert.equal(blast.game.grid[cellKey(3, 0)].health, 4);
+  assert.equal(blast.game.grid[cellKey(3, 0)].health, 3);
 });
 
-test("every enemy base must be surrounded before a team wins", () => {
+test("surrounded bases flip and capturing every base wins", () => {
   const game = baseGame();
   game.grid[cellKey(4, 1)] = { team: "green", type: "capital", capital: true };
   neighbors(1, 1, 7, 7).forEach(([q, r]) => {
     game.grid[cellKey(q, r)] = { team: "blue", type: "regular" };
   });
+  captureSurroundedBases(game.grid, 7, 7);
+  assert.equal(game.grid[cellKey(1, 1)].team, "blue");
   assert.equal(findWinner(game.grid, 7, 7), null);
   neighbors(4, 1, 7, 7).forEach(([q, r]) => {
     game.grid[cellKey(q, r)] = { team: "blue", type: "regular" };
   });
+  captureSurroundedBases(game.grid, 7, 7);
+  assert.equal(game.grid[cellKey(4, 1)].team, "blue");
   assert.equal(findWinner(game.grid, 7, 7), "blue");
 });
 

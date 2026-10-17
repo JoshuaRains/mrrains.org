@@ -6,7 +6,7 @@ import {
   normalizePrices,
   parseQuestions
 } from "./game-logic.js";
-import { animateBlast, renderHexMap } from "./hex-renderer.js";
+import { animateBlast, renderHexMap, updateHexCell } from "./hex-renderer.js";
 
 const db = window.castlesDb;
 const byId = id => document.getElementById(id);
@@ -19,6 +19,8 @@ let previousState = null;
 let endingRound = false;
 let lastAnimatedAction = "";
 let renderedMapSignature = "";
+let teacherGridReady = false;
+let winnerCheckTimer = 0;
 
 const createSection = byId("createSection");
 const lobbySection = byId("lobbySection");
@@ -32,16 +34,23 @@ const priceInputs = {
   explosive2: "priceExplosive2",
   repair: "priceRepair"
 };
+const livePriceInputs = {
+  regular: "livePriceRegular",
+  armored: "livePriceArmored",
+  explosive1: "livePriceExplosive1",
+  explosive2: "livePriceExplosive2",
+  repair: "livePriceRepair"
+};
 
-function readPrices() {
+function readPrices(inputs = priceInputs) {
   return normalizePrices(Object.fromEntries(
-    Object.entries(priceInputs).map(([type, id]) => [type, byId(id).value])
+    Object.entries(inputs).map(([type, id]) => [type, byId(id).value])
   ));
 }
 
-function writePrices(prices) {
+function writePrices(prices, inputs = priceInputs) {
   const normalized = normalizePrices(prices);
-  Object.entries(priceInputs).forEach(([type, id]) => {
+  Object.entries(inputs).forEach(([type, id]) => {
     byId(id).value = normalized[type];
   });
 }
@@ -87,6 +96,7 @@ async function createGame() {
     const reservation = await reserveGame();
     gameCode = reservation.code;
     gameRef = reservation.ref;
+    await db.ref(`gameQuestions/${gameCode}`).remove();
     byId("gameCodeDisplay").textContent = gameCode;
     byId("teacherCode").textContent = `Game code: ${gameCode}`;
     byId("teacherCode").classList.remove("hidden");
@@ -100,28 +110,119 @@ async function createGame() {
 }
 
 function listenToGame() {
-  gameRef.on("value", snapshot => {
-    currentGame = snapshot.val();
-    if (!currentGame) return;
+  currentGame = { players: {}, grid: {}, settings: {} };
+
+  gameRef.child("state").on("value", snapshot => {
+    currentGame.state = snapshot.val();
     renderFromGame(currentGame);
-    if (currentGame.state === "started" && !endingRound) {
-      const winner = findWinner(
-        currentGame.grid,
-        safeGridSize(currentGame.gridCols || currentGame.gridSize),
-        safeGridSize(currentGame.gridRows || currentGame.gridSize)
-      );
-      if (winner) finishRound(winner);
-    }
     previousState = currentGame.state;
+  });
+  gameRef.child("settings").on("value", snapshot => {
+    currentGame.settings = snapshot.val() || {};
+    if (previousState === null) {
+      byId("questionMode").value = currentGame.settings.questionMode || "multiple";
+      byId("basesPerTeam").value = String(currentGame.settings.basesPerTeam || 1);
+      writePrices(currentGame.settings.prices || DEFAULT_PRICES);
+    }
+  });
+  gameRef.child("result").on("value", snapshot => {
+    currentGame.result = snapshot.val();
+    if (currentGame.state === "over") displayResult(currentGame);
+  });
+  gameRef.child("startedAt").on("value", snapshot => { currentGame.startedAt = snapshot.val(); });
+  gameRef.child("roundId").on("value", snapshot => { currentGame.roundId = snapshot.val(); });
+  ["gridCols", "gridRows", "gridSize"].forEach(field => {
+    gameRef.child(field).on("value", snapshot => {
+      currentGame[field] = snapshot.val();
+      if (currentGame.state === "started") renderTeacherMap(true);
+    });
+  });
+  gameRef.child("lastAction").on("value", snapshot => {
+    currentGame.lastAction = snapshot.val();
+    animateLatestBlast(
+      currentGame,
+      safeGridSize(currentGame.gridCols || currentGame.gridSize),
+      safeGridSize(currentGame.gridRows || currentGame.gridSize)
+    );
+  });
+
+  const playersRef = gameRef.child("players");
+  const applyPlayer = (snapshot, removed = false) => {
+    const oldTeam = currentGame.players[snapshot.key]?.team;
+    if (removed) delete currentGame.players[snapshot.key];
+    else currentGame.players[snapshot.key] = snapshot.val();
+    if (removed || oldTeam !== currentGame.players[snapshot.key]?.team) renderPlayerCounts();
+  };
+  playersRef.once("value").then(snapshot => {
+    currentGame.players = snapshot.val() || {};
+    renderPlayerCounts();
+    playersRef.on("child_added", child => applyPlayer(child));
+    playersRef.on("child_changed", child => applyPlayer(child));
+    playersRef.on("child_removed", child => applyPlayer(child, true));
+  });
+
+  const gridRef = gameRef.child("grid");
+  const applyGrid = (snapshot, removed = false) => {
+    const [q, r] = snapshot.key.split("_").map(Number);
+    const cell = removed ? { team: null, type: null } : (snapshot.val() || { team: null, type: null });
+    const previous = currentGame.grid[snapshot.key];
+    if (!removed && JSON.stringify(previous) === JSON.stringify(cell)) return;
+    if (removed && !previous) return;
+    if (removed) delete currentGame.grid[snapshot.key];
+    else currentGame.grid[snapshot.key] = cell;
+    if (teacherGridReady) updateHexCell(teacherMap, cell, q, r);
+    updateTeacherGameStats();
+  };
+  gridRef.once("value").then(snapshot => {
+    currentGame.grid = snapshot.val() || {};
+    teacherGridReady = true;
+    renderTeacherMap(true);
+    updateTeacherGameStats();
+    gridRef.on("child_added", child => applyGrid(child));
+    gridRef.on("child_changed", child => applyGrid(child));
+    gridRef.on("child_removed", child => applyGrid(child, true));
   });
 }
 
-function renderFromGame(game) {
-  const players = game.players || {};
-  const playerList = Object.values(players);
+function renderPlayerCounts() {
+  const playerList = Object.values(currentGame?.players || {});
   byId("studentCount").textContent = playerList.length;
   byId("greenCount").textContent = playerList.filter(player => player.team === "green" || player.team === "red").length;
   byId("blueCount").textContent = playerList.filter(player => player.team === "blue").length;
+}
+
+function renderTeacherMap(force = false) {
+  const cols = safeGridSize(currentGame?.gridCols || currentGame?.gridSize);
+  const rows = safeGridSize(currentGame?.gridRows || currentGame?.gridSize);
+  const signature = `${cols}x${rows}`;
+  if (!force && signature === renderedMapSignature && teacherMap.childElementCount) return;
+  renderHexMap(teacherMap, currentGame?.grid || {}, cols, rows);
+  renderedMapSignature = signature;
+}
+
+function updateTeacherGameStats() {
+  const tileCounts = countTiles(currentGame?.grid);
+  byId("greenTiles").textContent = tileCounts.green;
+  byId("blueTiles").textContent = tileCounts.blue;
+  window.clearTimeout(winnerCheckTimer);
+  winnerCheckTimer = window.setTimeout(checkForWinner, 100);
+}
+
+function checkForWinner() {
+  if (currentGame?.state !== "started" || endingRound) return;
+  const expectedBases = (Number(currentGame.settings?.basesPerTeam) || 1) * 2;
+  const actualBases = Object.values(currentGame.grid || {}).filter(cell => cell.capital).length;
+  if (actualBases < expectedBases) return;
+  const winner = findWinner(
+    currentGame.grid,
+    safeGridSize(currentGame.gridCols || currentGame.gridSize),
+    safeGridSize(currentGame.gridRows || currentGame.gridSize)
+  );
+  if (winner) finishRound(winner);
+}
+
+function renderFromGame(game) {
+  renderPlayerCounts();
 
   if (game.state === "waiting") {
     showTeacherView("lobby");
@@ -129,35 +230,14 @@ function renderFromGame(game) {
   } else if (game.state === "started") {
     showTeacherView("game");
     gameOverOverlay.classList.add("hidden");
-    const cols = safeGridSize(game.gridCols || game.gridSize);
-    const rows = safeGridSize(game.gridRows || game.gridSize);
-    const mapSignature = `${game.roundId || 0}:${JSON.stringify(game.grid || {})}`;
-    if (mapSignature !== renderedMapSignature) {
-      renderHexMap(teacherMap, game.grid || {}, cols, rows);
-      renderedMapSignature = mapSignature;
-    }
-    animateLatestBlast(game, cols, rows);
-    const tileCounts = countTiles(game.grid);
-    byId("greenTiles").textContent = tileCounts.green;
-    byId("blueTiles").textContent = tileCounts.blue;
+    if (previousState !== "started") writePrices(game.settings?.prices || DEFAULT_PRICES, livePriceInputs);
+    renderTeacherMap();
+    updateTeacherGameStats();
   } else if (game.state === "over") {
     showTeacherView("game");
     displayResult(game);
   }
 
-  let correct = 0;
-  let total = 0;
-  Object.values(game.questionPerformance || {}).forEach(item => {
-    correct += Number(item.correctCount) || 0;
-    total += Number(item.totalCount) || 0;
-  });
-  byId("accuracyValue").textContent = total ? `${Math.round(correct / total * 100)}%` : "0%";
-
-  if (previousState === null && game.settings) {
-    byId("questionMode").value = game.settings.questionMode || "multiple";
-    byId("basesPerTeam").value = String(game.settings.basesPerTeam || 1);
-    writePrices(game.settings.prices || DEFAULT_PRICES);
-  }
 }
 
 function animateLatestBlast(game, cols, rows) {
@@ -215,6 +295,8 @@ async function startGame() {
 
   byId("startGameBtn").disabled = true;
   try {
+    const nextRoundId = (Number(currentGame.roundId) || 0) + 1;
+    await db.ref(`gameQuestions/${gameCode}`).set({ roundId: nextRoundId, items: questions });
     await gameRef.transaction(game => {
       if (!game) return game;
       const players = {};
@@ -228,13 +310,14 @@ async function startGame() {
       return {
         ...game,
         state: "started",
-        roundId: (Number(game.roundId) || 0) + 1,
+        roundId: nextRoundId,
         startedAt: Date.now(),
         gridCols: gridSize,
         gridRows: gridSize,
         gridSize,
         grid: newGrid,
-        questions,
+        questions: null,
+        questionSet: null,
         settings,
         players,
         questionPerformance: null,
@@ -242,8 +325,34 @@ async function startGame() {
         lastAction: null
       };
     });
+  } catch (startError) {
+    console.error(startError);
+    error.textContent = "Could not start the game. Check the connection and try again.";
   } finally {
     byId("startGameBtn").disabled = false;
+  }
+}
+
+async function updateLivePrices() {
+  if (!gameRef || currentGame?.state !== "started") return;
+  const button = byId("applyPricesBtn");
+  const status = byId("priceUpdateStatus");
+  const prices = readPrices(livePriceInputs);
+  button.disabled = true;
+  status.textContent = "Saving…";
+  try {
+    await gameRef.child("settings/prices").set(prices);
+    writePrices(prices, livePriceInputs);
+    writePrices(prices);
+    status.textContent = "Prices updated";
+    window.setTimeout(() => {
+      if (status.textContent === "Prices updated") status.textContent = "";
+    }, 1400);
+  } catch (error) {
+    console.error(error);
+    status.textContent = "Could not update prices";
+  } finally {
+    button.disabled = false;
   }
 }
 
@@ -279,14 +388,16 @@ async function finishRound(forcedWinner = null) {
 async function newGame() {
   byId("newGameBtn").disabled = true;
   try {
+    await db.ref(`gameQuestions/${gameCode}`).remove();
     await gameRef.transaction(game => {
       if (!game) return game;
       return {
         ...game,
         state: "waiting",
         grid: null,
+        questions: null,
+        questionSet: null,
         result: null,
-        questionPerformance: null,
         lastAction: null,
         startedAt: null
       };
@@ -300,3 +411,4 @@ byId("createGameBtn").addEventListener("click", createGame);
 byId("startGameBtn").addEventListener("click", startGame);
 byId("endGameBtn").addEventListener("click", () => finishRound());
 byId("newGameBtn").addEventListener("click", newGame);
+byId("applyPricesBtn").addEventListener("click", updateLivePrices);

@@ -100,6 +100,11 @@ button:disabled { cursor: not-allowed; opacity: 0.45; }
 .actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 0.6rem; margin-top: 1.25rem; }
 .teacher-game { display: grid; grid-template-rows: auto minmax(0, 1fr); min-height: calc(100vh - 6rem); }
 .teacher-hud { display: flex; flex-wrap: wrap; justify-content: center; gap: 0.8rem 1.4rem; align-items: center; }
+.live-price-settings { display: flex; flex-wrap: wrap; align-items: end; justify-content: center; gap: 0.45rem; margin: 0; padding: 0.45rem 0.6rem; border: 1px solid #555; border-radius: 10px; }
+.live-price-settings legend { padding: 0 0.35rem; font-weight: 800; }
+.live-price-settings label { display: grid; gap: 0.15rem; color: var(--muted); font-size: 0.72rem; font-weight: 700; }
+.live-price-settings input { width: 68px; padding: 0.4rem; border: 1px solid #555; border-radius: 6px; background: #181818; color: white; text-align: center; }
+#priceUpdateStatus { min-width: 5.5rem; font-size: 0.78rem; }
 .teacher-map-wrap { min-height: 0; display: grid; place-items: center; padding-top: 1rem; }
 .teacher-map { width: 100%; height: 100%; max-height: calc(100vh - 10rem); }
 .status-pill { padding: 0.45rem 0.8rem; border-radius: 999px; background: #1e1e1e; }
@@ -122,19 +127,13 @@ button:disabled { cursor: not-allowed; opacity: 0.45; }
 .health-label { fill: white; font-size: 18px; font-weight: 900; dominant-baseline: middle; paint-order: stroke; stroke: #222; stroke-width: 3px; }
 .regular-inset { fill: rgba(255,255,255,0.08); stroke: rgba(255,255,255,0.7); stroke-width: 2.5; }
 .regular-core { fill: white; opacity: 0.9; }
-.bomb-body { fill: #3b3b3b; stroke: white; stroke-width: 2.2; }
-.bomb-fuse { fill: none; stroke: white; stroke-width: 3.2; stroke-linecap: round; }
-.bomb-spark { fill: var(--yellow); stroke: #6d5b00; stroke-width: 1; }
-.bomb-shine { fill: rgba(255,255,255,0.75); }
-.blast-burst { fill: rgba(255,255,255,0.18); stroke: white; stroke-width: 2.2; stroke-linejoin: round; }
-.blast-core { fill: #555; stroke: white; stroke-width: 2; }
-.blast-center { fill: var(--yellow); }
+.potato-icon { font-family: "Segoe UI Emoji", "Apple Color Emoji", sans-serif; dominant-baseline: auto; }
 .repair-disc { fill: #777; stroke: white; stroke-width: 2.4; }
 .repair-cross { fill: white; }
 .placement-preview .preview-glyph { opacity: 0.86; }
 
 /* Student */
-.student-shell { height: 100vh; overflow: hidden; }
+.student-shell { height: 100vh; height: 100dvh; overflow: hidden; }
 .student-page { user-select: none; -webkit-user-select: none; }
 .student-page input, .student-page textarea { user-select: text; -webkit-user-select: text; }
 .student-game {
@@ -192,11 +191,27 @@ button:disabled { cursor: not-allowed; opacity: 0.45; }
 .overlay { position: fixed; inset: 0; z-index: 30; display: grid; place-items: center; padding: 1rem; background: rgba(0,0,0,0.7); backdrop-filter: blur(7px); }
 .overlay-card { width: min(460px, 100%); padding: 2rem; text-align: center; border: 1px solid #666; border-radius: 18px; background: #383838; box-shadow: 0 18px 70px rgba(0,0,0,0.5); }
 
-@media (max-width: 900px) {
-  .student-shell { height: auto; overflow: visible; }
-  .student-game { grid-template-columns: 1fr; grid-template-rows: minmax(680px, 100vh) minmax(520px, 75vh); }
+@media (max-width: 640px) {
+  .student-game { grid-template-columns: 1fr; grid-template-rows: minmax(0, 62%) minmax(0, 38%); }
+  .student-left { grid-template-rows: minmax(0, 65%) minmax(0, 35%); }
   .student-left { border-right: 0; border-bottom: 1px solid #4a4a4a; }
-  .shop-list { grid-template-columns: repeat(3, 1fr); overflow-y: auto; }
+  .question-panel { gap: 0.4rem; padding: 3.1rem 0.55rem 0.3rem; }
+  .question-panel h1 { font-size: clamp(1.05rem, 5vw, 1.6rem); }
+  .question-meta, .feedback { font-size: 0.78rem; min-height: 1em; }
+  .options { gap: 0.35rem; }
+  .options button { min-height: 38px; padding: 0.35rem 0.5rem; }
+  .accent-row { gap: 0.18rem; }
+  .accent-row button { padding: 0.25rem 0.45rem; }
+  .shop-panel { padding: 0.25rem 0.35rem 0.4rem; }
+  .shop-heading { margin: 0; font-size: 0.75rem; }
+  .shop-list { grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 0.2rem; height: calc(100% - 1.35rem); }
+  .shop-icon { max-height: 38px; }
+  .shop-name, .shop-price { font-size: 0.58rem; }
+  .top-chip { top: 5px; padding: 0.28rem 0.42rem; font-size: 0.72rem; }
+  .top-chip.left { left: 5px; }
+  .top-chip.right { right: 5px; }
+  .student-map { padding: 0.25rem; }
+  .map-help { left: 0.35rem; bottom: 0.35rem; max-width: calc(100% - 0.7rem); padding: 0.25rem 0.4rem; font-size: 0.68rem; }
   .settings-grid { grid-template-columns: 1fr; }
   .field.full { grid-column: auto; }
   .price-grid { grid-template-columns: repeat(3, 1fr); }
@@ -204,8 +219,17 @@ button:disabled { cursor: not-allowed; opacity: 0.45; }
 
 @media (max-width: 520px) {
   .team-counters { grid-template-columns: 1fr; }
-  .options { grid-template-columns: 1fr; }
   .typing-row { flex-direction: column; }
+}
+
+@media (max-height: 700px) and (min-width: 641px) {
+  .question-panel { gap: 0.45rem; padding-top: 3.3rem; padding-bottom: 0.35rem; }
+  .question-panel h1 { font-size: clamp(1.15rem, 2.6vw, 2rem); }
+  .options button { min-height: 40px; padding: 0.4rem 0.7rem; }
+  .accent-row button { padding: 0.25rem 0.5rem; }
+  .shop-panel { padding-top: 0.2rem; padding-bottom: 0.35rem; }
+  .shop-icon { max-height: 42px; }
+  .shop-heading { font-size: 0.82rem; }
 }
 
 @media (prefers-reduced-motion: reduce) {

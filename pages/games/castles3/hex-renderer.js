@@ -18,16 +18,6 @@ function hexPoints(cx, cy, size, scale = 0.94) {
   return points.join(" ");
 }
 
-function starPoints(cx, cy, outerRadius, innerRadius, points = 10) {
-  const result = [];
-  for (let index = 0; index < points * 2; index += 1) {
-    const radius = index % 2 === 0 ? outerRadius : innerRadius;
-    const angle = -Math.PI / 2 + index * Math.PI / points;
-    result.push(`${cx + radius * Math.cos(angle)},${cy + radius * Math.sin(angle)}`);
-  }
-  return result.join(" ");
-}
-
 function hexCenter(column, row, size, padding) {
   return {
     x: padding + ROOT_THREE * size * (column + (row & 1) / 2) + ROOT_THREE * size / 2,
@@ -88,35 +78,16 @@ function addTileGlyph(group, tileType, cx, cy, size, variant = "shop") {
     return;
   }
 
-  if (tileType === "explosive1") {
-    group.appendChild(svgElement("circle", {
-      cx, cy: cy + size * 0.08, r: size * 0.31, class: `bomb-body${suffix}`
-    }));
-    group.appendChild(svgElement("path", {
-      d: `M ${cx + size * 0.15} ${cy - size * 0.18} Q ${cx + size * 0.28} ${cy - size * 0.42} ${cx + size * 0.42} ${cy - size * 0.34}`,
-      class: `bomb-fuse${suffix}`
-    }));
-    group.appendChild(svgElement("polygon", {
-      points: starPoints(cx + size * 0.46, cy - size * 0.37, size * 0.14, size * 0.055, 6),
-      class: `bomb-spark${suffix}`
-    }));
-    group.appendChild(svgElement("circle", {
-      cx: cx - size * 0.1, cy: cy - size * 0.03, r: size * 0.07, class: `bomb-shine${suffix}`
-    }));
-    return;
-  }
-
-  if (tileType === "explosive2") {
-    group.appendChild(svgElement("polygon", {
-      points: starPoints(cx, cy, size * 0.49, size * 0.27, 12),
-      class: `blast-burst${suffix}`
-    }));
-    group.appendChild(svgElement("circle", {
-      cx, cy, r: size * 0.18, class: `blast-core${suffix}`
-    }));
-    group.appendChild(svgElement("circle", {
-      cx, cy, r: size * 0.08, class: `blast-center${suffix}`
-    }));
+  if (tileType === "explosive1" || tileType === "explosive2") {
+    const potato = svgElement("text", {
+      x: cx,
+      y: cy + size * 0.3,
+      class: `potato-icon${suffix}`,
+      "font-size": size * (tileType === "explosive2" ? 1.08 : 0.92),
+      "text-anchor": "middle"
+    });
+    potato.textContent = "🥔";
+    group.appendChild(potato);
     return;
   }
 
@@ -135,6 +106,32 @@ function addTileGlyph(group, tileType, cx, cy, size, variant = "shop") {
       rx: size * 0.04, class: `repair-cross${suffix}`
     }));
   }
+}
+
+function updateCellGroup(group, cell, cx, cy, size) {
+  const title = group.querySelector("title");
+  title.textContent = cell.team
+    ? `${cell.team} ${cell.capital ? "base" : (cell.type || "tile")}${cell.health ? `, ${cell.health} health` : ""}`
+    : "Empty hex";
+  const polygon = group.querySelector(".hex-shape");
+  polygon.setAttribute("class", `hex-shape${cell.team ? ` team-${cell.team}` : ""}`);
+  polygon.setAttribute("fill", cell.team ? TEAM_COLORS[cell.team] : "#3a3a3a");
+  const details = group.querySelector(".tile-details");
+  details.replaceChildren();
+  addTileDetails(details, cell, cx, cy, size);
+}
+
+export function updateHexCell(svg, cell, q, r) {
+  const group = svg?.querySelector(`.hex-cell[data-q="${q}"][data-r="${r}"]`);
+  if (!group) return false;
+  updateCellGroup(
+    group,
+    cell || { team: null, type: null },
+    Number(group.dataset.cx),
+    Number(group.dataset.cy),
+    Number(group.dataset.size)
+  );
+  return true;
 }
 
 export function renderHexMap(svg, grid, cols, rows, options = {}) {
@@ -158,34 +155,35 @@ export function renderHexMap(svg, grid, cols, rows, options = {}) {
         class: "hex-cell",
         "data-q": q,
         "data-r": r,
+        "data-cx": cx,
+        "data-cy": cy,
+        "data-size": size,
         role: "gridcell",
         tabindex: options.interactive ? "0" : "-1"
       });
       const title = svgElement("title");
-      title.textContent = cell.team
-        ? `${cell.team} ${cell.capital ? "base" : (cell.type || "tile")}${cell.health ? `, ${cell.health} health` : ""}`
-        : "Empty hex";
       group.appendChild(title);
 
       const polygon = svgElement("polygon", {
         points: hexPoints(cx, cy, size),
-        class: `hex-shape${cell.team ? ` team-${cell.team}` : ""}`,
-        fill: cell.team ? TEAM_COLORS[cell.team] : "#3a3a3a"
+        class: "hex-shape"
       });
       group.appendChild(polygon);
-      addTileDetails(group, cell, cx, cy, size);
+      group.appendChild(svgElement("g", { class: "tile-details" }));
+      updateCellGroup(group, cell, cx, cy, size);
 
       if (options.interactive) {
         const updatePreview = show => {
           group.querySelectorAll(".placement-preview").forEach(node => node.remove());
           svg.querySelectorAll(".placement-zone-preview").forEach(node => node.remove());
           group.classList.remove("valid-target", "invalid-target");
-          if (!show || !options.selectedType) return;
+          const selectedType = options.getSelectedType ? options.getSelectedType() : options.selectedType;
+          if (!show || !selectedType) return;
           const validity = options.isValid?.(q, r);
           group.classList.add(validity?.ok ? "valid-target" : "invalid-target");
           if (!validity?.ok) return;
 
-          const definition = TILE_TYPES[options.selectedType];
+          const definition = TILE_TYPES[selectedType];
           if (definition?.radius) {
             const zone = svgElement("g", { class: "placement-zone-preview" });
             for (let zoneR = 0; zoneR < rows; zoneR += 1) {
@@ -199,7 +197,7 @@ export function renderHexMap(svg, grid, cols, rows, options = {}) {
               }
             }
             const target = hexCenter(q, r, size, padding);
-            addTileGlyph(zone, options.selectedType, target.x, target.y, size * 0.78, "preview");
+            addTileGlyph(zone, selectedType, target.x, target.y, size * 0.78, "preview");
             svg.appendChild(zone);
             return;
           }
@@ -209,7 +207,7 @@ export function renderHexMap(svg, grid, cols, rows, options = {}) {
             points: hexPoints(cx, cy, size * 0.91, 1),
             class: "placement-preview-shape"
           }));
-          addTileGlyph(preview, options.selectedType, cx, cy, size * 0.78, "preview");
+          addTileGlyph(preview, selectedType, cx, cy, size * 0.78, "preview");
           group.appendChild(preview);
         };
 

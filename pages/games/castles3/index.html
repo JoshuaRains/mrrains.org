@@ -51,8 +51,8 @@
           <div class="price-grid">
             <label>Regular <input id="priceRegular" type="number" min="1" max="99" value="1"></label>
             <label>Armored <input id="priceArmored" type="number" min="1" max="99" value="5"></label>
-            <label>Blast I <input id="priceExplosive1" type="number" min="1" max="99" value="6"></label>
-            <label>Blast II <input id="priceExplosive2" type="number" min="1" max="99" value="12"></label>
+            <label>Patata <input id="priceExplosive1" type="number" min="1" max="99" value="6"></label>
+            <label>Patata grande <input id="priceExplosive2" type="number" min="1" max="99" value="12"></label>
             <label>Repair <input id="priceRepair" type="number" min="1" max="99" value="2"></label>
           </div>
         </fieldset>
@@ -71,9 +71,18 @@
 
     <section id="gameSection" class="teacher-game hidden" aria-label="Active game">
       <div class="teacher-hud">
-        <span class="status-pill">Accuracy: <strong id="accuracyValue">0%</strong></span>
         <span class="status-pill">Green: <strong id="greenTiles">0</strong></span>
         <span class="status-pill">Blue: <strong id="blueTiles">0</strong></span>
+        <fieldset class="live-price-settings">
+          <legend>Live prices</legend>
+          <label>Regular <input id="livePriceRegular" type="number" min="1" max="99" value="1"></label>
+          <label>Armored <input id="livePriceArmored" type="number" min="1" max="99" value="5"></label>
+          <label>Patata <input id="livePriceExplosive1" type="number" min="1" max="99" value="6"></label>
+          <label>Patata grande <input id="livePriceExplosive2" type="number" min="1" max="99" value="12"></label>
+          <label>Repair <input id="livePriceRepair" type="number" min="1" max="99" value="2"></label>
+          <button id="applyPricesBtn" class="primary" type="button">Apply prices</button>
+          <span id="priceUpdateStatus" class="muted" aria-live="polite"></span>
+        </fieldset>
         <button id="endGameBtn" class="danger" type="button">End game</button>
       </div>
       <div class="teacher-map-wrap">

@@ -6,7 +6,7 @@ import {
   normalizeAnswer,
   validatePlacement
 } from "./game-logic.js";
-import { animateBlast, renderHexMap, renderTileIcon } from "./hex-renderer.js";
+import { animateBlast, renderHexMap, renderTileIcon, updateHexCell } from "./hex-renderer.js";
 
 const db = window.castlesDb;
 const byId = id => document.getElementById(id);
@@ -23,10 +23,14 @@ let currentQuestion = null;
 let currentQuestionIndex = null;
 let currentQuestionMode = "multiple";
 let answering = false;
+let questionSequence = 0;
+let answeredQuestionSequence = -1;
 let selectedType = null;
 let placementMessage = "";
 let lastAnimatedAction = "";
-let renderedMapSignature = "";
+let renderedMapDimensions = "";
+let gridReady = false;
+let fullMapFrame = 0;
 
 const joinScreen = byId("joinScreen");
 const gameScreen = byId("gameScreen");
@@ -45,10 +49,6 @@ function shuffled(values) {
     [copy[index], copy[target]] = [copy[target], copy[index]];
   }
   return copy;
-}
-
-function sanitizeQuestion(question) {
-  return String(question).replace(/[.#$\[\]/]/g, "_").slice(0, 180);
 }
 
 async function joinGame() {
@@ -72,19 +72,21 @@ async function joinGame() {
     // Read the room before starting a transaction. A transaction's first local
     // callback can receive null before Firebase has downloaded the room; treating
     // that provisional null as "not found" caused valid codes to be rejected.
-    const roomSnapshot = await gameRef.once("value");
-    if (!roomSnapshot.exists()) {
+    const [stateSnapshot, initialPlayersSnapshot] = await Promise.all([
+      gameRef.child("state").once("value"),
+      playersRef.once("value")
+    ]);
+    if (!stateSnapshot.exists()) {
       error.textContent = "Game not found. Check the code and try again.";
       button.disabled = false;
       return;
     }
-    const room = roomSnapshot.val();
-    if (!["waiting", "started"].includes(room.state)) {
+    if (!["waiting", "started"].includes(stateSnapshot.val())) {
       error.textContent = "This game is no longer accepting players.";
       button.disabled = false;
       return;
     }
-    if (Object.keys(room.players || {}).length >= 100) {
+    if (initialPlayersSnapshot.numChildren() >= 100) {
       error.textContent = "This game room is full.";
       button.disabled = false;
       return;
@@ -119,22 +121,31 @@ async function joinGame() {
       return;
     }
     const playerRef = gameRef.child(`players/${studentId}`);
-    const confirmedRoom = await gameRef.once("value");
-    if (!["waiting", "started"].includes(confirmedRoom.child("state").val()) || !confirmedRoom.child(`players/${studentId}`).exists()) {
+    const [confirmedState, confirmedPlayer] = await Promise.all([
+      gameRef.child("state").once("value"),
+      playerRef.once("value")
+    ]);
+    if (!["waiting", "started"].includes(confirmedState.val()) || !confirmedPlayer.exists()) {
       await playerRef.remove();
       error.textContent = "This game is no longer accepting players.";
       button.disabled = false;
       return;
     }
-    studentTeam = confirmedRoom.child(`players/${studentId}/team`).val() || assignedTeam;
+    studentTeam = confirmedPlayer.child("team").val() || assignedTeam;
     await playerRef.onDisconnect().remove();
     byId("teamChip").textContent = `Team: ${studentTeam.toUpperCase()}`;
     byId("teamChip").style.color = TEAM_COLORS[studentTeam];
     byId("codeChip").textContent = `Code: ${gameCode}`;
     joinScreen.classList.add("hidden");
     gameScreen.classList.remove("hidden");
+    currentGame = {
+      state: confirmedState.val(),
+      grid: {},
+      players: { [studentId]: confirmedPlayer.val() },
+      settings: {}
+    };
     buildShop();
-    gameRef.on("value", handleGameSnapshot);
+    startGameListeners();
   } catch (exception) {
     console.error(exception);
     error.textContent = "Could not connect to the game. Please try again.";
@@ -142,28 +153,14 @@ async function joinGame() {
   }
 }
 
-function handleGameSnapshot(snapshot) {
-  currentGame = snapshot.val();
-  if (!currentGame) {
-    waitingOverlay.classList.add("hidden");
-    gameOverOverlay.classList.remove("hidden");
-    byId("studentWinnerText").textContent = "This game room has closed.";
-    return;
-  }
-
-  if (currentGame.players?.[studentId]?.team) {
-    studentTeam = currentGame.players[studentId].team;
-  }
-  updateBalance();
-  renderShop();
-
+function renderGameState() {
   if (currentGame.state === "waiting") {
     waitingOverlay.classList.remove("hidden");
     gameOverOverlay.classList.add("hidden");
     questionText.textContent = "Waiting for the round to start…";
     questionMeta.textContent = "You're still connected";
     answerArea.replaceChildren();
-    renderMap();
+    currentRoundId = null;
     return;
   }
 
@@ -176,22 +173,120 @@ function handleGameSnapshot(snapshot) {
       : winner
         ? `${winner === "green" ? "Green" : "Blue"} team wins!`
         : "The round has ended.";
-    renderMap();
+    return;
+  }
+
+  if (currentGame.state !== "started") {
+    waitingOverlay.classList.add("hidden");
+    gameOverOverlay.classList.remove("hidden");
+    byId("studentWinnerText").textContent = "This game room has closed.";
     return;
   }
 
   waitingOverlay.classList.add("hidden");
   gameOverOverlay.classList.add("hidden");
-  const mapSignature = `${currentGame.roundId || 0}:${JSON.stringify(currentGame.grid || {})}`;
-  if (mapSignature !== renderedMapSignature) renderMap();
-  animateLatestBlast();
+  renderMap(true);
+  maybeStartRound();
+}
 
-  if (currentRoundId !== currentGame.roundId) {
-    currentRoundId = currentGame.roundId;
-    questionOrder = [];
-    answering = false;
-    showNextQuestion();
-  }
+function maybeStartRound() {
+  if (currentGame.state !== "started" || !currentGame.roundId) return;
+  const questionSet = currentGame.externalQuestionSet || currentGame.questionSet;
+  const questionsReady = questionSet && Number(questionSet.roundId) === Number(currentGame.roundId);
+  const legacyReady = !questionSet && currentGame.questions;
+  if (!questionsReady && !legacyReady) return;
+  if (currentRoundId === currentGame.roundId) return;
+
+  currentGame.questions = questionsReady ? questionSet.items : currentGame.questions;
+  currentRoundId = currentGame.roundId;
+  questionOrder = [];
+  answering = false;
+  answeredQuestionSequence = -1;
+  showNextQuestion();
+}
+
+function scheduleFullMapRender() {
+  if (fullMapFrame) return;
+  fullMapFrame = window.requestAnimationFrame(() => {
+    fullMapFrame = 0;
+    renderMap(true);
+  });
+}
+
+function applyGridChange(snapshot, removed = false) {
+  const key = snapshot.key;
+  const [q, r] = key.split("_").map(Number);
+  const cell = removed ? { team: null, type: null } : (snapshot.val() || { team: null, type: null });
+  const previous = currentGame.grid[key];
+  if (!removed && JSON.stringify(previous) === JSON.stringify(cell)) return;
+  if (removed && !previous) return;
+  if (removed) delete currentGame.grid[key];
+  else currentGame.grid[key] = cell;
+  if (gridReady && !updateHexCell(studentMap, cell, q, r)) scheduleFullMapRender();
+}
+
+function startGameListeners() {
+  const playerRef = gameRef.child(`players/${studentId}`);
+  playerRef.on("value", snapshot => {
+    const player = snapshot.val();
+    if (!player) return;
+    currentGame.players[studentId] = player;
+    studentTeam = player.team;
+    byId("teamChip").textContent = `Team: ${studentTeam.toUpperCase()}`;
+    byId("teamChip").style.color = TEAM_COLORS[studentTeam];
+    updateBalance();
+    renderShop();
+  });
+
+  gameRef.child("state").on("value", snapshot => {
+    currentGame.state = snapshot.val();
+    renderGameState();
+  });
+  gameRef.child("roundId").on("value", snapshot => {
+    currentGame.roundId = snapshot.val();
+    maybeStartRound();
+  });
+  gameRef.child("settings").on("value", snapshot => {
+    currentGame.settings = snapshot.val() || {};
+    renderShop();
+    maybeStartRound();
+  });
+  gameRef.child("questionSet").on("value", snapshot => {
+    currentGame.questionSet = snapshot.val();
+    maybeStartRound();
+  });
+  db.ref(`gameQuestions/${gameCode}`).on("value", snapshot => {
+    currentGame.externalQuestionSet = snapshot.val();
+    maybeStartRound();
+  });
+  gameRef.child("questions").on("value", snapshot => {
+    currentGame.questions = snapshot.val();
+    maybeStartRound();
+  });
+  gameRef.child("result").on("value", snapshot => {
+    currentGame.result = snapshot.val();
+    if (currentGame.state === "over") renderGameState();
+  });
+  gameRef.child("lastAction").on("value", snapshot => {
+    currentGame.lastAction = snapshot.val();
+    animateLatestBlast();
+  });
+  ["gridCols", "gridRows", "gridSize"].forEach(field => {
+    gameRef.child(field).on("value", snapshot => {
+      currentGame[field] = snapshot.val();
+      scheduleFullMapRender();
+    });
+  });
+
+  const gridRef = gameRef.child("grid");
+  gridRef.once("value").then(snapshot => {
+    currentGame.grid = snapshot.val() || {};
+    gridReady = true;
+    renderMap(true);
+    gridRef.on("child_added", child => applyGridChange(child));
+    gridRef.on("child_changed", child => applyGridChange(child));
+    gridRef.on("child_removed", child => applyGridChange(child, true));
+  });
 }
 
 function chooseQuestionMode(question) {
@@ -208,6 +303,7 @@ function showNextQuestion() {
   feedback.textContent = "";
   feedback.className = "feedback";
   answering = false;
+  questionSequence += 1;
 
   if (!questions.length) {
     questionText.textContent = "Waiting for questions…";
@@ -279,92 +375,47 @@ function renderTypingAnswer() {
 }
 
 async function gradeAnswer(givenAnswer, sourceElement) {
-  if (answering || currentGame?.state !== "started") return;
+  if (answering || answeredQuestionSequence === questionSequence || currentGame?.state !== "started") return;
   answering = true;
+  answeredQuestionSequence = questionSequence;
   [...answerArea.querySelectorAll("button, input")].forEach(element => { element.disabled = true; });
+  const isCorrect = normalizeAnswer(givenAnswer) === normalizeAnswer(currentQuestion.answer);
 
-  try {
-    const result = await recordAnswer(givenAnswer);
-
-    if (currentQuestionMode === "multiple") {
-      [...answerArea.querySelectorAll("button")].forEach(button => {
-        if (normalizeAnswer(button.textContent) === normalizeAnswer(result.correctAnswer)) button.classList.add("correct");
-      });
-      if (!result.isCorrect) sourceElement.classList.add("incorrect");
-    }
-
-    if (result.isCorrect) {
-      feedback.textContent = `Correct! +${result.reward} ${result.reward === 1 ? "tile" : "tiles"}`;
-      feedback.className = "feedback good";
-      showRewardAnimation(result.reward);
-    } else {
-      feedback.textContent = `Answer: ${result.correctAnswer}`;
-      feedback.className = "feedback bad";
-    }
-    window.setTimeout(showNextQuestion, result.isCorrect ? 750 : 1400);
-  } catch (error) {
-    feedback.textContent = "That answer could not be verified. Please try again.";
-    feedback.className = "feedback bad";
-    answering = false;
-    [...answerArea.querySelectorAll("button, input")].forEach(element => { element.disabled = false; });
+  if (currentQuestionMode === "multiple") {
+    [...answerArea.querySelectorAll("button")].forEach(button => {
+      if (normalizeAnswer(button.textContent) === normalizeAnswer(currentQuestion.answer)) button.classList.add("correct");
+    });
+    if (!isCorrect) sourceElement.classList.add("incorrect");
   }
+
+  if (isCorrect) {
+    feedback.textContent = "Correct! +1 tile";
+    feedback.className = "feedback good";
+    const player = currentGame.players[studentId];
+    player.balance = (Number(player.balance) || 0) + 1;
+    updateBalance();
+    renderShop();
+    showRewardAnimation(1);
+    const rewardRound = currentRoundId;
+    window.setTimeout(() => syncCorrectAnswer(rewardRound), 0);
+  } else {
+    feedback.textContent = `Answer: ${currentQuestion.answer}`;
+    feedback.className = "feedback bad";
+  }
+  const completedSequence = questionSequence;
+  window.setTimeout(() => {
+    if (currentGame.state === "started" && questionSequence === completedSequence) showNextQuestion();
+  }, isCorrect ? 500 : 1050);
 }
 
-async function recordAnswer(givenAnswer) {
-  const selectedAnswer = String(givenAnswer);
-  if (selectedAnswer.length > 200) throw new Error("Answer is too long.");
-  const responseId = gameRef.child(`players/${studentId}/responses`).push().key;
-  let verified = null;
-
-  const transaction = await gameRef.transaction(game => {
-    if (!game || game.state !== "started" || !game.players?.[studentId]) return;
-    const questions = Array.isArray(game.questions)
-      ? game.questions
-      : Object.values(game.questions || {});
-    const question = questions[currentQuestionIndex];
-
-    // Verify against the room's stored question, never against editable page text.
-    if (!question || question.question !== currentQuestion?.question) return;
-
-    const isCorrect = normalizeAnswer(selectedAnswer) === normalizeAnswer(question.answer);
-    const reward = isCorrect ? 1 : 0;
-    const player = game.players[studentId];
-    const performanceKey = sanitizeQuestion(question.question);
-    const performance = game.questionPerformance?.[performanceKey] || {};
-    verified = { isCorrect, reward, correctAnswer: question.answer };
-
-    return {
-      ...game,
-      players: {
-        ...game.players,
-        [studentId]: {
-          ...player,
-          balance: (Number(player.balance) || 0) + reward,
-          responses: {
-            ...(player.responses || {}),
-            [responseId]: {
-              question: question.question,
-              selected: selectedAnswer,
-              correctAnswer: question.answer,
-              correct: isCorrect,
-              reward,
-              timestamp: Date.now()
-            }
-          }
-        }
-      },
-      questionPerformance: {
-        ...(game.questionPerformance || {}),
-        [performanceKey]: {
-          correctCount: (Number(performance.correctCount) || 0) + (isCorrect ? 1 : 0),
-          totalCount: (Number(performance.totalCount) || 0) + 1
-        }
-      }
-    };
-  });
-
-  if (!transaction.committed || !verified) throw new Error("Answer verification failed.");
-  return verified;
+function syncCorrectAnswer(roundId) {
+  if (currentGame.state !== "started" || currentGame.roundId !== roundId) return;
+  gameRef.child(`players/${studentId}/balance`)
+    .transaction(value => (Number(value) || 0) + 1)
+    .catch(error => {
+      console.error("Balance sync failed", error);
+      gameRef.child(`players/${studentId}`).once("value");
+    });
 }
 
 function showRewardAnimation(amount) {
@@ -406,7 +457,7 @@ function buildShop() {
       selectedType = selectedType === type ? null : type;
       placementMessage = "";
       renderShop();
-      renderMap();
+      updateMapHelp();
     });
     shop.appendChild(button);
   });
@@ -426,18 +477,26 @@ function renderShop() {
   });
 }
 
-function renderMap() {
+function renderMap(force = false) {
   const cols = safeGridSize(currentGame?.gridCols || currentGame?.gridSize);
   const rows = safeGridSize(currentGame?.gridRows || currentGame?.gridSize);
+  const dimensions = `${cols}x${rows}`;
+  if (!force && dimensions === renderedMapDimensions && studentMap.childElementCount) {
+    updateMapHelp();
+    return;
+  }
   const grid = currentGame?.grid || {};
   renderHexMap(studentMap, grid, cols, rows, {
     interactive: currentGame?.state === "started",
-    selectedType,
+    getSelectedType: () => selectedType,
     isValid: (q, r) => validatePlacement(currentGame, studentId, selectedType, q, r),
     onSelect: placeSelectedTile
   });
-  renderedMapSignature = `${currentGame?.roundId || 0}:${JSON.stringify(grid)}`;
+  renderedMapDimensions = dimensions;
+  updateMapHelp();
+}
 
+function updateMapHelp() {
   const help = byId("mapHelp");
   if (placementMessage) help.textContent = placementMessage;
   else if (!selectedType) help.textContent = "Earn tiles, choose an item, then place it on a highlighted hex.";
@@ -463,14 +522,14 @@ function animateLatestBlast() {
 async function placeSelectedTile(q, r) {
   if (!selectedType || currentGame?.state !== "started") {
     placementMessage = "Choose an item from the tile shop first.";
-    renderMap();
+    updateMapHelp();
     return;
   }
 
   const localValidation = validatePlacement(currentGame, studentId, selectedType, q, r);
   if (!localValidation.ok) {
     placementMessage = localValidation.reason;
-    renderMap();
+    updateMapHelp();
     return;
   }
 

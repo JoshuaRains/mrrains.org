@@ -23,16 +23,16 @@ export const TILE_TYPES = {
     description: "5 health; place on empty or friendly land"
   },
   explosive1: {
-    name: "Blast I",
+    name: "Patata",
     cost: DEFAULT_PRICES.explosive1,
     radius: 1,
-    description: "Damage every tile within 1 hex"
+    description: "Deal 2 damage within 1 hex"
   },
   explosive2: {
-    name: "Blast II",
+    name: "Patata grande",
     cost: DEFAULT_PRICES.explosive2,
     radius: 2,
-    description: "Damage every tile within 2 hexes"
+    description: "Deal 2 damage within 2 hexes"
   },
   repair: {
     name: "Repair",
@@ -221,15 +221,32 @@ export function validatePlacement(game, playerId, tileType, q, r) {
   return { ok: false, reason: "That placement is not valid." };
 }
 
-function damageCell(grid, key) {
+function damageCell(grid, key, damage = 1) {
   const cell = grid[key];
   if (!cell || !cell.team || cell.capital) return;
   if (cell.type === "armored") {
-    const nextHealth = (Number(cell.health) || 5) - 1;
+    const nextHealth = (Number(cell.health) || 5) - damage;
     grid[key] = nextHealth > 0 ? { ...cell, health: nextHealth } : emptyCell();
   } else {
     grid[key] = emptyCell();
   }
+}
+
+export function captureSurroundedBases(grid, cols, rows) {
+  const captures = [];
+  Object.entries(grid || {}).forEach(([key, cell]) => {
+    if (!cell.capital || !["green", "blue"].includes(cell.team)) return;
+    const [q, r] = parseCellKey(key);
+    const enemy = cell.team === "green" ? "blue" : "green";
+    const ring = neighbors(q, r, cols, rows);
+    if (ring.length === 6 && ring.every(([nq, nr]) => grid[cellKey(nq, nr)]?.team === enemy)) {
+      captures.push([key, enemy]);
+    }
+  });
+  captures.forEach(([key, team]) => {
+    grid[key] = { ...grid[key], team };
+  });
+  return captures;
 }
 
 function applyCapture(grid, key, team, placedType) {
@@ -262,11 +279,13 @@ export function applyPlacement(game, playerId, tileType, q, r) {
     const radius = definition.radius;
     Object.keys(grid).forEach(candidateKey => {
       const [cq, cr] = parseCellKey(candidateKey);
-      if (hexDistance(q, r, cq, cr) <= radius) damageCell(grid, candidateKey);
+      if (hexDistance(q, r, cq, cr) <= radius) damageCell(grid, candidateKey, 2);
     });
   } else {
     applyCapture(grid, key, team, tileType);
   }
+
+  captureSurroundedBases(grid, Number(game.gridCols || game.gridSize), Number(game.gridRows || game.gridSize));
 
   // Cost comes from the Firebase game settings, never from editable DOM text.
   const balance = (Number(player.balance) || 0) - getTileCost(game, tileType);
@@ -291,23 +310,11 @@ export function applyPlacement(game, playerId, tileType, q, r) {
 }
 
 export function findWinner(grid, cols, rows) {
-  const bases = { green: [], blue: [] };
-  for (const [key, cell] of Object.entries(grid || {})) {
-    if (cell.capital && bases[cell.team]) bases[cell.team].push(key);
-  }
-
-  const teamIsDefeated = team => bases[team].length > 0 && bases[team].every(key => {
-    const [q, r] = parseCellKey(key);
-    const enemy = team === "green" ? "blue" : "green";
-    const ring = neighbors(q, r, cols, rows);
-    return ring.length === 6 && ring.every(([nq, nr]) => grid[cellKey(nq, nr)]?.team === enemy);
-  });
-
-  const greenDefeated = teamIsDefeated("green");
-  const blueDefeated = teamIsDefeated("blue");
-  if (greenDefeated && blueDefeated) return "tie";
-  if (greenDefeated) return "blue";
-  if (blueDefeated) return "green";
+  const baseTeams = new Set(
+    Object.values(grid || {}).filter(cell => cell.capital).map(cell => cell.team)
+  );
+  if (baseTeams.size === 1 && baseTeams.has("green")) return "green";
+  if (baseTeams.size === 1 && baseTeams.has("blue")) return "blue";
   return null;
 }
 
