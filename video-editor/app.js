@@ -124,7 +124,7 @@ function addClipNode(clip, track) {
   el.dataset.kind = 'clip';
   el.style.left = `${clip.start * state.zoom}px`;
   el.style.width = `${Math.max(10, clip.duration * state.zoom)}px`;
-  el.innerHTML = `${clip.type === 'audio' ? '<div class="waveform"></div>' : ''}<div class="clip-body"><div class="clip-title">${esc(clip.name)}</div><div class="clip-meta">${fmt(clip.duration)}</div></div><div class="resize-handle"></div>`;
+  el.innerHTML = `${clip.type === 'audio' ? '<div class="waveform"></div>' : ''}<div class="resize-handle left" title="Adjust start"></div><div class="clip-body"><div class="clip-title">${esc(clip.name)}</div><div class="clip-meta">${fmt(clip.duration)}</div></div><div class="resize-handle right" title="Adjust end"></div>`;
   bindClipPointer(el, clip, 'clip');
   track.appendChild(el);
 }
@@ -137,7 +137,7 @@ function addCaptionNode(caption, track) {
   el.style.left = `${caption.start * state.zoom}px`;
   el.style.width = `${Math.max(10, caption.duration * state.zoom)}px`;
   const label = plain(caption.spanish) || plain(caption.english) || 'New subtitle';
-  el.innerHTML = `<div class="clip-body"><div class="clip-title">${esc(label)}</div><div class="clip-meta">${caption.showEnglish ? 'ES + EN' : 'ES'} · ${fmt(caption.duration)}</div></div><div class="resize-handle"></div>`;
+  el.innerHTML = `<div class="resize-handle left" title="Adjust start"></div><div class="clip-body"><div class="clip-title">${esc(label)}</div><div class="clip-meta">${caption.showEnglish ? 'ES + EN' : 'ES'} · ${fmt(caption.duration)}</div></div><div class="resize-handle right" title="Adjust end"></div>`;
   bindClipPointer(el, caption, 'caption');
   track.appendChild(el);
 }
@@ -145,23 +145,44 @@ function addCaptionNode(caption, track) {
 function bindClipPointer(el, item, kind) {
   el.addEventListener('pointerdown', (event) => {
     event.stopPropagation();
-    select(kind, item.id);
-    const resizing = event.target.classList.contains('resize-handle');
+    event.preventDefault();
+    state.selected = {kind, id:item.id};
+    document.querySelectorAll('.clip.selected').forEach(node => node.classList.remove('selected'));
+    el.classList.add('selected');
+    renderInspector();
+    const handle = event.target.closest('.resize-handle');
+    const resizeSide = handle?.classList.contains('left') ? 'left' : handle ? 'right' : null;
     const originX = event.clientX;
     const originalStart = item.start;
     const originalDuration = item.duration;
+    const originalSourceStart = item.sourceStart;
     const linked = kind === 'clip' && item.group ? state.clips.filter(c => c.group === item.group && c.id !== item.id) : [];
-    const linkedStarts = linked.map(c => ({id: c.id, start: c.start, duration: c.duration}));
+    const linkedStarts = linked.map(c => ({id: c.id, start: c.start, duration: c.duration, sourceStart:c.sourceStart}));
     let moved = false;
-    el.setPointerCapture(event.pointerId);
     const onMove = (e) => {
       const delta = (e.clientX - originX) / state.zoom;
       if (Math.abs(delta) > .02 && !moved) { snapshot(); moved = true; }
       if (!moved) return;
-      if (resizing) {
+      if (resizeSide === 'right') {
         item.duration = Math.max(.2, Math.round((originalDuration + delta) * 10) / 10);
         if (item.sourceStart != null && objectUrl) item.duration = Math.min(item.duration, Math.max(.2, state.mediaDuration - item.sourceStart));
-        linked.forEach((c, i) => c.duration = item.duration);
+        linked.forEach((c, i) => {
+          c.duration = Math.max(.2, Math.round((linkedStarts[i].duration + delta) * 10) / 10);
+          if (c.sourceStart != null && objectUrl) c.duration = Math.min(c.duration, Math.max(.2, state.mediaDuration - c.sourceStart));
+        });
+      } else if (resizeSide === 'left') {
+        let applied = Math.min(delta, originalDuration - .2);
+        if (originalSourceStart != null) applied = Math.max(applied, -originalSourceStart);
+        item.start = Math.max(0, Math.round((originalStart + applied) * 10) / 10);
+        applied = item.start - originalStart;
+        item.duration = Math.max(.2, Math.round((originalDuration - applied) * 10) / 10);
+        if (originalSourceStart != null) item.sourceStart = Math.max(0, Math.round((originalSourceStart + applied) * 10) / 10);
+        linked.forEach((c, i) => {
+          const original = linkedStarts[i];
+          c.start = Math.max(0, Math.round((original.start + applied) * 10) / 10);
+          c.duration = Math.max(.2, Math.round((original.duration - applied) * 10) / 10);
+          if (original.sourceStart != null) c.sourceStart = Math.max(0, Math.round((original.sourceStart + applied) * 10) / 10);
+        });
       } else {
         item.start = Math.max(0, Math.round((originalStart + delta) * 10) / 10);
         linked.forEach((c, i) => c.start = Math.max(0, Math.round((linkedStarts[i].start + delta) * 10) / 10));
@@ -170,12 +191,13 @@ function bindClipPointer(el, item, kind) {
       updatePlayhead();
     };
     const onUp = () => {
-      el.removeEventListener('pointermove', onMove);
-      el.removeEventListener('pointerup', onUp);
-      if (!moved) renderInspector();
+      window.removeEventListener('pointermove', onMove);
+      window.removeEventListener('pointerup', onUp);
+      renderTimeline();
+      renderInspector();
     };
-    el.addEventListener('pointermove', onMove);
-    el.addEventListener('pointerup', onUp);
+    window.addEventListener('pointermove', onMove);
+    window.addEventListener('pointerup', onUp, {once:true});
   });
 }
 
@@ -234,6 +256,16 @@ function seekProject(time, syncVideo = true) {
   updatePlayhead();
   updateCaptions();
   $('#currentTime').textContent = fmt(state.currentTime);
+}
+
+function seekFromTimeline(time) {
+  seekProject(time, true);
+  if (playing) {
+    playStartedFrom = state.currentTime;
+    playStartedAt = performance.now();
+    const clip = activeVideoClip(state.currentTime);
+    if (clip && video.paused) video.play().catch(() => {});
+  }
 }
 
 function updatePlayhead() {
@@ -625,7 +657,15 @@ $('#zoom').addEventListener('input', e => { state.zoom = Number(e.target.value);
 timelineContent.addEventListener('pointerdown', e => {
   if (e.target.closest('.clip')) return;
   const rect = timelineContent.getBoundingClientRect();
-  seekProject((e.clientX - rect.left) / state.zoom);
+  const seekAtPointer = event => seekFromTimeline((event.clientX - rect.left) / state.zoom);
+  seekAtPointer(e);
+  const onMove = event => seekAtPointer(event);
+  const onUp = () => {
+    window.removeEventListener('pointermove', onMove);
+    window.removeEventListener('pointerup', onUp);
+  };
+  window.addEventListener('pointermove', onMove);
+  window.addEventListener('pointerup', onUp, {once:true});
 });
 
 ['spanishEditor','englishEditor'].forEach(id => {
