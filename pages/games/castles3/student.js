@@ -27,6 +27,8 @@ let questionSequence = 0;
 let answeredQuestionSequence = -1;
 let selectedType = null;
 let placementMessage = "";
+let placementCachePromise = null;
+let placingTile = false;
 let lastAnimatedAction = "";
 let renderedMapDimensions = "";
 let gridReady = false;
@@ -524,7 +526,13 @@ function animateLatestBlast() {
 }
 
 async function placeSelectedTile(q, r) {
-  if (!selectedType || currentGame?.state !== "started") {
+  if (placingTile) return;
+  if (currentGame?.state !== "started") {
+    placementMessage = "The round is not active.";
+    updateMapHelp();
+    return;
+  }
+  if (!selectedType) {
     placementMessage = "Choose an item from the tile shop first.";
     updateMapHelp();
     return;
@@ -539,14 +547,40 @@ async function placeSelectedTile(q, r) {
 
   const attemptedType = selectedType;
   let failureReason = "That move is no longer available.";
-  const result = await gameRef.transaction(game => {
-    const placement = applyPlacement(game, studentId, attemptedType, q, r);
-    if (!placement.ok) {
-      failureReason = placement.reason;
-      return;
+  placingTile = true;
+  let result;
+  try {
+    // Child listeners keep normal gameplay light, but a transaction on the
+    // room root needs one complete cached room first. Without this read,
+    // Firebase can initially invoke the transaction with a partial local game
+    // that has no state and incorrectly report that the round has not started.
+    if (!placementCachePromise) {
+      placementCachePromise = gameRef.once("value").then(snapshot => {
+        if (!snapshot.exists()) throw new Error("The game room is no longer available.");
+        return snapshot.val();
+      }).catch(error => {
+        placementCachePromise = null;
+        throw error;
+      });
     }
-    return placement.game;
-  });
+    await placementCachePromise;
+
+    result = await gameRef.transaction(game => {
+      const placement = applyPlacement(game, studentId, attemptedType, q, r);
+      if (!placement.ok) {
+        failureReason = placement.reason;
+        return;
+      }
+      return placement.game;
+    });
+  } catch (error) {
+    console.error("Tile placement failed", error);
+    placementMessage = "Could not place that tile. Please try again.";
+    updateMapHelp();
+    return;
+  } finally {
+    placingTile = false;
+  }
 
   if (result.committed) {
     placementMessage = `${TILE_TYPES[attemptedType].name} placed.`;

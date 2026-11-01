@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Bingo de verbos con cambio de raíz</title>
+  <style>
+    :root{color-scheme:dark;--yellow:#facc15;--panel:#171717;--ink:#fafafa}*{box-sizing:border-box;-webkit-user-select:none;user-select:none}html,body{height:100%;margin:0}body{overflow:hidden;background:#090909;color:var(--ink);font-family:system-ui,-apple-system,"Segoe UI",sans-serif}main{min-height:100%;display:grid;place-items:center;padding:4rem 8rem;text-align:center;cursor:pointer}.eyebrow{margin:0 0 1rem;color:var(--yellow);font-size:clamp(1rem,2vw,1.5rem);font-weight:900;letter-spacing:.18em;text-transform:uppercase}#conjugation{margin:0;max-width:14ch;font-size:clamp(3.4rem,10vw,9rem);line-height:.95;text-wrap:balance}#count{margin:.75rem 0 0;color:#a3a3a3;font-size:clamp(1rem,2vw,1.25rem);font-weight:700}button{border:3px solid #000;border-radius:0;background:#fff;color:#111;box-shadow:4px 4px 0 #000;cursor:pointer;font:900 1rem/1 system-ui}button:hover,button:focus-visible{background:var(--yellow);outline:3px solid #fff}.side-controls{position:fixed;left:14px;top:50%;z-index:3;display:grid;gap:12px;transform:translateY(-50%)}.side-controls button{width:64px;min-height:58px;padding:8px 5px;font-size:1.8rem}#next{position:fixed;right:22px;bottom:22px;min-width:150px;min-height:58px;padding:0 22px;background:var(--yellow)}dialog{width:min(560px,calc(100vw - 32px));height:min(650px,82vh);padding:0;border:3px solid #000;border-radius:0;background:var(--panel);color:var(--ink);box-shadow:8px 8px 0 #000;overflow:hidden}dialog::backdrop{background:rgba(0,0,0,.72)}.dialog-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px;background:#222;border-bottom:2px solid #000}.dialog-head h2{margin:0}.dialog-head button{padding:12px 16px}#historyList{height:calc(100% - 69px);overflow-y:auto;display:flex;flex-direction:column;gap:10px;margin:0;padding:16px;list-style:none}#historyList li{flex:0 0 auto;padding:14px;border:1px solid #404040;background:#111;font-size:1.05rem;font-weight:800}.history-answer{color:var(--yellow);font-size:1.2rem}.empty{color:#a3a3a3}@media(max-width:650px){main{padding:4rem 1rem 8rem 5.5rem}.side-controls{left:8px}.side-controls button{width:58px}#next{right:12px;bottom:12px}}
+  </style>
+</head>
+<body>
+  <main id="stage" aria-live="polite"><div><p class="eyebrow">Bingo de cambio de raíz</p><h1 id="conjugation">Toca para empezar</h1><p id="count">0 de 75 combinaciones</p></div></main>
+  <div class="side-controls" aria-label="Controles del bingo"><button id="history" type="button" aria-label="Ver conjugaciones anteriores" title="Ver conjugaciones anteriores">☰</button><button id="reset" type="button" aria-label="Reiniciar el bingo" title="Reiniciar el bingo">↻</button></div>
+  <button id="next" type="button">Otra conjugación</button>
+  <dialog id="historyDialog"><div class="dialog-head"><h2>Conjugaciones anteriores</h2><button id="close" type="button">Cerrar</button></div><ul id="historyList"></ul></dialog>
+  <script>
+    const VERBS=[
+      {verb:'querer',change:'e-ie'},{verb:'preferir',change:'e-ie'},{verb:'sentir',change:'e-ie'},
+      {verb:'empezar',change:'e-ie'},{verb:'pensar',change:'e-ie'},{verb:'entender',change:'e-ie'},
+      {verb:'cerrar',change:'e-ie'},{verb:'doler',change:'o-ue'},{verb:'poder',change:'o-ue'},
+      {verb:'dormir',change:'o-ue'},{verb:'volver',change:'o-ue'},{verb:'mover',change:'o-ue'},
+      {verb:'pedir',change:'e-i'},{verb:'servir',change:'e-i'},{verb:'decir',change:'e-i'}
+    ];
+    const SUBJECTS=[{label:'yo',index:0},{label:'tú',index:1},{label:'él',index:2},{label:'nosotros',index:3},{label:'ellos',index:5}];
+    const ENDINGS={ar:['o','as','a','amos','áis','an'],er:['o','es','e','emos','éis','en'],ir:['o','es','e','imos','ís','en']};
+    function changeLast(stem,from,to){const index=stem.lastIndexOf(from);return index<0?stem:stem.slice(0,index)+to+stem.slice(index+1)}
+    function conjugate(item,index){const group=item.verb.slice(-2),stem=item.verb.slice(0,-2);if(item.verb==='decir'&&index===0)return'digo';const changed=index===3?stem:changeLast(stem,...item.change.split('-'));return changed+ENDINGS[group][index]}
+    const conjugation=document.querySelector('#conjugation'),count=document.querySelector('#count'),list=document.querySelector('#historyList'),dialog=document.querySelector('#historyDialog');let remaining=[],called=[];
+    function renderHistory(){list.innerHTML='';if(!called.length){const li=document.createElement('li');li.className='empty';li.textContent='Todavía no hay conjugaciones.';list.append(li);return}[...called].reverse().forEach(item=>{const li=document.createElement('li');li.innerHTML=`${item.subject.label} + ${item.verb}<br><span class="history-answer">${item.answer}</span>`;list.append(li)})}
+    function reset(){remaining=VERBS.flatMap(item=>SUBJECTS.map(subject=>({verb:item.verb,subject,answer:conjugate(item,subject.index)})));called=[];conjugation.textContent='Toca para empezar';count.textContent=`0 de ${remaining.length} combinaciones`;renderHistory()}
+    function draw(){if(!remaining.length){conjugation.textContent='Todas las conjugaciones';return}const i=Math.floor(Math.random()*remaining.length),item=remaining.splice(i,1)[0];called.push(item);conjugation.textContent=item.answer;count.textContent=`${called.length} de ${called.length+remaining.length} combinaciones`;renderHistory()}
+    document.querySelector('#next').addEventListener('click',draw);document.querySelector('#stage').addEventListener('click',draw);document.querySelector('#history').addEventListener('click',()=>dialog.showModal());document.querySelector('#close').addEventListener('click',()=>dialog.close());document.querySelector('#reset').addEventListener('click',()=>{if(!called.length||confirm('¿Reiniciar el bingo y borrar la lista?'))reset()});addEventListener('keydown',e=>{if(!dialog.open&&(e.code==='Space'||e.code==='ArrowRight')){e.preventDefault();draw()}});addEventListener('contextmenu',e=>e.preventDefault());reset();
+  </script>
+</body></html>
