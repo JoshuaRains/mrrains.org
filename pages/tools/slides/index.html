@@ -29,6 +29,7 @@
 			--topbar-pad-top: 18px;
 			--sidebar-clearance: 58px;
 			--timer-panel-w: 470px;
+			--stress-panel-w: 150px;
 			--slides-fit-w: calc(100vw - var(--edge-pad-l) - var(--edge-pad-r));
 		}
 
@@ -265,6 +266,11 @@
 
 		.app.side-panel-open .slides-area {
 			padding-left: var(--slides-pad-left);
+		}
+
+		.app.stress-panel-open {
+			--slides-pad-left: calc(var(--stress-panel-w) + max(var(--edge-pad-l), var(--sidebar-clearance)));
+			--slides-fit-w: calc(100vw - var(--stress-panel-w) - var(--edge-pad-l) - var(--edge-pad-r));
 		}
 
 		.slides-frame {
@@ -1295,6 +1301,93 @@
 		.noise-mic-button { display:flex; align-items:center; gap:6px; cursor:pointer; }
 		.noise-mic-button .material-symbols-outlined { font-size:24px; }
 
+		.stress-meter-panel {
+			position: fixed;
+			left: var(--sidebar-clearance);
+			top: calc(var(--topbar-pad-top) + 236px);
+			bottom: 12px;
+			width: var(--stress-panel-w);
+			display: none;
+			place-items: stretch center;
+			z-index: 9998;
+			pointer-events: none;
+			-webkit-user-select: none;
+			user-select: none;
+		}
+
+		.app.stress-panel-open~.stress-meter-panel {
+			display: grid;
+		}
+
+		.stress-meter-track {
+			--stress-color: #36c269;
+			position: relative;
+			width: 54px;
+			height: 100%;
+			background: #151515;
+			border: 2px solid #000;
+			box-shadow: 4px 4px 0 rgba(0, 0, 0, .8);
+			cursor: ns-resize;
+			touch-action: none;
+			outline: none;
+			pointer-events: auto;
+			-webkit-user-select: none;
+			user-select: none;
+		}
+
+		.stress-meter-track:focus-visible {
+			outline: 3px solid #ffeb3b;
+			outline-offset: 4px;
+		}
+
+		.stress-meter-fill {
+			position: absolute;
+			left: 0;
+			right: 0;
+			bottom: 0;
+			height: 0%;
+			background: var(--stress-color);
+			z-index: 1;
+			pointer-events: none;
+		}
+
+		.stress-meter-ticks {
+			position: absolute;
+			inset: 0;
+			z-index: 2;
+			pointer-events: none;
+		}
+
+		.stress-meter-tick {
+			position: absolute;
+			left: 5px;
+			bottom: calc(var(--tick-level) * 5%);
+			width: 12px;
+			height: 1px;
+			transform: translateY(50%);
+			background: rgba(243, 244, 246, .42);
+		}
+
+		.stress-meter-tick.major {
+			width: 24px;
+			height: 2px;
+			background: rgba(255, 255, 255, .78);
+		}
+
+		.stress-meter-handle {
+			position: absolute;
+			left: 50%;
+			bottom: 0%;
+			width: 72px;
+			height: 18px;
+			transform: translate(-50%, 50%);
+			background: #e9eef4;
+			border: 3px solid #000;
+			box-shadow: 2px 2px 0 rgba(0, 0, 0, .7);
+			z-index: 3;
+			pointer-events: none;
+		}
+
 
 		.multiple-choice-layer {
 			position: fixed;
@@ -1942,6 +2035,9 @@
 		<button class="page-tool-toggle" id="slideTimerToggle" type="button" title="Slide timer" aria-label="Slide timer">
 			<span class="material-symbols-outlined" aria-hidden="true">timer</span>
 		</button>
+		<button class="page-tool-toggle" id="stressMeterToggle" type="button" title="Stress meter" aria-label="Open stress meter" aria-pressed="false">
+			<span class="material-symbols-outlined" aria-hidden="true">thermostat</span>
+		</button>
 		<button class="page-tool-toggle" id="noiseMonitorToggle" type="button" title="Noise level monitor" aria-label="Noise level monitor" hidden disabled>
 			<span class="material-symbols-outlined" aria-hidden="true">graphic_eq</span>
 		</button>
@@ -2007,6 +2103,13 @@
 			<button class="slide-timer-clear" id="slideTimerClear" type="button" title="Clear timer" aria-label="Clear timer">
 				<span class="material-symbols-outlined" aria-hidden="true">delete_history</span>
 			</button>
+		</div>
+	</div>
+	<div class="stress-meter-panel" id="stressMeterPanel">
+		<div class="stress-meter-track" id="stressMeterTrack" role="slider" tabindex="0" aria-label="Stress level" aria-valuemin="0" aria-valuemax="20" aria-valuenow="0" aria-valuetext="0 out of 20">
+			<div class="stress-meter-fill" id="stressMeterFill"></div>
+			<div class="stress-meter-ticks" id="stressMeterTicks" aria-hidden="true"></div>
+			<div class="stress-meter-handle" id="stressMeterHandle" aria-hidden="true"></div>
 		</div>
 	</div>
 	<div class="noise-monitor-panel" id="noiseMonitorPanel" aria-live="polite">
@@ -2188,6 +2291,10 @@
 		let documentCameraZoom = 1;
 		let documentCameraFrozen = false;
 		let slideTimerOpen = false;
+		let stressMeterOpen = false;
+		const STRESS_MAX = 20;
+		let stressLevel = 0;
+		let stressMeterPointerId = null;
 		const NOISE_MONITOR_ENABLED = false;
 		let noiseMonitorOpen = false;
 		let noiseMonitorStream = null;
@@ -2343,6 +2450,12 @@
 		const noiseStatus = document.getElementById('noiseStatus');
 		const settingsMenuToggle = document.getElementById('settingsMenuToggle');
 		const slideTimerPanel = document.getElementById('slideTimerPanel');
+		const stressMeterToggle = document.getElementById('stressMeterToggle');
+		const stressMeterPanel = document.getElementById('stressMeterPanel');
+		const stressMeterTrack = document.getElementById('stressMeterTrack');
+		const stressMeterFill = document.getElementById('stressMeterFill');
+		const stressMeterTicks = document.getElementById('stressMeterTicks');
+		const stressMeterHandle = document.getElementById('stressMeterHandle');
 		const slideTimerProgress = document.getElementById('slideTimerProgress');
 		const slideTimerTime = document.getElementById('slideTimerTime');
 		const slideTimerMinutes = document.getElementById('slideTimerMinutes');
@@ -2905,7 +3018,8 @@
 				advancedFeaturesEnabled,
 				volumeLevel,
 				documentCameraZoom,
-				noiseThresholdValue
+				noiseThresholdValue,
+				stressLevel
 			};
 			localStorage.setItem(LS_KEY, JSON.stringify(payload));
 			updateTotalTime();
@@ -2933,6 +3047,8 @@
 						if (Number.isFinite(savedCameraZoom)) documentCameraZoom = Math.min(4, Math.max(1, savedCameraZoom));
 						const savedNoiseThreshold = Number(data.noiseThresholdValue);
 						if (Number.isFinite(savedNoiseThreshold)) noiseThresholdValue = Math.min(100, Math.max(5, savedNoiseThreshold));
+						const savedStressLevel = Number(data.stressLevel);
+						if (Number.isFinite(savedStressLevel)) stressLevel = Math.min(STRESS_MAX, Math.max(0, Math.round(savedStressLevel)));
 						const savedTimerStepMs = Number(data.timerStepMs);
 						if ([30000, 60000, 300000, 600000].includes(savedTimerStepMs)) timerStepMs = savedTimerStepMs;
 
@@ -3414,9 +3530,10 @@
 
 		function setSlideTimerOpen(open) {
 			if (translatorMode && open) return;
+			if (open) setStressMeterOpen(false);
 			slideTimerOpen = open;
 			const app = document.querySelector('.app');
-			app.classList.toggle('side-panel-open', slideTimerOpen || noiseMonitorOpen);
+			app.classList.toggle('side-panel-open', slideTimerOpen || noiseMonitorOpen || stressMeterOpen);
 			app.classList.toggle('timer-panel-open', slideTimerOpen);
 			if (!slideTimerOpen) stopSlideTimer();
 			updateSlideTimerUI();
@@ -3440,8 +3557,10 @@
 		function updateSlideTimerAvailability() {
 			const enabled = !translatorMode;
 			slideTimerToggle.disabled = !enabled;
+			stressMeterToggle.disabled = !enabled;
 			noiseMonitorToggle.disabled = !NOISE_MONITOR_ENABLED || !enabled;
 			if (!enabled) setSlideTimerOpen(false);
+			if (!enabled) setStressMeterOpen(false);
 			if (!enabled) setNoiseMonitorOpen(false);
 		}
 
@@ -3449,6 +3568,106 @@
 			if (slideTimerToggle.disabled) return;
 			setSlideTimerOpen(!slideTimerOpen);
 		});
+
+		/* ---------- Stress Meter ---------- */
+		function stressColorForLevel(level) {
+			const normalizedLevel = Math.max(0, Math.min(STRESS_MAX, level)) / STRESS_MAX;
+			const hue = 125 * Math.pow(1 - normalizedLevel, 1.65);
+			return `hsl(${hue} 68% 48%)`;
+		}
+
+		function renderStressMeter() {
+			const pct = (stressLevel / STRESS_MAX) * 100;
+			const color = stressColorForLevel(stressLevel);
+			stressMeterFill.style.height = `${pct}%`;
+			stressMeterFill.style.backgroundColor = color;
+			stressMeterHandle.style.bottom = `${pct}%`;
+			stressMeterTrack.style.setProperty('--stress-color', color);
+			stressMeterTrack.setAttribute('aria-valuenow', String(stressLevel));
+			stressMeterTrack.setAttribute('aria-valuetext', `${stressLevel} out of ${STRESS_MAX}`);
+		}
+
+		function setStressLevel(level, persist = false) {
+			const nextLevel = Math.max(0, Math.min(STRESS_MAX, Math.round(Number(level) || 0)));
+			if (nextLevel === stressLevel) return;
+			stressLevel = nextLevel;
+			renderStressMeter();
+			if (persist) saveConfig();
+		}
+
+		function stressLevelFromPointer(event) {
+			const rect = stressMeterTrack.getBoundingClientRect();
+			return ((rect.bottom - event.clientY) / Math.max(1, rect.height)) * STRESS_MAX;
+		}
+
+		function setStressMeterOpen(open) {
+			if (translatorMode && open) return;
+			if (open) {
+				setSlideTimerOpen(false);
+				setNoiseMonitorOpen(false);
+			}
+			stressMeterOpen = open;
+			const app = document.querySelector('.app');
+			app.classList.toggle('stress-panel-open', stressMeterOpen);
+			app.classList.toggle('side-panel-open', slideTimerOpen || noiseMonitorOpen || stressMeterOpen);
+			stressMeterToggle.classList.toggle('active', stressMeterOpen);
+			stressMeterToggle.setAttribute('aria-pressed', String(stressMeterOpen));
+			stressMeterToggle.setAttribute('aria-label', stressMeterOpen ? 'Close stress meter' : 'Open stress meter');
+			if (stressMeterOpen) renderStressMeter();
+		}
+
+		for (let level = 0; level <= STRESS_MAX; level++) {
+			const tick = document.createElement('span');
+			tick.className = `stress-meter-tick${level % 5 === 0 ? ' major' : ''}`;
+			tick.style.setProperty('--tick-level', String(level));
+			stressMeterTicks.appendChild(tick);
+		}
+
+		stressMeterToggle.addEventListener('click', () => {
+			if (!stressMeterToggle.disabled) setStressMeterOpen(!stressMeterOpen);
+		});
+
+		stressMeterTrack.addEventListener('pointerdown', event => {
+			if (!event.isPrimary || (event.pointerType === 'mouse' && event.button !== 0)) return;
+			event.preventDefault();
+			event.stopPropagation();
+			stressMeterPointerId = event.pointerId;
+			stressMeterTrack.setPointerCapture(event.pointerId);
+			setStressLevel(stressLevelFromPointer(event));
+			stressMeterTrack.focus();
+		});
+
+		stressMeterTrack.addEventListener('pointermove', event => {
+			if (event.pointerId !== stressMeterPointerId || !stressMeterTrack.hasPointerCapture(event.pointerId)) return;
+			event.preventDefault();
+			event.stopPropagation();
+			setStressLevel(stressLevelFromPointer(event));
+		});
+
+		function finishStressMeterDrag(event) {
+			if (event.pointerId !== stressMeterPointerId) return;
+			event.preventDefault();
+			event.stopPropagation();
+			if (stressMeterTrack.hasPointerCapture(event.pointerId)) stressMeterTrack.releasePointerCapture(event.pointerId);
+			stressMeterPointerId = null;
+			saveConfig();
+		}
+		stressMeterTrack.addEventListener('pointerup', finishStressMeterDrag);
+		stressMeterTrack.addEventListener('pointercancel', finishStressMeterDrag);
+
+		stressMeterTrack.addEventListener('keydown', event => {
+			let nextLevel = stressLevel;
+			if (event.key === 'ArrowUp' || event.key === 'ArrowRight') nextLevel += 1;
+			else if (event.key === 'ArrowDown' || event.key === 'ArrowLeft') nextLevel -= 1;
+			else if (event.key === 'PageUp') nextLevel += 5;
+			else if (event.key === 'PageDown') nextLevel -= 5;
+			else if (event.key === 'Home') nextLevel = 0;
+			else if (event.key === 'End') nextLevel = STRESS_MAX;
+			else return;
+			event.preventDefault();
+			setStressLevel(nextLevel, true);
+		});
+		renderStressMeter();
 
 
 		slideTimerStartStop.addEventListener('click', () => {
@@ -4757,10 +4976,11 @@
 		function setNoiseMonitorOpen(open) {
 			if (!NOISE_MONITOR_ENABLED && open) return;
 			if (translatorMode && open) return;
+			if (open) setStressMeterOpen(false);
 			noiseMonitorOpen = open;
 			const app = document.querySelector('.app');
 			app.classList.toggle('noise-panel-open', open);
-			app.classList.toggle('side-panel-open', slideTimerOpen || noiseMonitorOpen);
+			app.classList.toggle('side-panel-open', slideTimerOpen || noiseMonitorOpen || stressMeterOpen);
 			noiseMonitorToggle.classList.toggle('active', open);
 			if (open) startNoiseMonitor(noiseMicSelect.value);
 			else stopNoiseMonitor();
@@ -5178,6 +5398,7 @@
 
 		/* ---------- Init ---------- */
 		loadConfig();
+		renderStressMeter();
 		buildTimeline();
 		buildConfigRows();
 		buildScheduleRows();
