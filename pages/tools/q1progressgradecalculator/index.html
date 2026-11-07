@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="color-scheme" content="light">
+  <title>Quarter 1 Progress Quiz Corrections</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <main class="page-shell">
+    <section class="setup-card" aria-label="Calculator settings">
+      <div class="setup-grid">
+        <label class="field" for="recoveryRate">
+          <span>Points-back rate</span>
+          <div class="percent-input">
+            <input id="recoveryRate" type="number" value="50" min="0" max="100" step="1" inputmode="decimal">
+            <span aria-hidden="true">%</span>
+          </div>
+        </label>
+
+        <div class="quick-fill">
+          <button class="secondary-button" id="fillFullCreditButton" type="button">Fill all with full credit</button>
+        </div>
+
+        <button class="text-button" id="resetButton" type="button">Reset</button>
+      </div>
+    </section>
+
+    <div class="workspace">
+      <section class="score-card" aria-label="Quiz section scores">
+        <div class="section-heading table-heading">
+          <div class="completion-pill" id="completionPill">0 of 9 scored</div>
+          <div class="keyboard-hint">Shift + ↑/↓ moves between score boxes</div>
+        </div>
+
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th scope="col">Quiz section</th>
+                <th scope="col">Original points</th>
+                <th scope="col">Remediation</th>
+                <th scope="col">Points back</th>
+                <th scope="col">New section score</th>
+              </tr>
+            </thead>
+            <tbody id="sectionRows"></tbody>
+            <tfoot>
+              <tr>
+                <th scope="row">Quiz total</th>
+                <td id="originalTotalCell">— / 56</td>
+                <td id="remediationCountCell">0 sections</td>
+                <td id="pointsBackCell">+0</td>
+                <td id="newTotalCell">— / 56</td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+      </section>
+
+      <aside class="results-card" aria-label="Grade results">
+        <div class="incomplete-notice" id="incompleteNotice" role="status">
+          Enter a score for all 9 sections to calculate the final result.
+        </div>
+
+        <div class="result-content" id="resultContent" hidden>
+          <dl class="result-list">
+            <div>
+              <dt>Original grade</dt>
+              <dd id="originalResult">0 / 56 · 0%</dd>
+            </div>
+            <div>
+              <dt>Points returned</dt>
+              <dd id="returnedResult">+0</dd>
+            </div>
+            <div>
+              <dt>New grade</dt>
+              <dd id="newResult">0 / 56 · 0%</dd>
+            </div>
+            <div>
+              <dt>Rounded new grade</dt>
+              <dd id="roundedResult">0%</dd>
+            </div>
+          </dl>
+        </div>
+
+        <div class="result-actions">
+          <button class="primary-button" id="copyButton" type="button" disabled>Copy summary</button>
+        </div>
+        <p class="copy-status" id="copyStatus" aria-live="polite"></p>
+      </aside>
+    </div>
+  </main>
+
+  <template id="sectionRowTemplate">
+    <tr>
+      <th scope="row">
+        <span class="section-code"></span>
+        <strong class="section-name"></strong>
+        <small class="question-range"></small>
+      </th>
+      <td>
+        <label class="score-input-wrap">
+          <span class="sr-only section-input-label"></span>
+          <input class="section-score" type="number" min="0" step="1" inputmode="numeric" placeholder="—">
+          <span class="possible-points"></span>
+        </label>
+        <p class="field-error" aria-live="polite"></p>
+      </td>
+      <td>
+        <label class="check-label">
+          <input class="remediation-check" type="checkbox">
+          <span>Completed</span>
+        </label>
+      </td>
+      <td class="points-back-value">+0</td>
+      <td class="new-section-value">—</td>
+    </tr>
+  </template>
+
+  <script src="app.js"></script>
+</body>
+</html>
