@@ -183,7 +183,6 @@
         row.querySelector(".section-score").value = "";
         row.querySelector(".remediation-check").checked = false;
       });
-      recoveryRateInput.value = "50";
       copyStatus.textContent = "";
       update();
       rowElements[0].querySelector(".section-score").focus();
@@ -243,6 +242,12 @@
     });
     resetButton.addEventListener("click", resetCalculator);
     copyButton.addEventListener("click", copySummary);
+    document.addEventListener("keydown", (event) => {
+      if (event.ctrlKey && !event.altKey && !event.metaKey && event.key.toLowerCase() === "a") {
+        event.preventDefault();
+        resetCalculator();
+      }
+    });
 
     update();
   }
