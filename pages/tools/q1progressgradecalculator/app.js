@@ -84,6 +84,17 @@
     const copyButton = document.getElementById("copyButton");
     const copyStatus = document.getElementById("copyStatus");
     const rowElements = [];
+    const recoveryRateStorageKey = "q1-progress-quiz-points-back-rate";
+
+    try {
+      const savedRateValue = window.localStorage.getItem(recoveryRateStorageKey);
+      const savedRate = Number(savedRateValue);
+      if (savedRateValue !== null && Number.isFinite(savedRate) && savedRate >= 0 && savedRate <= 100) {
+        recoveryRateInput.value = String(savedRate);
+      }
+    } catch (error) {
+      // The calculator still works when browser storage is unavailable.
+    }
 
     SECTIONS.forEach((section, index) => {
       const row = template.content.firstElementChild.cloneNode(true);
@@ -179,8 +190,8 @@
     }
 
     function resetCalculator() {
-      rowElements.forEach((row) => {
-        row.querySelector(".section-score").value = "";
+      rowElements.forEach((row, index) => {
+        row.querySelector(".section-score").value = String(SECTIONS[index].possible);
         row.querySelector(".remediation-check").checked = false;
       });
       copyStatus.textContent = "";
@@ -229,9 +240,25 @@
       }
     }
 
-    recoveryRateInput.addEventListener("input", update);
+    function saveRecoveryRate() {
+      const rawRate = recoveryRateInput.value.trim();
+      const rate = Number(rawRate);
+      if (rawRate === "" || !Number.isFinite(rate) || rate < 0 || rate > 100) return;
+
+      try {
+        window.localStorage.setItem(recoveryRateStorageKey, String(rate));
+      } catch (error) {
+        // Ignore storage failures; the current page value remains unchanged.
+      }
+    }
+
+    recoveryRateInput.addEventListener("input", () => {
+      saveRecoveryRate();
+      update();
+    });
     recoveryRateInput.addEventListener("change", () => {
       recoveryRateInput.value = String(clamp(Number(recoveryRateInput.value) || 0, 0, 100));
+      saveRecoveryRate();
       update();
     });
     fillFullCreditButton.addEventListener("click", () => {
