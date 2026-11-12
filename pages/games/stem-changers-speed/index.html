@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Timed practice for Spanish stem-changing verbs.">
+  <title>Stem Changers Speed Practice</title>
+  <link rel="icon" href="../../../assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <main class="page">
+    <section id="start-screen" class="start-screen" aria-labelledby="page-title">
+      <h1 id="page-title">Stem Changers Speed Practice</h1>
+      <p class="instructions">type the correct translations and stem change into each blank.</p>
+      <button id="start-button" type="button">Start round</button>
+    </section>
+
+    <section id="practice-screen" class="practice-screen" aria-label="Stem changers practice" hidden>
+      <div class="toolbar">
+        <div class="metric">
+          <span class="metric-label">Time</span>
+          <strong id="timer">00:00.00</strong>
+        </div>
+        <div class="metric">
+          <span class="metric-label">Blanks</span>
+          <strong id="progress">0 / 51</strong>
+        </div>
+        <button id="new-round-button" type="button">New round</button>
+      </div>
+
+      <div class="slip-scroll">
+        <article class="slip" aria-label="Stem Changers Slips worksheet">
+          <div class="slip-columns">
+            <table class="verb-table left-table" aria-label="First ten stem-changing verbs">
+              <tbody id="left-verb-rows"></tbody>
+            </table>
+
+            <div class="right-column">
+              <table class="verb-table right-table" aria-label="Last five stem-changing verbs">
+                <tbody id="right-verb-rows"></tbody>
+              </table>
+              <section class="decir-section" aria-labelledby="decir-title">
+                <h2 id="decir-title">Decir -</h2>
+                <div id="decir-grid" class="decir-grid"></div>
+              </section>
+            </div>
+          </div>
+        </article>
+      </div>
+
+      <p id="finish-message" class="finish-message" hidden></p>
+      <p id="status" class="sr-only" aria-live="polite"></p>
+    </section>
+  </main>
+
+  <script src="logic.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

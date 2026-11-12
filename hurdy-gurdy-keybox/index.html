@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="A real-time side-profile layout calculator for hurdy-gurdy keyboxes.">
+  <title>Hurdy-Gurdy Keybox Layout</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="site-header">
+    <a class="brand" href="../" aria-label="Back to MrRains.org">
+      <span class="brand-mark" aria-hidden="true">HG</span>
+      <span>MrRains Workshop</span>
+    </a>
+    <span class="version">SIDE PROFILE · v0.1</span>
+  </header>
+
+  <main>
+    <section class="intro" aria-labelledby="page-title">
+      <div>
+        <p class="eyebrow">Instrument layout tool</p>
+        <h1 id="page-title">Hurdy-Gurdy<br><em>Keybox Calculator</em></h1>
+      </div>
+      <p class="lede">Lay out chromatic key holes from your scale length, then export a full-size SVG for the workshop. Every measurement below is in millimeters.</p>
+    </section>
+
+    <section class="workspace">
+      <aside class="controls" aria-labelledby="controls-title">
+        <div class="panel-heading">
+          <div>
+            <p class="step">01</p>
+            <h2 id="controls-title">Measurements</h2>
+          </div>
+          <button class="text-button" id="resetButton" type="button">Reset</button>
+        </div>
+
+        <form id="layoutForm">
+          <fieldset>
+            <legend>Musical layout</legend>
+            <div class="field-grid">
+              <label class="field field-wide">
+                <span>Scale length <button class="help" type="button" data-help="The vibrating string length from nut to bridge." aria-label="Scale length help">?</button></span>
+                <span class="input-wrap"><input id="scaleLength" name="scaleLength" type="number" min="100" max="1500" step="0.1" value="345"><b>mm</b></span>
+              </label>
+              <label class="field">
+                <span>Number of keys</span>
+                <input id="keyCount" name="keyCount" type="number" min="1" max="48" step="1" value="24">
+              </label>
+              <label class="field">
+                <span>First interval</span>
+                <span class="input-wrap"><input id="firstInterval" name="firstInterval" type="number" min="1" max="24" step="1" value="1"><b>semi</b></span>
+              </label>
+              <label class="field">
+                <span>Open string note</span>
+                <select id="openNote" name="openNote">
+                  <option>C</option><option>C♯</option><option>D</option><option>D♯</option>
+                  <option>E</option><option>F</option><option>F♯</option><option>G</option>
+                  <option selected>G♯</option><option>A</option><option>A♯</option><option>B</option>
+                </select>
+              </label>
+              <label class="field">
+                <span>Divisions / octave</span>
+                <input id="divisions" name="divisions" type="number" min="5" max="48" step="1" value="12">
+              </label>
+            </div>
+          </fieldset>
+
+          <fieldset>
+            <legend>Keybox geometry</legend>
+            <div class="field-grid">
+              <label class="field">
+                <span>Box height</span>
+                <span class="input-wrap"><input id="boxHeight" name="boxHeight" type="number" min="15" max="200" step="0.1" value="48"><b>mm</b></span>
+              </label>
+              <label class="field">
+                <span>Hole diameter</span>
+                <span class="input-wrap"><input id="holeDiameter" name="holeDiameter" type="number" min="0.5" max="30" step="0.1" value="5"><b>mm</b></span>
+              </label>
+              <label class="field">
+                <span>Nut-side margin</span>
+                <span class="input-wrap"><input id="leftMargin" name="leftMargin" type="number" min="0" max="100" step="0.1" value="12"><b>mm</b></span>
+              </label>
+              <label class="field">
+                <span>End margin</span>
+                <span class="input-wrap"><input id="rightMargin" name="rightMargin" type="number" min="0" max="100" step="0.1" value="12"><b>mm</b></span>
+              </label>
+              <label class="field">
+                <span>String from top</span>
+                <span class="input-wrap"><input id="stringFromTop" name="stringFromTop" type="number" min="0" max="100" step="0.1" value="10"><b>mm</b></span>
+              </label>
+              <label class="field">
+                <span>Holes below string</span>
+                <span class="input-wrap"><input id="holeOffset" name="holeOffset" type="number" min="0" max="100" step="0.1" value="15"><b>mm</b></span>
+              </label>
+            </div>
+          </fieldset>
+        </form>
+
+        <div class="legend" aria-label="Drawing legend">
+          <span><i class="swatch string"></i>String</span>
+          <span><i class="swatch holes"></i>Key holes</span>
+          <span><i class="swatch outline"></i>Outline</span>
+        </div>
+      </aside>
+
+      <section class="drawing-panel" aria-labelledby="drawing-title">
+        <div class="panel-heading drawing-heading">
+          <div>
+            <p class="step">02</p>
+            <h2 id="drawing-title">Side profile</h2>
+          </div>
+          <button class="primary-button" id="exportButton" type="button">
+            <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M10 2v10m0 0 4-4m-4 4L6 8M3 14v3h14v-3"/></svg>
+            Export SVG
+          </button>
+        </div>
+
+        <div class="drawing-meta" aria-live="polite">
+          <div><span>Box length</span><strong id="boxLengthReadout">—</strong></div>
+          <div><span>First hole</span><strong id="firstHoleReadout">—</strong></div>
+          <div><span>Last hole</span><strong id="lastHoleReadout">—</strong></div>
+          <div><span>Scale</span><strong>1 SVG unit = 1 mm</strong></div>
+        </div>
+
+        <div class="canvas-shell" id="canvasShell">
+          <svg id="layoutSvg" role="img" aria-labelledby="svgTitle svgDesc"></svg>
+        </div>
+
+        <div class="drawing-footer">
+          <p><span class="status-dot"></span>Drawing updates live</p>
+          <label class="toggle"><input id="showLabels" type="checkbox" checked><span></span>Show labels</label>
+          <label class="toggle"><input id="showDimensions" type="checkbox" checked><span></span>Show dimensions</label>
+        </div>
+      </section>
+    </section>
+
+    <section class="position-section" aria-labelledby="position-title">
+      <div class="section-title">
+        <p class="step">03</p>
+        <div><h2 id="position-title">Key positions</h2><p>Distances are measured from the nut to each hole center.</p></div>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Key</th><th>Note</th><th>Interval</th><th>From nut</th><th>Gap from previous</th></tr></thead>
+          <tbody id="positionRows"></tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <div class="toast" id="toast" role="status" aria-live="polite">SVG downloaded</div>
+  <script src="app.js"></script>
+</body>
+</html>
